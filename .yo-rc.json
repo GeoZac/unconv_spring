@@ -1,0 +1,11 @@
+{
+  "generator-springboot": {
+    "appName": "spring",
+    "packageName": "com.unconv.spring",
+    "databaseType": "mysql",
+    "dbMigrationTool": "none",
+    "features": [],
+    "buildTool": "maven",
+    "packageFolder": "com/unconv/spring"
+  }
+}
