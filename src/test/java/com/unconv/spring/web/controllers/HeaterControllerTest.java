@@ -173,8 +173,6 @@ class HeaterControllerTest {
         Long heaterId = 1L;
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.empty());
 
-        this.mockMvc
-                .perform(delete("/Heater/{id}", heaterId))
-                .andExpect(status().isNotFound());
+        this.mockMvc.perform(delete("/Heater/{id}", heaterId)).andExpect(status().isNotFound());
     }
 }

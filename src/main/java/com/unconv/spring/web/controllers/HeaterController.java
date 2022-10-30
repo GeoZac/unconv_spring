@@ -50,8 +50,7 @@ public class HeaterController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Heater> updateHeater(
-            @PathVariable Long id, @RequestBody Heater heater) {
+    public ResponseEntity<Heater> updateHeater(@PathVariable Long id, @RequestBody Heater heater) {
         return heaterService
                 .findHeaterById(id)
                 .map(
