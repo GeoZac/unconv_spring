@@ -30,12 +30,12 @@ public class HeaterController {
         this.heaterService = heaterService;
     }
 
-    @GetMapping("/Heaters")
+    @GetMapping
     public List<Heater> getAllHeaters() {
         return heaterService.findAllHeaters();
     }
 
-    @GetMapping("/Heater/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Heater> getHeaterById(@PathVariable Long id) {
         return heaterService
                 .findHeaterById(id)
@@ -43,13 +43,13 @@ public class HeaterController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("Heater")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Heater createHeater(@RequestBody @Validated Heater heater) {
         return heaterService.saveHeater(heater);
     }
 
-    @PutMapping("/Heater/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Heater> updateHeater(@PathVariable Long id, @RequestBody Heater heater) {
         return heaterService
                 .findHeaterById(id)
@@ -61,7 +61,7 @@ public class HeaterController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("Heater/Delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Heater> deleteHeater(@PathVariable Long id) {
         return heaterService
                 .findHeaterById(id)
