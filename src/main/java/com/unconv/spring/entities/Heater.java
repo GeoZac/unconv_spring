@@ -25,6 +25,10 @@ public class Heater {
     private Long id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    @NotEmpty(message = "Heater temperature cannot be empty")
+    private Float temperature;
+
+    @Column(nullable = false)
+    @NotEmpty(message = "Heater temperature tolerance cannot be empty")
+    private Float tempTolerance;
 }
