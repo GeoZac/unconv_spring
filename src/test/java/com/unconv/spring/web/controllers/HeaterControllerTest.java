@@ -47,9 +47,9 @@ class HeaterControllerTest {
     @BeforeEach
     void setUp() {
         this.heaterList = new ArrayList<>();
-        this.heaterList.add(new Heater(1L, "text 1"));
-        this.heaterList.add(new Heater(2L, "text 2"));
-        this.heaterList.add(new Heater(3L, "text 3"));
+        heaterList.add(new Heater(1L, 34F, 2F));
+        heaterList.add(new Heater(2L, 40F, 1F));
+        heaterList.add(new Heater(3L, 35F, 5F));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -68,13 +68,13 @@ class HeaterControllerTest {
     @Test
     void shouldFindHeaterById() throws Exception {
         Long heaterId = 1L;
-        Heater heater = new Heater(heaterId, "text 1");
+        Heater heater = new Heater(heaterId, 27F, 0.3F);
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
 
         this.mockMvc
                 .perform(get("/Heater/{id}", heaterId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test
@@ -90,7 +90,7 @@ class HeaterControllerTest {
         given(heaterService.saveHeater(any(Heater.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        Heater heater = new Heater(1L, "some text");
+        Heater heater = new Heater(1L, 30F, .5F);
         this.mockMvc
                 .perform(
                         post("/Heater")
@@ -98,12 +98,12 @@ class HeaterControllerTest {
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test
     void shouldReturn400WhenCreateNewHeaterWithoutText() throws Exception {
-        Heater heater = new Heater(null, null);
+        Heater heater = new Heater(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -118,16 +118,19 @@ class HeaterControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("tempTolerance")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Heater temperature tolerance cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateHeater() throws Exception {
         Long heaterId = 1L;
-        Heater heater = new Heater(heaterId, "Updated text");
+        Heater heater = new Heater(heaterId, 27F, .7F);
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
         given(heaterService.saveHeater(any(Heater.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
@@ -138,14 +141,14 @@ class HeaterControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingHeater() throws Exception {
         Long heaterId = 1L;
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.empty());
-        Heater heater = new Heater(heaterId, "Updated text");
+        Heater heater = new Heater(heaterId, 27F, .4F);
 
         this.mockMvc
                 .perform(
@@ -158,14 +161,14 @@ class HeaterControllerTest {
     @Test
     void shouldDeleteHeater() throws Exception {
         Long heaterId = 1L;
-        Heater heater = new Heater(heaterId, "Some text");
+        Heater heater = new Heater(heaterId, 30F, 0.2F);
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
         doNothing().when(heaterService).deleteHeaterById(heater.getId());
 
         this.mockMvc
                 .perform(delete("/Heater/{id}", heater.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test

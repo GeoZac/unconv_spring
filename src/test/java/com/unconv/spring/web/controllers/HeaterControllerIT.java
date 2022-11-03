@@ -31,9 +31,9 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         heaterRepository.deleteAll();
 
         heaterList = new ArrayList<>();
-        heaterList.add(new Heater(1L, "First Heater"));
-        heaterList.add(new Heater(2L, "Second Heater"));
-        heaterList.add(new Heater(3L, "Third Heater"));
+        heaterList.add(new Heater(1L, 34F, 2F));
+        heaterList.add(new Heater(2L, 40F, 1F));
+        heaterList.add(new Heater(3L, 35F, 5F));
         heaterList = heaterRepository.saveAll(heaterList);
     }
 
@@ -53,24 +53,24 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Heater/{id}", heaterId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test
     void shouldCreateNewHeater() throws Exception {
-        Heater heater = new Heater(null, "New Heater");
+        Heater heater = new Heater(null, 20F, 0.5F);
         this.mockMvc
                 .perform(
                         post("/Heater")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test
     void shouldReturn400WhenCreateNewHeaterWithoutText() throws Exception {
-        Heater heater = new Heater(null, null);
+        Heater heater = new Heater(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -85,16 +85,19 @@ class HeaterControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("tempTolerance")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Heater temperature tolerance cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateHeater() throws Exception {
         Heater heater = heaterList.get(0);
-        heater.setText("Updated Heater");
+        heater.setTemperature(27F);
 
         this.mockMvc
                 .perform(
@@ -102,7 +105,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 
     @Test
@@ -112,6 +115,6 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Heater/{id}", heater.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(heater.getText())));
+                .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
 }
