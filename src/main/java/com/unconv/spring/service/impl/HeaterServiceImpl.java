@@ -1,21 +1,23 @@
-package com.unconv.spring.services;
+package com.unconv.spring.service.impl;
 
 import com.unconv.spring.domain.Heater;
 import com.unconv.spring.persistence.HeaterRepository;
 import java.util.List;
 import java.util.Optional;
+
+import com.unconv.spring.service.HeaterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class HeaterService {
+public class HeaterServiceImpl implements HeaterService {
 
     private final HeaterRepository heaterRepository;
 
     @Autowired
-    public HeaterService(HeaterRepository heaterRepository) {
+    public HeaterServiceImpl(HeaterRepository heaterRepository) {
         this.heaterRepository = heaterRepository;
     }
 
