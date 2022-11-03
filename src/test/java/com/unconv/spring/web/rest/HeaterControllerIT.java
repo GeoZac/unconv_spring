@@ -1,4 +1,4 @@
-package com.unconv.spring.web.controllers;
+package com.unconv.spring.web.rest;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;

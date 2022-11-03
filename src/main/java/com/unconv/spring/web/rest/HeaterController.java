@@ -1,4 +1,4 @@
-package com.unconv.spring.web.controllers;
+package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Heater;
 import com.unconv.spring.services.HeaterService;

@@ -1,4 +1,4 @@
-package com.unconv.spring.web.controllers;
+package com.unconv.spring.web.rest;
 
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
