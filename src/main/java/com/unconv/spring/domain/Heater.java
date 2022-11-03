@@ -1,4 +1,4 @@
-package com.unconv.spring.entities;
+package com.unconv.spring.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

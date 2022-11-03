@@ -11,8 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.entities.Heater;
-import com.unconv.spring.repositories.HeaterRepository;
+import com.unconv.spring.domain.Heater;
+import com.unconv.spring.persistence.HeaterRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

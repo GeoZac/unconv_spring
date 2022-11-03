@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unconv.spring.entities.Heater;
+import com.unconv.spring.domain.Heater;
 import com.unconv.spring.services.HeaterService;
 import java.util.ArrayList;
 import java.util.List;

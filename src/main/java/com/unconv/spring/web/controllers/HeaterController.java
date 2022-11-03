@@ -1,6 +1,6 @@
 package com.unconv.spring.web.controllers;
 
-import com.unconv.spring.entities.Heater;
+import com.unconv.spring.domain.Heater;
 import com.unconv.spring.services.HeaterService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;

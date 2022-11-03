@@ -1,7 +1,7 @@
 package com.unconv.spring.services;
 
-import com.unconv.spring.entities.Heater;
-import com.unconv.spring.repositories.HeaterRepository;
+import com.unconv.spring.domain.Heater;
+import com.unconv.spring.persistence.HeaterRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
