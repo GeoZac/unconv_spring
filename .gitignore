@@ -35,4 +35,9 @@ build/
 ### Misc ###
 *.log
 .DS_Store
+
+### Local properties ###
+src/main/resources/application-local.properties
+
+### Logs ###
 logs/
