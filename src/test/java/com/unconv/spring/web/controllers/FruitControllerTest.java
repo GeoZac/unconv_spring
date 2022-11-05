@@ -48,9 +48,24 @@ class FruitControllerTest {
     @BeforeEach
     void setUp() {
         this.fruitList = new ArrayList<>();
-        this.fruitList.add(new Fruit(1L, "text 1"));
-        this.fruitList.add(new Fruit(2L, "text 2"));
-        this.fruitList.add(new Fruit(3L, "text 3"));
+        this.fruitList.add(
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh"));
+        this.fruitList.add(
+                new Fruit(
+                        2L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/mango_image_1.jpg",
+                        "Mango",
+                        "Daily Fresh"));
+        this.fruitList.add(
+                new Fruit(
+                        3L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apricot_image.jpg",
+                        "Apricot",
+                        "Daily Fresh"));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -69,13 +84,18 @@ class FruitControllerTest {
     @Test
     void shouldFindFruitById() throws Exception {
         Long fruitId = 1L;
-        Fruit fruit = new Fruit(fruitId, "text 1");
+        Fruit fruit =
+                new Fruit(
+                        fruitId,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.of(fruit));
 
         this.mockMvc
                 .perform(get("/Fruit/{id}", fruitId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test
@@ -91,7 +111,12 @@ class FruitControllerTest {
         given(fruitService.saveFruit(any(Fruit.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        Fruit fruit = new Fruit(1L, "some text");
+        Fruit fruit =
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
         this.mockMvc
                 .perform(
                         post("/Fruit")
@@ -99,12 +124,12 @@ class FruitControllerTest {
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewFruitWithoutText() throws Exception {
-        Fruit fruit = new Fruit(null, null);
+        Fruit fruit = new Fruit(null, null, null, null);
 
         this.mockMvc
                 .perform(
@@ -119,16 +144,22 @@ class FruitControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[0].field", is("fruitImageUrl")))
+                .andExpect(
+                        jsonPath("$.violations[0].message", is("Fruit image URL cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateFruit() throws Exception {
         Long fruitId = 1L;
-        Fruit fruit = new Fruit(fruitId, "Updated text");
+        Fruit fruit =
+                new Fruit(
+                        fruitId,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.of(fruit));
         given(fruitService.saveFruit(any(Fruit.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
@@ -139,14 +170,19 @@ class FruitControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingFruit() throws Exception {
         Long fruitId = 1L;
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.empty());
-        Fruit fruit = new Fruit(fruitId, "Updated text");
+        Fruit fruit =
+                new Fruit(
+                        fruitId,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
 
         this.mockMvc
                 .perform(
@@ -159,14 +195,19 @@ class FruitControllerTest {
     @Test
     void shouldDeleteFruit() throws Exception {
         Long fruitId = 1L;
-        Fruit fruit = new Fruit(fruitId, "Some text");
+        Fruit fruit =
+                new Fruit(
+                        fruitId,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.of(fruit));
         doNothing().when(fruitService).deleteFruitById(fruit.getId());
 
         this.mockMvc
                 .perform(delete("/Fruit/{id}", fruit.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test

@@ -25,6 +25,14 @@ public class Fruit {
     private Long id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    @NotEmpty(message = "Fruit image URL cannot be empty")
+    private String fruitImageUrl;
+
+    @Column(nullable = false)
+    @NotEmpty(message = "Fruit name cannot be empty")
+    private String fruitName;
+
+    @Column(nullable = false)
+    @NotEmpty(message = "Fruit vendor name cannot be empty")
+    private String fruitVendor;
 }

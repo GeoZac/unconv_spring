@@ -31,9 +31,24 @@ class FruitControllerIT extends AbstractIntegrationTest {
         fruitRepository.deleteAll();
 
         fruitList = new ArrayList<>();
-        fruitList.add(new Fruit(1L, "First Fruit"));
-        fruitList.add(new Fruit(2L, "Second Fruit"));
-        fruitList.add(new Fruit(3L, "Third Fruit"));
+        this.fruitList.add(
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh"));
+        this.fruitList.add(
+                new Fruit(
+                        2L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/mango_image_1.jpg",
+                        "Mango",
+                        "Daily Fresh"));
+        this.fruitList.add(
+                new Fruit(
+                        3L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apricot_image.jpg",
+                        "Apricot",
+                        "Daily Fresh"));
         fruitList = fruitRepository.saveAll(fruitList);
     }
 
@@ -53,24 +68,29 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Fruit/{id}", fruitId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test
     void shouldCreateNewFruit() throws Exception {
-        Fruit fruit = new Fruit(null, "New Fruit");
+        Fruit fruit =
+                new Fruit(
+                        null,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
         this.mockMvc
                 .perform(
                         post("/Fruit")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewFruitWithoutText() throws Exception {
-        Fruit fruit = new Fruit(null, null);
+        Fruit fruit = new Fruit(null, null, null, null);
 
         this.mockMvc
                 .perform(
@@ -85,16 +105,17 @@ class FruitControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[0].field", is("fruitImageUrl")))
+                .andExpect(
+                        jsonPath("$.violations[0].message", is("Fruit image URL cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateFruit() throws Exception {
         Fruit fruit = fruitList.get(0);
-        fruit.setText("Updated Fruit");
+        fruit.setFruitName("Watermelon");
 
         this.mockMvc
                 .perform(
@@ -102,7 +123,7 @@ class FruitControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
     @Test
@@ -112,6 +133,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Fruit/{id}", fruit.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruit.getText())));
+                .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 }
