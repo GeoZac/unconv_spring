@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.Heater;
-import com.unconv.spring.service.impl.HeaterServiceImpl;
+import com.unconv.spring.service.HeaterService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +38,7 @@ class HeaterControllerTest {
 
     @Autowired private MockMvc mockMvc;
 
-    @MockBean private HeaterServiceImpl heaterServiceImpl;
+    @MockBean private HeaterService heaterService;
 
     @Autowired private ObjectMapper objectMapper;
 
@@ -57,7 +57,7 @@ class HeaterControllerTest {
 
     @Test
     void shouldFetchAllHeaters() throws Exception {
-        given(heaterServiceImpl.findAllHeaters()).willReturn(this.heaterList);
+        given(heaterService.findAllHeaters()).willReturn(this.heaterList);
 
         this.mockMvc
                 .perform(get("/Heater"))
@@ -69,7 +69,7 @@ class HeaterControllerTest {
     void shouldFindHeaterById() throws Exception {
         Long heaterId = 1L;
         Heater heater = new Heater(heaterId, 27F, 0.3F);
-        given(heaterServiceImpl.findHeaterById(heaterId)).willReturn(Optional.of(heater));
+        given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
 
         this.mockMvc
                 .perform(get("/Heater/{id}", heaterId))
@@ -80,14 +80,14 @@ class HeaterControllerTest {
     @Test
     void shouldReturn404WhenFetchingNonExistingHeater() throws Exception {
         Long heaterId = 1L;
-        given(heaterServiceImpl.findHeaterById(heaterId)).willReturn(Optional.empty());
+        given(heaterService.findHeaterById(heaterId)).willReturn(Optional.empty());
 
         this.mockMvc.perform(get("/Heater/{id}", heaterId)).andExpect(status().isNotFound());
     }
 
     @Test
     void shouldCreateNewHeater() throws Exception {
-        given(heaterServiceImpl.saveHeater(any(Heater.class)))
+        given(heaterService.saveHeater(any(Heater.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         Heater heater = new Heater(1L, 30F, .5F);
@@ -131,8 +131,8 @@ class HeaterControllerTest {
     void shouldUpdateHeater() throws Exception {
         Long heaterId = 1L;
         Heater heater = new Heater(heaterId, 27F, .7F);
-        given(heaterServiceImpl.findHeaterById(heaterId)).willReturn(Optional.of(heater));
-        given(heaterServiceImpl.saveHeater(any(Heater.class)))
+        given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
+        given(heaterService.saveHeater(any(Heater.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         this.mockMvc
@@ -147,7 +147,7 @@ class HeaterControllerTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingHeater() throws Exception {
         Long heaterId = 1L;
-        given(heaterServiceImpl.findHeaterById(heaterId)).willReturn(Optional.empty());
+        given(heaterService.findHeaterById(heaterId)).willReturn(Optional.empty());
         Heater heater = new Heater(heaterId, 27F, .4F);
 
         this.mockMvc
@@ -162,8 +162,8 @@ class HeaterControllerTest {
     void shouldDeleteHeater() throws Exception {
         Long heaterId = 1L;
         Heater heater = new Heater(heaterId, 30F, 0.2F);
-        given(heaterServiceImpl.findHeaterById(heaterId)).willReturn(Optional.of(heater));
-        doNothing().when(heaterServiceImpl).deleteHeaterById(heater.getId());
+        given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
+        doNothing().when(heaterService).deleteHeaterById(heater.getId());
 
         this.mockMvc
                 .perform(delete("/Heater/{id}", heater.getId()))
@@ -174,7 +174,7 @@ class HeaterControllerTest {
     @Test
     void shouldReturn404WhenDeletingNonExistingHeater() throws Exception {
         Long heaterId = 1L;
-        given(heaterServiceImpl.findHeaterById(heaterId)).willReturn(Optional.empty());
+        given(heaterService.findHeaterById(heaterId)).willReturn(Optional.empty());
 
         this.mockMvc.perform(delete("/Heater/{id}", heaterId)).andExpect(status().isNotFound());
     }

@@ -1,7 +1,7 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Heater;
-import com.unconv.spring.service.impl.HeaterServiceImpl;
+import com.unconv.spring.service.HeaterService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +23,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class HeaterController {
 
-    private final HeaterServiceImpl heaterServiceImpl;
+    private final HeaterService heaterService;
 
     @Autowired
-    public HeaterController(HeaterServiceImpl heaterServiceImpl) {
-        this.heaterServiceImpl = heaterServiceImpl;
+    public HeaterController(HeaterService heaterService) {
+        this.heaterService = heaterService;
     }
 
     @GetMapping
     public List<Heater> getAllHeaters() {
-        return heaterServiceImpl.findAllHeaters();
+        return heaterService.findAllHeaters();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Heater> getHeaterById(@PathVariable Long id) {
-        return heaterServiceImpl
+        return heaterService
                 .findHeaterById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -46,28 +46,28 @@ public class HeaterController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Heater createHeater(@RequestBody @Validated Heater heater) {
-        return heaterServiceImpl.saveHeater(heater);
+        return heaterService.saveHeater(heater);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Heater> updateHeater(@PathVariable Long id, @RequestBody Heater heater) {
-        return heaterServiceImpl
+        return heaterService
                 .findHeaterById(id)
                 .map(
                         heaterObj -> {
                             heater.setId(id);
-                            return ResponseEntity.ok(heaterServiceImpl.saveHeater(heater));
+                            return ResponseEntity.ok(heaterService.saveHeater(heater));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Heater> deleteHeater(@PathVariable Long id) {
-        return heaterServiceImpl
+        return heaterService
                 .findHeaterById(id)
                 .map(
                         heater -> {
-                            heaterServiceImpl.deleteHeaterById(id);
+                            heaterService.deleteHeaterById(id);
                             return ResponseEntity.ok(heater);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
