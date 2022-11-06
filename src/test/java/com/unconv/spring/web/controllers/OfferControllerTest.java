@@ -181,24 +181,24 @@ class OfferControllerTest {
     void shouldReturn400WhenBadgeColorIsInvalid() throws Exception {
         Offer offer = new Offer(1L, "ffffff", "Buy 1 Get 1 Free");
         this.mockMvc
-            .perform(
-                post("/Offer")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(offer)))
-            .andExpect(status().isBadRequest())
-            .andExpect(header().string("Content-Type", is("application/problem+json")))
-            .andExpect(
-                jsonPath(
-                    "$.type",
-                    is("https://zalando.github.io/problem/constraint-violation")))
-            .andExpect(jsonPath("$.title", is("Constraint Violation")))
-            .andExpect(jsonPath("$.status", is(400)))
-            .andExpect(jsonPath("$.violations", hasSize(1)))
-            .andExpect(jsonPath("$.violations[0].field", is("badgeColor")))
-            .andExpect(
-                jsonPath(
-                    "$.violations[0].message",
-                    is("must match \"^0x(?:[0-9a-fA-F]{3,4}){1,2}$\"")))
-            .andReturn();
+                .perform(
+                        post("/Offer")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(offer)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("badgeColor")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must match \"^0x(?:[0-9a-fA-F]{3,4}){1,2}$\"")))
+                .andReturn();
     }
 }
