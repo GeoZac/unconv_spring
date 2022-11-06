@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.URL;
 
 @Entity
 @Table(name = "fruits")
@@ -26,6 +27,7 @@ public class Fruit {
 
     @Column(nullable = false)
     @NotEmpty(message = "Fruit image URL cannot be empty")
+    @URL(protocol = "http", message = "The fruit image URL should be valid")
     private String fruitImageUrl;
 
     @Column(nullable = false)

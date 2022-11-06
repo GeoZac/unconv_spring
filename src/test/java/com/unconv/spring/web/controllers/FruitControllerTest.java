@@ -217,4 +217,29 @@ class FruitControllerTest {
 
         this.mockMvc.perform(delete("/Fruit/{id}", fruitId)).andExpect(status().isNotFound());
     }
+
+    @Test
+    void shouldReturn400WhenFruitImageUrlIsInvalid() throws Exception {
+        Fruit fruit = new Fruit(1L, "apple_image.png", "Apple", "Daily Fresh");
+        this.mockMvc
+                .perform(
+                        post("/Fruit")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(fruit)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("fruitImageUrl")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("The fruit image URL should be valid")))
+                .andReturn();
+    }
 }
