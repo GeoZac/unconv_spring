@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,11 @@ public class Offer {
     private Long id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    @Pattern(regexp = "^0x(?:[0-9a-fA-F]{3,4}){1,2}$")
+    @NotEmpty(message = "Badge color cannot be empty")
+    private String badgeColor;
+
+    @Column(nullable = false)
+    @NotEmpty(message = "Description cannot be empty")
+    private String description;
 }

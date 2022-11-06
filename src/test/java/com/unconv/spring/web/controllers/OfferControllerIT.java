@@ -31,9 +31,9 @@ class OfferControllerIT extends AbstractIntegrationTest {
         offerRepository.deleteAll();
 
         offerList = new ArrayList<>();
-        offerList.add(new Offer(1L, "First Offer"));
-        offerList.add(new Offer(2L, "Second Offer"));
-        offerList.add(new Offer(3L, "Third Offer"));
+        this.offerList.add(new Offer(1L, "0xffc62828", "50% OFF"));
+        this.offerList.add(new Offer(2L, "0xff00aa4f", "OFFER"));
+        this.offerList.add(new Offer(3L, "0xff000000", "FREE"));
         offerList = offerRepository.saveAll(offerList);
     }
 
@@ -53,24 +53,24 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Offer/{id}", offerId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
     void shouldCreateNewOffer() throws Exception {
-        Offer offer = new Offer(null, "New Offer");
+        Offer offer = new Offer(1L, "0xff000000", "25% OFF");
         this.mockMvc
                 .perform(
                         post("/Offer")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
-        Offer offer = new Offer(null, null);
+        Offer offer = new Offer(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -94,7 +94,8 @@ class OfferControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldUpdateOffer() throws Exception {
         Offer offer = offerList.get(0);
-        offer.setText("Updated Offer");
+        offer.setBadgeColor("0xff000000");
+        offer.setDescription("33% OFF");
 
         this.mockMvc
                 .perform(
@@ -102,7 +103,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
@@ -112,6 +113,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Offer/{id}", offer.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 }

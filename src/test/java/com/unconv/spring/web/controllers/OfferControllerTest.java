@@ -48,9 +48,9 @@ class OfferControllerTest {
     @BeforeEach
     void setUp() {
         this.offerList = new ArrayList<>();
-        this.offerList.add(new Offer(1L, "text 1"));
-        this.offerList.add(new Offer(2L, "text 2"));
-        this.offerList.add(new Offer(3L, "text 3"));
+        this.offerList.add(new Offer(1L, "0xffc62828", "50% OFF"));
+        this.offerList.add(new Offer(2L, "0xff00aa4f", "OFFER"));
+        this.offerList.add(new Offer(3L, "0xff000000", "FREE"));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -69,13 +69,13 @@ class OfferControllerTest {
     @Test
     void shouldFindOfferById() throws Exception {
         Long offerId = 1L;
-        Offer offer = new Offer(offerId, "text 1");
+        Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
         given(offerService.findOfferById(offerId)).willReturn(Optional.of(offer));
 
         this.mockMvc
                 .perform(get("/Offer/{id}", offerId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
@@ -91,7 +91,7 @@ class OfferControllerTest {
         given(offerService.saveOffer(any(Offer.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        Offer offer = new Offer(1L, "some text");
+        Offer offer = new Offer(1L, "0xff000000", "25% OFF");
         this.mockMvc
                 .perform(
                         post("/Offer")
@@ -99,12 +99,12 @@ class OfferControllerTest {
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
-        Offer offer = new Offer(null, null);
+        Offer offer = new Offer(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -119,16 +119,16 @@ class OfferControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("badgeColor")))
+                .andExpect(jsonPath("$.violations[0].message", is("Badge color cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateOffer() throws Exception {
         Long offerId = 1L;
-        Offer offer = new Offer(offerId, "Updated text");
+        Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
         given(offerService.findOfferById(offerId)).willReturn(Optional.of(offer));
         given(offerService.saveOffer(any(Offer.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
@@ -139,14 +139,14 @@ class OfferControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingOffer() throws Exception {
         Long offerId = 1L;
         given(offerService.findOfferById(offerId)).willReturn(Optional.empty());
-        Offer offer = new Offer(offerId, "Updated text");
+        Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
 
         this.mockMvc
                 .perform(
@@ -159,14 +159,14 @@ class OfferControllerTest {
     @Test
     void shouldDeleteOffer() throws Exception {
         Long offerId = 1L;
-        Offer offer = new Offer(offerId, "Some text");
+        Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
         given(offerService.findOfferById(offerId)).willReturn(Optional.of(offer));
         doNothing().when(offerService).deleteOfferById(offer.getId());
 
         this.mockMvc
                 .perform(delete("/Offer/{id}", offer.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(offer.getText())));
+                .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
     @Test
@@ -175,5 +175,30 @@ class OfferControllerTest {
         given(offerService.findOfferById(offerId)).willReturn(Optional.empty());
 
         this.mockMvc.perform(delete("/Offer/{id}", offerId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn400WhenBadgeColorIsInvalid() throws Exception {
+        Offer offer = new Offer(1L, "ffffff", "Buy 1 Get 1 Free");
+        this.mockMvc
+            .perform(
+                post("/Offer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(offer)))
+            .andExpect(status().isBadRequest())
+            .andExpect(header().string("Content-Type", is("application/problem+json")))
+            .andExpect(
+                jsonPath(
+                    "$.type",
+                    is("https://zalando.github.io/problem/constraint-violation")))
+            .andExpect(jsonPath("$.title", is("Constraint Violation")))
+            .andExpect(jsonPath("$.status", is(400)))
+            .andExpect(jsonPath("$.violations", hasSize(1)))
+            .andExpect(jsonPath("$.violations[0].field", is("badgeColor")))
+            .andExpect(
+                jsonPath(
+                    "$.violations[0].message",
+                    is("must match \"^0x(?:[0-9a-fA-F]{3,4}){1,2}$\"")))
+            .andReturn();
     }
 }
