@@ -27,7 +27,7 @@ public class Fruit {
 
     @Column(nullable = false)
     @NotEmpty(message = "Fruit image URL cannot be empty")
-    @URL(protocol = "http", message = "The fruit image URL should be valid")
+    @URL(protocol = "https", message = "The fruit image URL should be valid")
     private String fruitImageUrl;
 
     @Column(nullable = false)
