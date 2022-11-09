@@ -41,3 +41,6 @@ jobs:
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.DOCKER_USERNAME }}/spring
           docker push ${{ secrets.DOCKER_USERNAME }}/spring
+
+      - name: jacoco-badge-generator
+        uses: cicirello/jacoco-badge-generator@v2.8.1
