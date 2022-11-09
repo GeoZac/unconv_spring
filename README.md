@@ -1,5 +1,8 @@
 # spring
 
+## Coverage
+![Coverage](.github/badges/jacoco.svg)
+
 ### Run tests
 `$ ./mvnw clean verify`
 
