@@ -86,8 +86,8 @@ class OfferControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(2)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("badgeColor")))
+                .andExpect(jsonPath("$.violations[0].message", is("Badge color cannot be empty")))
                 .andReturn();
     }
 
