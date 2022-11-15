@@ -11,8 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.Fruit;
 import com.unconv.spring.domain.FruitProduct;
+import com.unconv.spring.domain.Offer;
 import com.unconv.spring.persistence.FruitProductRepository;
+import com.unconv.spring.persistence.FruitRepository;
+import com.unconv.spring.persistence.OfferRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,16 +28,30 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
 
     @Autowired private FruitProductRepository fruitProductRepository;
 
+    @Autowired private FruitRepository fruitRepository;
+
+    @Autowired private OfferRepository offerRepository;
+
     private List<FruitProduct> fruitProductList = null;
 
     @BeforeEach
     void setUp() {
         fruitProductRepository.deleteAll();
 
+        Fruit fruit =
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
+        fruitRepository.saveAndFlush(fruit);
+        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        offerRepository.saveAndFlush(offer);
+
         fruitProductList = new ArrayList<>();
-        fruitProductList.add(new FruitProduct(1L, "First FruitProduct"));
-        fruitProductList.add(new FruitProduct(2L, "Second FruitProduct"));
-        fruitProductList.add(new FruitProduct(3L, "Third FruitProduct"));
+        fruitProductList.add(new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f));
+        fruitProductList.add(new FruitProduct(2L, 200f, fruit, null, "2kg", 195f));
+        fruitProductList.add(new FruitProduct(3L, 150f, fruit, offer, "5kg", 135f));
         fruitProductList = fruitProductRepository.saveAll(fruitProductList);
     }
 
@@ -53,24 +71,33 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/FruitProduct/{id}", fruitProductId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
     void shouldCreateNewFruitProduct() throws Exception {
-        FruitProduct fruitProduct = new FruitProduct(null, "New FruitProduct");
+        Fruit fruit =
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
+        fruitRepository.saveAndFlush(fruit);
+        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        offerRepository.saveAndFlush(offer);
+        FruitProduct fruitProduct = new FruitProduct(null, 100.0f, fruit, offer, "1kg", 95.0f);
         this.mockMvc
                 .perform(
                         post("/FruitProduct")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
     void shouldReturn400WhenCreateNewFruitProductWithoutText() throws Exception {
-        FruitProduct fruitProduct = new FruitProduct(null, null);
+        FruitProduct fruitProduct = new FruitProduct(null, 0.0f, null, null, null, 0.0f);
 
         this.mockMvc
                 .perform(
@@ -85,16 +112,16 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("fruit")))
+                .andExpect(jsonPath("$.violations[0].message", is("Fruit cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateFruitProduct() throws Exception {
         FruitProduct fruitProduct = fruitProductList.get(0);
-        fruitProduct.setText("Updated FruitProduct");
+        fruitProduct.setCostPrice(105f);
 
         this.mockMvc
                 .perform(
@@ -102,7 +129,7 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
@@ -112,6 +139,6 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/FruitProduct/{id}", fruitProduct.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 }

@@ -16,8 +16,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.domain.Fruit;
 import com.unconv.spring.domain.FruitProduct;
+import com.unconv.spring.domain.Offer;
 import com.unconv.spring.service.FruitProductService;
+import com.unconv.spring.service.FruitService;
+import com.unconv.spring.service.OfferService;
 import com.unconv.spring.web.rest.FruitProductController;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +45,10 @@ class FruitProductControllerTest {
 
     @MockBean private FruitProductService fruitProductService;
 
+    @MockBean private FruitService fruitService;
+
+    @MockBean private OfferService offerService;
+
     @Autowired private ObjectMapper objectMapper;
 
     private List<FruitProduct> fruitProductList;
@@ -48,9 +56,20 @@ class FruitProductControllerTest {
     @BeforeEach
     void setUp() {
         this.fruitProductList = new ArrayList<>();
-        this.fruitProductList.add(new FruitProduct(1L, "text 1"));
-        this.fruitProductList.add(new FruitProduct(2L, "text 2"));
-        this.fruitProductList.add(new FruitProduct(3L, "text 3"));
+        Fruit fruit =
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
+        fruitService.saveFruit(fruit);
+        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        offerService.saveOffer(offer);
+
+        fruitProductList = new ArrayList<>();
+        fruitProductList.add(new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f));
+        fruitProductList.add(new FruitProduct(2L, 200f, fruit, null, "2kg", 195f));
+        fruitProductList.add(new FruitProduct(3L, 150f, fruit, offer, "5kg", 135f));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -69,14 +88,22 @@ class FruitProductControllerTest {
     @Test
     void shouldFindFruitProductById() throws Exception {
         Long fruitProductId = 1L;
-        FruitProduct fruitProduct = new FruitProduct(fruitProductId, "text 1");
+        Fruit fruit =
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
+        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        FruitProduct fruitProduct =
+                new FruitProduct(fruitProductId, 100.0f, fruit, offer, "1kg", 95.0f);
         given(fruitProductService.findFruitProductById(fruitProductId))
                 .willReturn(Optional.of(fruitProduct));
 
         this.mockMvc
                 .perform(get("/FruitProduct/{id}", fruitProductId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
@@ -95,7 +122,9 @@ class FruitProductControllerTest {
         given(fruitProductService.saveFruitProduct(any(FruitProduct.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        FruitProduct fruitProduct = new FruitProduct(1L, "some text");
+        Fruit fruit = new Fruit();
+        Offer offer = new Offer();
+        FruitProduct fruitProduct = new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f);
         this.mockMvc
                 .perform(
                         post("/FruitProduct")
@@ -103,12 +132,12 @@ class FruitProductControllerTest {
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
     void shouldReturn400WhenCreateNewFruitProductWithoutText() throws Exception {
-        FruitProduct fruitProduct = new FruitProduct(null, null);
+        FruitProduct fruitProduct = new FruitProduct(null, 0.0f, null, null, null, 0.0f);
 
         this.mockMvc
                 .perform(
@@ -123,16 +152,19 @@ class FruitProductControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("fruit")))
+                .andExpect(jsonPath("$.violations[0].message", is("Fruit cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateFruitProduct() throws Exception {
         Long fruitProductId = 1L;
-        FruitProduct fruitProduct = new FruitProduct(fruitProductId, "Updated text");
+        Fruit fruit = new Fruit();
+        Offer offer = new Offer();
+        FruitProduct fruitProduct =
+                new FruitProduct(fruitProductId, 100.0f, fruit, offer, "1kg", 95.0f);
         given(fruitProductService.findFruitProductById(fruitProductId))
                 .willReturn(Optional.of(fruitProduct));
         given(fruitProductService.saveFruitProduct(any(FruitProduct.class)))
@@ -144,15 +176,18 @@ class FruitProductControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingFruitProduct() throws Exception {
         Long fruitProductId = 1L;
+        Fruit fruit = new Fruit();
+        Offer offer = new Offer();
         given(fruitProductService.findFruitProductById(fruitProductId))
                 .willReturn(Optional.empty());
-        FruitProduct fruitProduct = new FruitProduct(fruitProductId, "Updated text");
+        FruitProduct fruitProduct =
+                new FruitProduct(fruitProductId, 100.0f, fruit, offer, "1kg", 95.0f);
 
         this.mockMvc
                 .perform(
@@ -165,7 +200,10 @@ class FruitProductControllerTest {
     @Test
     void shouldDeleteFruitProduct() throws Exception {
         Long fruitProductId = 1L;
-        FruitProduct fruitProduct = new FruitProduct(fruitProductId, "Some text");
+        Fruit fruit = new Fruit();
+        Offer offer = new Offer();
+        FruitProduct fruitProduct =
+                new FruitProduct(fruitProductId, 100.0f, fruit, offer, "1kg", 95.0f);
         given(fruitProductService.findFruitProductById(fruitProductId))
                 .willReturn(Optional.of(fruitProduct));
         doNothing().when(fruitProductService).deleteFruitProductById(fruitProduct.getId());
@@ -173,7 +211,7 @@ class FruitProductControllerTest {
         this.mockMvc
                 .perform(delete("/FruitProduct/{id}", fruitProduct.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(fruitProduct.getText())));
+                .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
     @Test
