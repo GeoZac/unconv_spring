@@ -52,7 +52,7 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
         fruitProductList.add(new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f));
         fruitProductList.add(new FruitProduct(2L, 200f, fruit, null, "2kg", 195f));
         fruitProductList.add(new FruitProduct(3L, 150f, fruit, offer, "5kg", 135f));
-        fruitProductList = fruitProductRepository.saveAll(fruitProductList);
+        fruitProductList = fruitProductRepository.saveAllAndFlush(fruitProductList);
     }
 
     @Test
