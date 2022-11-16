@@ -31,12 +31,12 @@ public class FruitProduct {
     @NotNull(message = "Cost price cannot be empty")
     private float costPrice;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "fruit_id")
     @NotNull(message = "Fruit cannot be empty")
     private Fruit fruit;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "offer_id")
     private Offer offer;
 
