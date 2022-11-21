@@ -19,6 +19,7 @@ import com.unconv.spring.persistence.FruitRepository;
 import com.unconv.spring.persistence.OfferRepository;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() {
         fruitProductRepository.deleteAll();
+        fruitRepository.deleteAll();
+        offerRepository.deleteAll();
 
         Fruit fruit =
                 new Fruit(
@@ -140,5 +143,12 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/FruitProduct/{id}", fruitProduct.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
+    }
+
+    @AfterEach
+    void tearDown() {
+        fruitProductRepository.deleteAll();
+        fruitRepository.deleteAll();
+        offerRepository.deleteAll();
     }
 }
