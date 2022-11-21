@@ -47,9 +47,9 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
-        fruitRepository.saveAndFlush(fruit);
+        fruit = fruitRepository.saveAndFlush(fruit);
         Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
-        offerRepository.saveAndFlush(offer);
+        offer = offerRepository.saveAndFlush(offer);
 
         fruitProductList = new ArrayList<>();
         fruitProductList.add(new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f));
@@ -85,9 +85,9 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
-        fruitRepository.saveAndFlush(fruit);
+        fruit = fruitRepository.saveAndFlush(fruit);
         Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
-        offerRepository.saveAndFlush(offer);
+        offer = offerRepository.saveAndFlush(offer);
         FruitProduct fruitProduct = new FruitProduct(null, 100.0f, fruit, offer, "1kg", 95.0f);
         this.mockMvc
                 .perform(
