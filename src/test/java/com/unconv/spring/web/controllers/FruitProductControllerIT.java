@@ -148,6 +148,40 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
+    @Test
+    void shouldReturn404WhenFetchingNonExistingFruitProduct() throws Exception {
+        Long fruitProductId = 0L;
+
+        this.mockMvc
+                .perform(get("/FruitProduct/{id}", fruitProductId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingFruitProduct() throws Exception {
+        Long fruitProductId = 1L;
+        Fruit fruit = new Fruit();
+        Offer offer = new Offer();
+        FruitProduct fruitProduct =
+                new FruitProduct(fruitProductId, 100.0f, fruit, offer, "1kg", 95.0f);
+
+        this.mockMvc
+                .perform(
+                        put("/FruitProduct/{id}", fruitProductId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(fruitProduct)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingFruitProduct() throws Exception {
+        Long fruitProductId = 0L;
+
+        this.mockMvc
+                .perform(delete("/FruitProduct/{id}", fruitProductId))
+                .andExpect(status().isNotFound());
+    }
+
     @AfterEach
     void tearDown() {
         fruitProductRepository.deleteAll();
