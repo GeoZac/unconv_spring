@@ -117,4 +117,28 @@ class HeaterControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingHeater() throws Exception {
+        this.mockMvc.perform(get("/Heater/{id}", 0L)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingHeater() throws Exception {
+        Heater heater = new Heater();
+        heater.setId(0L);
+        heater.setTemperature(27F);
+
+        this.mockMvc
+                .perform(
+                        put("/Heater/{id}", heater.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(heater)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingHeater() throws Exception {
+        this.mockMvc.perform(delete("/Heater/{id}", 0L)).andExpect(status().isNotFound());
+    }
 }
