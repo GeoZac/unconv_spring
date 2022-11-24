@@ -115,4 +115,29 @@ class OfferControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingOffer() throws Exception {
+        Long offerId = 0L;
+        this.mockMvc.perform(get("/Offer/{id}", offerId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingOffer() throws Exception {
+        Long offerId = 0L;
+        Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
+
+        this.mockMvc
+                .perform(
+                        put("/Offer/{id}", offerId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(offer)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingOffer() throws Exception {
+        Long offerId = 0L;
+        this.mockMvc.perform(delete("/Offer/{id}", offerId)).andExpect(status().isNotFound());
+    }
 }
