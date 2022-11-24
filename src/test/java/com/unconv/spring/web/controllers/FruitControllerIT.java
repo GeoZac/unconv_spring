@@ -135,4 +135,37 @@ class FruitControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingFruit() throws Exception {
+        Long fruitId = 0L;
+
+        this.mockMvc.perform(get("/Fruit/{id}", fruitId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingFruit() throws Exception {
+        Long fruitId = 0L;
+
+        Fruit fruit =
+                new Fruit(
+                        fruitId,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
+
+        this.mockMvc
+                .perform(
+                        put("/Fruit/{id}", fruitId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(fruit)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingFruit() throws Exception {
+        Long fruitId = 0L;
+
+        this.mockMvc.perform(delete("/Fruit/{id}", fruitId)).andExpect(status().isNotFound());
+    }
 }
