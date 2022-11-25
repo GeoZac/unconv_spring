@@ -18,11 +18,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.service.PassengerService;
+import com.unconv.spring.web.rest.PassengerController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import com.unconv.spring.web.rest.PassengerController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
