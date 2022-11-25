@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.persistence.PassengerRepository;
 import java.util.ArrayList;
@@ -31,9 +32,9 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         passengerRepository.deleteAll();
 
         passengerList = new ArrayList<>();
-        passengerList.add(new Passenger(1L, "First Passenger"));
-        passengerList.add(new Passenger(2L, "Second Passenger"));
-        passengerList.add(new Passenger(3L, "Third Passenger"));
+        passengerList.add(new Passenger(1L, "Robert", null, "Langdon", 50, Gender.MALE));
+        passengerList.add(new Passenger(2L, "Katherine", null, "Brewster", 34, Gender.FEMALE));
+        passengerList.add(new Passenger(3L, "Tom", "Marvelo", "Riddle", 150, Gender.OTHER));
         passengerList = passengerRepository.saveAll(passengerList);
     }
 
@@ -53,24 +54,24 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Passenger/{id}", passengerId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
     void shouldCreateNewPassenger() throws Exception {
-        Passenger passenger = new Passenger(null, "New Passenger");
+        Passenger passenger = new Passenger(1L, "Pablo", "Ruiz", "Picasso", 50, Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null);
+        Passenger passenger = new Passenger(null, null, null, null, 0, null);
 
         this.mockMvc
                 .perform(
@@ -85,16 +86,16 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[0].field", is("firstName")))
+                .andExpect(jsonPath("$.violations[0].message", is("First name cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdatePassenger() throws Exception {
         Passenger passenger = passengerList.get(0);
-        passenger.setText("Updated Passenger");
+        passenger.setFirstName("Updated Passenger");
 
         this.mockMvc
                 .perform(
@@ -102,7 +103,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
@@ -112,6 +113,6 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Passenger/{id}", passenger.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 }

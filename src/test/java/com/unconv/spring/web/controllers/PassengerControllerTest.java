@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.web.rest.PassengerController;
@@ -48,9 +49,9 @@ class PassengerControllerTest {
     @BeforeEach
     void setUp() {
         this.passengerList = new ArrayList<>();
-        this.passengerList.add(new Passenger(1L, "text 1"));
-        this.passengerList.add(new Passenger(2L, "text 2"));
-        this.passengerList.add(new Passenger(3L, "text 3"));
+        this.passengerList.add(new Passenger(1L, "Robert", null, "Langdon", 50, Gender.MALE));
+        this.passengerList.add(new Passenger(2L, "Katherine", null, "Brewster", 34, Gender.FEMALE));
+        this.passengerList.add(new Passenger(3L, "Loki", null, "Laufeyson", 100, Gender.OTHER));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -69,13 +70,14 @@ class PassengerControllerTest {
     @Test
     void shouldFindPassengerById() throws Exception {
         Long passengerId = 1L;
-        Passenger passenger = new Passenger(passengerId, "text 1");
+        Passenger passenger =
+                new Passenger(passengerId, "Pierce", null, "Bronsnan", 69, Gender.MALE);
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
 
         this.mockMvc
                 .perform(get("/Passenger/{id}", passengerId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
@@ -91,7 +93,7 @@ class PassengerControllerTest {
         given(passengerService.savePassenger(any(Passenger.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        Passenger passenger = new Passenger(1L, "some text");
+        Passenger passenger = new Passenger(1L, "Pablo", "Ruiz", "Picasso", 50, Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
@@ -99,12 +101,12 @@ class PassengerControllerTest {
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null);
+        Passenger passenger = new Passenger(null, null, null, null, 0, null);
 
         this.mockMvc
                 .perform(
@@ -119,16 +121,18 @@ class PassengerControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[0].field", is("firstName")))
+                .andExpect(jsonPath("$.violations[0].message", is("First name cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdatePassenger() throws Exception {
         Long passengerId = 1L;
-        Passenger passenger = new Passenger(passengerId, "Updated text");
+        Passenger passenger =
+                new Passenger(passengerId, "Mary", null, "Magdalene", 31, Gender.FEMALE);
+
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
         given(passengerService.savePassenger(any(Passenger.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
@@ -139,14 +143,14 @@ class PassengerControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingPassenger() throws Exception {
         Long passengerId = 1L;
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.empty());
-        Passenger passenger = new Passenger(passengerId, "Updated text");
+        Passenger passenger = new Passenger(3L, "Tom", "Marvelo", "Riddle", 150, Gender.MALE);
 
         this.mockMvc
                 .perform(
@@ -159,14 +163,15 @@ class PassengerControllerTest {
     @Test
     void shouldDeletePassenger() throws Exception {
         Long passengerId = 1L;
-        Passenger passenger = new Passenger(passengerId, "Some text");
+        Passenger passenger = new Passenger(passengerId, "Ian", null, " Malcolm", 45, Gender.MALE);
+
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
         doNothing().when(passengerService).deletePassengerById(passenger.getId());
 
         this.mockMvc
                 .perform(delete("/Passenger/{id}", passenger.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(passenger.getText())));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
