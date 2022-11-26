@@ -6,6 +6,8 @@ jobs:
     steps:
       - checkout
       - run:
+          command: chmod +x mvnw
+      - run:
           command: ./mvnw clean verify
 workflows:
   version: 2
