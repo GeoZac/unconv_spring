@@ -1,0 +1,13 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: 'cimg/base:2022.11'
+    steps:
+      - run:
+          command: ./mvnw clean verify
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
