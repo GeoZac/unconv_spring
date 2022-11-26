@@ -14,7 +14,6 @@ jobs:
             sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
             java -version
       - checkout
-      - setup_remote_docker
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
