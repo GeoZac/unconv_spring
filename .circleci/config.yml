@@ -1,14 +1,20 @@
 version: 2.1
 jobs:
   build:
-    docker:
-      - image: cimg/openjdk:17.0.2
-      - image: mysql:8.0
-        environment:
-          MYSQL_ROOT_PASSWORD: password
-      - image: testcontainers/ryuk:0.3.3
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true 
+    resource_class: large
     steps:
+      - run:
+          name: Install OpenJDK 17
+          command: |
+            sudo apt-get update && sudo apt-get install openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            java -version
       - checkout
+      - setup_remote_docker
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
