@@ -1,0 +1,37 @@
+version: 2.1
+jobs:
+  build:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true 
+    resource_class: large
+    steps:
+      - run:
+          name: Install OpenJDK 17
+          command: |
+            sudo apt-get update && sudo apt-get install openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            java -version
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Grant execute permission for mvnw
+          command: chmod +x mvnw
+      - run:
+          name: Build with Maven
+          command: ./mvnw clean verify
+      - store_artifacts:
+          path:  target
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
