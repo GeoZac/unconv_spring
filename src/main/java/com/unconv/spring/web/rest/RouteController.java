@@ -1,8 +1,8 @@
-package com.unconv.spring.web.controllers;
+package com.unconv.spring.web.rest;
 
-import com.unconv.spring.entities.Route;
+import com.unconv.spring.domain.Route;
 import com.unconv.spring.model.response.PagedResult;
-import com.unconv.spring.services.RouteService;
+import com.unconv.spring.service.RouteService;
 import com.unconv.spring.utils.AppConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

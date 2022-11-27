@@ -1,6 +1,6 @@
-package com.unconv.spring.repositories;
+package com.unconv.spring.persistence;
 
-import com.unconv.spring.entities.Route;
+import com.unconv.spring.domain.Route;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RouteRepository extends JpaRepository<Route, Long> {}

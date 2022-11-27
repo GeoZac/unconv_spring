@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.entities.Route;
-import com.unconv.spring.repositories.RouteRepository;
+import com.unconv.spring.domain.Route;
+import com.unconv.spring.persistence.RouteRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

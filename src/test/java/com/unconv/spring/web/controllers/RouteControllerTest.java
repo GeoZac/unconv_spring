@@ -16,9 +16,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unconv.spring.entities.Route;
+import com.unconv.spring.domain.Route;
 import com.unconv.spring.model.response.PagedResult;
-import com.unconv.spring.services.RouteService;
+import com.unconv.spring.service.RouteService;
+import com.unconv.spring.web.rest.RouteController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

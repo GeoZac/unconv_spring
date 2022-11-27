@@ -1,8 +1,8 @@
-package com.unconv.spring.services;
+package com.unconv.spring.service;
 
-import com.unconv.spring.entities.Route;
+import com.unconv.spring.domain.Route;
 import com.unconv.spring.model.response.PagedResult;
-import com.unconv.spring.repositories.RouteRepository;
+import com.unconv.spring.persistence.RouteRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
