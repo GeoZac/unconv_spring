@@ -43,7 +43,14 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Passenger"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(passengerList.size())));
+                .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
     @Test
