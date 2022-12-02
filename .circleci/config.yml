@@ -23,6 +23,9 @@ jobs:
           command: chmod +x mvnw
       - run:
           name: Build with Maven
+          command: ./mvnw install -DskipTests
+      - run:
+          name: Build and test with Maven
           command: ./mvnw clean verify
       - store_artifacts:
           path:  target
