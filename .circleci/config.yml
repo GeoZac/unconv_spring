@@ -49,7 +49,7 @@ jobs:
             - v1-dependencies-
       - run:
           name: Build with Maven
-          command: ./mvnw -DskipTests install
+          command: ./mvnw -DskipTests install -T 4
   test:
     machine:
       image: ubuntu-2004:current
