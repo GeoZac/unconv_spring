@@ -27,6 +27,9 @@ jobs:
       - run:
           name: Build and test with Maven
           command: ./mvnw clean verify
+      - run:
+          name: Build with Maven
+          command: ./mvnw clean verify -T 1C
       - store_artifacts:
           path:  target
       - save_cache:
