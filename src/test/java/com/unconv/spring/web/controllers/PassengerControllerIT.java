@@ -41,9 +41,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldFetchAllPassengersInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(
-                        get("/Passenger")
-                                .param("sortDir", "asc"))
+                .perform(get("/Passenger").param("sortDir", "asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -58,9 +56,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldFetchAllPassengersInDescendingOrder() throws Exception {
         this.mockMvc
-                .perform(
-                        get("/Passenger")
-                                .param("sortDir", "desc"))
+                .perform(get("/Passenger").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
