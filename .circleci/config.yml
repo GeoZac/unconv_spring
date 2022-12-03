@@ -30,6 +30,14 @@ jobs:
       - run:
           name: Build with Maven
           command: ./mvnw clean verify -T 1C
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p test-results/junit/
+            find . -type f -regex ".*/target/test-results/.*xml" -exec cp {} test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
       - store_artifacts:
           path:  target
       - save_cache:
