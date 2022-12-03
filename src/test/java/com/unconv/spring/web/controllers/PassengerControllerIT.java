@@ -39,9 +39,24 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFetchAllPassengers() throws Exception {
+    void shouldFetchAllPassengersInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/Passenger"))
+                .perform(get("/Passenger").param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllPassengersInDescendingOrder() throws Exception {
+        this.mockMvc
+                .perform(get("/Passenger").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -121,5 +136,32 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/Passenger/{id}", passenger.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingPassenger() throws Exception {
+        Long passengerId = 0L;
+        this.mockMvc.perform(get("/Passenger/{id}", passengerId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingPassenger() throws Exception {
+        Long passengerId = 0L;
+        Passenger passenger = new Passenger();
+
+        this.mockMvc
+                .perform(
+                        put("/Passenger/{id}", passengerId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(passenger)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingPassenger() throws Exception {
+        Long passengerId = 0L;
+        this.mockMvc
+                .perform(delete("/Passenger/{id}", passengerId))
+                .andExpect(status().isNotFound());
     }
 }
