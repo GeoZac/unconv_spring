@@ -123,4 +123,29 @@ class RouteControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text", is(route.getText())));
     }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingRoute() throws Exception {
+        Long routeId = 0L;
+        this.mockMvc.perform(get("/Route/{id}", routeId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingRoute() throws Exception {
+        Long routeId = 0L;
+        Route route = new Route();
+
+        this.mockMvc
+                .perform(
+                        put("/Route/{id}", routeId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(route)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingRoute() throws Exception {
+        Long routeId = 0L;
+        this.mockMvc.perform(delete("/Route/{id}", routeId)).andExpect(status().isNotFound());
+    }
 }

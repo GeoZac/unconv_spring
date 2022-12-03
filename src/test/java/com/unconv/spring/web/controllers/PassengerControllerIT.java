@@ -122,4 +122,31 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingPassenger() throws Exception {
+        Long passengerId = 0L;
+        this.mockMvc.perform(get("/Passenger/{id}", passengerId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingPassenger() throws Exception {
+        Long passengerId = 0L;
+        Passenger passenger = new Passenger();
+
+        this.mockMvc
+                .perform(
+                        put("/Passenger/{id}", passengerId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(passenger)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingPassenger() throws Exception {
+        Long passengerId = 0L;
+        this.mockMvc
+                .perform(delete("/Passenger/{id}", passengerId))
+                .andExpect(status().isNotFound());
+    }
 }
