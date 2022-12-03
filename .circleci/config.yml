@@ -1,6 +1,7 @@
 version: 2.1
 jobs:
   build:
+    working_directory: ~/spring
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true 
@@ -22,22 +23,16 @@ jobs:
           name: Grant execute permission for mvnw
           command: chmod +x mvnw
       - run:
-          name: Build with Maven
-          command: ./mvnw install -DskipTests
-      - run:
           name: Build and test with Maven
           command: ./mvnw clean verify
       - run:
-          name: Build with Maven
-          command: ./mvnw clean verify -T 1C
-      - run:
           name: Save test results
           command: |
-            mkdir -p /home/circleci/project/test-results/junit/
-            find . -type f -regex "/home/circleci/project/target/test-results/.*xml" -exec cp {} /home/circleci/project/test-results/junit/ \;
+            mkdir -p test-results/junit/
+            find . -type f -regex "target/test-results/.*xml" -exec cp {} test-results/junit/ \;
           when: always
       - store_test_results:
-          path: target/test-results
+          path: test-results
       - store_artifacts:
           path:  target/*.jar
           destination: jar
