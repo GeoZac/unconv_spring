@@ -32,7 +32,7 @@ jobs:
             find . -type f -regex "target/test-results/.*xml" -exec cp {} test-results/junit/ \;
           when: always
       - store_test_results:
-          path: test-results
+          path: target/test-results
       - store_artifacts:
           path:  target/*.jar
           destination: jar
