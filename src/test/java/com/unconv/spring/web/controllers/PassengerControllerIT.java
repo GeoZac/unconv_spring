@@ -39,9 +39,28 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFetchAllPassengers() throws Exception {
+    void shouldFetchAllPassengersInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/Passenger"))
+                .perform(
+                        get("/Passenger")
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllPassengersInDescendingOrder() throws Exception {
+        this.mockMvc
+                .perform(
+                        get("/Passenger")
+                                .param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))

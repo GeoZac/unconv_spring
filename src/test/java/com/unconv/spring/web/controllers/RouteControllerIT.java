@@ -39,9 +39,24 @@ class RouteControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFetchAllRoutes() throws Exception {
+    void shouldFetchAllRoutesInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/Route"))
+                .perform(get("/Route").param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(routeList.size())))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllRoutesInDescendingOrder() throws Exception {
+        this.mockMvc
+                .perform(get("/Route").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(routeList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
