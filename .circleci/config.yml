@@ -29,9 +29,9 @@ jobs:
       - store_test_results:
           path: target/test-results
       - codecov/upload:
-          file: target\jacoco\test\jacoco.xml
+          file: target/jacoco/test/jacoco.xml
       - codecov/upload:
-          file: target\jacoco\integrationTest\jacoco.xml
+          file: target/jacoco/integrationTest/jacoco.xml
       - store_artifacts:
           path:  target
       - save_cache:
