@@ -12,12 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class FruitProductService {
 
-    private final FruitProductRepository fruitProductRepository;
-
-    @Autowired
-    public FruitProductService(FruitProductRepository fruitProductRepository) {
-        this.fruitProductRepository = fruitProductRepository;
-    }
+    @Autowired private FruitProductRepository fruitProductRepository;
 
     public List<FruitProduct> findAllFruitProducts() {
         return fruitProductRepository.findAll();

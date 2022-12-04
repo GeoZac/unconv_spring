@@ -12,12 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class OfferService {
 
-    private final OfferRepository offerRepository;
-
-    @Autowired
-    public OfferService(OfferRepository offerRepository) {
-        this.offerRepository = offerRepository;
-    }
+    @Autowired private OfferRepository offerRepository;
 
     public List<Offer> findAllOffers() {
         return offerRepository.findAll();

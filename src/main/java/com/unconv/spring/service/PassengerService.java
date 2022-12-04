@@ -16,12 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PassengerService {
 
-    private final PassengerRepository passengerRepository;
-
-    @Autowired
-    public PassengerService(PassengerRepository passengerRepository) {
-        this.passengerRepository = passengerRepository;
-    }
+    @Autowired private PassengerRepository passengerRepository;
 
     public PagedResult<Passenger> findAllPassengers(
             int pageNo, int pageSize, String sortBy, String sortDir) {
