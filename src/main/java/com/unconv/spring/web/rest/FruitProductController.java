@@ -23,12 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class FruitProductController {
 
-    private final FruitProductService fruitProductService;
-
-    @Autowired
-    public FruitProductController(FruitProductService fruitProductService) {
-        this.fruitProductService = fruitProductService;
-    }
+    @Autowired private FruitProductService fruitProductService;
 
     @GetMapping
     public List<FruitProduct> getAllFruitProducts() {

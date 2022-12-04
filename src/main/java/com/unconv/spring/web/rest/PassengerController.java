@@ -25,12 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PassengerController {
 
-    private final PassengerService passengerService;
-
-    @Autowired
-    public PassengerController(PassengerService passengerService) {
-        this.passengerService = passengerService;
-    }
+    @Autowired private PassengerService passengerService;
 
     @GetMapping
     public PagedResult<Passenger> getAllPassengers(

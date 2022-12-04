@@ -25,12 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class RouteController {
 
-    private final RouteService routeService;
-
-    @Autowired
-    public RouteController(RouteService routeService) {
-        this.routeService = routeService;
-    }
+    @Autowired private RouteService routeService;
 
     @GetMapping
     public PagedResult<Route> getAllRoutes(
