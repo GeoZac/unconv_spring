@@ -12,12 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class HeaterService {
 
-    private final HeaterRepository heaterRepository;
-
-    @Autowired
-    public HeaterService(HeaterRepository heaterRepository) {
-        this.heaterRepository = heaterRepository;
-    }
+    @Autowired private HeaterRepository heaterRepository;
 
     public List<Heater> findAllHeaters() {
         return heaterRepository.findAll();

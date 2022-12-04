@@ -23,12 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class HeaterController {
 
-    private final HeaterService heaterService;
-
-    @Autowired
-    public HeaterController(HeaterService heaterService) {
-        this.heaterService = heaterService;
-    }
+    @Autowired private HeaterService heaterService;
 
     @GetMapping
     public List<Heater> getAllHeaters() {

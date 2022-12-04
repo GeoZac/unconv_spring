@@ -23,12 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class OfferController {
 
-    private final OfferService offerService;
-
-    @Autowired
-    public OfferController(OfferService offerService) {
-        this.offerService = offerService;
-    }
+    @Autowired private OfferService offerService;
 
     @GetMapping
     public List<Offer> getAllOffers() {
