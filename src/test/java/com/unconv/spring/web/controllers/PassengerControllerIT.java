@@ -135,7 +135,8 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Passenger/{id}", passenger.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
+                .andExpect(jsonPath("$.data.firstName", is(passenger.getFirstName())))
+                .andExpect(jsonPath("$.wasDeleted", is(true)));
     }
 
     @Test
