@@ -3,6 +3,7 @@ package com.unconv.spring.model.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DeleteResult<T> {
+    @JsonProperty("data")
     T data;
 
     @JsonProperty("wasDeleted")
