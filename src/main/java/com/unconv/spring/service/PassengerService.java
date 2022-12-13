@@ -40,7 +40,7 @@ public class PassengerService {
         return passengerRepository.save(passenger);
     }
 
-    public void deletePassengerById(Long id) {
-        passengerRepository.deleteById(id);
+    public boolean deletePassengerById(Long id) {
+        return passengerRepository.removeById(id);
     }
 }
