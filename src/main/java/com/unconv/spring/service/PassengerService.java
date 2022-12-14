@@ -41,6 +41,6 @@ public class PassengerService {
     }
 
     public boolean deletePassengerById(Long id) {
-        return passengerRepository.removeById(id);
+        return passengerRepository.removeById(id) != 0L;
     }
 }
