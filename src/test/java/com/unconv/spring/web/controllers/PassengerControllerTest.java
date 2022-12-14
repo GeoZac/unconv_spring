@@ -6,7 +6,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -179,12 +178,13 @@ class PassengerControllerTest {
         Passenger passenger = new Passenger(passengerId, "Ian", null, " Malcolm", 45, Gender.MALE);
 
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
-        doNothing().when(passengerService).deletePassengerById(passenger.getId());
+        given(passengerService.deletePassengerById(passenger.getId())).willReturn(true);
 
         this.mockMvc
                 .perform(delete("/Passenger/{id}", passenger.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
+                .andExpect(jsonPath("$.data.firstName", is(passenger.getFirstName())))
+                .andExpect(jsonPath("$.wasDeleted", is(true)));
     }
 
     @Test
