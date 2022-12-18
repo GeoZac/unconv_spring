@@ -2,6 +2,7 @@ package com.unconv.spring.domain;
 
 import com.unconv.spring.consts.Gender;
 import java.time.LocalDate;
+import java.time.Period;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,4 +54,9 @@ public class Passenger {
     @Column(nullable = false)
     @NotNull(message = "Gender cannot be null")
     private Gender gender;
+
+    public void setAge(LocalDate dateOfBirth) {
+        LocalDate currentDate = java.time.LocalDate.now();
+        this.age = Period.between(dateOfBirth, currentDate).getYears();
+    }
 }
