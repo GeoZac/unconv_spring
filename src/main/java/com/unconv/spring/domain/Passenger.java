@@ -26,6 +26,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Passenger {
+    public Passenger(
+            Long id,
+            String firstName,
+            String middleName,
+            String lastName,
+            LocalDate dateOfBirth,
+            Gender gender) {
+        this.id = id;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
