@@ -5,7 +5,7 @@ jobs:
   setup:
     machine:
       image: ubuntu-2004:current
-      docker_layer_caching: true 
+      docker_layer_caching: true
     resource_class: large
     steps:
       - run:
@@ -29,7 +29,7 @@ jobs:
   build:
     machine:
       image: ubuntu-2004:current
-      docker_layer_caching: true 
+      docker_layer_caching: true
     resource_class: large
     steps:
       - attach_workspace:
@@ -40,7 +40,7 @@ jobs:
   test:
     machine:
       image: ubuntu-2004:current
-      docker_layer_caching: true 
+      docker_layer_caching: true
     resource_class: large
     steps:
       - attach_workspace:
@@ -55,7 +55,7 @@ jobs:
       - codecov/upload:
           file: target/jacoco/integrationTest/jacoco.xml
       - store_artifacts:
-          path:  target
+          path: target
       - save_cache:
           paths:
             - ~/.m2
