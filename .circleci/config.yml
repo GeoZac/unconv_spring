@@ -23,12 +23,17 @@ jobs:
       - run:
           name: Grant execute permission for mvnw
           command: chmod +x mvnw
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths: ["*", "**/*"]
   build:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true 
     resource_class: large
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Build with Maven
           command: ./mvnw -DskipTests install
@@ -38,6 +43,8 @@ jobs:
       docker_layer_caching: true 
     resource_class: large
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Build with Maven
           command: ./mvnw clean verify
