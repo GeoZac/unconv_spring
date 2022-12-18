@@ -1,6 +1,7 @@
 package com.unconv.spring.domain;
 
 import com.unconv.spring.consts.Gender;
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -43,6 +44,10 @@ public class Passenger {
     @Digits(fraction = 0, integer = 10, message = "Age must be a number and not greater than 200")
     @NotNull(message = "Age cannot be empty")
     private int age;
+
+    @Column(nullable = false)
+    @NotNull(message = "Date of Birth cannot be empty")
+    private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
