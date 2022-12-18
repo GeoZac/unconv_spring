@@ -14,6 +14,7 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.persistence.PassengerRepository;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,9 +33,20 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         passengerRepository.deleteAll();
 
         passengerList = new ArrayList<>();
-        passengerList.add(new Passenger(1L, "Robert", null, "Langdon", 50, Gender.MALE));
-        passengerList.add(new Passenger(2L, "Katherine", null, "Brewster", 34, Gender.FEMALE));
-        passengerList.add(new Passenger(3L, "Tom", "Marvelo", "Riddle", 150, Gender.OTHER));
+        passengerList.add(
+                new Passenger(
+                        1L, "Robert", null, "Langdon", LocalDate.of(1972, 8, 13), Gender.MALE));
+        passengerList.add(
+                new Passenger(
+                        2L,
+                        "Katherine",
+                        null,
+                        "Brewster",
+                        LocalDate.of(1988, 5, 9),
+                        Gender.FEMALE));
+        passengerList.add(
+                new Passenger(
+                        3L, "Tom", "Marvelo", "Riddle", LocalDate.of(1872, 12, 1), Gender.OTHER));
         passengerList = passengerRepository.saveAll(passengerList);
     }
 
@@ -81,7 +93,9 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewPassenger() throws Exception {
-        Passenger passenger = new Passenger(1L, "Pablo", "Ruiz", "Picasso", 50, Gender.MALE);
+        Passenger passenger =
+                new Passenger(
+                        1L, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
@@ -93,7 +107,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null);
+        Passenger passenger = new Passenger(null, null, null, null, 0, null, null);
 
         this.mockMvc
                 .perform(
@@ -108,9 +122,9 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(3)))
-                .andExpect(jsonPath("$.violations[0].field", is("firstName")))
-                .andExpect(jsonPath("$.violations[0].message", is("First name cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(4)))
+                .andExpect(jsonPath("$.violations[0].field", is("dateOfBirth")))
+                .andExpect(jsonPath("$.violations[0].message", is("Date of Birth cannot be empty")))
                 .andReturn();
     }
 
