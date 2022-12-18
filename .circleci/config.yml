@@ -32,6 +32,7 @@ jobs:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
+    working_directory: /tmp/spring
     steps:
       - attach_workspace:
           at: /tmp/spring
@@ -43,6 +44,7 @@ jobs:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
+    working_directory: /tmp/spring
     steps:
       - attach_workspace:
           at: /tmp/spring
