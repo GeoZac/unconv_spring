@@ -37,6 +37,7 @@ public class PassengerService {
     }
 
     public Passenger savePassenger(Passenger passenger) {
+        passenger.setAge(passenger.getDateOfBirth());
         return passengerRepository.save(passenger);
     }
 

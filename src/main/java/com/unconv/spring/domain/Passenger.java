@@ -1,6 +1,8 @@
 package com.unconv.spring.domain;
 
 import com.unconv.spring.consts.Gender;
+import java.time.LocalDate;
+import java.time.Period;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,6 +26,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Passenger {
+    public Passenger(
+            Long id,
+            String firstName,
+            String middleName,
+            String lastName,
+            LocalDate dateOfBirth,
+            Gender gender) {
+        this.id = id;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,8 +60,17 @@ public class Passenger {
     @NotNull(message = "Age cannot be empty")
     private int age;
 
+    @Column(nullable = false)
+    @NotNull(message = "Date of Birth cannot be empty")
+    private LocalDate dateOfBirth;
+
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     @NotNull(message = "Gender cannot be null")
     private Gender gender;
+
+    public void setAge(LocalDate dateOfBirth) {
+        LocalDate currentDate = java.time.LocalDate.now();
+        this.age = Period.between(dateOfBirth, currentDate).getYears();
+    }
 }

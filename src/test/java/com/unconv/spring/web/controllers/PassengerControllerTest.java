@@ -20,6 +20,7 @@ import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.web.rest.PassengerController;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,9 +52,20 @@ class PassengerControllerTest {
     @BeforeEach
     void setUp() {
         this.passengerList = new ArrayList<>();
-        this.passengerList.add(new Passenger(1L, "Robert", null, "Langdon", 50, Gender.MALE));
-        this.passengerList.add(new Passenger(2L, "Katherine", null, "Brewster", 34, Gender.FEMALE));
-        this.passengerList.add(new Passenger(3L, "Loki", null, "Laufeyson", 100, Gender.OTHER));
+        this.passengerList.add(
+                new Passenger(
+                        1L, "Robert", null, "Langdon", 0, LocalDate.of(1972, 8, 13), Gender.MALE));
+        this.passengerList.add(
+                new Passenger(
+                        2L,
+                        "Katherine",
+                        null,
+                        "Brewster",
+                        LocalDate.of(1988, 5, 9),
+                        Gender.FEMALE));
+        this.passengerList.add(
+                new Passenger(
+                        3L, "Loki", null, "Laufeyson", LocalDate.of(1022, 4, 23), Gender.OTHER));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -83,7 +95,13 @@ class PassengerControllerTest {
     void shouldFindPassengerById() throws Exception {
         Long passengerId = 1L;
         Passenger passenger =
-                new Passenger(passengerId, "Pierce", null, "Bronsnan", 69, Gender.MALE);
+                new Passenger(
+                        passengerId,
+                        "Pierce",
+                        null,
+                        "Bronsnan",
+                        LocalDate.of(1953, 12, 4),
+                        Gender.MALE);
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
 
         this.mockMvc
@@ -105,7 +123,9 @@ class PassengerControllerTest {
         given(passengerService.savePassenger(any(Passenger.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        Passenger passenger = new Passenger(1L, "Pablo", "Ruiz", "Picasso", 50, Gender.MALE);
+        Passenger passenger =
+                new Passenger(
+                        1L, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
@@ -118,7 +138,7 @@ class PassengerControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null);
+        Passenger passenger = new Passenger(null, null, null, null, 0, null, null);
 
         this.mockMvc
                 .perform(
@@ -133,9 +153,9 @@ class PassengerControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(3)))
-                .andExpect(jsonPath("$.violations[0].field", is("firstName")))
-                .andExpect(jsonPath("$.violations[0].message", is("First name cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(4)))
+                .andExpect(jsonPath("$.violations[0].field", is("dateOfBirth")))
+                .andExpect(jsonPath("$.violations[0].message", is("Date of Birth cannot be empty")))
                 .andReturn();
     }
 
@@ -143,7 +163,13 @@ class PassengerControllerTest {
     void shouldUpdatePassenger() throws Exception {
         Long passengerId = 1L;
         Passenger passenger =
-                new Passenger(passengerId, "Mary", null, "Magdalene", 31, Gender.FEMALE);
+                new Passenger(
+                        passengerId,
+                        "Mary",
+                        null,
+                        "Magdalene",
+                        LocalDate.of(1991, 2, 28),
+                        Gender.FEMALE);
 
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
         given(passengerService.savePassenger(any(Passenger.class)))
@@ -162,7 +188,9 @@ class PassengerControllerTest {
     void shouldReturn404WhenUpdatingNonExistingPassenger() throws Exception {
         Long passengerId = 1L;
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.empty());
-        Passenger passenger = new Passenger(3L, "Tom", "Marvelo", "Riddle", 150, Gender.MALE);
+        Passenger passenger =
+                new Passenger(
+                        3L, "Tom", "Marvelo", "Riddle", LocalDate.of(1872, 12, 1), Gender.MALE);
 
         this.mockMvc
                 .perform(
@@ -175,7 +203,14 @@ class PassengerControllerTest {
     @Test
     void shouldDeletePassenger() throws Exception {
         Long passengerId = 1L;
-        Passenger passenger = new Passenger(passengerId, "Ian", null, " Malcolm", 45, Gender.MALE);
+        Passenger passenger =
+                new Passenger(
+                        passengerId,
+                        "Ian",
+                        null,
+                        " Malcolm",
+                        LocalDate.of(1977, 11, 20),
+                        Gender.MALE);
 
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
         given(passengerService.deletePassengerById(passenger.getId())).willReturn(true);
