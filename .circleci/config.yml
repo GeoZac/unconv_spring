@@ -36,6 +36,10 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/spring
+      - restore_cache:
+          keys:
+            - v1-apt-cache-{{ checksum "pom.xml" }}
+            - v1-apt-cache-
       - run:
           name: Install OpenJDK 17
           command: |
@@ -50,6 +54,13 @@ jobs:
       - run:
           name: Build with Maven
           command: ./mvnw -DskipTests install
+      - run:
+          name: Save apt cache
+          command: rsync -av /var/cache/apt/archives/*.deb /tmp/archives/
+      - save_cache:
+          key: v1-apt-cache-{{ checksum "pom.xml" }}
+          paths:
+          - /tmp/archives
   test:
     machine:
       image: ubuntu-2004:current
@@ -59,6 +70,10 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/spring
+      - restore_cache:
+          keys:
+            - v1-apt-cache-{{ checksum "pom.xml" }}
+            - v1-apt-cache-
       - run:
           name: Install OpenJDK 17
           command: |
@@ -81,6 +96,13 @@ jobs:
           file: target/jacoco/integrationTest/jacoco.xml
       - store_artifacts:
           path: target
+      - run:
+          name: Save apt cache
+          command: rsync -av /var/cache/apt/archives/*.deb /tmp/archives/
+      - save_cache:
+          key: v1-apt-cache-{{ checksum "pom.xml" }}
+          paths:
+          - /tmp/archives
       - save_cache:
           paths:
             - ~/.m2
