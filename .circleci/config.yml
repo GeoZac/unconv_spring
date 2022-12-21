@@ -73,6 +73,9 @@ jobs:
       - run:
           name: Build with Maven
           command: ./mvnw clean verify
+      - run:
+          name: Analyze on SonarCloud
+          command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - store_test_results:
           path: target/test-results
       - codecov/upload:
