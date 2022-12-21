@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@3.2.4
+  maven: circleci/maven@1.4.0
 jobs:
   setup:
     machine:
@@ -85,9 +86,9 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
-      - run:
-          name: Build with Maven
-          command: ./mvnw clean verify
+      - maven/parallel_test:
+          parallelism: 4
+          test_results_path: target/test-results
       - store_test_results:
           path: target/test-results
       - codecov/upload:
@@ -107,6 +108,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
+    parallelism: 4
 workflows:
   version: 2
   build-and-test:
