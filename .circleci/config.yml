@@ -98,5 +98,6 @@ workflows:
           requires:
             - setup
       - test:
+          context: SonarCloud
           requires:
             - setup
