@@ -56,6 +56,7 @@ jobs:
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
+    parallelism: 4
     steps:
       - attach_workspace:
           at: /tmp/spring
@@ -72,7 +73,7 @@ jobs:
             - v1-dependencies-
       - run:
           name: Build with Maven
-          command: ./mvnw clean verify
+          command: ./mvnw -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings); do basename $file  | sed -e "s/.java/,/"; done | tr -d '\r\n') -e test
       - store_test_results:
           path: target/test-results
       - codecov/upload:
