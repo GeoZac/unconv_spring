@@ -49,13 +49,16 @@ public class HeaterController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Heater> updateHeater(@PathVariable Long id, @RequestBody HeaterDTO heaterDTO) {
+    public ResponseEntity<Heater> updateHeater(
+            @PathVariable Long id, @RequestBody HeaterDTO heaterDTO) {
         return heaterService
                 .findHeaterById(id)
                 .map(
                         heaterObj -> {
                             heaterDTO.setId(id);
-                            return ResponseEntity.ok(heaterService.saveHeater(modelMapper.map(heaterDTO, Heater.class)));
+                            return ResponseEntity.ok(
+                                    heaterService.saveHeater(
+                                            modelMapper.map(heaterDTO, Heater.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

@@ -79,7 +79,9 @@ public class PassengerController {
                 .map(
                         passengerObj -> {
                             passengerDTO.setId(id);
-                            return ResponseEntity.ok(passengerService.savePassenger(modelMapper.map(passengerDTO, Passenger.class)));
+                            return ResponseEntity.ok(
+                                    passengerService.savePassenger(
+                                            modelMapper.map(passengerDTO, Passenger.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

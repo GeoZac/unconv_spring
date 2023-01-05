@@ -44,8 +44,10 @@ public class FruitProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FruitProduct createFruitProduct(@RequestBody @Validated FruitProductDTO fruitProductDTO) {
-        return fruitProductService.saveFruitProduct(modelMapper.map(fruitProductDTO, FruitProduct.class));
+    public FruitProduct createFruitProduct(
+            @RequestBody @Validated FruitProductDTO fruitProductDTO) {
+        return fruitProductService.saveFruitProduct(
+                modelMapper.map(fruitProductDTO, FruitProduct.class));
     }
 
     @PutMapping("/{id}")
@@ -57,7 +59,8 @@ public class FruitProductController {
                         fruitProductObj -> {
                             fruitProductDTO.setId(id);
                             return ResponseEntity.ok(
-                                    fruitProductService.saveFruitProduct(modelMapper.map(fruitProductDTO, FruitProduct.class)));
+                                    fruitProductService.saveFruitProduct(
+                                            modelMapper.map(fruitProductDTO, FruitProduct.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

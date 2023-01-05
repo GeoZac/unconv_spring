@@ -71,13 +71,15 @@ public class RouteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Route> updateRoute(@PathVariable Long id, @RequestBody RouteDTO routeDTO) {
+    public ResponseEntity<Route> updateRoute(
+            @PathVariable Long id, @RequestBody RouteDTO routeDTO) {
         return routeService
                 .findRouteById(id)
                 .map(
                         routeObj -> {
                             routeDTO.setId(id);
-                            return ResponseEntity.ok(routeService.saveRoute(modelMapper.map(routeDTO, Route.class)));
+                            return ResponseEntity.ok(
+                                    routeService.saveRoute(modelMapper.map(routeDTO, Route.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
