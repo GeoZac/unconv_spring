@@ -1,9 +1,11 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Fruit;
+import com.unconv.spring.dto.FruitDTO;
 import com.unconv.spring.service.FruitService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,8 @@ public class FruitController {
 
     @Autowired private FruitService fruitService;
 
+    @Autowired private ModelMapper modelMapper;
+
     @GetMapping
     public List<Fruit> getAllFruits() {
         return fruitService.findAllFruits();
@@ -40,18 +44,20 @@ public class FruitController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Fruit createFruit(@RequestBody @Validated Fruit fruit) {
-        return fruitService.saveFruit(fruit);
+    public Fruit createFruit(@RequestBody @Validated FruitDTO fruitDTO) {
+        return fruitService.saveFruit(modelMapper.map(fruitDTO, Fruit.class));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Fruit> updateFruit(@PathVariable Long id, @RequestBody Fruit fruit) {
+    public ResponseEntity<Fruit> updateFruit(
+            @PathVariable Long id, @RequestBody FruitDTO fruitDTO) {
         return fruitService
                 .findFruitById(id)
                 .map(
                         fruitObj -> {
-                            fruit.setId(id);
-                            return ResponseEntity.ok(fruitService.saveFruit(fruit));
+                            fruitDTO.setId(id);
+                            return ResponseEntity.ok(
+                                    fruitService.saveFruit(modelMapper.map(fruitDTO, Fruit.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
