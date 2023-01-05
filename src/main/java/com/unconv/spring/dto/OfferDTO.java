@@ -1,4 +1,4 @@
-package com.unconv.spring.domain;
+package com.unconv.spring.dto;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;

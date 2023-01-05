@@ -1,7 +1,7 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Offer;
-import com.unconv.spring.domain.OfferDTO;
+import com.unconv.spring.dto.OfferDTO;
 import com.unconv.spring.service.OfferService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
