@@ -1,11 +1,13 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Passenger;
+import com.unconv.spring.dto.PassengerDTO;
 import com.unconv.spring.model.response.DeleteResult;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.utils.AppConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PassengerController {
 
     @Autowired private PassengerService passengerService;
+
+    @Autowired private ModelMapper modelMapper;
 
     @GetMapping
     public PagedResult<Passenger> getAllPassengers(
@@ -63,19 +67,19 @@ public class PassengerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Passenger createPassenger(@RequestBody @Validated Passenger passenger) {
-        return passengerService.savePassenger(passenger);
+    public Passenger createPassenger(@RequestBody @Validated PassengerDTO passengerDTO) {
+        return passengerService.savePassenger(modelMapper.map(passengerDTO, Passenger.class));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Passenger> updatePassenger(
-            @PathVariable Long id, @RequestBody Passenger passenger) {
+            @PathVariable Long id, @RequestBody PassengerDTO passengerDTO) {
         return passengerService
                 .findPassengerById(id)
                 .map(
                         passengerObj -> {
-                            passenger.setId(id);
-                            return ResponseEntity.ok(passengerService.savePassenger(passenger));
+                            passengerDTO.setId(id);
+                            return ResponseEntity.ok(passengerService.savePassenger(modelMapper.map(passengerDTO, Passenger.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
