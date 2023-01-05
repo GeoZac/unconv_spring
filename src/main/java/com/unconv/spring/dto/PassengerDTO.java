@@ -18,20 +18,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PassengerDTO {
-    public PassengerDTO(
-            Long id,
-            String firstName,
-            String middleName,
-            String lastName,
-            LocalDate dateOfBirth,
-            Gender gender) {
-        this.id = id;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-    }
 
     private Long id;
 
