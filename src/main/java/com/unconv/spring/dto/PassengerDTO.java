@@ -35,6 +35,7 @@ public class PassengerDTO {
 
     private Long id;
 
+    @NotEmpty(message = "First name cannot be empty")
     private String firstName;
 
     private String middleName;
