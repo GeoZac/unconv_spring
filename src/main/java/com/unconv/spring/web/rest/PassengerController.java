@@ -2,7 +2,6 @@ package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.dto.PassengerDTO;
-import com.unconv.spring.model.response.DeleteResult;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.utils.AppConstants;
@@ -96,14 +95,13 @@ public class PassengerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteResult<Passenger>> deletePassenger(@PathVariable Long id) {
+    public ResponseEntity<Passenger> deletePassenger(@PathVariable Long id) {
         return passengerService
                 .findPassengerById(id)
                 .map(
                         passenger -> {
-                            return ResponseEntity.ok(
-                                    new DeleteResult<>(
-                                            passenger, passengerService.deletePassengerById(id)));
+                            passengerService.deletePassengerById(id);
+                            return ResponseEntity.ok(passenger);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
