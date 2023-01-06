@@ -213,13 +213,11 @@ class PassengerControllerTest {
                         Gender.MALE);
 
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
-        given(passengerService.deletePassengerById(passenger.getId())).willReturn(true);
 
         this.mockMvc
                 .perform(delete("/Passenger/{id}", passenger.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.firstName", is(passenger.getFirstName())))
-                .andExpect(jsonPath("$.wasDeleted", is(true)));
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
 
     @Test
