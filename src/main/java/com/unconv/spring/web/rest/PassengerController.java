@@ -65,6 +65,15 @@ public class PassengerController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("search/firstName/{firstName}")
+    public ResponseEntity<Passenger> getPassengerByFirstNameIgnoreCase(
+            @PathVariable String firstName) {
+        return passengerService
+                .findPassengerByFirstNameIgnoreCase(firstName)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Passenger createPassenger(@RequestBody @Validated PassengerDTO passengerDTO) {

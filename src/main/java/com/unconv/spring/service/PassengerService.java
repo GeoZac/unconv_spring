@@ -36,6 +36,10 @@ public class PassengerService {
         return passengerRepository.findById(id);
     }
 
+    public Optional<Passenger> findPassengerByFirstNameIgnoreCase(String firstName) {
+        return passengerRepository.findByFirstNameIgnoreCase(firstName);
+    }
+
     public Passenger savePassenger(Passenger passenger) {
         passenger.setAge(passenger.getDateOfBirth());
         return passengerRepository.save(passenger);
