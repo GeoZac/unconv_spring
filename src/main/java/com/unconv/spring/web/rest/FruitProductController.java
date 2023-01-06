@@ -1,9 +1,11 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.FruitProduct;
+import com.unconv.spring.dto.FruitProductDTO;
 import com.unconv.spring.service.FruitProductService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,8 @@ public class FruitProductController {
 
     @Autowired private FruitProductService fruitProductService;
 
+    @Autowired private ModelMapper modelMapper;
+
     @GetMapping
     public List<FruitProduct> getAllFruitProducts() {
         return fruitProductService.findAllFruitProducts();
@@ -40,20 +44,23 @@ public class FruitProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FruitProduct createFruitProduct(@RequestBody @Validated FruitProduct fruitProduct) {
-        return fruitProductService.saveFruitProduct(fruitProduct);
+    public FruitProduct createFruitProduct(
+            @RequestBody @Validated FruitProductDTO fruitProductDTO) {
+        return fruitProductService.saveFruitProduct(
+                modelMapper.map(fruitProductDTO, FruitProduct.class));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<FruitProduct> updateFruitProduct(
-            @PathVariable Long id, @RequestBody FruitProduct fruitProduct) {
+            @PathVariable Long id, @RequestBody FruitProductDTO fruitProductDTO) {
         return fruitProductService
                 .findFruitProductById(id)
                 .map(
                         fruitProductObj -> {
-                            fruitProduct.setId(id);
+                            fruitProductDTO.setId(id);
                             return ResponseEntity.ok(
-                                    fruitProductService.saveFruitProduct(fruitProduct));
+                                    fruitProductService.saveFruitProduct(
+                                            modelMapper.map(fruitProductDTO, FruitProduct.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

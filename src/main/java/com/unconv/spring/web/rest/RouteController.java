@@ -1,10 +1,12 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Route;
+import com.unconv.spring.dto.RouteDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.RouteService;
 import com.unconv.spring.utils.AppConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class RouteController {
 
     @Autowired private RouteService routeService;
+
+    @Autowired private ModelMapper modelMapper;
 
     @GetMapping
     public PagedResult<Route> getAllRoutes(
@@ -67,13 +71,15 @@ public class RouteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Route> updateRoute(@PathVariable Long id, @RequestBody Route route) {
+    public ResponseEntity<Route> updateRoute(
+            @PathVariable Long id, @RequestBody RouteDTO routeDTO) {
         return routeService
                 .findRouteById(id)
                 .map(
                         routeObj -> {
-                            route.setId(id);
-                            return ResponseEntity.ok(routeService.saveRoute(route));
+                            routeDTO.setId(id);
+                            return ResponseEntity.ok(
+                                    routeService.saveRoute(modelMapper.map(routeDTO, Route.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

@@ -1,9 +1,11 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Heater;
+import com.unconv.spring.dto.HeaterDTO;
 import com.unconv.spring.service.HeaterService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,8 @@ public class HeaterController {
 
     @Autowired private HeaterService heaterService;
 
+    @Autowired private ModelMapper modelMapper;
+
     @GetMapping
     public List<Heater> getAllHeaters() {
         return heaterService.findAllHeaters();
@@ -40,18 +44,21 @@ public class HeaterController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Heater createHeater(@RequestBody @Validated Heater heater) {
-        return heaterService.saveHeater(heater);
+    public Heater createHeater(@RequestBody @Validated HeaterDTO heaterDTO) {
+        return heaterService.saveHeater(modelMapper.map(heaterDTO, Heater.class));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Heater> updateHeater(@PathVariable Long id, @RequestBody Heater heater) {
+    public ResponseEntity<Heater> updateHeater(
+            @PathVariable Long id, @RequestBody HeaterDTO heaterDTO) {
         return heaterService
                 .findHeaterById(id)
                 .map(
                         heaterObj -> {
-                            heater.setId(id);
-                            return ResponseEntity.ok(heaterService.saveHeater(heater));
+                            heaterDTO.setId(id);
+                            return ResponseEntity.ok(
+                                    heaterService.saveHeater(
+                                            modelMapper.map(heaterDTO, Heater.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

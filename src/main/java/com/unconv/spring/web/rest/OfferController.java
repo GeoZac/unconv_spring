@@ -1,9 +1,11 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Offer;
+import com.unconv.spring.dto.OfferDTO;
 import com.unconv.spring.service.OfferService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,8 @@ public class OfferController {
 
     @Autowired private OfferService offerService;
 
+    @Autowired private ModelMapper modelMapper;
+
     @GetMapping
     public List<Offer> getAllOffers() {
         return offerService.findAllOffers();
@@ -40,18 +44,20 @@ public class OfferController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Offer createOffer(@RequestBody @Validated Offer offer) {
-        return offerService.saveOffer(offer);
+    public Offer createOffer(@RequestBody @Validated OfferDTO offerDTO) {
+        return offerService.saveOffer(modelMapper.map(offerDTO, Offer.class));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Offer> updateOffer(@PathVariable Long id, @RequestBody Offer offer) {
+    public ResponseEntity<Offer> updateOffer(
+            @PathVariable Long id, @RequestBody OfferDTO offerDTO) {
         return offerService
                 .findOfferById(id)
                 .map(
                         offerObj -> {
-                            offer.setId(id);
-                            return ResponseEntity.ok(offerService.saveOffer(offer));
+                            offerDTO.setId(id);
+                            return ResponseEntity.ok(
+                                    offerService.saveOffer(modelMapper.map(offerDTO, Offer.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
