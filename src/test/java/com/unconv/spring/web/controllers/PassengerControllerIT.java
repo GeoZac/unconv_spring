@@ -92,6 +92,17 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFindPassengerByByFirstNameIgnoringCase() throws Exception {
+        Passenger passenger = passengerList.get(0);
+        String passengerName = passenger.getFirstName().toLowerCase();
+
+        this.mockMvc
+                .perform(get("/Passenger/search/firstName/{firstName}", passengerName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
+    }
+
+    @Test
     void shouldCreateNewPassenger() throws Exception {
         Passenger passenger =
                 new Passenger(
@@ -156,6 +167,14 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenFetchingNonExistingPassenger() throws Exception {
         Long passengerId = 0L;
         this.mockMvc.perform(get("/Passenger/{id}", passengerId)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenSearchingNonExistingPassenger() throws Exception {
+        String notExistingName = "ZZZZZZZZZ";
+        this.mockMvc
+                .perform(get("/Passenger/search/firstName/{firstName}", notExistingName))
+                .andExpect(status().isNotFound());
     }
 
     @Test

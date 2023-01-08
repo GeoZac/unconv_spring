@@ -119,6 +119,17 @@ class PassengerControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenSearchingNonExistingPassengerByFirstName() throws Exception {
+        String notExistingName = "ZZZZZZZZZ";
+        given(passengerService.findPassengerByFirstNameIgnoreCase(notExistingName))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(get("/Passenger/search/firstName/{firstName}", notExistingName))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldCreateNewPassenger() throws Exception {
         given(passengerService.savePassenger(any(Passenger.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
