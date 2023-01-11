@@ -66,8 +66,8 @@ public class RouteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Route createRoute(@RequestBody @Validated Route route) {
-        return routeService.saveRoute(route);
+    public Route createRoute(@RequestBody @Validated RouteDTO routeDTO) {
+        return routeService.saveRoute(modelMapper.map(routeDTO, Route.class));
     }
 
     @PutMapping("/{id}")
