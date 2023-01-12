@@ -15,7 +15,7 @@ public class OfferDTO {
 
     private Long id;
 
-    @Pattern(regexp = "^0x(?:[0-9a-fA-F]{3,4}){1,2}$")
+    @Pattern(regexp = "^0x(?:[0-9a-fA-F]{4}){1,2}$")
     @NotEmpty(message = "Badge color cannot be empty")
     private String badgeColor;
 
