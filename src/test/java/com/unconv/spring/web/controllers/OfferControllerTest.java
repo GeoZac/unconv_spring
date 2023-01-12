@@ -198,7 +198,7 @@ class OfferControllerTest {
                 .andExpect(
                         jsonPath(
                                 "$.violations[0].message",
-                                is("must match \"^0x(?:[0-9a-fA-F]{3,4}){1,2}$\"")))
+                                is("must match \"^0x(?:[0-9a-fA-F]{4}){1,2}$\"")))
                 .andReturn();
     }
 }
