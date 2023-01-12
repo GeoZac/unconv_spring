@@ -92,6 +92,27 @@ class OfferControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenUpdatingOfferWithInvalidColor() throws Exception {
+        Offer updatedOffer = offerList.get(1);
+        updatedOffer.setBadgeColor("0x00aa4f");
+
+        this.mockMvc
+                .perform(
+                        put("/Offer/{id}", updatedOffer.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedOffer)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andReturn();
+    }
+
+    @Test
     void shouldUpdateOffer() throws Exception {
         Offer offer = offerList.get(0);
         offer.setBadgeColor("0xff000000");
