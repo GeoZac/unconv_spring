@@ -154,6 +154,33 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenUpdatingPassengerWithoutFirstLastName() throws Exception {
+        Passenger updatedPassenger = passengerList.get(1);
+        updatedPassenger.setFirstName(null);
+        updatedPassenger.setLastName(null);
+
+        this.mockMvc
+                .perform(
+                        put("/Passenger/{id}", updatedPassenger.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedPassenger)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("firstName")))
+                .andExpect(jsonPath("$.violations[0].message", is("First name cannot be empty")))
+                .andExpect(jsonPath("$.violations[1].field", is("lastName")))
+                .andExpect(jsonPath("$.violations[1].message", is("Last name cannot be empty")))
+                .andReturn();
+    }
+
+    @Test
     void shouldDeletePassenger() throws Exception {
         Passenger passenger = passengerList.get(0);
 
