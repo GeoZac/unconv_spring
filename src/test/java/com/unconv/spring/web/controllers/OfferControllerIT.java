@@ -109,6 +109,12 @@ class OfferControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("badgeColor")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must match \"^0x(?:[0-9a-fA-F]{4}){1,2}$\"")))
                 .andReturn();
     }
 
