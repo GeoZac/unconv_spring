@@ -5,6 +5,7 @@ import com.unconv.spring.dto.RouteDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.RouteService;
 import com.unconv.spring.utils.AppConstants;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,7 @@ public class RouteController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Route> updateRoute(
-            @PathVariable Long id, @RequestBody RouteDTO routeDTO) {
+            @PathVariable Long id, @RequestBody @Valid RouteDTO routeDTO) {
         return routeService
                 .findRouteById(id)
                 .map(
