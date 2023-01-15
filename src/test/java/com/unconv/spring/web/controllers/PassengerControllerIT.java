@@ -207,7 +207,14 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingPassenger() throws Exception {
         Long passengerId = 0L;
-        Passenger passenger = new Passenger();
+        Passenger passenger =
+                new Passenger(
+                        passengerId,
+                        "Edgar",
+                        "Allan",
+                        "Poe",
+                        LocalDate.of(1809, 1, 19),
+                        Gender.MALE);
 
         this.mockMvc
                 .perform(
