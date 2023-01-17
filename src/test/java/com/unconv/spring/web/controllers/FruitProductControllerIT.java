@@ -158,6 +158,33 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenUpdatingwithInvalidFruitProduct() throws Exception {
+        FruitProduct updatedFruitProduct = fruitProductList.get(0);
+        updatedFruitProduct.setCostPrice(0);
+        updatedFruitProduct.setPackageWeight(null);
+        updatedFruitProduct.setSellingPrice(0);
+        updatedFruitProduct.setFruit(null);
+
+        this.mockMvc
+                .perform(
+                        put("/FruitProduct/{id}", updatedFruitProduct.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedFruitProduct)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("fruit")))
+                .andExpect(jsonPath("$.violations[0].message", is("Fruit cannot be empty")))
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn404WhenUpdatingNonExistingFruitProduct() throws Exception {
         Long fruitProductId = 1L;
         Fruit fruit = new Fruit();

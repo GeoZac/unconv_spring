@@ -4,6 +4,7 @@ import com.unconv.spring.domain.Fruit;
 import com.unconv.spring.dto.FruitDTO;
 import com.unconv.spring.service.FruitService;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class FruitController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Fruit> updateFruit(
-            @PathVariable Long id, @RequestBody FruitDTO fruitDTO) {
+            @PathVariable Long id, @RequestBody @Valid FruitDTO fruitDTO) {
         return fruitService
                 .findFruitById(id)
                 .map(

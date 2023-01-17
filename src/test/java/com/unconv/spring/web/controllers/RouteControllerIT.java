@@ -148,7 +148,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingRoute() throws Exception {
         Long routeId = 0L;
-        Route route = new Route();
+        Route route = new Route(routeId, "Updated route");
 
         this.mockMvc
                 .perform(
@@ -156,6 +156,30 @@ class RouteControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn400WhenUpdatingInvalidRoute() throws Exception {
+        Route updatedRoute = routeList.get(0);
+        updatedRoute.setText(null);
+
+        this.mockMvc
+                .perform(
+                        put("/Route/{id}", updatedRoute.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedRoute)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("text")))
+                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andReturn();
     }
 
     @Test

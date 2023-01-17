@@ -5,6 +5,7 @@ import com.unconv.spring.dto.PassengerDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.utils.AppConstants;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,7 @@ public class PassengerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Passenger> updatePassenger(
-            @PathVariable Long id, @RequestBody PassengerDTO passengerDTO) {
+            @PathVariable Long id, @RequestBody @Valid PassengerDTO passengerDTO) {
         return passengerService
                 .findPassengerById(id)
                 .map(

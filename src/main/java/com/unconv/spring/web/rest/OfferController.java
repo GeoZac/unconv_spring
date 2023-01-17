@@ -4,6 +4,7 @@ import com.unconv.spring.domain.Offer;
 import com.unconv.spring.dto.OfferDTO;
 import com.unconv.spring.service.OfferService;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class OfferController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Offer> updateOffer(
-            @PathVariable Long id, @RequestBody OfferDTO offerDTO) {
+            @PathVariable Long id, @RequestBody @Valid OfferDTO offerDTO) {
         return offerService
                 .findOfferById(id)
                 .map(

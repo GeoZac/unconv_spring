@@ -4,6 +4,7 @@ import com.unconv.spring.domain.Heater;
 import com.unconv.spring.dto.HeaterDTO;
 import com.unconv.spring.service.HeaterService;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class HeaterController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Heater> updateHeater(
-            @PathVariable Long id, @RequestBody HeaterDTO heaterDTO) {
+            @PathVariable Long id, @RequestBody @Valid HeaterDTO heaterDTO) {
         return heaterService
                 .findHeaterById(id)
                 .map(
