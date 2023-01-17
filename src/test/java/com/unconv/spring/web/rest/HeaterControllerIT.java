@@ -109,6 +109,34 @@ class HeaterControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenUpdatingInvalidHeater() throws Exception {
+        Heater updatedHeater = heaterList.get(0);
+        updatedHeater.setTempTolerance(null);
+        updatedHeater.setTempTolerance(null);
+
+        this.mockMvc
+                .perform(
+                        put("/Heater/{id}", updatedHeater.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedHeater)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("tempTolerance")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Heater temperature tolerance cannot be empty")))
+                .andReturn();
+    }
+
+    @Test
     void shouldDeleteHeater() throws Exception {
         Heater heater = heaterList.get(0);
 
@@ -128,6 +156,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         Heater heater = new Heater();
         heater.setId(0L);
         heater.setTemperature(27F);
+        heater.setTempTolerance(2F);
 
         this.mockMvc
                 .perform(
