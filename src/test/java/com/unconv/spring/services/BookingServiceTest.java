@@ -62,7 +62,7 @@ class BookingServiceTest {
         assertThat(optionalBooking).isPresent();
         Booking booking = optionalBooking.get();
         assertThat(booking.getId()).isEqualTo(1L);
-        assertThat(booking.getText()).isEqualTo("junitTest");
+        assertThat(booking.getBooking()).isEqualTo("junitTest");
     }
 
     @Test
@@ -74,7 +74,7 @@ class BookingServiceTest {
         // then
         assertThat(persistedBooking).isNotNull();
         assertThat(persistedBooking.getId()).isEqualTo(1L);
-        assertThat(persistedBooking.getText()).isEqualTo("junitTest");
+        assertThat(persistedBooking.getBooking()).isEqualTo("junitTest");
     }
 
     @Test
@@ -90,7 +90,7 @@ class BookingServiceTest {
     private Booking getBooking() {
         Booking booking = new Booking();
         booking.setId(1L);
-        booking.setText("junitTest");
+        booking.setBooking("junitTest");
         return booking;
     }
 }

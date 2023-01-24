@@ -17,9 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.Booking;
+import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.BookingService;
-import com.unconv.spring.web.rest.BookingController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +33,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.zalando.problem.jackson.ProblemModule;
+import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
-@WebMvcTest(controllers = BookingController.class)
+@WebMvcTest(controllers = com.unconv.spring.web.rest.BookingController.class)
 @ActiveProfiles(PROFILE_TEST)
 class BookingControllerTest {
 
@@ -42,16 +44,51 @@ class BookingControllerTest {
 
     @MockBean private BookingService bookingService;
 
+    //    @Autowired private com.unconv.spring.persistence.PassengerRepository passengerService;
+
     @Autowired private ObjectMapper objectMapper;
 
     private List<Booking> bookingList;
 
+    private List<Passenger> passengerList = null;
+
     @BeforeEach
     void setUp() {
+        passengerList = new ArrayList<>();
+        passengerList.add(
+                new Passenger(
+                        1L,
+                        "Robert",
+                        null,
+                        "Langdon",
+                        java.time.LocalDate.of(1972, 8, 13),
+                        com.unconv.spring.consts.Gender.MALE,
+                        null));
+        passengerList.add(
+                new Passenger(
+                        2L,
+                        "Katherine",
+                        null,
+                        "Brewster",
+                        java.time.LocalDate.of(1988, 5, 9),
+                        com.unconv.spring.consts.Gender.FEMALE,
+                        null));
+        passengerList.add(
+                new Passenger(
+                        3L,
+                        "Tom",
+                        "Marvelo",
+                        "Riddle",
+                        java.time.LocalDate.of(1872, 12, 1),
+                        com.unconv.spring.consts.Gender.OTHER,
+                        null));
         this.bookingList = new ArrayList<>();
-        this.bookingList.add(new Booking(1L, "text 1"));
-        this.bookingList.add(new Booking(2L, "text 2"));
-        this.bookingList.add(new Booking(3L, "text 3"));
+        this.bookingList.add(new Booking(1L, "text 1", passengerList));
+        this.bookingList.add(new Booking(2L, "text 2", passengerList));
+        this.bookingList.add(new Booking(3L, "text 3", passengerList));
+
+        objectMapper.registerModule(new ProblemModule());
+        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test
@@ -76,13 +113,13 @@ class BookingControllerTest {
     @Test
     void shouldFindBookingById() throws Exception {
         Long bookingId = 1L;
-        Booking booking = new Booking(bookingId, "text 1");
+        Booking booking = new Booking(bookingId, "text 1", passengerList);
         given(bookingService.findBookingById(bookingId)).willReturn(Optional.of(booking));
 
         this.mockMvc
                 .perform(get("/Booking/{id}", bookingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 
     @Test
@@ -98,7 +135,7 @@ class BookingControllerTest {
         given(bookingService.saveBooking(any(Booking.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        Booking booking = new Booking(1L, "some text");
+        Booking booking = new Booking(1L, "some text", passengerList);
         this.mockMvc
                 .perform(
                         post("/Booking")
@@ -106,12 +143,12 @@ class BookingControllerTest {
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewBookingWithoutText() throws Exception {
-        Booking booking = new Booking(null, null);
+        Booking booking = new Booking(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -127,15 +164,15 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("booking")))
+                .andExpect(jsonPath("$.violations[0].message", is("Booking cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateBooking() throws Exception {
         Long bookingId = 1L;
-        Booking booking = new Booking(bookingId, "Updated text");
+        Booking booking = new Booking(bookingId, "Updated Booking", passengerList);
         given(bookingService.findBookingById(bookingId)).willReturn(Optional.of(booking));
         given(bookingService.saveBooking(any(Booking.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
@@ -146,14 +183,14 @@ class BookingControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingBooking() throws Exception {
         Long bookingId = 1L;
         given(bookingService.findBookingById(bookingId)).willReturn(Optional.empty());
-        Booking booking = new Booking(bookingId, "Updated text");
+        Booking booking = new Booking(bookingId, "Updated text", passengerList);
 
         this.mockMvc
                 .perform(
@@ -166,14 +203,14 @@ class BookingControllerTest {
     @Test
     void shouldDeleteBooking() throws Exception {
         Long bookingId = 1L;
-        Booking booking = new Booking(bookingId, "Some text");
+        Booking booking = new Booking(bookingId, "Some text", passengerList);
         given(bookingService.findBookingById(bookingId)).willReturn(Optional.of(booking));
         doNothing().when(bookingService).deleteBookingById(booking.getId());
 
         this.mockMvc
                 .perform(delete("/Booking/{id}", booking.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 
     @Test

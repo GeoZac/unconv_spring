@@ -13,7 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.Booking;
+import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.persistence.BookingRepository;
+import com.unconv.spring.persistence.PassengerRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,16 +27,49 @@ class BookingControllerIT extends AbstractIntegrationTest {
 
     @Autowired private BookingRepository bookingRepository;
 
+    @Autowired private PassengerRepository passengerRepository;
+
     private List<Booking> bookingList = null;
+    private List<Passenger> passengerList = null;
 
     @BeforeEach
     void setUp() {
         bookingRepository.deleteAllInBatch();
 
+        passengerList = new ArrayList<>();
+        passengerList.add(
+                new com.unconv.spring.domain.Passenger(
+                        1L,
+                        "Robert",
+                        null,
+                        "Langdon",
+                        java.time.LocalDate.of(1972, 8, 13),
+                        com.unconv.spring.consts.Gender.MALE,
+                        null));
+        passengerList.add(
+                new com.unconv.spring.domain.Passenger(
+                        2L,
+                        "Katherine",
+                        null,
+                        "Brewster",
+                        java.time.LocalDate.of(1988, 5, 9),
+                        com.unconv.spring.consts.Gender.FEMALE,
+                        null));
+        passengerList.add(
+                new com.unconv.spring.domain.Passenger(
+                        3L,
+                        "Tom",
+                        "Marvelo",
+                        "Riddle",
+                        java.time.LocalDate.of(1872, 12, 1),
+                        com.unconv.spring.consts.Gender.OTHER,
+                        null));
+        passengerList = passengerRepository.saveAll(passengerList);
+
         bookingList = new ArrayList<>();
-        bookingList.add(new Booking(null, "First Booking"));
-        bookingList.add(new Booking(null, "Second Booking"));
-        bookingList.add(new Booking(null, "Third Booking"));
+        bookingList.add(new Booking(1L, "First Booking", passengerList));
+        bookingList.add(new Booking(2L, "Second Booking", passengerList));
+        bookingList.add(new Booking(3L, "Third Booking", passengerList));
         bookingList = bookingRepository.saveAll(bookingList);
     }
 
@@ -61,13 +96,12 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Booking/{id}", bookingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(booking.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 
     @Test
     void shouldCreateNewBooking() throws Exception {
-        Booking booking = new Booking(null, "New Booking");
+        Booking booking = new Booking(null, "New Booking", passengerList);
         this.mockMvc
                 .perform(
                         post("/Booking")
@@ -75,12 +109,13 @@ class BookingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())))
+                .andExpect(jsonPath("$.passengers.size()", is(booking.getPassengers().size())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewBookingWithoutText() throws Exception {
-        Booking booking = new Booking(null, null);
+        Booking booking = new Booking(4L, null, passengerList);
 
         this.mockMvc
                 .perform(
@@ -96,15 +131,15 @@ class BookingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("booking")))
+                .andExpect(jsonPath("$.violations[0].message", is("Booking cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateBooking() throws Exception {
         Booking booking = bookingList.get(0);
-        booking.setText("Updated Booking");
+        booking.setBooking("Updated Booking");
 
         this.mockMvc
                 .perform(
@@ -112,8 +147,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(booking.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 
     @Test
@@ -123,7 +157,6 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Booking/{id}", booking.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(booking.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(booking.getText())));
+                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
 }
