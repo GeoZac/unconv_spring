@@ -54,7 +54,14 @@ class PassengerControllerTest {
         this.passengerList = new ArrayList<>();
         this.passengerList.add(
                 new Passenger(
-                        1L, "Robert", null, "Langdon", 0, LocalDate.of(1972, 8, 13), Gender.MALE));
+                        1L,
+                        "Robert",
+                        null,
+                        "Langdon",
+                        0,
+                        LocalDate.of(1972, 8, 13),
+                        Gender.MALE,
+                        null));
         this.passengerList.add(
                 new Passenger(
                         2L,
@@ -149,7 +156,7 @@ class PassengerControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null, null);
+        Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
 
         this.mockMvc
                 .perform(
