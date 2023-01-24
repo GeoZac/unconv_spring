@@ -96,7 +96,7 @@ public class Passenger {
     private Booking booking;
 
     public void setAge(LocalDate dateOfBirth) {
-        LocalDate currentDate = java.time.LocalDate.now();
+        LocalDate currentDate = LocalDate.now();
         this.age = Period.between(dateOfBirth, currentDate).getYears();
     }
 }

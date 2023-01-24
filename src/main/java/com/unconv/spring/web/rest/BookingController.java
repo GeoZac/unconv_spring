@@ -1,10 +1,12 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.Booking;
+import com.unconv.spring.dto.BookingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.BookingService;
 import com.unconv.spring.utils.AppConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookingController {
 
     private final BookingService bookingService;
+
+    @Autowired private ModelMapper modelMapper;
 
     @Autowired
     public BookingController(BookingService bookingService) {
@@ -67,19 +71,21 @@ public class BookingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Booking createBooking(@RequestBody @Validated Booking booking) {
-        return bookingService.saveBooking(booking);
+    public Booking createBooking(@RequestBody @Validated BookingDTO bookingDTO) {
+        return bookingService.saveBooking(modelMapper.map(bookingDTO, Booking.class));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Booking> updateBooking(
-            @PathVariable Long id, @RequestBody Booking booking) {
+            @PathVariable Long id, @RequestBody BookingDTO bookingDTO) {
         return bookingService
                 .findBookingById(id)
                 .map(
                         bookingObj -> {
-                            booking.setId(id);
-                            return ResponseEntity.ok(bookingService.saveBooking(booking));
+                            bookingDTO.setId(id);
+                            return ResponseEntity.ok(
+                                    bookingService.saveBooking(
+                                            modelMapper.map(bookingDTO, Booking.class)));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

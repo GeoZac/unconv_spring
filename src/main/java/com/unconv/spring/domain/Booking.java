@@ -46,10 +46,14 @@ public class Booking {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+            return false;
+        }
         Booking booking = (Booking) o;
-        return id != null && Objects.equals(id, booking.id);
+        return Objects.equals(id, booking.id);
     }
 
     @Override
