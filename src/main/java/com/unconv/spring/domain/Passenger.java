@@ -1,8 +1,10 @@
 package com.unconv.spring.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.unconv.spring.consts.Gender;
 import java.time.LocalDate;
 import java.time.Period;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,6 +12,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
@@ -41,6 +45,23 @@ public class Passenger {
         this.gender = gender;
     }
 
+    public Passenger(
+            Long id,
+            String firstName,
+            String middleName,
+            String lastName,
+            LocalDate dateOfBirth,
+            Gender gender,
+            Booking booking) {
+        this.id = id;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
+        this.booking = booking;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -68,6 +89,11 @@ public class Passenger {
     @Column(nullable = false)
     @NotNull(message = "Gender cannot be null")
     private Gender gender;
+
+    @JsonBackReference
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
 
     public void setAge(LocalDate dateOfBirth) {
         LocalDate currentDate = java.time.LocalDate.now();

@@ -1,6 +1,7 @@
 package com.unconv.spring.dto;
 
 import com.unconv.spring.consts.Gender;
+import com.unconv.spring.domain.Booking;
 import java.time.LocalDate;
 import java.time.Period;
 import javax.persistence.EnumType;
@@ -39,6 +40,8 @@ public class PassengerDTO {
     @Enumerated(EnumType.ORDINAL)
     @NotNull(message = "Gender cannot be null")
     private Gender gender;
+
+    private Booking booking;
 
     public void setAge(LocalDate dateOfBirth) {
         LocalDate currentDate = java.time.LocalDate.now();
