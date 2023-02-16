@@ -39,9 +39,24 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFetchAllOrderProducts() throws Exception {
+    void shouldFetchAllBookingsInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/OrderProduct"))
+                .perform(get("/OrderProduct").param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(orderProductList.size())))
+                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllBookingsInDescendingOrder() throws Exception {
+        this.mockMvc
+                .perform(get("/OrderProduct").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(orderProductList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -125,5 +140,34 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingOrderProduct() throws Exception {
+        Long orderProductId = 0L;
+        this.mockMvc
+                .perform(get("/OrderProduct/{id}", orderProductId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingOrderProduct() throws Exception {
+        Long orderProductId = 0L;
+        OrderProduct orderProduct = orderProductList.get(1);
+
+        this.mockMvc
+                .perform(
+                        put("/OrderProduct/{id}", orderProductId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(orderProduct)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingOrderProduct() throws Exception {
+        Long orderProductId = 0L;
+        this.mockMvc
+                .perform(delete("/OrderProduct/{id}", orderProductId))
+                .andExpect(status().isNotFound());
     }
 }
