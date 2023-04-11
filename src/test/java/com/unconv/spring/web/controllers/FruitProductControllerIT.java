@@ -17,13 +17,15 @@ import com.unconv.spring.domain.Offer;
 import com.unconv.spring.persistence.FruitProductRepository;
 import com.unconv.spring.persistence.FruitRepository;
 import com.unconv.spring.persistence.OfferRepository;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class FruitProductControllerIT extends AbstractIntegrationTest {
 
