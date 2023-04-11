@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -19,9 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.Heater;
 import com.unconv.spring.service.HeaterService;
 import com.unconv.spring.web.rest.HeaterController;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @WebMvcTest(controllers = HeaterController.class)
 @ActiveProfiles(PROFILE_TEST)

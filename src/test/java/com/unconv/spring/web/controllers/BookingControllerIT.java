@@ -16,12 +16,14 @@ import com.unconv.spring.domain.Booking;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.persistence.BookingRepository;
 import com.unconv.spring.persistence.PassengerRepository;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class BookingControllerIT extends AbstractIntegrationTest {
 
