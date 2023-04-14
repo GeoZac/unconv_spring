@@ -8,6 +8,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,6 +35,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -44,6 +49,7 @@ import java.util.Optional;
 @ActiveProfiles(PROFILE_TEST)
 class FruitProductControllerTest {
 
+    @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private MockMvc mockMvc;
 
     @MockBean private FruitProductService fruitProductService;
@@ -58,6 +64,14 @@ class FruitProductControllerTest {
 
     @BeforeEach
     void setUp() {
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/FruitProduct")
+                                        .with(user("username").roles("USER")))
+                        .apply(springSecurity())
+                        .build();
+
         this.fruitProductList = new ArrayList<>();
         Fruit fruit =
                 new Fruit(
