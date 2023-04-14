@@ -38,6 +38,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @WebMvcTest(controllers = OrderProductController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -54,9 +55,9 @@ class OrderProductControllerTest {
     @BeforeEach
     void setUp() {
         this.orderProductList = new ArrayList<>();
-        this.orderProductList.add(new OrderProduct(1L, "text 1"));
-        this.orderProductList.add(new OrderProduct(2L, "text 2"));
-        this.orderProductList.add(new OrderProduct(3L, "text 3"));
+        this.orderProductList.add(new OrderProduct(null, "text 1"));
+        this.orderProductList.add(new OrderProduct(null, "text 2"));
+        this.orderProductList.add(new OrderProduct(null, "text 3"));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -84,7 +85,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldFindOrderProductById() throws Exception {
-        Long orderProductId = 1L;
+        UUID orderProductId = UUID.randomUUID();
         OrderProduct orderProduct = new OrderProduct(orderProductId, "text 1");
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
@@ -97,7 +98,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldReturn404WhenFetchingNonExistingOrderProduct() throws Exception {
-        Long orderProductId = 1L;
+        UUID orderProductId = UUID.randomUUID();
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.empty());
 
@@ -111,7 +112,7 @@ class OrderProductControllerTest {
         given(orderProductService.saveOrderProduct(any(OrderProduct.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        OrderProduct orderProduct = new OrderProduct(1L, "some text");
+        OrderProduct orderProduct = new OrderProduct(UUID.randomUUID(), "some text");
         this.mockMvc
                 .perform(
                         post("/OrderProduct")
@@ -147,7 +148,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldUpdateOrderProduct() throws Exception {
-        Long orderProductId = 1L;
+        UUID orderProductId = UUID.randomUUID();
         OrderProduct orderProduct = new OrderProduct(orderProductId, "Updated text");
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
@@ -165,7 +166,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingOrderProduct() throws Exception {
-        Long orderProductId = 1L;
+        UUID orderProductId = UUID.randomUUID();
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.empty());
         OrderProduct orderProduct = new OrderProduct(orderProductId, "Updated text");
@@ -180,7 +181,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldDeleteOrderProduct() throws Exception {
-        Long orderProductId = 1L;
+        UUID orderProductId = UUID.randomUUID();
         OrderProduct orderProduct = new OrderProduct(orderProductId, "Some text");
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
@@ -194,7 +195,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldReturn404WhenDeletingNonExistingOrderProduct() throws Exception {
-        Long orderProductId = 1L;
+        UUID orderProductId = UUID.randomUUID();
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.empty());
 
