@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 class OrderProductControllerIT extends AbstractIntegrationTest {
 
@@ -73,12 +74,12 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldFindOrderProductById() throws Exception {
         OrderProduct orderProduct = orderProductList.get(0);
-        Long orderProductId = orderProduct.getId();
+        UUID orderProductId = orderProduct.getId();
 
         this.mockMvc
                 .perform(get("/OrderProduct/{id}", orderProductId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
     }
 
@@ -129,7 +130,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(orderProduct)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
     }
 
@@ -140,13 +141,13 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/OrderProduct/{id}", orderProduct.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
     }
 
     @Test
     void shouldReturn404WhenFetchingNonExistingOrderProduct() throws Exception {
-        Long orderProductId = 0L;
+        UUID orderProductId = UUID.randomUUID();
         this.mockMvc
                 .perform(get("/OrderProduct/{id}", orderProductId))
                 .andExpect(status().isNotFound());
@@ -154,7 +155,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingOrderProduct() throws Exception {
-        Long orderProductId = 0L;
+        UUID orderProductId = UUID.randomUUID();
         OrderProduct orderProduct = orderProductList.get(1);
 
         this.mockMvc
@@ -167,7 +168,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn404WhenDeletingNonExistingOrderProduct() throws Exception {
-        Long orderProductId = 0L;
+        UUID orderProductId = UUID.randomUUID();
         this.mockMvc
                 .perform(delete("/OrderProduct/{id}", orderProductId))
                 .andExpect(status().isNotFound());

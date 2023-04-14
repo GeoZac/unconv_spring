@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -34,7 +35,7 @@ public class OrderProductService {
         return new PagedResult<>(orderProductsPage);
     }
 
-    public Optional<OrderProduct> findOrderProductById(Long id) {
+    public Optional<OrderProduct> findOrderProductById(UUID id) {
         return orderProductRepository.findById(id);
     }
 
@@ -42,7 +43,7 @@ public class OrderProductService {
         return orderProductRepository.save(orderProduct);
     }
 
-    public void deleteOrderProductById(Long id) {
+    public void deleteOrderProductById(UUID id) {
         orderProductRepository.deleteById(id);
     }
 }

@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 import javax.validation.Valid;
 
 @RestController
@@ -61,7 +63,7 @@ public class OrderProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderProduct> getOrderProductById(@PathVariable Long id) {
+    public ResponseEntity<OrderProduct> getOrderProductById(@PathVariable UUID id) {
         return orderProductService
                 .findOrderProductById(id)
                 .map(ResponseEntity::ok)
@@ -78,7 +80,7 @@ public class OrderProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<OrderProduct> updateOrderProduct(
-            @PathVariable Long id, @RequestBody @Valid OrderProductDTO orderProductDTO) {
+            @PathVariable UUID id, @RequestBody @Valid OrderProductDTO orderProductDTO) {
         return orderProductService
                 .findOrderProductById(id)
                 .map(
@@ -92,7 +94,7 @@ public class OrderProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<OrderProduct> deleteOrderProduct(@PathVariable Long id) {
+    public ResponseEntity<OrderProduct> deleteOrderProduct(@PathVariable UUID id) {
         return orderProductService
                 .findOrderProductById(id)
                 .map(

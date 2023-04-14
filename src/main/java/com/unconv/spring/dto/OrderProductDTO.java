@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotEmpty;
 
 @Getter
@@ -13,7 +15,7 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class OrderProductDTO {
 
-    private Long id;
+    private UUID id;
 
     @NotEmpty(message = "Text cannot be empty")
     private String text;
