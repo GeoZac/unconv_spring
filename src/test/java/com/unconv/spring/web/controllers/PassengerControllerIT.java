@@ -2,6 +2,9 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,12 +22,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 class PassengerControllerIT extends AbstractIntegrationTest {
+    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private PassengerRepository passengerRepository;
 
@@ -32,6 +39,14 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        this.mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/Passenger")
+                                        .with(user("username").roles("USER")))
+                        .apply(springSecurity())
+                        .build();
+
         passengerRepository.deleteAll();
 
         passengerList = new ArrayList<>();
@@ -112,6 +127,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Passenger")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isCreated())
@@ -125,6 +141,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Passenger")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isBadRequest())
@@ -149,6 +166,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Passenger/{id}", passenger.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isOk())
@@ -164,6 +182,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Passenger/{id}", updatedPassenger.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updatedPassenger)))
                 .andExpect(status().isBadRequest())
@@ -187,7 +206,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         Passenger passenger = passengerList.get(0);
 
         this.mockMvc
-                .perform(delete("/Passenger/{id}", passenger.getId()))
+                .perform(delete("/Passenger/{id}", passenger.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
@@ -221,6 +240,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Passenger/{id}", passengerId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isNotFound());
@@ -230,7 +250,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenDeletingNonExistingPassenger() throws Exception {
         Long passengerId = 0L;
         this.mockMvc
-                .perform(delete("/Passenger/{id}", passengerId))
+                .perform(delete("/Passenger/{id}", passengerId).with(csrf()))
                 .andExpect(status().isNotFound());
     }
 }

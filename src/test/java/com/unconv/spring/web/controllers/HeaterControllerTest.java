@@ -8,6 +8,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,6 +32,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -40,6 +46,8 @@ import java.util.Optional;
 @ActiveProfiles(PROFILE_TEST)
 class HeaterControllerTest {
 
+    @Autowired private WebApplicationContext webApplicationContext;
+
     @Autowired private MockMvc mockMvc;
 
     @MockBean private HeaterService heaterService;
@@ -50,6 +58,14 @@ class HeaterControllerTest {
 
     @BeforeEach
     void setUp() {
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/Heater")
+                                        .with(user("username").roles("USER")))
+                        .apply(springSecurity())
+                        .build();
+
         this.heaterList = new ArrayList<>();
         heaterList.add(new Heater(1L, 34F, 2F));
         heaterList.add(new Heater(2L, 40F, 1F));
@@ -98,6 +114,7 @@ class HeaterControllerTest {
         this.mockMvc
                 .perform(
                         post("/Heater")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isCreated())
@@ -112,6 +129,7 @@ class HeaterControllerTest {
         this.mockMvc
                 .perform(
                         post("/Heater")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isBadRequest())
@@ -142,6 +160,7 @@ class HeaterControllerTest {
         this.mockMvc
                 .perform(
                         put("/Heater/{id}", heater.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isOk())
@@ -157,6 +176,7 @@ class HeaterControllerTest {
         this.mockMvc
                 .perform(
                         put("/Heater/{id}", heaterId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isNotFound());
@@ -170,7 +190,7 @@ class HeaterControllerTest {
         doNothing().when(heaterService).deleteHeaterById(heater.getId());
 
         this.mockMvc
-                .perform(delete("/Heater/{id}", heater.getId()))
+                .perform(delete("/Heater/{id}", heater.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
@@ -180,6 +200,8 @@ class HeaterControllerTest {
         Long heaterId = 1L;
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.empty());
 
-        this.mockMvc.perform(delete("/Heater/{id}", heaterId)).andExpect(status().isNotFound());
+        this.mockMvc
+                .perform(delete("/Heater/{id}", heaterId).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 }

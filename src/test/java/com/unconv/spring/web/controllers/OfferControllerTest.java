@@ -8,6 +8,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,6 +32,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -40,6 +46,8 @@ import java.util.Optional;
 @ActiveProfiles(PROFILE_TEST)
 class OfferControllerTest {
 
+    @Autowired private WebApplicationContext webApplicationContext;
+
     @Autowired private MockMvc mockMvc;
 
     @MockBean private OfferService offerService;
@@ -50,6 +58,14 @@ class OfferControllerTest {
 
     @BeforeEach
     void setUp() {
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/Offer")
+                                        .with(user("username").roles("USER")))
+                        .apply(springSecurity())
+                        .build();
+
         this.offerList = new ArrayList<>();
         this.offerList.add(new Offer(1L, "0xffc62828", "50% OFF"));
         this.offerList.add(new Offer(2L, "0xff00aa4f", "OFFER"));
@@ -98,6 +114,7 @@ class OfferControllerTest {
         this.mockMvc
                 .perform(
                         post("/Offer")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isCreated())
@@ -112,6 +129,7 @@ class OfferControllerTest {
         this.mockMvc
                 .perform(
                         post("/Offer")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isBadRequest())
@@ -139,6 +157,7 @@ class OfferControllerTest {
         this.mockMvc
                 .perform(
                         put("/Offer/{id}", offer.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isOk())
@@ -154,6 +173,7 @@ class OfferControllerTest {
         this.mockMvc
                 .perform(
                         put("/Offer/{id}", offerId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isNotFound());
@@ -167,7 +187,7 @@ class OfferControllerTest {
         doNothing().when(offerService).deleteOfferById(offer.getId());
 
         this.mockMvc
-                .perform(delete("/Offer/{id}", offer.getId()))
+                .perform(delete("/Offer/{id}", offer.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
@@ -177,7 +197,9 @@ class OfferControllerTest {
         Long offerId = 1L;
         given(offerService.findOfferById(offerId)).willReturn(Optional.empty());
 
-        this.mockMvc.perform(delete("/Offer/{id}", offerId)).andExpect(status().isNotFound());
+        this.mockMvc
+                .perform(delete("/Offer/{id}", offerId).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -186,6 +208,7 @@ class OfferControllerTest {
         this.mockMvc
                 .perform(
                         post("/Offer")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isBadRequest())

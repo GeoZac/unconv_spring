@@ -3,6 +3,9 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,11 +22,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class RouteControllerIT extends AbstractIntegrationTest {
+    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private RouteRepository routeRepository;
 
@@ -31,6 +38,14 @@ class RouteControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        this.mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/Route")
+                                        .with(user("username").roles("USER")))
+                        .apply(springSecurity())
+                        .build();
+
         routeRepository.deleteAll();
 
         routeList = new ArrayList<>();
@@ -87,6 +102,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Route")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isCreated())
@@ -101,6 +117,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Route")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isBadRequest())
@@ -125,6 +142,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Route/{id}", route.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isOk())
@@ -136,7 +154,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
         Route route = routeList.get(0);
 
         this.mockMvc
-                .perform(delete("/Route/{id}", route.getId()))
+                .perform(delete("/Route/{id}", route.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text", is(route.getText())));
     }
@@ -155,6 +173,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Route/{id}", routeId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isNotFound());
@@ -168,6 +187,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Route/{id}", updatedRoute.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updatedRoute)))
                 .andExpect(status().isBadRequest())
@@ -187,6 +207,8 @@ class RouteControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenDeletingNonExistingRoute() throws Exception {
         Long routeId = 0L;
-        this.mockMvc.perform(delete("/Route/{id}", routeId)).andExpect(status().isNotFound());
+        this.mockMvc
+                .perform(delete("/Route/{id}", routeId).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 }
