@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -165,6 +166,7 @@ class PassengerControllerTest {
         this.mockMvc
                 .perform(
                         post("/Passenger")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isCreated())
@@ -179,6 +181,7 @@ class PassengerControllerTest {
         this.mockMvc
                 .perform(
                         post("/Passenger")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isBadRequest())
@@ -214,6 +217,7 @@ class PassengerControllerTest {
         this.mockMvc
                 .perform(
                         put("/Passenger/{id}", passenger.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isOk())
@@ -231,6 +235,7 @@ class PassengerControllerTest {
         this.mockMvc
                 .perform(
                         put("/Passenger/{id}", passengerId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(passenger)))
                 .andExpect(status().isNotFound());
@@ -251,7 +256,7 @@ class PassengerControllerTest {
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
 
         this.mockMvc
-                .perform(delete("/Passenger/{id}", passenger.getId()))
+                .perform(delete("/Passenger/{id}", passenger.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is(passenger.getFirstName())));
     }
@@ -262,7 +267,7 @@ class PassengerControllerTest {
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/Passenger/{id}", passengerId))
+                .perform(delete("/Passenger/{id}", passengerId).with(csrf()))
                 .andExpect(status().isNotFound());
     }
 }

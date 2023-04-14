@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -138,6 +139,7 @@ class FruitControllerTest {
         this.mockMvc
                 .perform(
                         post("/Fruit")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isCreated())
@@ -152,6 +154,7 @@ class FruitControllerTest {
         this.mockMvc
                 .perform(
                         post("/Fruit")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isBadRequest())
@@ -185,6 +188,7 @@ class FruitControllerTest {
         this.mockMvc
                 .perform(
                         put("/Fruit/{id}", fruit.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isOk())
@@ -205,6 +209,7 @@ class FruitControllerTest {
         this.mockMvc
                 .perform(
                         put("/Fruit/{id}", fruitId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isNotFound());
@@ -223,7 +228,7 @@ class FruitControllerTest {
         doNothing().when(fruitService).deleteFruitById(fruit.getId());
 
         this.mockMvc
-                .perform(delete("/Fruit/{id}", fruit.getId()))
+                .perform(delete("/Fruit/{id}", fruit.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
@@ -233,7 +238,9 @@ class FruitControllerTest {
         Long fruitId = 1L;
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.empty());
 
-        this.mockMvc.perform(delete("/Fruit/{id}", fruitId)).andExpect(status().isNotFound());
+        this.mockMvc
+                .perform(delete("/Fruit/{id}", fruitId).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -242,6 +249,7 @@ class FruitControllerTest {
         this.mockMvc
                 .perform(
                         post("/Fruit")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isBadRequest())

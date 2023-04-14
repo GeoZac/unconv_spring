@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -145,6 +146,7 @@ class FruitProductControllerTest {
         this.mockMvc
                 .perform(
                         post("/FruitProduct")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isCreated())
@@ -159,6 +161,7 @@ class FruitProductControllerTest {
         this.mockMvc
                 .perform(
                         post("/FruitProduct")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isBadRequest())
@@ -190,6 +193,7 @@ class FruitProductControllerTest {
         this.mockMvc
                 .perform(
                         put("/FruitProduct/{id}", fruitProduct.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isOk())
@@ -209,6 +213,7 @@ class FruitProductControllerTest {
         this.mockMvc
                 .perform(
                         put("/FruitProduct/{id}", fruitProductId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruitProduct)))
                 .andExpect(status().isNotFound());
@@ -226,7 +231,7 @@ class FruitProductControllerTest {
         doNothing().when(fruitProductService).deleteFruitProductById(fruitProduct.getId());
 
         this.mockMvc
-                .perform(delete("/FruitProduct/{id}", fruitProduct.getId()))
+                .perform(delete("/FruitProduct/{id}", fruitProduct.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
@@ -238,7 +243,7 @@ class FruitProductControllerTest {
                 .willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/FruitProduct/{id}", fruitProductId))
+                .perform(delete("/FruitProduct/{id}", fruitProductId).with(csrf()))
                 .andExpect(status().isNotFound());
     }
 }

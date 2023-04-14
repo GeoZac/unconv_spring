@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -156,6 +157,7 @@ class BookingControllerTest {
         this.mockMvc
                 .perform(
                         post("/Booking")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
@@ -170,6 +172,7 @@ class BookingControllerTest {
         this.mockMvc
                 .perform(
                         post("/Booking")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isBadRequest())
@@ -197,6 +200,7 @@ class BookingControllerTest {
         this.mockMvc
                 .perform(
                         put("/Booking/{id}", booking.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isOk())
@@ -212,6 +216,7 @@ class BookingControllerTest {
         this.mockMvc
                 .perform(
                         put("/Booking/{id}", bookingId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isNotFound());
@@ -225,7 +230,7 @@ class BookingControllerTest {
         doNothing().when(bookingService).deleteBookingById(booking.getId());
 
         this.mockMvc
-                .perform(delete("/Booking/{id}", booking.getId()))
+                .perform(delete("/Booking/{id}", booking.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }
@@ -235,6 +240,8 @@ class BookingControllerTest {
         Long bookingId = 1L;
         given(bookingService.findBookingById(bookingId)).willReturn(Optional.empty());
 
-        this.mockMvc.perform(delete("/Booking/{id}", bookingId)).andExpect(status().isNotFound());
+        this.mockMvc
+                .perform(delete("/Booking/{id}", bookingId).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 }
