@@ -79,7 +79,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/OrderProduct/{id}", orderProductId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
     }
 
@@ -130,7 +130,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(orderProduct)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
     }
 
@@ -141,7 +141,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/OrderProduct/{id}", orderProduct.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderProduct.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
     }
 
