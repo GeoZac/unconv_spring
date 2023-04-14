@@ -3,6 +3,8 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,11 +23,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class BookingControllerIT extends AbstractIntegrationTest {
+    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private BookingRepository bookingRepository;
 
@@ -36,6 +42,14 @@ class BookingControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        this.mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/Booking")
+                                        .with(user("username").roles("USER")))
+                        .apply(springSecurity())
+                        .build();
+
         bookingRepository.deleteAllInBatch();
 
         passengerList = new ArrayList<>();
