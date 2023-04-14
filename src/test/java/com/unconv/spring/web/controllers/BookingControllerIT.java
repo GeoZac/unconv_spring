@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -136,6 +137,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Booking")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
@@ -151,6 +153,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Booking")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isBadRequest())
@@ -175,6 +178,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Booking/{id}", booking.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isOk())
@@ -186,7 +190,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
         Booking booking = bookingList.get(0);
 
         this.mockMvc
-                .perform(delete("/Booking/{id}", booking.getId()))
+                .perform(delete("/Booking/{id}", booking.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.booking", is(booking.getBooking())));
     }

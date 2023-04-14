@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -103,6 +104,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/OrderProduct")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(orderProduct)))
                 .andExpect(status().isCreated())
@@ -117,6 +119,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/OrderProduct")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(orderProduct)))
                 .andExpect(status().isBadRequest())
@@ -141,6 +144,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/OrderProduct/{id}", orderProduct.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(orderProduct)))
                 .andExpect(status().isOk())
@@ -153,7 +157,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         OrderProduct orderProduct = orderProductList.get(0);
 
         this.mockMvc
-                .perform(delete("/OrderProduct/{id}", orderProduct.getId()))
+                .perform(delete("/OrderProduct/{id}", orderProduct.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(orderProduct.getId().toString())))
                 .andExpect(jsonPath("$.text", is(orderProduct.getText())));
@@ -175,6 +179,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/OrderProduct/{id}", orderProductId)
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(orderProduct)))
                 .andExpect(status().isNotFound());
@@ -184,7 +189,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenDeletingNonExistingOrderProduct() throws Exception {
         UUID orderProductId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/OrderProduct/{id}", orderProductId))
+                .perform(delete("/OrderProduct/{id}", orderProductId).with(csrf()))
                 .andExpect(status().isNotFound());
     }
 }

@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -78,6 +79,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Heater")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isCreated())
@@ -91,6 +93,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Heater")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isBadRequest())
@@ -118,6 +121,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Heater/{id}", heater.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isOk())
@@ -133,6 +137,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Heater/{id}", updatedHeater.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updatedHeater)))
                 .andExpect(status().isBadRequest())
@@ -157,7 +162,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         Heater heater = heaterList.get(0);
 
         this.mockMvc
-                .perform(delete("/Heater/{id}", heater.getId()))
+                .perform(delete("/Heater/{id}", heater.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(heater.getTemperature()), Float.class));
     }
@@ -177,6 +182,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Heater/{id}", heater.getId())
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(heater)))
                 .andExpect(status().isNotFound());
@@ -184,6 +190,8 @@ class HeaterControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn404WhenDeletingNonExistingHeater() throws Exception {
-        this.mockMvc.perform(delete("/Heater/{id}", 0L)).andExpect(status().isNotFound());
+        this.mockMvc
+                .perform(delete("/Heater/{id}", 0L).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 }
