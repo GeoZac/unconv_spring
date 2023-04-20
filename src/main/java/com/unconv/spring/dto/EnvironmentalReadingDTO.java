@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -13,8 +16,14 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class EnvironmentalReadingDTO {
 
-    private Long id;
+    private UUID id;
 
-    @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    @NotNull(message = "Temperature cannot be empty")
+    private double temperature;
+
+    @NotNull(message = "Humidity cannot be empty")
+    private double humidity;
+
+    @NotNull(message = "Timestamp cannot be empty")
+    private LocalDateTime timestamp;
 }

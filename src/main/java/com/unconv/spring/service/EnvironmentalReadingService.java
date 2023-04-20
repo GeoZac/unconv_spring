@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -35,7 +36,7 @@ public class EnvironmentalReadingService {
         return new PagedResult<>(environmentalReadingsPage);
     }
 
-    public Optional<EnvironmentalReading> findEnvironmentalReadingById(Long id) {
+    public Optional<EnvironmentalReading> findEnvironmentalReadingById(UUID id) {
         return environmentalReadingRepository.findById(id);
     }
 
@@ -44,7 +45,7 @@ public class EnvironmentalReadingService {
         return environmentalReadingRepository.save(environmentalReading);
     }
 
-    public void deleteEnvironmentalReadingById(Long id) {
+    public void deleteEnvironmentalReadingById(UUID id) {
         environmentalReadingRepository.deleteById(id);
     }
 }

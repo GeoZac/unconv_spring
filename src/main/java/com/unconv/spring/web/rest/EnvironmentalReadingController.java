@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 import javax.validation.Valid;
 
 @RestController
@@ -62,7 +64,7 @@ public class EnvironmentalReadingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EnvironmentalReading> getEnvironmentalReadingById(@PathVariable Long id) {
+    public ResponseEntity<EnvironmentalReading> getEnvironmentalReadingById(@PathVariable UUID id) {
         return environmentalReadingService
                 .findEnvironmentalReadingById(id)
                 .map(ResponseEntity::ok)
@@ -79,7 +81,7 @@ public class EnvironmentalReadingController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EnvironmentalReading> updateEnvironmentalReading(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid EnvironmentalReadingDTO environmentalReadingDTO) {
         return environmentalReadingService
                 .findEnvironmentalReadingById(id)
@@ -96,7 +98,7 @@ public class EnvironmentalReadingController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<EnvironmentalReading> deleteEnvironmentalReading(@PathVariable Long id) {
+    public ResponseEntity<EnvironmentalReading> deleteEnvironmentalReading(@PathVariable UUID id) {
         return environmentalReadingService
                 .findEnvironmentalReadingById(id)
                 .map(
