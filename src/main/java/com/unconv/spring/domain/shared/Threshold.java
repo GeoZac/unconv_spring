@@ -29,6 +29,6 @@ import lombok.Setter;
 public class Threshold {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false)
+    @Column(name = "id", columnDefinition = "uuid", nullable = false)
     private UUID id;
 }
