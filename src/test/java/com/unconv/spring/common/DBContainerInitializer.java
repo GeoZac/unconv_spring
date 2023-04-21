@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 @Slf4j
 public class DBContainerInitializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final MySQLContainer<?> sqlContainer =
-            new MySQLContainer<>("mysql:8.0")
+    public static final PostgreSQLContainer<?> sqlContainer =
+            new PostgreSQLContainer<>("postgres:11.1")
                     .withDatabaseName("integration-tests-db")
                     .withUsername("username")
                     .withPassword("password");
