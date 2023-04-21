@@ -409,4 +409,13 @@
             <url>https://repo.spring.io/milestone</url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>render</id>
+            <properties>
+                <spring.profiles.active>render</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 </project>

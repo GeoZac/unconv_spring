@@ -6,23 +6,26 @@
 #RUN mvn clean package -DskipTests
 #ARG JAR_FILE=target/spring-0.0.1-SNAPSHOT.jar
 #COPY ${JAR_FILE} /app/application.jar
-#RUN java -Djarmode=layertools -jar /app/application.jar extract
+FROM openjdk:16-jdk-slim
 
-FROM openjdk:latest
+# Set the working directory
 WORKDIR /app
 
-# Copy project files to container
-COPY . .
+# Copy the application code into the container
+COPY . /app/
+
+# Copy the application-render.properties file from the secrets file location
+RUN --mount=type=secret,id=application-render.properties dst=/app/src/main/resources/application-render.properties
 
 # Build the project with Maven Wrapper
 RUN chmod +x mvnw && \
-    ./mvnw clean package -DskipTests
+    ./mvnw clean package -Prender -DskipTests
 
 # Expose the port used by Spring Boot
 EXPOSE 8080
 
 # Run the Spring Boot application
-CMD ["java", "-jar", "./target/spring-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "./target/spring-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=render"]
 
 
 #FROM adoptopenjdk/openjdk17:alpine-jre
