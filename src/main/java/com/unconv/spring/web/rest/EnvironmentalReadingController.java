@@ -2,6 +2,7 @@ package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.dto.TenMinuteTemperature;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.utils.AppConstants;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -107,5 +109,12 @@ public class EnvironmentalReadingController {
                             return ResponseEntity.ok(environmentalReading);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/Decaminute")
+    public ResponseEntity<List<TenMinuteTemperature>> getTenMinuteTemperature() {
+        List<TenMinuteTemperature> tenMinuteTemperatures =
+                environmentalReadingService.getTenMinuteTemperature();
+        return ResponseEntity.ok(tenMinuteTemperatures);
     }
 }
