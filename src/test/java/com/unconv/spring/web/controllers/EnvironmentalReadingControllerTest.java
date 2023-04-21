@@ -41,9 +41,11 @@ import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @WebMvcTest(controllers = EnvironmentalReadingController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -70,9 +72,12 @@ class EnvironmentalReadingControllerTest {
                         .build();
 
         this.environmentalReadingList = new ArrayList<>();
-        this.environmentalReadingList.add(new EnvironmentalReading(1L, "text 1"));
-        this.environmentalReadingList.add(new EnvironmentalReading(2L, "text 2"));
-        this.environmentalReadingList.add(new EnvironmentalReading(3L, "text 3"));
+        this.environmentalReadingList.add(
+                new EnvironmentalReading(null, 30L, 45L, LocalDateTime.of(2023, 4, 2, 12, 3)));
+        this.environmentalReadingList.add(
+                new EnvironmentalReading(null, 30L, 5L, LocalDateTime.of(2023, 3, 27, 7, 9)));
+        this.environmentalReadingList.add(
+                new EnvironmentalReading(null, 45L, 85L, LocalDateTime.of(2023, 3, 4, 18, 45)));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -100,21 +105,21 @@ class EnvironmentalReadingControllerTest {
 
     @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
-        Long environmentalReadingId = 1L;
+        UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(environmentalReadingId, "text 1");
+                new EnvironmentalReading(null, 13L, 75L, LocalDateTime.of(2023, 1, 17, 17, 39));
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
 
         this.mockMvc
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldReturn404WhenFetchingNonExistingEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 1L;
+        UUID environmentalReadingId = UUID.randomUUID();
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.empty());
 
@@ -128,7 +133,9 @@ class EnvironmentalReadingControllerTest {
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        EnvironmentalReading environmentalReading = new EnvironmentalReading(1L, "some text");
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        UUID.randomUUID(), -3L, 53L, LocalDateTime.of(2023, 3, 7, 7, 56));
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -137,12 +144,12 @@ class EnvironmentalReadingControllerTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading = new EnvironmentalReading(null, null);
+        EnvironmentalReading environmentalReading = new EnvironmentalReading(null, 0L, 0L, null);
 
         this.mockMvc
                 .perform(
@@ -159,16 +166,17 @@ class EnvironmentalReadingControllerTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("timestamp")))
+                .andExpect(jsonPath("$.violations[0].message", is("Timestamp cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 1L;
+        UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(environmentalReadingId, "Updated text");
+                new EnvironmentalReading(
+                        environmentalReadingId, 3L, 5L, LocalDateTime.of(2021, 12, 25, 1, 15));
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
@@ -181,16 +189,17 @@ class EnvironmentalReadingControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 1L;
+        UUID environmentalReadingId = UUID.randomUUID();
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.empty());
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(environmentalReadingId, "Updated text");
+                new EnvironmentalReading(
+                        environmentalReadingId, 13L, 75L, LocalDateTime.of(2023, 1, 17, 17, 39));
 
         this.mockMvc
                 .perform(
@@ -203,9 +212,10 @@ class EnvironmentalReadingControllerTest {
 
     @Test
     void shouldDeleteEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 1L;
+        UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(environmentalReadingId, "Some text");
+                new EnvironmentalReading(
+                        environmentalReadingId, 76L, 0L, LocalDateTime.of(2021, 11, 12, 13, 57));
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         doNothing()
@@ -217,12 +227,12 @@ class EnvironmentalReadingControllerTest {
                         delete("/EnvironmentalReading/{id}", environmentalReading.getId())
                                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldReturn404WhenDeletingNonExistingEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 1L;
+        UUID environmentalReadingId = UUID.randomUUID();
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.empty());
 

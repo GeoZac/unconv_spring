@@ -26,8 +26,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
@@ -49,9 +51,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.deleteAllInBatch();
 
         environmentalReadingList = new ArrayList<>();
-        environmentalReadingList.add(new EnvironmentalReading(null, "First EnvironmentalReading"));
-        environmentalReadingList.add(new EnvironmentalReading(null, "Second EnvironmentalReading"));
-        environmentalReadingList.add(new EnvironmentalReading(null, "Third EnvironmentalReading"));
+        this.environmentalReadingList.add(
+                new EnvironmentalReading(null, 30L, 45L, LocalDateTime.of(2023, 4, 2, 12, 3)));
+        this.environmentalReadingList.add(
+                new EnvironmentalReading(null, 30L, 5L, LocalDateTime.of(2023, 3, 27, 7, 9)));
+        this.environmentalReadingList.add(
+                new EnvironmentalReading(null, 45L, 85L, LocalDateTime.of(2023, 3, 4, 18, 45)));
+
         environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
     }
 
@@ -88,19 +94,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
         EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
-        Long environmentalReadingId = environmentalReading.getId();
+        UUID environmentalReadingId = environmentalReading.getId();
 
         this.mockMvc
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(environmentalReading.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(null, "New EnvironmentalReading");
+                new EnvironmentalReading(null, 3L, 56L, LocalDateTime.of(2023, 3, 17, 7, 9));
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -109,12 +115,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading = new EnvironmentalReading(null, null);
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null);
 
         this.mockMvc
                 .perform(
@@ -131,15 +138,15 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("timestamp")))
+                .andExpect(jsonPath("$.violations[0].message", is("Timestamp cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateEnvironmentalReading() throws Exception {
         EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
-        environmentalReading.setText("Updated EnvironmentalReading");
+        environmentalReading.setTemperature(45L);
 
         this.mockMvc
                 .perform(
@@ -148,8 +155,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(environmentalReading.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
@@ -161,13 +168,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         delete("/EnvironmentalReading/{id}", environmentalReading.getId())
                                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(environmentalReading.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(environmentalReading.getText())));
+                .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
 
     @Test
     void shouldReturn404WhenFetchingNonExistingEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 0L;
+        UUID environmentalReadingId = UUID.randomUUID();
         this.mockMvc
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isNotFound());
@@ -175,7 +182,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 0L;
+        UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading = environmentalReadingList.get(1);
 
         this.mockMvc
@@ -189,7 +196,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn404WhenDeletingNonExistingEnvironmentalReading() throws Exception {
-        Long environmentalReadingId = 0L;
+        UUID environmentalReadingId = UUID.randomUUID();
         this.mockMvc
                 .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
                 .andExpect(status().isNotFound());
