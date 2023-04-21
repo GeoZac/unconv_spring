@@ -32,7 +32,7 @@ public class EnvironmentalReading {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Column(name = "id", columnDefinition = "uuid")
     private UUID id;
 
     @DecimalMin(value = "-9999.000")
