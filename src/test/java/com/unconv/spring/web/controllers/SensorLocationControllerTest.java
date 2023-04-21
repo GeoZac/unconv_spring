@@ -8,9 +8,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,9 +33,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -51,8 +45,6 @@ import java.util.UUID;
 @ActiveProfiles(PROFILE_TEST)
 class SensorLocationControllerTest {
 
-    @Autowired private WebApplicationContext webApplicationContext;
-
     @Autowired private MockMvc mockMvc;
 
     @MockBean private SensorLocationService sensorLocationService;
@@ -63,13 +55,6 @@ class SensorLocationControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorLocation")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
 
         this.sensorLocationList = new ArrayList<>();
         sensorLocationList.add(
@@ -153,7 +138,6 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isCreated())
@@ -171,7 +155,6 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isBadRequest())
@@ -205,7 +188,6 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(
                         put("/SensorLocation/{id}", sensorLocation.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isOk())
@@ -231,7 +213,6 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(
                         put("/SensorLocation/{id}", sensorLocationId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isNotFound());
@@ -252,7 +233,7 @@ class SensorLocationControllerTest {
         doNothing().when(sensorLocationService).deleteSensorLocationById(sensorLocation.getId());
 
         this.mockMvc
-                .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))
+                .perform(delete("/SensorLocation/{id}", sensorLocation.getId()))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
@@ -267,7 +248,7 @@ class SensorLocationControllerTest {
                 .willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/SensorLocation/{id}", sensorLocationId).with(csrf()))
+                .perform(delete("/SensorLocation/{id}", sensorLocationId))
                 .andExpect(status().isNotFound());
     }
 }

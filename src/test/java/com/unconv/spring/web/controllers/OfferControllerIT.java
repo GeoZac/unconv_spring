@@ -2,9 +2,6 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,15 +18,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class OfferControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private OfferRepository offerRepository;
 
@@ -37,14 +30,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/Offer")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
-
         offerRepository.deleteAll();
 
         offerList = new ArrayList<>();
@@ -79,7 +64,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Offer")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isCreated())
@@ -93,7 +77,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Offer")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isBadRequest())
@@ -118,7 +101,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Offer/{id}", updatedOffer.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updatedOffer)))
                 .andExpect(status().isBadRequest())
@@ -147,7 +129,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Offer/{id}", offer.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isOk())
@@ -159,7 +140,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
         Offer offer = offerList.get(0);
 
         this.mockMvc
-                .perform(delete("/Offer/{id}", offer.getId()).with(csrf()))
+                .perform(delete("/Offer/{id}", offer.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
@@ -178,7 +159,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Offer/{id}", offerId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isNotFound());
@@ -187,8 +167,6 @@ class OfferControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenDeletingNonExistingOffer() throws Exception {
         Long offerId = 0L;
-        this.mockMvc
-                .perform(delete("/Offer/{id}", offerId).with(csrf()))
-                .andExpect(status().isNotFound());
+        this.mockMvc.perform(delete("/Offer/{id}", offerId)).andExpect(status().isNotFound());
     }
 }

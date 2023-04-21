@@ -2,9 +2,6 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,16 +18,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class FruitControllerIT extends AbstractIntegrationTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private FruitRepository fruitRepository;
 
@@ -38,14 +30,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/Fruit")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
-
         fruitRepository.deleteAll();
 
         fruitList = new ArrayList<>();
@@ -100,7 +84,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Fruit")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isCreated())
@@ -114,7 +97,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/Fruit")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isBadRequest())
@@ -140,7 +122,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Fruit/{id}", fruit.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isOk())
@@ -152,7 +133,7 @@ class FruitControllerIT extends AbstractIntegrationTest {
         Fruit fruit = fruitList.get(0);
 
         this.mockMvc
-                .perform(delete("/Fruit/{id}", fruit.getId()).with(csrf()))
+                .perform(delete("/Fruit/{id}", fruit.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
@@ -178,7 +159,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Fruit/{id}", fruitId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(fruit)))
                 .andExpect(status().isNotFound());
@@ -194,7 +174,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/Fruit/{id}", updatedFruit.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updatedFruit)))
                 .andExpect(status().isBadRequest())
@@ -216,8 +195,6 @@ class FruitControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenDeletingNonExistingFruit() throws Exception {
         Long fruitId = 0L;
 
-        this.mockMvc
-                .perform(delete("/Fruit/{id}", fruitId).with(csrf()))
-                .andExpect(status().isNotFound());
+        this.mockMvc.perform(delete("/Fruit/{id}", fruitId)).andExpect(status().isNotFound());
     }
 }

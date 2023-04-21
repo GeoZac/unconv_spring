@@ -7,9 +7,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,9 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -47,7 +41,6 @@ import java.util.Map;
 import java.util.UUID;
 
 class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
@@ -63,13 +56,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
 
         environmentalReadingRepository.deleteAllInBatch();
 
@@ -219,7 +205,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
@@ -236,7 +221,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isBadRequest())
@@ -261,7 +245,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/EnvironmentalReading/{id}", environmentalReading.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
@@ -274,9 +257,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
 
         this.mockMvc
-                .perform(
-                        delete("/EnvironmentalReading/{id}", environmentalReading.getId())
-                                .with(csrf()))
+                .perform(delete("/EnvironmentalReading/{id}", environmentalReading.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
                 .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
@@ -298,7 +279,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/EnvironmentalReading/{id}", environmentalReadingId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isNotFound());
@@ -308,7 +288,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenDeletingNonExistingEnvironmentalReading() throws Exception {
         UUID environmentalReadingId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
+                .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isNotFound());
     }
 
@@ -322,9 +302,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/EnvironmentalReading/QuarterHourly/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
+                                "/EnvironmentalReading/QuarterHourly/SensorSystem/{sensorSystemId}",
+                                savedSensorSystem.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
@@ -362,9 +341,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/EnvironmentalReading/Hourly/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
+                                "/EnvironmentalReading/Hourly/SensorSystem/{sensorSystemId}",
+                                savedSensorSystem.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
@@ -402,9 +380,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/EnvironmentalReading/Daily/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
+                                "/EnvironmentalReading/Daily/SensorSystem/{sensorSystemId}",
+                                savedSensorSystem.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }

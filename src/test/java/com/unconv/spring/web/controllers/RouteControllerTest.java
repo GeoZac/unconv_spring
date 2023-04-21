@@ -8,9 +8,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,9 +32,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -49,8 +43,6 @@ import java.util.Optional;
 @ActiveProfiles(PROFILE_TEST)
 class RouteControllerTest {
 
-    @Autowired private WebApplicationContext webApplicationContext;
-
     @Autowired private MockMvc mockMvc;
 
     @MockBean private RouteService routeService;
@@ -61,14 +53,6 @@ class RouteControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/Route")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
-
         this.routeList = new ArrayList<>();
         this.routeList.add(new Route(1L, "text 1"));
         this.routeList.add(new Route(2L, "text 2"));
@@ -126,7 +110,6 @@ class RouteControllerTest {
         this.mockMvc
                 .perform(
                         post("/Route")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isCreated())
@@ -141,7 +124,6 @@ class RouteControllerTest {
         this.mockMvc
                 .perform(
                         post("/Route")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isBadRequest())
@@ -169,7 +151,6 @@ class RouteControllerTest {
         this.mockMvc
                 .perform(
                         put("/Route/{id}", route.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isOk())
@@ -185,7 +166,6 @@ class RouteControllerTest {
         this.mockMvc
                 .perform(
                         put("/Route/{id}", routeId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(route)))
                 .andExpect(status().isNotFound());
@@ -199,7 +179,7 @@ class RouteControllerTest {
         doNothing().when(routeService).deleteRouteById(route.getId());
 
         this.mockMvc
-                .perform(delete("/Route/{id}", route.getId()).with(csrf()))
+                .perform(delete("/Route/{id}", route.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text", is(route.getText())));
     }
@@ -209,8 +189,6 @@ class RouteControllerTest {
         Long routeId = 1L;
         given(routeService.findRouteById(routeId)).willReturn(Optional.empty());
 
-        this.mockMvc
-                .perform(delete("/Route/{id}", routeId).with(csrf()))
-                .andExpect(status().isNotFound());
+        this.mockMvc.perform(delete("/Route/{id}", routeId)).andExpect(status().isNotFound());
     }
 }

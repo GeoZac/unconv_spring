@@ -5,9 +5,6 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -20,15 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.UUID;
 
 class SensorSystemControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
@@ -40,13 +33,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorSystem")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
 
         sensorSystemRepository.deleteAllInBatch();
 
@@ -103,7 +89,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
@@ -118,7 +103,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isBadRequest())
@@ -143,7 +127,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/SensorSystem/{id}", sensorSystem.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isOk())
@@ -156,7 +139,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = sensorSystemList.get(0);
 
         this.mockMvc
-                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
@@ -178,7 +161,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/SensorSystem/{id}", sensorSystemId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isNotFound());
@@ -188,7 +170,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenDeletingNonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
+                .perform(delete("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isNotFound());
     }
 }

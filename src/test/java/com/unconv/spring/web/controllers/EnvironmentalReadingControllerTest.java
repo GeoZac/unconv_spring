@@ -9,9 +9,6 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,9 +37,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -56,8 +50,6 @@ import java.util.UUID;
 @WebMvcTest(controllers = EnvironmentalReadingController.class)
 @ActiveProfiles(PROFILE_TEST)
 class EnvironmentalReadingControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private MockMvc mockMvc;
 
@@ -76,13 +68,6 @@ class EnvironmentalReadingControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
 
         environmentalReadingList =
                 Instancio.ofList(EnvironmentalReading.class)
@@ -159,7 +144,6 @@ class EnvironmentalReadingControllerTest {
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
@@ -175,7 +159,6 @@ class EnvironmentalReadingControllerTest {
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isBadRequest())
@@ -210,7 +193,6 @@ class EnvironmentalReadingControllerTest {
         this.mockMvc
                 .perform(
                         put("/EnvironmentalReading/{id}", environmentalReading.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
@@ -233,7 +215,6 @@ class EnvironmentalReadingControllerTest {
         this.mockMvc
                 .perform(
                         put("/EnvironmentalReading/{id}", environmentalReadingId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isNotFound());
@@ -256,9 +237,7 @@ class EnvironmentalReadingControllerTest {
                 .deleteEnvironmentalReadingById(environmentalReading.getId());
 
         this.mockMvc
-                .perform(
-                        delete("/EnvironmentalReading/{id}", environmentalReading.getId())
-                                .with(csrf()))
+                .perform(delete("/EnvironmentalReading/{id}", environmentalReading.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
@@ -270,7 +249,7 @@ class EnvironmentalReadingControllerTest {
                 .willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
+                .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isNotFound());
     }
 }

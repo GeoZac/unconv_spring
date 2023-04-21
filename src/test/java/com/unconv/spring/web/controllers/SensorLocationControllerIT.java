@@ -3,9 +3,6 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,16 +20,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 class SensorLocationControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorLocationRepository sensorLocationRepository;
 
@@ -40,13 +33,6 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorLocation")
-                                        .with(user("username").roles("USER")))
-                        .apply(springSecurity())
-                        .build();
 
         sensorLocationRepository.deleteAllInBatch();
 
@@ -119,7 +105,6 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isCreated())
@@ -137,7 +122,6 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isBadRequest())
@@ -165,7 +149,6 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/SensorLocation/{id}", sensorLocation.getId())
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isOk())
@@ -181,7 +164,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         SensorLocation sensorLocation = sensorLocationList.get(0);
 
         this.mockMvc
-                .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))
+                .perform(delete("/SensorLocation/{id}", sensorLocation.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorLocation.getId().toString())))
                 .andExpect(
@@ -206,7 +189,6 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         put("/SensorLocation/{id}", sensorLocationId)
-                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isNotFound());
@@ -216,7 +198,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenDeletingNonExistingSensorLocation() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/SensorLocation/{id}", sensorLocationId).with(csrf()))
+                .perform(delete("/SensorLocation/{id}", sensorLocationId))
                 .andExpect(status().isNotFound());
     }
 }
