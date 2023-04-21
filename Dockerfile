@@ -25,7 +25,7 @@ RUN chmod +x mvnw && \
 EXPOSE 8080
 
 # Run the Spring Boot application
-CMD ["java", "-jar", "./target/spring-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=render"]
+ENTRYPOINT ["java", "-jar", "./target/spring-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=render"]
 
 
 #FROM adoptopenjdk/openjdk17:alpine-jre
