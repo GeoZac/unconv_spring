@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -19,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,7 +66,7 @@ public class EnvironmentalReadingService {
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(3),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
-        return getAverageTempsForDecaminutes(data);
+        return new TreeMap<>(getAverageTempsForDecaminutes(data));
     }
 
     public Map<OffsetDateTime, Double> getAverageTempsForDecaminutes(
@@ -92,7 +95,7 @@ public class EnvironmentalReadingService {
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(24),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
-        return getAverageTempsForDaily(data);
+        return new TreeMap<>(getAverageTempsForDaily(data));
     }
 
     public Map<OffsetDateTime, Double> getAverageTempsForDaily(List<EnvironmentalReading> data) {
@@ -121,6 +124,8 @@ public class EnvironmentalReadingService {
 
     private double calculateAverageTemp(List<EnvironmentalReading> data) {
         double sum = data.stream().mapToDouble(EnvironmentalReading::getTemperature).sum();
-        return sum / data.size();
+        return BigDecimal.valueOf(sum / data.size())
+                .setScale(3, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }
