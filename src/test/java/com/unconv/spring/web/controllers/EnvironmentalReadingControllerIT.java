@@ -232,7 +232,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn200AndAverageTemperaturesAsMap() throws Exception {
+    void shouldReturn200AndAverageTemperaturesAsMapForDecaminute() throws Exception {
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDecaMinutes();
         averageTemperatures.size();
         this.mockMvc
@@ -261,6 +261,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTemps();
+        return environmentalReadingService.getAverageTempsForDecaminutes();
     }
 }

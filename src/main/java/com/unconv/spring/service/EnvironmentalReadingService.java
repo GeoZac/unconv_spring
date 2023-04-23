@@ -56,20 +56,49 @@ public class EnvironmentalReadingService {
         environmentalReadingRepository.deleteById(id);
     }
 
-    public Map<OffsetDateTime, Double> getAverageTemps() {
+    public Map<OffsetDateTime, Double> getAverageTempsForDecaminutes() {
 
         List<EnvironmentalReading> data =
                 environmentalReadingRepository.findByTimestampBetween(
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(3),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
-        return getAverageTemps(data);
+        return getAverageTempsForDecaminutes(data);
     }
 
-    public Map<OffsetDateTime, Double> getAverageTemps(List<EnvironmentalReading> data) {
+    public Map<OffsetDateTime, Double> getAverageTempsForDecaminutes(
+            List<EnvironmentalReading> data) {
         OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime startTime = endTime.minusHours(3);
         Duration interval = Duration.ofMinutes(10);
+
+        Map<OffsetDateTime, List<EnvironmentalReading>> groupedData =
+                data.stream()
+                        .filter(d -> d.getTimestamp().isAfter(startTime))
+                        .collect(
+                                Collectors.groupingBy(
+                                        d -> roundTimeToInterval(d.getTimestamp(), interval)));
+
+        return groupedData.entrySet().stream()
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
+    }
+
+    public Map<OffsetDateTime, Double> getAverageTempsForHourly() {
+
+        List<EnvironmentalReading> data =
+                environmentalReadingRepository.findByTimestampBetween(
+                        OffsetDateTime.now(ZoneOffset.UTC).minusHours(24),
+                        OffsetDateTime.now(ZoneOffset.UTC));
+
+        return getAverageTempsForDaily(data);
+    }
+
+    public Map<OffsetDateTime, Double> getAverageTempsForDaily(List<EnvironmentalReading> data) {
+        OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime startTime = endTime.minusHours(24);
+        Duration interval = Duration.ofMinutes(60);
 
         Map<OffsetDateTime, List<EnvironmentalReading>> groupedData =
                 data.stream()
