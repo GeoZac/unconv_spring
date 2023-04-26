@@ -25,6 +25,7 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.web.rest.PassengerController;
 
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,6 @@ import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,28 +70,7 @@ class PassengerControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        this.passengerList = new ArrayList<>();
-        this.passengerList.add(
-                new Passenger(
-                        1L,
-                        "Robert",
-                        null,
-                        "Langdon",
-                        0,
-                        LocalDate.of(1972, 8, 13),
-                        Gender.MALE,
-                        null));
-        this.passengerList.add(
-                new Passenger(
-                        2L,
-                        "Katherine",
-                        null,
-                        "Brewster",
-                        LocalDate.of(1988, 5, 9),
-                        Gender.FEMALE));
-        this.passengerList.add(
-                new Passenger(
-                        3L, "Loki", null, "Laufeyson", LocalDate.of(1022, 4, 23), Gender.OTHER));
+        passengerList = Instancio.ofList(Passenger.class).size(23).create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -108,7 +87,7 @@ class PassengerControllerTest {
                 .perform(get("/Passenger"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
