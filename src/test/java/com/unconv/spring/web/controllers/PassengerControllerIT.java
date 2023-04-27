@@ -56,9 +56,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         passengerRepository.deleteAll();
 
         passengerList = Instancio.ofList(Passenger.class).size(23).create();
-        totalPages =
-                passengerList.size() / defaultPageSize
-                        + ((passengerList.size() % defaultPageSize) > 0 ? 1 : 0);
+        totalPages = (int) Math.ceil((double) passengerList.size() / defaultPageSize);
 
         passengerList = passengerRepository.saveAll(passengerList);
     }
