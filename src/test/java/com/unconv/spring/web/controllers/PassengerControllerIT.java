@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -18,6 +20,7 @@ import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.persistence.PassengerRepository;
 
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 class PassengerControllerIT extends AbstractIntegrationTest {
@@ -36,6 +38,10 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     @Autowired private PassengerRepository passengerRepository;
 
     private List<Passenger> passengerList = null;
+
+    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
 
     @BeforeEach
     void setUp() {
@@ -49,21 +55,9 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
         passengerRepository.deleteAll();
 
-        passengerList = new ArrayList<>();
-        passengerList.add(
-                new Passenger(
-                        1L, "Robert", null, "Langdon", LocalDate.of(1972, 8, 13), Gender.MALE));
-        passengerList.add(
-                new Passenger(
-                        2L,
-                        "Katherine",
-                        null,
-                        "Brewster",
-                        LocalDate.of(1988, 5, 9),
-                        Gender.FEMALE));
-        passengerList.add(
-                new Passenger(
-                        3L, "Tom", "Marvelo", "Riddle", LocalDate.of(1872, 12, 1), Gender.OTHER));
+        passengerList = Instancio.ofList(Passenger.class).size(23).create();
+        totalPages = (int) Math.ceil((double) passengerList.size() / defaultPageSize);
+
         passengerList = passengerRepository.saveAll(passengerList);
     }
 
@@ -72,13 +66,13 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Passenger").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -87,13 +81,13 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Passenger").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
