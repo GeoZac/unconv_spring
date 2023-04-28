@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -39,5 +39,5 @@ public class EnvironmentalReading {
 
     @Column(nullable = false)
     @NotNull(message = "Timestamp cannot be empty")
-    private LocalDateTime timestamp;
+    private OffsetDateTime timestamp;
 }

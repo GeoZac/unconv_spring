@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -25,5 +25,5 @@ public class EnvironmentalReadingDTO {
     private double humidity;
 
     @NotNull(message = "Timestamp cannot be empty")
-    private LocalDateTime timestamp;
+    private OffsetDateTime timestamp;
 }

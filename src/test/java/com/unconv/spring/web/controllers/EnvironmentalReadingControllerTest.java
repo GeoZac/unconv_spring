@@ -42,6 +42,8 @@ import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -73,11 +75,23 @@ class EnvironmentalReadingControllerTest {
 
         this.environmentalReadingList = new ArrayList<>();
         this.environmentalReadingList.add(
-                new EnvironmentalReading(null, 30L, 45L, LocalDateTime.of(2023, 4, 2, 12, 3)));
+                new EnvironmentalReading(
+                        null,
+                        30L,
+                        45L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 4, 2, 12, 3), ZoneOffset.UTC)));
         this.environmentalReadingList.add(
-                new EnvironmentalReading(null, 30L, 5L, LocalDateTime.of(2023, 3, 27, 7, 9)));
+                new EnvironmentalReading(
+                        null,
+                        30L,
+                        5L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 27, 7, 9), ZoneOffset.UTC)));
         this.environmentalReadingList.add(
-                new EnvironmentalReading(null, 45L, 85L, LocalDateTime.of(2023, 3, 4, 18, 45)));
+                new EnvironmentalReading(
+                        null,
+                        45L,
+                        85L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 4, 18, 45), ZoneOffset.UTC)));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -107,7 +121,11 @@ class EnvironmentalReadingControllerTest {
     void shouldFindEnvironmentalReadingById() throws Exception {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(null, 13L, 75L, LocalDateTime.of(2023, 1, 17, 17, 39));
+                new EnvironmentalReading(
+                        null,
+                        13L,
+                        75L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC));
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
 
@@ -135,7 +153,10 @@ class EnvironmentalReadingControllerTest {
 
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        UUID.randomUUID(), -3L, 53L, LocalDateTime.of(2023, 3, 7, 7, 56));
+                        UUID.randomUUID(),
+                        -3L,
+                        53L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC));
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -176,7 +197,10 @@ class EnvironmentalReadingControllerTest {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        environmentalReadingId, 3L, 5L, LocalDateTime.of(2021, 12, 25, 1, 15));
+                        environmentalReadingId,
+                        3L,
+                        5L,
+                        OffsetDateTime.of(LocalDateTime.of(2021, 12, 25, 1, 15), ZoneOffset.UTC));
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
@@ -199,7 +223,10 @@ class EnvironmentalReadingControllerTest {
                 .willReturn(Optional.empty());
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        environmentalReadingId, 13L, 75L, LocalDateTime.of(2023, 1, 17, 17, 39));
+                        environmentalReadingId,
+                        13L,
+                        75L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC));
 
         this.mockMvc
                 .perform(
@@ -215,7 +242,10 @@ class EnvironmentalReadingControllerTest {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        environmentalReadingId, 76L, 0L, LocalDateTime.of(2021, 11, 12, 13, 57));
+                        environmentalReadingId,
+                        76L,
+                        0L,
+                        OffsetDateTime.of(LocalDateTime.of(2021, 11, 12, 13, 57), ZoneOffset.UTC));
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         doNothing()

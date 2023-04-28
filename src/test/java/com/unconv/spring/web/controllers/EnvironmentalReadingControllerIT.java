@@ -27,6 +27,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -52,11 +54,23 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingList = new ArrayList<>();
         this.environmentalReadingList.add(
-                new EnvironmentalReading(null, 30L, 45L, LocalDateTime.of(2023, 4, 2, 12, 3)));
+                new EnvironmentalReading(
+                        null,
+                        30L,
+                        45L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 4, 2, 12, 3), ZoneOffset.UTC)));
         this.environmentalReadingList.add(
-                new EnvironmentalReading(null, 30L, 5L, LocalDateTime.of(2023, 3, 27, 7, 9)));
+                new EnvironmentalReading(
+                        null,
+                        30L,
+                        5L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 27, 7, 9), ZoneOffset.UTC)));
         this.environmentalReadingList.add(
-                new EnvironmentalReading(null, 45L, 85L, LocalDateTime.of(2023, 3, 4, 18, 45)));
+                new EnvironmentalReading(
+                        null,
+                        45L,
+                        85L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 4, 18, 45), ZoneOffset.UTC)));
 
         environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
     }
@@ -106,7 +120,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(null, 3L, 56L, LocalDateTime.of(2023, 3, 17, 7, 9));
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC));
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
