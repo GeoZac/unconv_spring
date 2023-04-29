@@ -263,4 +263,37 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadings);
         return environmentalReadingService.getAverageTempsForDecaminutes();
     }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly();
+        averageTemperatures.size();
+        this.mockMvc
+                .perform(get("/EnvironmentalReading/Hourly").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    private Map<OffsetDateTime, Double> setupTestDataForHourly() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 75; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(EnvironmentalReading.class)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusHours(24)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 1440)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        environmentalReadingRepository.saveAll(environmentalReadings);
+        return environmentalReadingService.getAverageTempsForDecaminutes();
+    }
 }
