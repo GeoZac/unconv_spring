@@ -5,6 +5,7 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -20,6 +21,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.service.EnvironmentalReadingService;
+
+import net.minidev.json.JSONArray;
 
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,14 +36,20 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Autowired private EnvironmentalReadingService environmentalReadingService;
 
     private List<EnvironmentalReading> environmentalReadingList = null;
 
@@ -219,5 +229,38 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMap() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDecaMinutes();
+        averageTemperatures.size();
+        this.mockMvc
+                .perform(get("/EnvironmentalReading/Decaminute").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    private Map<OffsetDateTime, Double> setupTestDataForDecaMinutes() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(EnvironmentalReading.class)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusHours(3)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 180)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        environmentalReadingRepository.saveAll(environmentalReadings);
+        return environmentalReadingService.getAverageTemps();
     }
 }
