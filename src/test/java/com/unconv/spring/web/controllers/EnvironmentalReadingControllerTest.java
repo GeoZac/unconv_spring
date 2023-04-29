@@ -5,6 +5,7 @@ import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -25,6 +26,7 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
 
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,6 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,25 +74,11 @@ class EnvironmentalReadingControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        this.environmentalReadingList = new ArrayList<>();
-        this.environmentalReadingList.add(
-                new EnvironmentalReading(
-                        null,
-                        30L,
-                        45L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 4, 2, 12, 3), ZoneOffset.UTC)));
-        this.environmentalReadingList.add(
-                new EnvironmentalReading(
-                        null,
-                        30L,
-                        5L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 27, 7, 9), ZoneOffset.UTC)));
-        this.environmentalReadingList.add(
-                new EnvironmentalReading(
-                        null,
-                        45L,
-                        85L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 4, 18, 45), ZoneOffset.UTC)));
+        environmentalReadingList =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(15)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -108,7 +95,7 @@ class EnvironmentalReadingControllerTest {
                 .perform(get("/EnvironmentalReading"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))

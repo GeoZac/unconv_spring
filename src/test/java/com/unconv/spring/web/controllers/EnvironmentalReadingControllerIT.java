@@ -1,8 +1,11 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -18,6 +21,7 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +33,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +42,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     private List<EnvironmentalReading> environmentalReadingList = null;
+
+    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
 
     @BeforeEach
     void setUp() {
@@ -52,25 +59,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingRepository.deleteAllInBatch();
 
-        environmentalReadingList = new ArrayList<>();
-        this.environmentalReadingList.add(
-                new EnvironmentalReading(
-                        null,
-                        30L,
-                        45L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 4, 2, 12, 3), ZoneOffset.UTC)));
-        this.environmentalReadingList.add(
-                new EnvironmentalReading(
-                        null,
-                        30L,
-                        5L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 27, 7, 9), ZoneOffset.UTC)));
-        this.environmentalReadingList.add(
-                new EnvironmentalReading(
-                        null,
-                        45L,
-                        85L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 4, 18, 45), ZoneOffset.UTC)));
+        environmentalReadingList =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(15)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
 
         environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
     }
@@ -80,13 +75,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(
+                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                .andExpect(
+                        jsonPath(
+                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -95,13 +93,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(
+                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                .andExpect(
+                        jsonPath(
+                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
