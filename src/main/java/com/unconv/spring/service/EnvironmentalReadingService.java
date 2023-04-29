@@ -1,7 +1,6 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.EnvironmentalReading;
-import com.unconv.spring.dto.TenMinuteTemperature;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 
@@ -13,12 +12,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -54,18 +56,42 @@ public class EnvironmentalReadingService {
         environmentalReadingRepository.deleteById(id);
     }
 
-    public List<TenMinuteTemperature> getTenMinuteTemperature() {
-        List<Object[]> results = environmentalReadingRepository.findTemperatureBy10MinuteInterval();
-        List<TenMinuteTemperature> tenMinuteTemperatures = new ArrayList<>();
+    public Map<OffsetDateTime, Double> getAverageTemps() {
 
-        for (Object[] row : results) {
-            LocalDateTime interval =
-                    LocalDateTime.parse(
-                            (String) row[0], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            Double temperature = (Double) row[1];
-            tenMinuteTemperatures.add(new TenMinuteTemperature(interval, temperature));
-        }
+        List<EnvironmentalReading> data =
+                environmentalReadingRepository.findByTimestampBetween(
+                        OffsetDateTime.now(ZoneOffset.UTC).minusHours(3),
+                        OffsetDateTime.now(ZoneOffset.UTC));
 
-        return tenMinuteTemperatures;
+        return getAverageTemps(data);
+    }
+
+    public Map<OffsetDateTime, Double> getAverageTemps(List<EnvironmentalReading> data) {
+        OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime startTime = endTime.minusHours(3);
+        Duration interval = Duration.ofMinutes(10);
+
+        Map<OffsetDateTime, List<EnvironmentalReading>> groupedData =
+                data.stream()
+                        .filter(d -> d.getTimestamp().isAfter(startTime))
+                        .collect(
+                                Collectors.groupingBy(
+                                        d -> roundTimeToInterval(d.getTimestamp(), interval)));
+
+        return groupedData.entrySet().stream()
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
+    }
+
+    private OffsetDateTime roundTimeToInterval(OffsetDateTime dateTime, Duration interval) {
+        long seconds = dateTime.toEpochSecond() / interval.getSeconds() * interval.getSeconds();
+        Instant instant = Instant.ofEpochSecond(seconds);
+        return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
+    }
+
+    private double calculateAverageTemp(List<EnvironmentalReading> data) {
+        double sum = data.stream().mapToDouble(EnvironmentalReading::getTemperature).sum();
+        return sum / data.size();
     }
 }
