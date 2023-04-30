@@ -1,5 +1,7 @@
 package com.unconv.spring.domain;
 
+import com.unconv.spring.consts.SensorLocationType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,11 +11,14 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "sensor_locations")
@@ -31,4 +36,13 @@ public class SensorLocation {
     @Column(nullable = false)
     @NotEmpty(message = "Text cannot be empty")
     private String text;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    @NotNull(message = "SensorLocationType cannot be null")
+    private SensorLocationType sensorLocationType;
 }

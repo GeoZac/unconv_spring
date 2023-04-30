@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
@@ -29,6 +31,10 @@ public class SensorSystem {
     private UUID id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    @NotEmpty(message = "Sensor name cannot be empty")
+    private String sensorName;
+
+    @ManyToOne
+    @JoinColumn(name = "sensor_location_id")
+    private SensorLocation sensorLocation;
 }

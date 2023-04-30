@@ -1,5 +1,7 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.domain.SensorLocation;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,5 +20,7 @@ public class SensorSystemDTO {
     private UUID id;
 
     @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    private String sensorName;
+
+    private SensorLocation sensorLocation;
 }
