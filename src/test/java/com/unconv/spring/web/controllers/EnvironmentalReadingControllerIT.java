@@ -232,16 +232,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn200AndAverageTemperaturesAsMap() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDecaMinutes();
+    void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForQuarterHourly();
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/Decaminute").with(csrf()))
+                .perform(get("/EnvironmentalReading/QuarterHourly").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForDecaMinutes() {
+    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly() {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
@@ -261,6 +261,72 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTemps();
+        return environmentalReadingService.getAverageTempsForQuarterHourly();
+    }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly();
+        averageTemperatures.size();
+        this.mockMvc
+                .perform(get("/EnvironmentalReading/Hourly").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    private Map<OffsetDateTime, Double> setupTestDataForHourly() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 75; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(EnvironmentalReading.class)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusHours(24)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 1440)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        environmentalReadingRepository.saveAll(environmentalReadings);
+        return environmentalReadingService.getAverageTempsForHourly();
+    }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily();
+        averageTemperatures.size();
+        this.mockMvc
+                .perform(get("/EnvironmentalReading/Daily").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    private Map<OffsetDateTime, Double> setupTestDataForDaily() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(EnvironmentalReading.class)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusDays(7)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 10080)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        environmentalReadingRepository.saveAll(environmentalReadings);
+        return environmentalReadingService.getAverageTempsForDaily();
     }
 }
