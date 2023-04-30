@@ -124,4 +124,11 @@ public class EnvironmentalReadingController {
                 environmentalReadingService.getAverageTempsForHourly();
         return ResponseEntity.ok(hourlyTemperatures);
     }
+
+    @GetMapping("/Daily")
+    public ResponseEntity<Map<OffsetDateTime, Double>> getDailyTemperature() {
+        Map<OffsetDateTime, Double> hourlyTemperatures =
+                environmentalReadingService.getAverageTempsForDaily();
+        return ResponseEntity.ok(hourlyTemperatures);
+    }
 }

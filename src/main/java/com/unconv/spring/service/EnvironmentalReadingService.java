@@ -116,6 +116,34 @@ public class EnvironmentalReadingService {
                                 Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
     }
 
+    public Map<OffsetDateTime, Double> getAverageTempsForDaily() {
+
+        List<EnvironmentalReading> data =
+                environmentalReadingRepository.findByTimestampBetween(
+                        OffsetDateTime.now(ZoneOffset.UTC).minusDays(7),
+                        OffsetDateTime.now(ZoneOffset.UTC));
+
+        return new TreeMap<>(getAverageTempsForDaily(data));
+    }
+
+    public Map<OffsetDateTime, Double> getAverageTempsForDaily(List<EnvironmentalReading> data) {
+        OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime startTime = endTime.minusDays(7);
+        Duration interval = Duration.ofDays(1);
+
+        Map<OffsetDateTime, List<EnvironmentalReading>> groupedData =
+                data.stream()
+                        .filter(d -> d.getTimestamp().isAfter(startTime))
+                        .collect(
+                                Collectors.groupingBy(
+                                        d -> roundTimeToInterval(d.getTimestamp(), interval)));
+
+        return groupedData.entrySet().stream()
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
+    }
+
     private OffsetDateTime roundTimeToInterval(OffsetDateTime dateTime, Duration interval) {
         long seconds = dateTime.toEpochSecond() / interval.getSeconds() * interval.getSeconds();
         Instant instant = Instant.ofEpochSecond(seconds);

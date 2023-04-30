@@ -294,6 +294,39 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForQuarterHourly();
+        return environmentalReadingService.getAverageTempsForHourly();
+    }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily();
+        averageTemperatures.size();
+        this.mockMvc
+                .perform(get("/EnvironmentalReading/Daily").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    private Map<OffsetDateTime, Double> setupTestDataForDaily() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(EnvironmentalReading.class)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusDays(7)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 10080)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        environmentalReadingRepository.saveAll(environmentalReadings);
+        return environmentalReadingService.getAverageTempsForDaily();
     }
 }
