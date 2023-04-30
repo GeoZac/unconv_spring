@@ -111,10 +111,10 @@ public class EnvironmentalReadingController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/Decaminute")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getTenMinuteTemperature() {
+    @GetMapping("/QuarterHourly")
+    public ResponseEntity<Map<OffsetDateTime, Double>> getQuarterHourlyTemperature() {
         Map<OffsetDateTime, Double> tenMinuteTemperatures =
-                environmentalReadingService.getAverageTempsForDecaminutes();
+                environmentalReadingService.getAverageTempsForQuarterHourly();
         return ResponseEntity.ok(tenMinuteTemperatures);
     }
 

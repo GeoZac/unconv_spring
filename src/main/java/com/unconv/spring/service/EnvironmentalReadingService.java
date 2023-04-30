@@ -59,21 +59,21 @@ public class EnvironmentalReadingService {
         environmentalReadingRepository.deleteById(id);
     }
 
-    public Map<OffsetDateTime, Double> getAverageTempsForDecaminutes() {
+    public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly() {
 
         List<EnvironmentalReading> data =
                 environmentalReadingRepository.findByTimestampBetween(
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(3),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
-        return new TreeMap<>(getAverageTempsForDecaminutes(data));
+        return new TreeMap<>(getAverageTempsForQuarterHourly(data));
     }
 
-    public Map<OffsetDateTime, Double> getAverageTempsForDecaminutes(
+    public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(
             List<EnvironmentalReading> data) {
         OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime startTime = endTime.minusHours(3);
-        Duration interval = Duration.ofMinutes(10);
+        Duration interval = Duration.ofMinutes(15);
 
         Map<OffsetDateTime, List<EnvironmentalReading>> groupedData =
                 data.stream()
@@ -95,10 +95,10 @@ public class EnvironmentalReadingService {
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(24),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
-        return new TreeMap<>(getAverageTempsForDaily(data));
+        return new TreeMap<>(getAverageTempsForHourly(data));
     }
 
-    public Map<OffsetDateTime, Double> getAverageTempsForDaily(List<EnvironmentalReading> data) {
+    public Map<OffsetDateTime, Double> getAverageTempsForHourly(List<EnvironmentalReading> data) {
         OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime startTime = endTime.minusHours(24);
         Duration interval = Duration.ofMinutes(60);

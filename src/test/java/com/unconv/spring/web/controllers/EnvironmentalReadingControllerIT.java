@@ -232,16 +232,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForDecaminute() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDecaMinutes();
+    void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForQuarterHourly();
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/Decaminute").with(csrf()))
+                .perform(get("/EnvironmentalReading/QuarterHourly").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForDecaMinutes() {
+    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly() {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
@@ -261,7 +261,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForDecaminutes();
+        return environmentalReadingService.getAverageTempsForQuarterHourly();
     }
 
     @Test
@@ -294,6 +294,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForDecaminutes();
+        return environmentalReadingService.getAverageTempsForQuarterHourly();
     }
 }
