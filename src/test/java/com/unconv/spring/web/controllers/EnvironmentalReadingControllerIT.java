@@ -19,10 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
-import com.unconv.spring.domain.SensorLocation;
-import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 
@@ -75,6 +72,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         environmentalReadingList =
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(15)
+                        .ignore(field(EnvironmentalReading::getSensorSystem))
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -133,17 +131,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
-        SensorLocation sensorLocation =
-                new SensorLocation(
-                        null, "Taj Mahal", 27.1751448, 78.0421422, SensorLocationType.INDOOR);
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor A", sensorLocation);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         null,
                         3L,
                         56L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
-                        sensorSystem);
+                        null);
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -157,12 +151,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        SensorLocation sensorLocation =
-                new SensorLocation(
-                        null, "Colosseum", 41.8902102, 12.4922309, SensorLocationType.OUTDOOR);
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor A", sensorLocation);
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null, sensorSystem);
+                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null, null);
 
         this.mockMvc
                 .perform(
@@ -258,6 +248,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
+                            .ignore(field(EnvironmentalReading::getSensorSystem))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -291,6 +282,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
+                            .ignore(field(EnvironmentalReading::getSensorSystem))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -324,6 +316,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
+                            .ignore(field(EnvironmentalReading::getSensorSystem))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
