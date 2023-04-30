@@ -145,7 +145,7 @@ class SensorSystemControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.sensorNAme", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test
@@ -167,8 +167,8 @@ class SensorSystemControllerTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
+                .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
     }
 
@@ -189,7 +189,7 @@ class SensorSystemControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test
@@ -220,7 +220,7 @@ class SensorSystemControllerTest {
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test

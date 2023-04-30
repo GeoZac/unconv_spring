@@ -19,7 +19,7 @@ public class SensorSystemDTO {
 
     private UUID id;
 
-    @NotEmpty(message = "Text cannot be empty")
+    @NotEmpty(message = "Sensor name cannot be empty")
     private String sensorName;
 
     private SensorLocation sensorLocation;

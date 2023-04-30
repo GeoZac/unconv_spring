@@ -121,7 +121,10 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(get("/SensorLocation/{id}", sensorLocationId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test
@@ -155,7 +158,10 @@ class SensorLocationControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test
@@ -176,9 +182,12 @@ class SensorLocationControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
-                .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorLocationText")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Sensor location text cannot be empty")))
                 .andReturn();
     }
 
@@ -200,7 +209,10 @@ class SensorLocationControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test
@@ -209,7 +221,12 @@ class SensorLocationControllerTest {
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.empty());
         SensorLocation sensorLocation =
-                new SensorLocation(sensorLocationId, "Updated text", null, null, null);
+                new SensorLocation(
+                        sensorLocationId,
+                        "Angkor Wat",
+                        13.4125,
+                        103.8667,
+                        SensorLocationType.INDOOR);
 
         this.mockMvc
                 .perform(
@@ -237,7 +254,10 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test

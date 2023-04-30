@@ -1,25 +1,21 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.SensorLocationType;
-import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.persistence.SensorSystemRepository;
 
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,11 +32,11 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
-    private List<SensorSystem> sensorSystemList = null;
+    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
-    private final SensorLocation sensorLocation =
-            new SensorLocation(
-                    UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
+    private static int totalPages;
+
+    private List<SensorSystem> sensorSystemList = null;
 
     @BeforeEach
     void setUp() {
@@ -55,10 +50,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         sensorSystemRepository.deleteAllInBatch();
 
-        sensorSystemList = new ArrayList<>();
-        sensorSystemList.add(new SensorSystem(null, "First SensorSystem", sensorLocation));
-        sensorSystemList.add(new SensorSystem(null, "Second SensorSystem", sensorLocation));
-        sensorSystemList.add(new SensorSystem(null, "Third SensorSystem", sensorLocation));
+        sensorSystemList = Instancio.ofList(SensorSystem.class).size(6).create();
+        totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
     }
 
@@ -68,12 +61,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem").param("sortDir", "asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(sensorSystemList.size() < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(sensorSystemList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -83,12 +76,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(sensorSystemList.size() < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(sensorSystemList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -101,12 +94,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "New SensorSystem", sensorLocation);
+        SensorSystem sensorSystem = new SensorSystem(null, "New SensorSystem", null);
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -137,8 +130,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
+                .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
     }
 
@@ -155,7 +148,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test
@@ -166,7 +159,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test

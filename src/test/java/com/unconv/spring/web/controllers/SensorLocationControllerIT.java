@@ -106,7 +106,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorLocation/{id}", sensorLocationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorLocation.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test
@@ -121,7 +124,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test
@@ -142,7 +148,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
                 .andExpect(jsonPath("$.violations[0].field", is("text")))
                 .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
                 .andReturn();
@@ -151,7 +157,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldUpdateSensorLocation() throws Exception {
         SensorLocation sensorLocation = sensorLocationList.get(0);
-        sensorLocation.setText("Updated SensorLocation");
+        sensorLocation.setSensorLocationText("Updated SensorLocation");
 
         this.mockMvc
                 .perform(
@@ -161,7 +167,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorLocation.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test
@@ -172,7 +181,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorLocation.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorLocation.getText())));
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
     }
 
     @Test

@@ -21,8 +21,8 @@ public class SensorLocationDTO {
 
     private UUID id;
 
-    @NotEmpty(message = "Text cannot be empty")
-    private String text;
+    @NotEmpty(message = "Sensor location text cannot be empty")
+    private String sensorLocationText;
 
     private Double latitude;
 
