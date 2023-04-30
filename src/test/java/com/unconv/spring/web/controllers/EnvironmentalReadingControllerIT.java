@@ -19,7 +19,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 
@@ -130,12 +133,17 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        null, "Taj Mahal", 27.1751448, 78.0421422, SensorLocationType.INDOOR);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor A", sensorLocation);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         null,
                         3L,
                         56L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        sensorSystem);
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -149,8 +157,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        null, "Colosseum", 41.8902102, 12.4922309, SensorLocationType.OUTDOOR);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor A", sensorLocation);
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null);
+                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null, sensorSystem);
 
         this.mockMvc
                 .perform(

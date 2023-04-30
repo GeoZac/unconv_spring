@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.persistence.SensorLocationRepository;
 
@@ -50,9 +51,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         sensorLocationRepository.deleteAllInBatch();
 
         sensorLocationList = new ArrayList<>();
-        sensorLocationList.add(new SensorLocation(null, "First SensorLocation"));
-        sensorLocationList.add(new SensorLocation(null, "Second SensorLocation"));
-        sensorLocationList.add(new SensorLocation(null, "Third SensorLocation"));
+        sensorLocationList.add(
+                new SensorLocation(
+                        null,
+                        "Great Pyramid of Giza",
+                        29.9792,
+                        31.1342,
+                        SensorLocationType.INDOOR));
+        sensorLocationList.add(
+                new SensorLocation(
+                        null, "Stonehenge", 51.1789, -1.8262, SensorLocationType.OUTDOOR));
+        sensorLocationList.add(
+                new SensorLocation(
+                        null, "Machu Picchu", -13.1631, -72.5450, SensorLocationType.INDOOR));
         sensorLocationList = sensorLocationRepository.saveAll(sensorLocationList);
     }
 
@@ -100,7 +111,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewSensorLocation() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, "New SensorLocation");
+        SensorLocation sensorLocation =
+                new SensorLocation(null, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
@@ -114,7 +126,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenCreateNewSensorLocationWithoutText() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, null);
+        SensorLocation sensorLocation = new SensorLocation(null, null, null, null, null);
 
         this.mockMvc
                 .perform(

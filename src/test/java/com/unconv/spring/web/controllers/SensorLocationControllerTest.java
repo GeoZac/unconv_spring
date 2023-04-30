@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
@@ -71,9 +72,19 @@ class SensorLocationControllerTest {
                         .build();
 
         this.sensorLocationList = new ArrayList<>();
-        this.sensorLocationList.add(new SensorLocation(null, "text 1"));
-        this.sensorLocationList.add(new SensorLocation(null, "text 2"));
-        this.sensorLocationList.add(new SensorLocation(null, "text 3"));
+        sensorLocationList.add(
+                new SensorLocation(
+                        null,
+                        "Great Pyramid of Giza",
+                        29.9792,
+                        31.1342,
+                        SensorLocationType.INDOOR));
+        sensorLocationList.add(
+                new SensorLocation(
+                        null, "Stonehenge", 51.1789, -1.8262, SensorLocationType.OUTDOOR));
+        sensorLocationList.add(
+                new SensorLocation(
+                        null, "Machu Picchu", -13.1631, -72.5450, SensorLocationType.INDOOR));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -102,7 +113,8 @@ class SensorLocationControllerTest {
     @Test
     void shouldFindSensorLocationById() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
-        SensorLocation sensorLocation = new SensorLocation(sensorLocationId, "text 1");
+        SensorLocation sensorLocation =
+                new SensorLocation(null, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.of(sensorLocation));
 
@@ -128,7 +140,13 @@ class SensorLocationControllerTest {
         given(sensorLocationService.saveSensorLocation(any(SensorLocation.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        SensorLocation sensorLocation = new SensorLocation(UUID.randomUUID(), "some text");
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        UUID.randomUUID(),
+                        "Moai Statues",
+                        -27.1212,
+                        -109.3667,
+                        SensorLocationType.OUTDOOR);
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
@@ -142,7 +160,7 @@ class SensorLocationControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewSensorLocationWithoutText() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, null);
+        SensorLocation sensorLocation = new SensorLocation(null, null, null, null, null);
 
         this.mockMvc
                 .perform(
@@ -159,15 +177,17 @@ class SensorLocationControllerTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
+                .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateSensorLocation() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
-        SensorLocation sensorLocation = new SensorLocation(sensorLocationId, "Updated text");
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        sensorLocationId, " Alhambra", 37.1760, -3.5875, SensorLocationType.INDOOR);
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.of(sensorLocation));
         given(sensorLocationService.saveSensorLocation(any(SensorLocation.class)))
@@ -188,7 +208,8 @@ class SensorLocationControllerTest {
         UUID sensorLocationId = UUID.randomUUID();
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.empty());
-        SensorLocation sensorLocation = new SensorLocation(sensorLocationId, "Updated text");
+        SensorLocation sensorLocation =
+                new SensorLocation(sensorLocationId, "Updated text", null, null, null);
 
         this.mockMvc
                 .perform(
@@ -202,7 +223,13 @@ class SensorLocationControllerTest {
     @Test
     void shouldDeleteSensorLocation() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
-        SensorLocation sensorLocation = new SensorLocation(sensorLocationId, "Some text");
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        sensorLocationId,
+                        " Hagia Sophia",
+                        41.0082,
+                        28.9784,
+                        SensorLocationType.INDOOR);
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.of(sensorLocation));
         doNothing().when(sensorLocationService).deleteSensorLocationById(sensorLocation.getId());

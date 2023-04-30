@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.persistence.SensorSystemRepository;
 
@@ -37,6 +39,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     private List<SensorSystem> sensorSystemList = null;
 
+    private final SensorLocation sensorLocation =
+            new SensorLocation(
+                    UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -50,9 +56,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         sensorSystemRepository.deleteAllInBatch();
 
         sensorSystemList = new ArrayList<>();
-        sensorSystemList.add(new SensorSystem(null, "First SensorSystem"));
-        sensorSystemList.add(new SensorSystem(null, "Second SensorSystem"));
-        sensorSystemList.add(new SensorSystem(null, "Third SensorSystem"));
+        sensorSystemList.add(new SensorSystem(null, "First SensorSystem", sensorLocation));
+        sensorSystemList.add(new SensorSystem(null, "Second SensorSystem", sensorLocation));
+        sensorSystemList.add(new SensorSystem(null, "Third SensorSystem", sensorLocation));
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
     }
 
@@ -95,12 +101,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
     }
 
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "New SensorSystem");
+        SensorSystem sensorSystem = new SensorSystem(null, "New SensorSystem", sensorLocation);
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -109,12 +115,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null);
+        SensorSystem sensorSystem = new SensorSystem(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -139,7 +145,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldUpdateSensorSystem() throws Exception {
         SensorSystem sensorSystem = sensorSystemList.get(0);
-        sensorSystem.setText("Updated SensorSystem");
+        sensorSystem.setSensorName("Updated SensorSystem");
 
         this.mockMvc
                 .perform(
@@ -149,7 +155,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
     }
 
     @Test
@@ -160,7 +166,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
     }
 
     @Test

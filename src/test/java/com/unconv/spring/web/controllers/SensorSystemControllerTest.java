@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
@@ -60,6 +62,10 @@ class SensorSystemControllerTest {
 
     private List<SensorSystem> sensorSystemList;
 
+    private final SensorLocation sensorLocation =
+            new SensorLocation(
+                    UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -71,9 +77,9 @@ class SensorSystemControllerTest {
                         .build();
 
         this.sensorSystemList = new ArrayList<>();
-        this.sensorSystemList.add(new SensorSystem(null, "text 1"));
-        this.sensorSystemList.add(new SensorSystem(null, "text 2"));
-        this.sensorSystemList.add(new SensorSystem(null, "text 3"));
+        this.sensorSystemList.add(new SensorSystem(null, "text 1", sensorLocation));
+        this.sensorSystemList.add(new SensorSystem(null, "text 2", sensorLocation));
+        this.sensorSystemList.add(new SensorSystem(null, "text 3", sensorLocation));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -103,14 +109,14 @@ class SensorSystemControllerTest {
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         ;
-        SensorSystem sensorSystem = new SensorSystem(null, "text 1");
+        SensorSystem sensorSystem = new SensorSystem(null, "text 1", null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
 
         this.mockMvc
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
     @Test
@@ -129,7 +135,8 @@ class SensorSystemControllerTest {
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        SensorSystem sensorSystem = new SensorSystem(UUID.randomUUID(), "some text");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "some text", sensorLocation);
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -138,12 +145,12 @@ class SensorSystemControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.sensorNAme", is(sensorSystem.getSensorName())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null);
+        SensorSystem sensorSystem = new SensorSystem(null, null, null);
 
         this.mockMvc
                 .perform(
@@ -168,7 +175,8 @@ class SensorSystemControllerTest {
     @Test
     void shouldUpdateSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        SensorSystem sensorSystem = new SensorSystem(sensorSystemId, "Updated text");
+        SensorSystem sensorSystem =
+                new SensorSystem(sensorSystemId, "Updated text", sensorLocation);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
@@ -181,7 +189,7 @@ class SensorSystemControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
     }
 
     @Test
@@ -189,7 +197,8 @@ class SensorSystemControllerTest {
         UUID sensorSystemId = UUID.randomUUID();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.empty());
-        SensorSystem sensorSystem = new SensorSystem(sensorSystemId, "Updated text");
+        SensorSystem sensorSystem =
+                new SensorSystem(sensorSystemId, "Updated text", sensorLocation);
 
         this.mockMvc
                 .perform(
@@ -203,7 +212,7 @@ class SensorSystemControllerTest {
     @Test
     void shouldDeleteSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        SensorSystem sensorSystem = new SensorSystem(sensorSystemId, "Some text");
+        SensorSystem sensorSystem = new SensorSystem(sensorSystemId, "Some text", sensorLocation);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         doNothing().when(sensorSystemService).deleteSensorSystemById(sensorSystem.getId());
@@ -211,7 +220,7 @@ class SensorSystemControllerTest {
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", is(sensorSystem.getText())));
+                .andExpect(jsonPath("$.text", is(sensorSystem.getSensorName())));
     }
 
     @Test
