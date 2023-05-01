@@ -72,6 +72,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         environmentalReadingList =
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(15)
+                        .ignore(field(EnvironmentalReading::getSensorSystem))
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -135,7 +136,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         null,
                         3L,
                         56L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        null);
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -150,7 +152,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null);
+                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null, null);
 
         this.mockMvc
                 .perform(
@@ -246,6 +248,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
+                            .ignore(field(EnvironmentalReading::getSensorSystem))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -279,6 +282,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
+                            .ignore(field(EnvironmentalReading::getSensorSystem))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -312,6 +316,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
+                            .ignore(field(EnvironmentalReading::getSensorSystem))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->

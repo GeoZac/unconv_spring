@@ -21,7 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
@@ -63,6 +66,13 @@ class EnvironmentalReadingControllerTest {
     @Autowired private ObjectMapper objectMapper;
 
     private List<EnvironmentalReading> environmentalReadingList;
+
+    private final SensorLocation sensorLocation =
+            new SensorLocation(
+                    UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
+
+    private final SensorSystem sensorSystem =
+            new SensorSystem(UUID.randomUUID(), "Sensor ABCD", sensorLocation);
 
     @BeforeEach
     void setUp() {
@@ -112,7 +122,8 @@ class EnvironmentalReadingControllerTest {
                         null,
                         13L,
                         75L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
+                        sensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
 
@@ -143,7 +154,8 @@ class EnvironmentalReadingControllerTest {
                         UUID.randomUUID(),
                         -3L,
                         53L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
+                        sensorSystem);
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -157,7 +169,8 @@ class EnvironmentalReadingControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading = new EnvironmentalReading(null, 0L, 0L, null);
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(null, 0L, 0L, null, null);
 
         this.mockMvc
                 .perform(
@@ -187,7 +200,8 @@ class EnvironmentalReadingControllerTest {
                         environmentalReadingId,
                         3L,
                         5L,
-                        OffsetDateTime.of(LocalDateTime.of(2021, 12, 25, 1, 15), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2021, 12, 25, 1, 15), ZoneOffset.UTC),
+                        sensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
@@ -213,7 +227,8 @@ class EnvironmentalReadingControllerTest {
                         environmentalReadingId,
                         13L,
                         75L,
-                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
+                        sensorSystem);
 
         this.mockMvc
                 .perform(
@@ -232,7 +247,8 @@ class EnvironmentalReadingControllerTest {
                         environmentalReadingId,
                         76L,
                         0L,
-                        OffsetDateTime.of(LocalDateTime.of(2021, 11, 12, 13, 57), ZoneOffset.UTC));
+                        OffsetDateTime.of(LocalDateTime.of(2021, 11, 12, 13, 57), ZoneOffset.UTC),
+                        sensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         doNothing()

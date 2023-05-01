@@ -1,30 +1,32 @@
 package com.unconv.spring.domain;
 
+import com.unconv.spring.consts.SensorLocationType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "environmental_readings")
+@Table(name = "sensor_locations")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnvironmentalReading {
+public class SensorLocation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,18 +34,15 @@ public class EnvironmentalReading {
     private UUID id;
 
     @Column(nullable = false)
-    @NotNull(message = "Temperature cannot be empty")
-    private double temperature;
+    @NotEmpty(message = "Sensor location text cannot be empty")
+    private String sensorLocationText;
 
+    private Double latitude;
+
+    private Double longitude;
+
+    @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
-    @NotNull(message = "Humidity cannot be empty")
-    private double humidity;
-
-    @Column(nullable = false)
-    @NotNull(message = "Timestamp cannot be empty")
-    private OffsetDateTime timestamp;
-
-    @ManyToOne
-    @JoinColumn(name = "sensor_id")
-    private SensorSystem sensorSystem;
+    @NotNull(message = "SensorLocationType cannot be null")
+    private SensorLocationType sensorLocationType;
 }
