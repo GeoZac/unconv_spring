@@ -149,8 +149,11 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(2)))
-                .andExpect(jsonPath("$.violations[0].field", is("text")))
-                .andExpect(jsonPath("$.violations[0].message", is("Text cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorLocationText")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Sensor location text cannot be empty")))
                 .andReturn();
     }
 
