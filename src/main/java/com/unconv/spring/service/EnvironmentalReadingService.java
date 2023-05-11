@@ -74,10 +74,11 @@ public class EnvironmentalReadingService {
         environmentalReadingRepository.deleteById(id);
     }
 
-    public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly() {
+    public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(UUID sensorSystemId) {
 
         List<EnvironmentalReading> data =
-                environmentalReadingRepository.findByTimestampBetween(
+                environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                        sensorSystemId,
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(3),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
@@ -103,10 +104,11 @@ public class EnvironmentalReadingService {
                                 Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
     }
 
-    public Map<OffsetDateTime, Double> getAverageTempsForHourly() {
+    public Map<OffsetDateTime, Double> getAverageTempsForHourly(UUID sensorSystemId) {
 
         List<EnvironmentalReading> data =
-                environmentalReadingRepository.findByTimestampBetween(
+                environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                        sensorSystemId,
                         OffsetDateTime.now(ZoneOffset.UTC).minusHours(24),
                         OffsetDateTime.now(ZoneOffset.UTC));
 
@@ -131,10 +133,11 @@ public class EnvironmentalReadingService {
                                 Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
     }
 
-    public Map<OffsetDateTime, Double> getAverageTempsForDaily() {
+    public Map<OffsetDateTime, Double> getAverageTempsForDaily(UUID sensorSystemId) {
 
         List<EnvironmentalReading> data =
-                environmentalReadingRepository.findByTimestampBetween(
+                environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                        sensorSystemId,
                         OffsetDateTime.now(ZoneOffset.UTC).minusDays(7),
                         OffsetDateTime.now(ZoneOffset.UTC));
 

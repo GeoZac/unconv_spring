@@ -14,5 +14,8 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
 
     List<EnvironmentalReading> findByTimestampBetween(OffsetDateTime start, OffsetDateTime end);
 
+    List<EnvironmentalReading> findBySensorSystemIdAndTimestampBetween(
+            UUID sensorSystemId, OffsetDateTime start, OffsetDateTime end);
+
     Page<EnvironmentalReading> findAllBySensorSystemId(UUID sensorSystemId, Pageable pageable);
 }
