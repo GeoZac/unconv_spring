@@ -20,7 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 
 import net.minidev.json.JSONArray;
@@ -50,6 +52,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
+
+    @Autowired private SensorSystemRepository sensorSystemRepository;
 
     private List<EnvironmentalReading> environmentalReadingList = null;
 
@@ -131,13 +135,15 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         null,
                         3L,
                         56L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
-                        null);
+                        savedSensorSystem);
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -146,7 +152,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem", notNullValue()));
     }
 
     @Test
