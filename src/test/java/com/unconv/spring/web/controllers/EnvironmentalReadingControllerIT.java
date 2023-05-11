@@ -104,6 +104,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFetchAllEnvironmentalReadingsInDescendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
