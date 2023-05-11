@@ -65,6 +65,33 @@ public class EnvironmentalReadingController {
                 pageNo, pageSize, sortBy, sortDir);
     }
 
+    @GetMapping("SensorSystem/{sensorSystemId}")
+    public PagedResult<EnvironmentalReading> getAllEnvironmentalReadingsBySensorSystemId(
+            @PathVariable UUID sensorSystemId,
+            @RequestParam(
+                            value = "pageNo",
+                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
+                            required = false)
+                    int pageNo,
+            @RequestParam(
+                            value = "pageSize",
+                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
+                            required = false)
+                    int pageSize,
+            @RequestParam(
+                            value = "sortBy",
+                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            required = false)
+                    String sortBy,
+            @RequestParam(
+                            value = "sortDir",
+                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            required = false)
+                    String sortDir) {
+        return environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
+                sensorSystemId, pageNo, pageSize, sortBy, sortDir);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EnvironmentalReading> getEnvironmentalReadingById(@PathVariable UUID id) {
         return environmentalReadingService

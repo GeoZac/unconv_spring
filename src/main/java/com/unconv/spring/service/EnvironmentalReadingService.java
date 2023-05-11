@@ -46,6 +46,21 @@ public class EnvironmentalReadingService {
         return new PagedResult<>(environmentalReadingsPage);
     }
 
+    public PagedResult<EnvironmentalReading> findAllEnvironmentalReadingsBySensorSystemId(
+            UUID sensorSystemId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort =
+                sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                        ? Sort.by(sortBy).ascending()
+                        : Sort.by(sortBy).descending();
+
+        // create Pageable instance
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<EnvironmentalReading> environmentalReadingsPage =
+                environmentalReadingRepository.findAllBySensorSystemId(sensorSystemId, pageable);
+
+        return new PagedResult<>(environmentalReadingsPage);
+    }
+
     public Optional<EnvironmentalReading> findEnvironmentalReadingById(UUID id) {
         return environmentalReadingRepository.findById(id);
     }
