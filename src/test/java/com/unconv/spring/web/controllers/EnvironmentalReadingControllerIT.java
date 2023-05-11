@@ -104,6 +104,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFetchAllEnvironmentalReadingsInDescendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
@@ -118,6 +154,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(
                         jsonPath(
                                 "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .param("sortDir", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -242,15 +314,22 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForQuarterHourly();
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        Map<OffsetDateTime, Double> averageTemperatures =
+                setupTestDataForQuarterHourly(savedSensorSystem);
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/QuarterHourly").with(csrf()))
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/QuarterHourly/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly() {
+    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly(SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
@@ -271,20 +350,26 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForQuarterHourly();
+        return environmentalReadingService.getAverageTempsForQuarterHourly(sensorSystem.getId());
     }
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly();
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/Hourly").with(csrf()))
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/Hourly/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForHourly() {
+    private Map<OffsetDateTime, Double> setupTestDataForHourly(SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
@@ -305,20 +390,26 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForHourly();
+        return environmentalReadingService.getAverageTempsForHourly(sensorSystem.getId());
     }
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily();
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/Daily").with(csrf()))
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/Daily/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForDaily() {
+    private Map<OffsetDateTime, Double> setupTestDataForDaily(SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
@@ -339,6 +430,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForDaily();
+        return environmentalReadingService.getAverageTempsForDaily(sensorSystem.getId());
     }
 }
