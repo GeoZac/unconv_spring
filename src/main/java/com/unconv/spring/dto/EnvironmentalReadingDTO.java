@@ -1,5 +1,7 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.domain.SensorSystem;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EnvironmentalReadingDTO {
-
     private UUID id;
 
     @NotNull(message = "Temperature cannot be empty")
@@ -26,4 +27,6 @@ public class EnvironmentalReadingDTO {
 
     @NotNull(message = "Timestamp cannot be empty")
     private OffsetDateTime timestamp;
+
+    private SensorSystem sensorSystem;
 }

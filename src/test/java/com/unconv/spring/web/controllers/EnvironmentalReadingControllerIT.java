@@ -20,7 +20,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 
 import net.minidev.json.JSONArray;
@@ -50,6 +52,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
+
+    @Autowired private SensorSystemRepository sensorSystemRepository;
 
     private List<EnvironmentalReading> environmentalReadingList = null;
 
@@ -100,6 +104,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFetchAllEnvironmentalReadingsInDescendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
@@ -118,6 +158,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .param("sortDir", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
         EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
         UUID environmentalReadingId = environmentalReading.getId();
@@ -131,13 +207,15 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         null,
                         3L,
                         56L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
-                        null);
+                        savedSensorSystem);
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
@@ -146,7 +224,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem", notNullValue()));
     }
 
     @Test
@@ -235,15 +314,22 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForQuarterHourly();
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        Map<OffsetDateTime, Double> averageTemperatures =
+                setupTestDataForQuarterHourly(savedSensorSystem);
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/QuarterHourly").with(csrf()))
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/QuarterHourly/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly() {
+    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly(SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
@@ -264,20 +350,26 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForQuarterHourly();
+        return environmentalReadingService.getAverageTempsForQuarterHourly(sensorSystem.getId());
     }
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly();
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/Hourly").with(csrf()))
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/Hourly/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForHourly() {
+    private Map<OffsetDateTime, Double> setupTestDataForHourly(SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
@@ -298,20 +390,26 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForHourly();
+        return environmentalReadingService.getAverageTempsForHourly(sensorSystem.getId());
     }
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily();
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
         averageTemperatures.size();
         this.mockMvc
-                .perform(get("/EnvironmentalReading/Daily").with(csrf()))
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/Daily/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> setupTestDataForDaily() {
+    private Map<OffsetDateTime, Double> setupTestDataForDaily(SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
@@ -332,6 +430,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             environmentalReadings.add(environmentalReading);
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForDaily();
+        return environmentalReadingService.getAverageTempsForDaily(sensorSystem.getId());
     }
 }

@@ -65,6 +65,33 @@ public class EnvironmentalReadingController {
                 pageNo, pageSize, sortBy, sortDir);
     }
 
+    @GetMapping("SensorSystem/{sensorSystemId}")
+    public PagedResult<EnvironmentalReading> getAllEnvironmentalReadingsBySensorSystemId(
+            @PathVariable UUID sensorSystemId,
+            @RequestParam(
+                            value = "pageNo",
+                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
+                            required = false)
+                    int pageNo,
+            @RequestParam(
+                            value = "pageSize",
+                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
+                            required = false)
+                    int pageSize,
+            @RequestParam(
+                            value = "sortBy",
+                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            required = false)
+                    String sortBy,
+            @RequestParam(
+                            value = "sortDir",
+                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            required = false)
+                    String sortDir) {
+        return environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
+                sensorSystemId, pageNo, pageSize, sortBy, sortDir);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EnvironmentalReading> getEnvironmentalReadingById(@PathVariable UUID id) {
         return environmentalReadingService
@@ -111,24 +138,27 @@ public class EnvironmentalReadingController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/QuarterHourly")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getQuarterHourlyTemperature() {
+    @GetMapping("/QuarterHourly/SensorSystem/{sensorSystemId}")
+    public ResponseEntity<Map<OffsetDateTime, Double>> getQuarterHourlyTemperature(
+            @PathVariable UUID sensorSystemId) {
         Map<OffsetDateTime, Double> tenMinuteTemperatures =
-                environmentalReadingService.getAverageTempsForQuarterHourly();
+                environmentalReadingService.getAverageTempsForQuarterHourly(sensorSystemId);
         return ResponseEntity.ok(tenMinuteTemperatures);
     }
 
-    @GetMapping("/Hourly")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getHourlyTemperature() {
+    @GetMapping("/Hourly/SensorSystem/{sensorSystemId}")
+    public ResponseEntity<Map<OffsetDateTime, Double>> getHourlyTemperature(
+            @PathVariable UUID sensorSystemId) {
         Map<OffsetDateTime, Double> hourlyTemperatures =
-                environmentalReadingService.getAverageTempsForHourly();
+                environmentalReadingService.getAverageTempsForHourly(sensorSystemId);
         return ResponseEntity.ok(hourlyTemperatures);
     }
 
-    @GetMapping("/Daily")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getDailyTemperature() {
+    @GetMapping("/Daily/SensorSystem/{sensorSystemId}")
+    public ResponseEntity<Map<OffsetDateTime, Double>> getDailyTemperature(
+            @PathVariable UUID sensorSystemId) {
         Map<OffsetDateTime, Double> hourlyTemperatures =
-                environmentalReadingService.getAverageTempsForDaily();
+                environmentalReadingService.getAverageTempsForDaily(sensorSystemId);
         return ResponseEntity.ok(hourlyTemperatures);
     }
 }
