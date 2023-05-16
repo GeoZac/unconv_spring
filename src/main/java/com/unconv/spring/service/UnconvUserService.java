@@ -39,6 +39,10 @@ public class UnconvUserService {
         return unconvUserRepository.findById(id);
     }
 
+    public UnconvUser findUnconvUserByUserName(String username) {
+        return unconvUserRepository.findByUsername(username);
+    }
+
     public UnconvUser saveUnconvUser(UnconvUser unconvUser) {
         return unconvUserRepository.save(unconvUser);
     }
