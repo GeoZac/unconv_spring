@@ -25,8 +25,11 @@ public class SecurityConfig {
         AuthenticationFilter authenticationFilter =
                 new AuthenticationFilter(customAuthenticationManager);
         authenticationFilter.setFilterProcessesUrl("/authenticate");
-
-        http.authorizeRequests()
+        http
+                // disable this if you want to use it in postman
+                .csrf()
+                .disable()
+                .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
                 .anyRequest()
