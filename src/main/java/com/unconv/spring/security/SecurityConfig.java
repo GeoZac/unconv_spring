@@ -1,48 +1,45 @@
 package com.unconv.spring.security;
 
+import com.unconv.spring.security.filter.AuthenticationFilter;
+import com.unconv.spring.security.filter.CustomAuthenticationManager;
+import com.unconv.spring.security.filter.ExceptionHandlerFilter;
+import com.unconv.spring.security.filter.JWTAuthenticationFilter;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+@AllArgsConstructor
 @Configuration
 public class SecurityConfig {
 
+    private final CustomAuthenticationManager customAuthenticationManager;
+
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        AuthenticationFilter authenticationFilter =
+                new AuthenticationFilter(customAuthenticationManager);
+        authenticationFilter.setFilterProcessesUrl("/authenticate");
+        http
+                // disable this if you want to use it in postman
+                .csrf()
                 .disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/UnconvUser")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic()
-                .and()
-                // To get rid of the http session
+                .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+                .addFilter(new AuthenticationFilter(customAuthenticationManager))
+                .addFilterAfter(new JWTAuthenticationFilter(), AuthenticationFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         return http.build();
-    }
-
-    @Bean
-    BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.builder()
-                        .username("admin")
-                        .roles("ADMIN")
-                        .password(bCryptPasswordEncoder().encode("admin"))
-                        .build();
-        return new InMemoryUserDetailsManager(user);
     }
 }
