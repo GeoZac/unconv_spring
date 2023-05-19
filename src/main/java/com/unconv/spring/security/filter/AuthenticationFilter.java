@@ -13,6 +13,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -56,12 +58,23 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             FilterChain chain,
             Authentication authResult)
             throws IOException {
+
         String token =
                 JWT.create()
                         .withSubject(authResult.getName())
                         .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpiry))
                         .sign(Algorithm.HMAC512(jwtSecret));
-        response.getWriter().write(token);
+
+        // Create a response object
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("token", token);
+
+        // Set the response content type
+        response.setContentType("application/json");
+
+        // Write the response body as JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(response.getWriter(), responseBody);
     }
 
     @Override
