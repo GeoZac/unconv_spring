@@ -24,7 +24,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationFilter authenticationFilter =
                 new AuthenticationFilter(customAuthenticationManager);
-        authenticationFilter.setFilterProcessesUrl("/authenticate");
+        authenticationFilter.setFilterProcessesUrl("/auth/login");
         http
                 // disable this if you want to use it in postman
                 .csrf()
@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .authenticated()
                 .and()
                 .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
-                .addFilter(new AuthenticationFilter(customAuthenticationManager))
+                .addFilter(authenticationFilter)
                 .addFilterAfter(new JWTAuthenticationFilter(), AuthenticationFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

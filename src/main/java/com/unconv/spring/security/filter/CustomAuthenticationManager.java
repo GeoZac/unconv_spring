@@ -24,14 +24,14 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
         UnconvUser unconvUser =
-                unconvUserService.findUnconvUserByUserName(authentication.getName());
+                unconvUserService.findUnconvUserByUserName((String) authentication.getPrincipal());
 
         if (!bCryptPasswordEncoder()
                 .matches(authentication.getCredentials().toString(), unconvUser.getPassword())) {
             throw new BadCredentialsException("You provided an incorrect password.");
         }
         return new UsernamePasswordAuthenticationToken(
-                authentication.getName(), unconvUser.getPassword());
+                authentication.getPrincipal(), unconvUser.getPassword());
     }
 
     @Bean
