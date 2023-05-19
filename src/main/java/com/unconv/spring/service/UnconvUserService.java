@@ -5,10 +5,12 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +46,16 @@ public class UnconvUserService {
     }
 
     public UnconvUser saveUnconvUser(UnconvUser unconvUser) {
+        unconvUser.setPassword(bCryptPasswordEncoder().encode(unconvUser.getPassword()));
         return unconvUserRepository.save(unconvUser);
     }
 
     public void deleteUnconvUserById(UUID id) {
         unconvUserRepository.deleteById(id);
+    }
+
+    @Bean
+    BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
