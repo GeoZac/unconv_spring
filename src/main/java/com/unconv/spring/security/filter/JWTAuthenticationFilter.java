@@ -1,9 +1,5 @@
 package com.unconv.spring.security.filter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,9 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
+    private final JWTUtil jwtUtil;
 
-    @Value("${jwt_secret}")
-    private static String jwtSecret;
+    public JWTAuthenticationFilter(JWTUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -34,8 +32,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = header.startsWith("Bearer ") ? header.replace("Bearer ", "") : header;
-        String contextUser =
-                JWT.require(Algorithm.HMAC512(jwtSecret)).build().verify(token).getSubject();
+        String contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(contextUser, null, List.of());

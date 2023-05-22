@@ -4,6 +4,7 @@ import com.unconv.spring.security.filter.AuthenticationFilter;
 import com.unconv.spring.security.filter.CustomAuthenticationManager;
 import com.unconv.spring.security.filter.ExceptionHandlerFilter;
 import com.unconv.spring.security.filter.JWTAuthenticationFilter;
+import com.unconv.spring.security.filter.JWTUtil;
 
 import lombok.AllArgsConstructor;
 
@@ -18,13 +19,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    private final JWTUtil jwtUtil;
+
     private final CustomAuthenticationManager customAuthenticationManager;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationFilter authenticationFilter =
-                new AuthenticationFilter(customAuthenticationManager);
+                new AuthenticationFilter(customAuthenticationManager, jwtUtil);
         authenticationFilter.setFilterProcessesUrl("/auth/login");
+
         http
                 // disable this if you want to use it in postman
                 .csrf()
@@ -37,7 +41,7 @@ public class SecurityConfig {
                 .and()
                 .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
                 .addFilter(authenticationFilter)
-                .addFilterAfter(new JWTAuthenticationFilter(), AuthenticationFilter.class)
+                .addFilterAfter(new JWTAuthenticationFilter(jwtUtil), AuthenticationFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         return http.build();

@@ -1,18 +1,14 @@
 package com.unconv.spring.security.filter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.UnconvUser;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,14 +21,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final CustomAuthenticationManager customAuthenticationManager;
 
-    @Value("${jwt_secret}")
-    private static String jwtSecret;
+    private final JWTUtil jwtUtil;
 
-    @Value("${jwt_expiry}")
-    private static Long jwtExpiry;
-
-    public AuthenticationFilter(CustomAuthenticationManager customAuthenticationManager) {
+    public AuthenticationFilter(
+            CustomAuthenticationManager customAuthenticationManager, JWTUtil jwtUtil) {
         this.customAuthenticationManager = customAuthenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -59,12 +53,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult)
             throws IOException {
 
-        String token =
-                JWT.create()
-                        .withSubject(authResult.getName())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpiry))
-                        .sign(Algorithm.HMAC512(jwtSecret));
-
+        String token = jwtUtil.generateToken((String) authResult.getPrincipal());
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
