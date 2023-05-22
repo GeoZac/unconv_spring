@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.UnconvUserService;
 
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private UnconvUserService unconvUserService;
 
     private List<UnconvUser> unconvUserList = null;
 
@@ -123,6 +126,44 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+    }
+
+    @Test
+    void shouldReturn400WhenRegisterAsUser() throws Exception {
+        String rawPassword = "new password";
+        UnconvUser unconvUser = new UnconvUser(null, "new_user", "newuser@gmail.com", rawPassword);
+        unconvUserService.saveUnconvUser(unconvUser);
+
+        this.mockMvc
+                .perform(
+                        post("/UnconvUser")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUser)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andExpect(jsonPath("$.email", is(unconvUser.getEmail())));
+    }
+
+    @Test
+    void shouldLoginAsAuthenticatedUserAndReceiveJWToken() throws Exception {
+        String rawPassword = "password";
+        UnconvUser unconvUser = new UnconvUser(null, "new_user", "testuser@gmail.com", rawPassword);
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        assert savedUnconvUser.getId().version() == 4;
+
+        UnconvUser userToLogin = new UnconvUser();
+        userToLogin.setUsername(unconvUser.getUsername());
+        userToLogin.setPassword(rawPassword);
+
+        this.mockMvc
+                .perform(
+                        post("/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userToLogin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token", notNullValue()));
     }
 
     @Test
