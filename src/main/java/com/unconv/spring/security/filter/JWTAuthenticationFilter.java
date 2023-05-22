@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final String BEARER_PREFIX_STRING = "Bearer ";
+
     private final JWTUtil jwtUtil;
 
     public JWTAuthenticationFilter(JWTUtil jwtUtil) {
@@ -27,11 +30,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header == null || !header.startsWith(BEARER_PREFIX_STRING)) {
             filterChain.doFilter(request, response);
             return;
         }
-        String token = header.startsWith("Bearer ") ? header.replace("Bearer ", "") : header;
+        String token =
+                header.startsWith(BEARER_PREFIX_STRING)
+                        ? header.replace(BEARER_PREFIX_STRING, "")
+                        : header;
         String contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
 
         Authentication authentication =
