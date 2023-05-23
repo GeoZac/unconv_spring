@@ -167,6 +167,23 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFailLoginAsUserAndNotReceiveJWToken() throws Exception {
+
+        UnconvUser userToLogin = new UnconvUser();
+        userToLogin.setUsername(unconvUserList.get(0).getUsername());
+        userToLogin.setPassword("JTIzIdXRoh");
+
+        this.mockMvc
+                .perform(
+                        post("/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userToLogin)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$", is("User Not Authenticated")));
+    }
+
+    @Test
     void shouldReturn400WhenCreateNewUnconvUserWithoutText() throws Exception {
         UnconvUser unconvUser = new UnconvUser(null, null, null, null);
 
