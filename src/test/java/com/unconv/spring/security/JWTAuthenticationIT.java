@@ -18,7 +18,7 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
     @Autowired private JWTUtil jwtUtil;
 
     @Test
-    public void testAuthorizedRequest() throws Exception {
+    void testAuthorizedRequest() throws Exception {
         // Generate a valid JWT token
         String token = jwtUtil.generateToken("Test User");
 
@@ -29,7 +29,7 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testUnauthorizedRequest() throws Exception {
+    void testUnauthorizedRequest() throws Exception {
         // Generate an invalid JWT token
         String token = "RANDOM_STRING";
 
