@@ -105,7 +105,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null, null);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
@@ -159,7 +159,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null, null);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
@@ -207,7 +207,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, null);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
@@ -314,7 +314,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, null);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures =
                 setupTestDataForQuarterHourly(savedSensorSystem);
@@ -355,7 +355,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, null);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
         averageTemperatures.size();
@@ -395,7 +395,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, null);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
         averageTemperatures.size();

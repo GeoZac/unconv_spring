@@ -13,7 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.service.UnconvUserService;
 
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private UnconvUserService unconvUserService;
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
@@ -99,7 +103,11 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "New SensorSystem", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Test user", "testuser@email.com", "test_password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "New SensorSystem", null, savedUnconvUser);
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -108,12 +116,13 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.unconvUser.username", is(savedUnconvUser.getUsername())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null, null);
+        SensorSystem sensorSystem = new SensorSystem(null, null, null, null);
 
         this.mockMvc
                 .perform(

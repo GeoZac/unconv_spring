@@ -77,9 +77,9 @@ class SensorSystemControllerTest {
                         .build();
 
         this.sensorSystemList = new ArrayList<>();
-        this.sensorSystemList.add(new SensorSystem(null, "text 1", sensorLocation));
-        this.sensorSystemList.add(new SensorSystem(null, "text 2", sensorLocation));
-        this.sensorSystemList.add(new SensorSystem(null, "text 3", sensorLocation));
+        this.sensorSystemList.add(new SensorSystem(null, "text 1", sensorLocation, null));
+        this.sensorSystemList.add(new SensorSystem(null, "text 2", sensorLocation, null));
+        this.sensorSystemList.add(new SensorSystem(null, "text 3", sensorLocation, null));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -109,7 +109,7 @@ class SensorSystemControllerTest {
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         ;
-        SensorSystem sensorSystem = new SensorSystem(null, "text 1", null);
+        SensorSystem sensorSystem = new SensorSystem(null, "text 1", null, null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
 
@@ -136,7 +136,7 @@ class SensorSystemControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         SensorSystem sensorSystem =
-                new SensorSystem(UUID.randomUUID(), "some text", sensorLocation);
+                new SensorSystem(UUID.randomUUID(), "some text", sensorLocation, null);
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -150,7 +150,7 @@ class SensorSystemControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null, null);
+        SensorSystem sensorSystem = new SensorSystem(null, null, null, null);
 
         this.mockMvc
                 .perform(
@@ -176,7 +176,7 @@ class SensorSystemControllerTest {
     void shouldUpdateSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
-                new SensorSystem(sensorSystemId, "Updated text", sensorLocation);
+                new SensorSystem(sensorSystemId, "Updated text", sensorLocation, null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
@@ -198,7 +198,7 @@ class SensorSystemControllerTest {
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.empty());
         SensorSystem sensorSystem =
-                new SensorSystem(sensorSystemId, "Updated text", sensorLocation);
+                new SensorSystem(sensorSystemId, "Updated text", sensorLocation, null);
 
         this.mockMvc
                 .perform(
@@ -212,7 +212,8 @@ class SensorSystemControllerTest {
     @Test
     void shouldDeleteSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        SensorSystem sensorSystem = new SensorSystem(sensorSystemId, "Some text", sensorLocation);
+        SensorSystem sensorSystem =
+                new SensorSystem(sensorSystemId, "Some text", sensorLocation, null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         doNothing().when(sensorSystemService).deleteSensorSystemById(sensorSystem.getId());
