@@ -40,8 +40,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
             return customAuthenticationManager.authenticate(authentication);
         } catch (IOException e) {
-            System.out.println("Got Exception in Auth Filter");
-            throw new RuntimeException();
+            throw new AuthenticationException("Authentication failed") {};
         }
     }
 
