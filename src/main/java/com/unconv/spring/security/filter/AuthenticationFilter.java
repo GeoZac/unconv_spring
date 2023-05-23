@@ -53,6 +53,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
+        responseBody.put("expires", jwtUtil.getJwtExpiry());
 
         // Set the response content type
         response.setContentType("application/json");
