@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,4 +39,11 @@ public class SensorSystem {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "sensor_location_id")
     private SensorLocation sensorLocation;
+
+    @ManyToOne(
+            optional = true, /* TODO Fix nullability */
+            fetch = FetchType.EAGER,
+            cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "unconv_user_id")
+    private UnconvUser unconvUser;
 }

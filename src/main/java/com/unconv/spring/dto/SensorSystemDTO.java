@@ -1,6 +1,7 @@
 package com.unconv.spring.dto;
 
 import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.UnconvUser;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +24,6 @@ public class SensorSystemDTO {
     private String sensorName;
 
     private SensorLocation sensorLocation;
+
+    private UnconvUser unconvUser;
 }
