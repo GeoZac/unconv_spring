@@ -33,15 +33,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        try {
-            UnconvUser user =
-                    new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
-            Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-            return customAuthenticationManager.authenticate(authentication);
-        } catch (IOException e) {
-            throw new AuthenticationException("Authentication failed") {};
-        }
+
+        UnconvUser user = new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+        return customAuthenticationManager.authenticate(authentication);
     }
 
     @Override
@@ -53,6 +49,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             throws IOException {
 
         String token = jwtUtil.generateToken((String) authResult.getPrincipal());
+
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
