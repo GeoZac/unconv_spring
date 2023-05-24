@@ -34,10 +34,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         try {
-            UnconvUser user =
+            UnconvUser unconvUser =
                     new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
             Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+                    new UsernamePasswordAuthenticationToken(
+                            unconvUser.getUsername(), unconvUser.getPassword());
             return customAuthenticationManager.authenticate(authentication);
         } catch (IOException e) {
             throw new AuthenticationException("Authentication failed") {};
