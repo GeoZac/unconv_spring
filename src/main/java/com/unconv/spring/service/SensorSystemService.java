@@ -35,6 +35,20 @@ public class SensorSystemService {
         return new PagedResult<>(sensorSystemsPage);
     }
 
+    public PagedResult<SensorSystem> findAllSensorSystemsByUnconvUserId(
+            UUID unconvUserId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort =
+                sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                        ? Sort.by(sortBy).ascending()
+                        : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<SensorSystem> sensorSystemsPage =
+                sensorSystemRepository.findAllByUnconvUserId(unconvUserId, pageable);
+
+        return new PagedResult<>(sensorSystemsPage);
+    }
+
     public Optional<SensorSystem> findSensorSystemById(UUID id) {
         return sensorSystemRepository.findById(id);
     }

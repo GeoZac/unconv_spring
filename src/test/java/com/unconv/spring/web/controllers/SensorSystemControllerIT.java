@@ -5,6 +5,7 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -13,9 +14,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.UnconvUserService;
 
 import org.instancio.Instancio;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private UnconvUserService unconvUserService;
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
@@ -71,6 +80,40 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                        .ignore(field(SensorSystem::getId))
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .create();
+
+        List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
+                sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
+
+        int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFetchAllSensorSystemsInDescendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/SensorSystem").param("sortDir", "desc"))
@@ -82,6 +125,40 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(sensorSystemList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(sensorSystemList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllSensorSystemsOfSpecificUnconvUserInDescendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                        .ignore(field(SensorSystem::getId))
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .create();
+
+        List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
+                sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
+
+        int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
+                                .param("sortDir", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -99,7 +176,11 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "New SensorSystem", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Test user", "testuser@email.com", "test_password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "New SensorSystem", null, savedUnconvUser);
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -108,12 +189,13 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.unconvUser.username", is(savedUnconvUser.getUsername())));
     }
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null, null);
+        SensorSystem sensorSystem = new SensorSystem(null, null, null, null);
 
         this.mockMvc
                 .perform(
@@ -129,7 +211,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
@@ -190,5 +272,11 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @AfterEach
+    void tearDown() {
+        sensorSystemRepository.deleteAll();
+        unconvUserRepository.deleteAll();
     }
 }

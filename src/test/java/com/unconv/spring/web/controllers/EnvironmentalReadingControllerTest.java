@@ -72,7 +72,7 @@ class EnvironmentalReadingControllerTest {
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
     private final SensorSystem sensorSystem =
-            new SensorSystem(UUID.randomUUID(), "Sensor ABCD", sensorLocation);
+            new SensorSystem(UUID.randomUUID(), "Sensor ABCD", sensorLocation, null);
 
     @BeforeEach
     void setUp() {

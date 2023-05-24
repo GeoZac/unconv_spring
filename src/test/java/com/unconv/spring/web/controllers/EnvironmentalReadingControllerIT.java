@@ -21,13 +21,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.UnconvUserService;
 
 import net.minidev.json.JSONArray;
 
 import org.instancio.Instancio;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +58,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingService environmentalReadingService;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private UnconvUserService unconvUserService;
+
+    @Autowired private UnconvUserRepository unconvUserRepository;
 
     private List<EnvironmentalReading> environmentalReadingList = null;
 
@@ -105,7 +113,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
@@ -159,7 +171,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Specific Sensor System", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
@@ -207,7 +223,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
@@ -314,7 +333,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures =
                 setupTestDataForQuarterHourly(savedSensorSystem);
@@ -355,7 +377,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
         averageTemperatures.size();
@@ -395,7 +420,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
         averageTemperatures.size();
@@ -431,5 +459,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         }
         environmentalReadingRepository.saveAll(environmentalReadings);
         return environmentalReadingService.getAverageTempsForDaily(sensorSystem.getId());
+    }
+
+    @AfterEach
+    void tearDown() {
+        environmentalReadingRepository.deleteAll();
+        sensorSystemRepository.deleteAll();
+        unconvUserRepository.deleteAll();
     }
 }
