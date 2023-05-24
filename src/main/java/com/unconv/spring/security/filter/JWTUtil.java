@@ -10,6 +10,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Component
@@ -24,12 +26,14 @@ public class JWTUtil {
     public String generateToken(String username)
             throws IllegalArgumentException, JWTCreationException {
 
+        Instant expirationTime = Instant.now().plus(jwtExpiry, ChronoUnit.SECONDS);
+
         return JWT.create()
                 .withSubject("User Details")
                 .withClaim("username", username)
                 .withIssuedAt(new Date())
                 .withIssuer("unconv")
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpiry))
+                .withExpiresAt(expirationTime)
                 .sign(Algorithm.HMAC256(jwtSecret));
     }
 
