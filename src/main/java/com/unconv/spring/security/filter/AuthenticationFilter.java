@@ -23,6 +23,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JWTUtil jwtUtil;
 
+    private UnconvUser unconvUser;
+
     public AuthenticationFilter(
             CustomAuthenticationManager customAuthenticationManager, JWTUtil jwtUtil) {
         this.customAuthenticationManager = customAuthenticationManager;
@@ -34,8 +36,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         try {
-            UnconvUser unconvUser =
-                    new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
+            unconvUser = new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(
                             unconvUser.getUsername(), unconvUser.getPassword());
@@ -58,6 +59,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
         responseBody.put("expires", jwtUtil.getJwtExpiry());
+        responseBody.put("unconvuser", unconvUser);
 
         // Set the response content type
         response.setContentType("application/json");
