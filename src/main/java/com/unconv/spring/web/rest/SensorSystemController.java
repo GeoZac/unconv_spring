@@ -62,7 +62,7 @@ public class SensorSystemController {
         return sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
     }
 
-    @GetMapping("UnconvUser/{UnconvUserId}")
+    @GetMapping("UnconvUser/{unconvUserId}")
     public PagedResult<SensorSystem> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId,
             @RequestParam(

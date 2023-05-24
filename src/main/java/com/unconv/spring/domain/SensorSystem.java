@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "sensor_systems")
@@ -41,9 +42,10 @@ public class SensorSystem {
     private SensorLocation sensorLocation;
 
     @ManyToOne(
-            optional = true, /* TODO Fix nullability */
+            optional = false,
             fetch = FetchType.EAGER,
             cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "unconv_user_id")
+    @NotNull(message = "UnconvUser cannot be empty")
     private UnconvUser unconvUser;
 }

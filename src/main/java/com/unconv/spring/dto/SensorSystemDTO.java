@@ -11,6 +11,7 @@ import lombok.Setter;
 import java.util.UUID;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -25,5 +26,6 @@ public class SensorSystemDTO {
 
     private SensorLocation sensorLocation;
 
+    @NotNull(message = "UnconvUser cannot be empty")
     private UnconvUser unconvUser;
 }
