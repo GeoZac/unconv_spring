@@ -24,12 +24,14 @@ import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorSystemController;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -58,6 +60,8 @@ class SensorSystemControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private SensorSystemService sensorSystemService;
+
+    @Autowired private ModelMapper modelMapper;
 
     @Autowired private ObjectMapper objectMapper;
 
@@ -189,12 +193,14 @@ class SensorSystemControllerTest {
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+
         this.mockMvc
                 .perform(
                         put("/SensorSystem/{id}", sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                                .content(objectMapper.writeValueAsString(sensorSystemDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
