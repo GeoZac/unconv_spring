@@ -142,7 +142,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
