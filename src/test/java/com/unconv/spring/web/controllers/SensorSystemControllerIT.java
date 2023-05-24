@@ -5,6 +5,7 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -79,6 +80,40 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                        .ignore(field(SensorSystem::getId))
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .create();
+
+        List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
+                sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
+
+        int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFetchAllSensorSystemsInDescendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/SensorSystem").param("sortDir", "desc"))
@@ -90,6 +125,40 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(sensorSystemList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(sensorSystemList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllSensorSystemsOfSpecificUnconvUserInDescendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                        .ignore(field(SensorSystem::getId))
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .create();
+
+        List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
+                sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
+
+        int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
+                                .param("sortDir", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
