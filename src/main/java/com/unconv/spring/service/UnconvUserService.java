@@ -42,7 +42,7 @@ public class UnconvUserService {
         return unconvUserRepository.findById(id);
     }
 
-    public Optional<UnconvUser> findUnconvUserByUserName(String username) {
+    public UnconvUser findUnconvUserByUserName(String username) {
         return unconvUserRepository.findByUsername(username);
     }
 

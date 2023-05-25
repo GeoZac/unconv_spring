@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UnconvUserRepository extends JpaRepository<UnconvUser, UUID> {
 
-    Optional<UnconvUser> findByUsername(String username);
+    UnconvUser findByUsername(String username);
 
     Optional<UnconvUser> findById(UUID id);
 }
