@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.UnconvUserController;
@@ -37,7 +38,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -140,12 +143,19 @@ class UnconvUserControllerTest {
 
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
-        given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
 
-        UnconvUser unconvUser =
-                new UnconvUser(UUID.randomUUID(), "some text", "email@provider.com", "secret");
-        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        UnconvUserDTO unconvUserDTO =
+                new UnconvUserDTO(UUID.randomUUID(), "some text", "email@provider.com", "secret");
+        MessageResponse<UnconvUserDTO> messageResponse =
+                new MessageResponse<>("User created successfully", unconvUserDTO);
+
+        ResponseEntity<MessageResponse> responseEntity =
+                new ResponseEntity<MessageResponse>(messageResponse, HttpStatus.CREATED);
+        given(
+                        unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
+                                any(UnconvUser.class), any(String.class)))
+                .willReturn(responseEntity);
+
         this.mockMvc
                 .perform(
                         post("/UnconvUser")
@@ -153,8 +163,8 @@ class UnconvUserControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())));
     }
 
     @Test
