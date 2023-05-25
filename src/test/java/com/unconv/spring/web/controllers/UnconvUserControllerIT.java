@@ -212,9 +212,9 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("username")))
-                .andExpect(jsonPath("$.violations[0].message", is("Username cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[0].field", is("email")))
+                .andExpect(jsonPath("$.violations[0].message", is("E-mail cannot be empty")))
                 .andReturn();
     }
 
@@ -258,13 +258,15 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldReturn404WhenUpdatingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         UnconvUser unconvUser = unconvUserList.get(1);
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setPassword("New password");
 
         this.mockMvc
                 .perform(
                         put("/UnconvUser/{id}", unconvUserId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(unconvUser)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isNotFound());
     }
 

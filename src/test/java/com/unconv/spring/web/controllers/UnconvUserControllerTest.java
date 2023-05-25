@@ -175,9 +175,9 @@ class UnconvUserControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("username")))
-                .andExpect(jsonPath("$.violations[0].message", is("Username cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[0].field", is("email")))
+                .andExpect(jsonPath("$.violations[0].message", is("E-mail cannot be empty")))
                 .andReturn();
     }
 
@@ -208,8 +208,8 @@ class UnconvUserControllerTest {
     void shouldReturn404WhenUpdatingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
-        UnconvUser unconvUser =
-                new UnconvUser(
+        UnconvUserDTO unconvUserDTO =
+                new UnconvUserDTO(
                         unconvUserId, "Non existant user", "nonexistant@email.com", "password");
 
         this.mockMvc
@@ -217,7 +217,7 @@ class UnconvUserControllerTest {
                         put("/UnconvUser/{id}", unconvUserId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(unconvUser)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isNotFound());
     }
 
