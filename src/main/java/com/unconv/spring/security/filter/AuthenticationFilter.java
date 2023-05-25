@@ -2,6 +2,7 @@ package com.unconv.spring.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.service.UnconvUserService;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,10 +24,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JWTUtil jwtUtil;
 
+    private final UnconvUserService unconvUserService;
+
     public AuthenticationFilter(
-            CustomAuthenticationManager customAuthenticationManager, JWTUtil jwtUtil) {
+            CustomAuthenticationManager customAuthenticationManager,
+            JWTUtil jwtUtil,
+            UnconvUserService unconvUserService) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.jwtUtil = jwtUtil;
+        this.unconvUserService = unconvUserService;
     }
 
     @Override
@@ -34,10 +40,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         try {
-            UnconvUser user =
+            UnconvUser unconvUser =
                     new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
             Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+                    new UsernamePasswordAuthenticationToken(
+                            unconvUser.getUsername(), unconvUser.getPassword());
             return customAuthenticationManager.authenticate(authentication);
         } catch (IOException e) {
             throw new AuthenticationException("Authentication failed") {};
@@ -52,11 +59,17 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult)
             throws IOException {
 
-        String token = jwtUtil.generateToken((String) authResult.getPrincipal());
+        String username = (String) authResult.getPrincipal();
+
+        String token = jwtUtil.generateToken(username);
+
+        UnconvUser unconvUser = unconvUserService.findUnconvUserByUserName(username);
+
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
         responseBody.put("expires", jwtUtil.getJwtExpiry());
+        responseBody.put("unconvUser", unconvUser);
 
         // Set the response content type
         response.setContentType("application/json");

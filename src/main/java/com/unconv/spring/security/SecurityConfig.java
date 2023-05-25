@@ -5,6 +5,7 @@ import com.unconv.spring.security.filter.CustomAuthenticationManager;
 import com.unconv.spring.security.filter.ExceptionHandlerFilter;
 import com.unconv.spring.security.filter.JWTAuthenticationFilter;
 import com.unconv.spring.security.filter.JWTUtil;
+import com.unconv.spring.service.UnconvUserService;
 
 import lombok.AllArgsConstructor;
 
@@ -23,10 +24,12 @@ public class SecurityConfig {
 
     private final CustomAuthenticationManager customAuthenticationManager;
 
+    private final UnconvUserService unconvUserService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationFilter authenticationFilter =
-                new AuthenticationFilter(customAuthenticationManager, jwtUtil);
+                new AuthenticationFilter(customAuthenticationManager, jwtUtil, unconvUserService);
         authenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http
