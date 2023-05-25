@@ -83,7 +83,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
@@ -132,7 +133,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInDescendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
@@ -178,7 +180,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Test user", "testuser@email.com", "test_password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
                 new SensorSystem(null, "New SensorSystem", null, savedUnconvUser);
         this.mockMvc

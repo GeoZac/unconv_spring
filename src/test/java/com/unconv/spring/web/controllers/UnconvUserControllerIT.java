@@ -19,12 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -41,6 +43,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Autowired private UnconvUserRepository unconvUserRepository;
 
     @Autowired private UnconvUserService unconvUserService;
+
+    @Autowired private ModelMapper modelMapper;
 
     private List<UnconvUser> unconvUserList = null;
 
@@ -117,12 +121,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewUnconvUser() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "New UnconvUser", "newuser@email.com", "password");
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         this.mockMvc
                 .perform(
                         post("/UnconvUser")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(unconvUser)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
@@ -132,14 +138,15 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenRegisterAsUser() throws Exception {
         String rawPassword = "new password";
         UnconvUser unconvUser = new UnconvUser(null, "new_user", "newuser@gmail.com", rawPassword);
-        unconvUserService.saveUnconvUser(unconvUser);
+        unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         this.mockMvc
                 .perform(
                         post("/UnconvUser")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(unconvUser)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
                 .andExpect(jsonPath("$.email", is(unconvUser.getEmail())));
@@ -149,19 +156,21 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldLoginAsAuthenticatedUserAndReceiveJWToken() throws Exception {
         String rawPassword = "password";
         UnconvUser unconvUser = new UnconvUser(null, "new_user", "testuser@gmail.com", rawPassword);
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser, rawPassword);
         assert savedUnconvUser.getId().version() == 4;
 
         UnconvUser userToLogin = new UnconvUser();
         userToLogin.setUsername(unconvUser.getUsername());
         userToLogin.setPassword(rawPassword);
 
+        UnconvUserDTO unconvUserDTO = modelMapper.map(userToLogin, UnconvUserDTO.class);
+
         this.mockMvc
                 .perform(
                         post("/auth/login")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userToLogin)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token", notNullValue()));
     }
@@ -173,12 +182,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         userToLogin.setUsername(unconvUserList.get(0).getUsername());
         userToLogin.setPassword("JTIzIdXRoh");
 
+        UnconvUserDTO unconvUserDTO = modelMapper.map(userToLogin, UnconvUserDTO.class);
+
         this.mockMvc
                 .perform(
                         post("/auth/login")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userToLogin)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$", is("User Not Authenticated")));
     }
@@ -210,17 +221,18 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldUpdateUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
-        unconvUser.setUsername("Updated UnconvUser");
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setUsername("Updated UnconvUser");
 
         this.mockMvc
                 .perform(
                         put("/UnconvUser/{id}", unconvUser.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(unconvUser)))
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(unconvUser.getId().toString())))
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.id", is(unconvUserDTO.getId().toString())))
+                .andExpect(jsonPath("$.username", is(unconvUserDTO.getUsername())));
     }
 
     @Test

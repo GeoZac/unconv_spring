@@ -113,6 +113,7 @@ public class SensorSystemController {
                 .map(
                         sensorSystemObj -> {
                             sensorSystemDTO.setId(id);
+                            sensorSystemDTO.setUnconvUser(sensorSystemObj.getUnconvUser());
                             return ResponseEntity.ok(
                                     sensorSystemService.saveSensorSystem(
                                             modelMapper.map(sensorSystemDTO, SensorSystem.class)));

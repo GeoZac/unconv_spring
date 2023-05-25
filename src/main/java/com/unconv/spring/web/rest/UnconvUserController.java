@@ -73,12 +73,14 @@ public class UnconvUserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UnconvUser createUnconvUser(@RequestBody @Validated UnconvUserDTO unconvUserDTO) {
-        return unconvUserService.saveUnconvUser(modelMapper.map(unconvUserDTO, UnconvUser.class));
+        return unconvUserService.saveUnconvUser(
+                modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UnconvUser> updateUnconvUser(
             @PathVariable UUID id, @RequestBody @Valid UnconvUserDTO unconvUserDTO) {
+
         return unconvUserService
                 .findUnconvUserById(id)
                 .map(
@@ -86,7 +88,8 @@ public class UnconvUserController {
                             unconvUserDTO.setId(id);
                             return ResponseEntity.ok(
                                     unconvUserService.saveUnconvUser(
-                                            modelMapper.map(unconvUserDTO, UnconvUser.class)));
+                                            modelMapper.map(unconvUserDTO, UnconvUser.class),
+                                            unconvUserDTO.getPassword()));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
