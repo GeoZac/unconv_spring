@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface UnconvUserRepository extends JpaRepository<UnconvUser, UUID> {
 
-    UnconvUser findByUsername(String username);
+    Optional<UnconvUser> findByUsername(String username);
 
     Optional<UnconvUser> findById(UUID id);
 }

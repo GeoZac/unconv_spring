@@ -11,8 +11,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -23,8 +26,14 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
-        UnconvUser unconvUser =
+        Optional<UnconvUser> optionalUnconvUser =
                 unconvUserService.findUnconvUserByUserName((String) authentication.getPrincipal());
+
+        if (optionalUnconvUser.isEmpty()) {
+            throw new UsernameNotFoundException("Username not found");
+        }
+
+        UnconvUser unconvUser = optionalUnconvUser.get();
 
         if (!bCryptPasswordEncoder()
                 .matches(authentication.getCredentials().toString(), unconvUser.getPassword())) {
