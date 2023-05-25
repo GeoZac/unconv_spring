@@ -115,7 +115,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
                 new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
@@ -173,7 +174,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
                 new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
@@ -225,7 +227,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewEnvironmentalReading() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         EnvironmentalReading environmentalReading =
@@ -335,7 +338,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures =
@@ -379,7 +383,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
@@ -422,7 +427,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);

@@ -45,8 +45,8 @@ public class UnconvUserService {
         return unconvUserRepository.findByUsername(username);
     }
 
-    public UnconvUser saveUnconvUser(UnconvUser unconvUser) {
-        unconvUser.setPassword(bCryptPasswordEncoder().encode(unconvUser.getPassword()));
+    public UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword) {
+        unconvUser.setPassword(bCryptPasswordEncoder().encode(rawPassword));
         return unconvUserRepository.save(unconvUser);
     }
 
