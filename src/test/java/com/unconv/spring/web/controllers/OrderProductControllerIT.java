@@ -17,7 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.OrderProduct;
 import com.unconv.spring.persistence.OrderProductRepository;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 class OrderProductControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;

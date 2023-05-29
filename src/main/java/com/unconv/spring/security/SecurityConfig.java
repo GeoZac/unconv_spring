@@ -6,9 +6,7 @@ import com.unconv.spring.security.filter.ExceptionHandlerFilter;
 import com.unconv.spring.security.filter.JWTAuthenticationFilter;
 import com.unconv.spring.security.filter.JWTUtil;
 import com.unconv.spring.service.UnconvUserService;
-
 import lombok.AllArgsConstructor;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
