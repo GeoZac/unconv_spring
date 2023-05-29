@@ -1,7 +1,6 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -22,7 +21,9 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,10 +33,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;

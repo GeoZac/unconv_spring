@@ -2,9 +2,7 @@ package com.unconv.spring.security.filter;
 
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.service.UnconvUserService;
-
 import lombok.AllArgsConstructor;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
