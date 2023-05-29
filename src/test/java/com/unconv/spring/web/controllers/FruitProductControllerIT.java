@@ -20,7 +20,8 @@ import com.unconv.spring.domain.Offer;
 import com.unconv.spring.persistence.FruitProductRepository;
 import com.unconv.spring.persistence.FruitRepository;
 import com.unconv.spring.persistence.OfferRepository;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +30,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class FruitProductControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;

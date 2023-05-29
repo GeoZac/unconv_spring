@@ -1,7 +1,6 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -19,7 +18,8 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.persistence.PassengerRepository;
-
+import java.time.LocalDate;
+import java.util.List;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,9 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.time.LocalDate;
-import java.util.List;
 
 class PassengerControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;

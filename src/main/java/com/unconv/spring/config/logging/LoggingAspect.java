@@ -1,7 +1,6 @@
 package com.unconv.spring.config.logging;
 
 import com.unconv.spring.utils.AppConstants;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;

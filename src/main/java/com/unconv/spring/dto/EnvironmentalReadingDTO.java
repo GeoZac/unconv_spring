@@ -1,16 +1,13 @@
 package com.unconv.spring.dto;
 
 import com.unconv.spring.domain.SensorSystem;
-
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
