@@ -127,12 +127,12 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
     }
 
     @Test
-    void shouldReturn400WhenRegisterAsUser() throws Exception {
+    void shouldReturn400WhenAlreadyRegisterAsUser() throws Exception {
         String rawPassword = "new password";
         UnconvUser unconvUser = new UnconvUser(null, "new_user", "newuser@gmail.com", rawPassword);
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
@@ -144,9 +144,10 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
-                .andExpect(jsonPath("$.email", is(unconvUser.getEmail())));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Username already taken")))
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andExpect(jsonPath("$.entity.email", is(unconvUserDTO.getEmail())));
     }
 
     @Test
