@@ -146,8 +146,8 @@ class UnconvUserControllerTest {
         MessageResponse<UnconvUserDTO> messageResponse =
                 new MessageResponse<>("User created successfully", unconvUserDTO);
 
-        ResponseEntity<MessageResponse> responseEntity =
-                new ResponseEntity<MessageResponse>(messageResponse, HttpStatus.CREATED);
+        ResponseEntity<MessageResponse<UnconvUserDTO>> responseEntity =
+                new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
         given(
                         unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
                                 any(UnconvUser.class), any(String.class)))

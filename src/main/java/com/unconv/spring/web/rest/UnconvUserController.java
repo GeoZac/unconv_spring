@@ -66,7 +66,7 @@ public class UnconvUserController {
     }
 
     @PostMapping
-    public ResponseEntity<MessageResponse> createUnconvUser(
+    public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
         return unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
                 modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());

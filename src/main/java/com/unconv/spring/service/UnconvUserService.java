@@ -1,11 +1,13 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import java.util.Optional;
 import java.util.UUID;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UnconvUserService {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private ModelMapper modelMapper;
 
     public PagedResult<UnconvUser> findAllUnconvUsers(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -51,18 +55,23 @@ public class UnconvUserService {
         return unconvUserRepository.save(unconvUser);
     }
 
-    public ResponseEntity<MessageResponse> checkUsernameUniquenessAndSaveUnconvUser(
+    public ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
             UnconvUser unconvUser, String rawPassword) {
-        MessageResponse<UnconvUser> messageResponse;
+        MessageResponse<UnconvUserDTO> messageResponse;
         HttpStatus httpStatus;
-        Optional<UnconvUser> optionalUnconvUser =
+        UnconvUser existingUnconvUser =
                 unconvUserRepository.findByUsername(unconvUser.getUsername());
-        if (optionalUnconvUser.isPresent()) {
-            messageResponse = new MessageResponse<>(unconvUser, "Username already taken");
+        if (existingUnconvUser != null) {
+            UnconvUserDTO unconvUserDTO = modelMapper.map(existingUnconvUser, UnconvUserDTO.class);
+            unconvUserDTO.setPassword(rawPassword);
+            messageResponse = new MessageResponse<>(unconvUserDTO, "Username already taken");
             httpStatus = HttpStatus.BAD_REQUEST;
         } else {
             UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
-            messageResponse = new MessageResponse<>(savedUnconvUser, "User created successfully");
+            UnconvUserDTO savedUnconvUserDTO =
+                    modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
+            messageResponse =
+                    new MessageResponse<>(savedUnconvUserDTO, "User created successfully");
             httpStatus = HttpStatus.CREATED;
         }
         return new ResponseEntity<>(messageResponse, httpStatus);
