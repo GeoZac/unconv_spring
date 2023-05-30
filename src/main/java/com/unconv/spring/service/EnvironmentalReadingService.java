@@ -1,6 +1,7 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class EnvironmentalReadingService {
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Autowired private ModelMapper modelMapper;
 
     public PagedResult<EnvironmentalReading> findAllEnvironmentalReadings(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -66,6 +70,15 @@ public class EnvironmentalReadingService {
     public EnvironmentalReading saveEnvironmentalReading(
             EnvironmentalReading environmentalReading) {
         return environmentalReadingRepository.save(environmentalReading);
+    }
+
+    public EnvironmentalReading generateTimestampIfRequiredAndSaveEnvironmentalReading(
+            EnvironmentalReadingDTO environmentalReadingDTO) {
+        if (environmentalReadingDTO.getTimestamp() == null) {
+            environmentalReadingDTO.setTimestamp();
+        }
+        return saveEnvironmentalReading(
+                modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
     }
 
     public void deleteEnvironmentalReadingById(UUID id) {
