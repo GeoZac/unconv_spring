@@ -22,7 +22,6 @@ public class EnvironmentalReadingDTO {
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
 
-    @NotNull(message = "Timestamp cannot be empty")
     private OffsetDateTime timestamp;
 
     @NotNull(message = "Sensor system cannot be empty")
