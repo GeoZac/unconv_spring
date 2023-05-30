@@ -183,9 +183,9 @@ class EnvironmentalReadingControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("timestamp")))
-                .andExpect(jsonPath("$.violations[0].message", is("Timestamp cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
+                .andExpect(jsonPath("$.violations[0].message", is("Sensor system cannot be empty")))
                 .andReturn();
     }
 
