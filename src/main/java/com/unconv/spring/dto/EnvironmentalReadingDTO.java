@@ -25,5 +25,6 @@ public class EnvironmentalReadingDTO {
     @NotNull(message = "Timestamp cannot be empty")
     private OffsetDateTime timestamp;
 
+    @NotNull(message = "Sensor system cannot be empty")
     private SensorSystem sensorSystem;
 }

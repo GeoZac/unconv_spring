@@ -43,5 +43,6 @@ public class EnvironmentalReading {
 
     @ManyToOne
     @JoinColumn(name = "sensor_id")
+    @NotNull(message = "Sensor system cannot be empty")
     private SensorSystem sensorSystem;
 }
