@@ -24,6 +24,7 @@ import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
@@ -36,6 +37,7 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -61,6 +63,8 @@ class EnvironmentalReadingControllerTest {
     @MockBean private EnvironmentalReadingService environmentalReadingService;
 
     @Autowired private ObjectMapper objectMapper;
+
+    @Autowired private ModelMapper modelMapper;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
@@ -143,25 +147,30 @@ class EnvironmentalReadingControllerTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
-        given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
 
-        EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
                         UUID.randomUUID(),
                         -3L,
                         53L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
+
+        given(
+                        environmentalReadingService
+                                .generateTimestampIfRequiredAndSaveEnvironmentalReading(
+                                        any(EnvironmentalReadingDTO.class)))
+                .willReturn(modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+
         this.mockMvc
                 .perform(
                         post("/EnvironmentalReading")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReadingDTO.getTemperature())));
     }
 
     @Test
