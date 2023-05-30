@@ -77,10 +77,20 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingRepository.deleteAllInBatch();
 
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
         environmentalReadingList =
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(15)
-                        .ignore(field(EnvironmentalReading::getSensorSystem))
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -265,9 +275,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("timestamp")))
-                .andExpect(jsonPath("$.violations[0].message", is("Timestamp cannot be empty")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
+                .andExpect(jsonPath("$.violations[0].message", is("Sensor system cannot be empty")))
                 .andReturn();
     }
 
@@ -356,7 +366,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
-                            .ignore(field(EnvironmentalReading::getSensorSystem))
+                            .supply(
+                                    field(EnvironmentalReading::getSensorSystem),
+                                    () -> sensorSystem)
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -400,7 +412,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
-                            .ignore(field(EnvironmentalReading::getSensorSystem))
+                            .supply(
+                                    field(EnvironmentalReading::getSensorSystem),
+                                    () -> sensorSystem)
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -444,7 +458,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(EnvironmentalReading.class)
-                            .ignore(field(EnvironmentalReading::getSensorSystem))
+                            .supply(
+                                    field(EnvironmentalReading::getSensorSystem),
+                                    () -> sensorSystem)
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
