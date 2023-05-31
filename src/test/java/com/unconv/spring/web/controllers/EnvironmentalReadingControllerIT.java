@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -17,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
@@ -32,6 +35,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +47,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -267,17 +272,40 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         EnvironmentalReadingDTO environmentalReadingDTO =
                 new EnvironmentalReadingDTO(null, 3L, 56L, null, savedSensorSystem);
-        this.mockMvc
-                .perform(
-                        post("/EnvironmentalReading")
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReadingDTO.getTemperature())))
-                .andExpect(jsonPath("$.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.timestamp", notNullValue()));
+        ResultActions resultActions =
+                this.mockMvc
+                        .perform(
+                                post("/EnvironmentalReading")
+                                        .with(csrf())
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                objectMapper.writeValueAsString(
+                                                        environmentalReadingDTO)))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.id", notNullValue()))
+                        .andExpect(
+                                jsonPath(
+                                        "$.temperature",
+                                        is(environmentalReadingDTO.getTemperature())))
+                        .andExpect(jsonPath("$.sensorSystem", notNullValue()))
+                        .andExpect(jsonPath("$.timestamp", notNullValue()));
+
+        // Get the response body
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+
+        // Use Jackson ObjectMapper to parse the response body
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        // Extract the specific attribute from the JSON node
+        String extractedValue = jsonNode.get("timestamp").asText();
+        System.out.println(extractedValue);
+
+        OffsetDateTime responseDateTime =
+                OffsetDateTime.parse(extractedValue, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        // Verify that the parsed datetime has the UTC zone offset
+        assertEquals(ZoneOffset.UTC, responseDateTime.getOffset());
     }
 
     @Test
