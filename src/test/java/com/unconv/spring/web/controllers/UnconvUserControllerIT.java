@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -138,6 +139,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setId(null);
+
         this.mockMvc
                 .perform(
                         post("/UnconvUser")
@@ -147,6 +150,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Username already taken")))
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(jsonPath("$.entity.email", is(unconvUserDTO.getEmail())));
     }
 

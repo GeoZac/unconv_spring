@@ -62,7 +62,7 @@ public class UnconvUserService {
         UnconvUser existingUnconvUser =
                 unconvUserRepository.findByUsername(unconvUser.getUsername());
         if (existingUnconvUser != null) {
-            UnconvUserDTO unconvUserDTO = modelMapper.map(existingUnconvUser, UnconvUserDTO.class);
+            UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
             unconvUserDTO.setPassword(rawPassword);
             messageResponse = new MessageResponse<>(unconvUserDTO, "Username already taken");
             httpStatus = HttpStatus.BAD_REQUEST;
