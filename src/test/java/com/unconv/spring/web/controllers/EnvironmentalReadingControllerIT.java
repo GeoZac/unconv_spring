@@ -21,6 +21,7 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
@@ -254,6 +255,29 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
                 .andExpect(jsonPath("$.sensorSystem", notNullValue()));
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWithoutTimestamp() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(null, 3L, 56L, null, savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.temperature", is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
