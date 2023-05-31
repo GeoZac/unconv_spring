@@ -139,6 +139,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setId(null);
+
         this.mockMvc
                 .perform(
                         post("/UnconvUser")
