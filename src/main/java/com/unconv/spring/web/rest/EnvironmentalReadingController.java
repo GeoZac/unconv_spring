@@ -100,8 +100,8 @@ public class EnvironmentalReadingController {
     @ResponseStatus(HttpStatus.CREATED)
     public EnvironmentalReading createEnvironmentalReading(
             @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO) {
-        return environmentalReadingService.saveEnvironmentalReading(
-                modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+        return environmentalReadingService.generateTimestampIfRequiredAndSaveEnvironmentalReading(
+                environmentalReadingDTO);
     }
 
     @PutMapping("/{id}")
