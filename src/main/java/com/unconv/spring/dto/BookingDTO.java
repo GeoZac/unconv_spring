@@ -17,8 +17,8 @@ public class BookingDTO {
 
     private Long id;
 
-    @NotEmpty(message = "Booking cannot be empty")
-    private String booking;
+    @NotEmpty(message = "Booking Reference cannot be empty")
+    private String bookingReference;
 
     private List<Passenger> passengers = new ArrayList<>();
 }

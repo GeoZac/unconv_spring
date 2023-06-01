@@ -126,7 +126,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/Booking/{id}", bookingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
     @Test
@@ -140,7 +140,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())))
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())))
                 .andExpect(jsonPath("$.passengers.size()", is(booking.getPassengers().size())));
     }
 
@@ -163,15 +163,17 @@ class BookingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("booking")))
-                .andExpect(jsonPath("$.violations[0].message", is("Booking cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("bookingReference")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message", is("Booking Reference cannot be empty")))
                 .andReturn();
     }
 
     @Test
     void shouldUpdateBooking() throws Exception {
         Booking booking = bookingList.get(0);
-        booking.setBooking("Updated Booking");
+        booking.setBookingReference("Updated Booking");
 
         this.mockMvc
                 .perform(
@@ -180,7 +182,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
     @Test
@@ -190,6 +192,6 @@ class BookingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/Booking/{id}", booking.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 }
