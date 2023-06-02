@@ -299,7 +299,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         // Extract the specific attribute from the JSON node
         String extractedValue = jsonNode.get("timestamp").asText();
-        System.out.println(extractedValue);
 
         OffsetDateTime responseDateTime =
                 OffsetDateTime.parse(extractedValue, DateTimeFormatter.ISO_OFFSET_DATE_TIME);

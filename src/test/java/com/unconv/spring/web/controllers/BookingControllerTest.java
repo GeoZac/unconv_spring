@@ -134,7 +134,7 @@ class BookingControllerTest {
         this.mockMvc
                 .perform(get("/Booking/{id}", bookingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
     @Test
@@ -159,7 +159,7 @@ class BookingControllerTest {
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
     @Test
@@ -181,8 +181,10 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
-                .andExpect(jsonPath("$.violations[0].field", is("booking")))
-                .andExpect(jsonPath("$.violations[0].message", is("Booking cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].field", is("bookingReference")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message", is("Booking Reference cannot be empty")))
                 .andReturn();
     }
 
@@ -201,7 +203,7 @@ class BookingControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(booking)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
     @Test
@@ -229,7 +231,7 @@ class BookingControllerTest {
         this.mockMvc
                 .perform(delete("/Booking/{id}", booking.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.booking", is(booking.getBooking())));
+                .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
     @Test

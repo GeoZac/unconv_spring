@@ -31,8 +31,8 @@ public class Booking {
     private Long id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "Booking cannot be empty")
-    private String booking;
+    @NotEmpty(message = "Booking Reference cannot be empty")
+    private String bookingReference;
 
     @JsonManagedReference
     @OneToMany(
