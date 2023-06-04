@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,8 +80,9 @@ public class EnvironmentalReadingService {
     }
 
     public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
-            generateTimestampIfRequiredAndSaveEnvironmentalReading(
-                    EnvironmentalReadingDTO environmentalReadingDTO) {
+            generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                    EnvironmentalReadingDTO environmentalReadingDTO,
+                    Authentication authenticaation) {
         if (environmentalReadingDTO.getTimestamp() == null) {
             environmentalReadingDTO.setTimestamp();
         }
