@@ -1,6 +1,7 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
@@ -82,10 +83,30 @@ public class EnvironmentalReadingService {
     public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
             generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                     EnvironmentalReadingDTO environmentalReadingDTO,
-                    Authentication authenticaation) {
+                    Authentication authentication) {
+        Optional<SensorSystem> sensorSystem =
+                sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
+
+        if (sensorSystem.isEmpty()) {
+            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                    new MessageResponse<>(
+                            environmentalReadingDTO, "Unknown SensorSystem on request");
+            return new ResponseEntity<>(
+                    environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
+        }
+
+        if (!sensorSystem.get().getUnconvUser().getUsername().equals(authentication.getName())) {
+            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                    new MessageResponse<>(
+                            environmentalReadingDTO, "User validation failed on SensorSystem");
+            return new ResponseEntity<>(
+                    environmentalReadingDTOMessageResponse, HttpStatus.UNAUTHORIZED);
+        }
+
         if (environmentalReadingDTO.getTimestamp() == null) {
             environmentalReadingDTO.setTimestamp();
         }
+
         EnvironmentalReading environmentalReading =
                 saveEnvironmentalReading(
                         modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
