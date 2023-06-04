@@ -180,8 +180,11 @@ class EnvironmentalReadingControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReadingDTO.getTemperature())));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())));
     }
 
     @Test

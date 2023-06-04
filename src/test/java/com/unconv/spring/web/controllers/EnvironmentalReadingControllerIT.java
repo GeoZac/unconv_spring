@@ -257,9 +257,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
-                .andExpect(jsonPath("$.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
     }
 
     @Test
@@ -282,13 +283,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                                 objectMapper.writeValueAsString(
                                                         environmentalReadingDTO)))
                         .andExpect(status().isCreated())
-                        .andExpect(jsonPath("$.id", notNullValue()))
+                        .andExpect(jsonPath("$.entity.id", notNullValue()))
                         .andExpect(
                                 jsonPath(
-                                        "$.temperature",
+                                        "$.entity.temperature",
                                         is(environmentalReadingDTO.getTemperature())))
-                        .andExpect(jsonPath("$.sensorSystem", notNullValue()))
-                        .andExpect(jsonPath("$.timestamp", notNullValue()));
+                        .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
 
         // Get the response body
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -298,7 +299,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         // Extract the specific attribute from the JSON node
-        String extractedValue = jsonNode.get("timestamp").asText();
+        String extractedValue = jsonNode.get("entity").get("timestamp").asText();
 
         OffsetDateTime responseDateTime =
                 OffsetDateTime.parse(extractedValue, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
