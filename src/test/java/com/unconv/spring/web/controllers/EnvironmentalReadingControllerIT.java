@@ -77,7 +77,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("UnconvUser").roles("USER")))
                         .apply(springSecurity())
                         .build();
 
