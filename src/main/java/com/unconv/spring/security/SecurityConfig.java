@@ -31,20 +31,33 @@ public class SecurityConfig {
         authenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http
-                // disable this if you want to use it in postman
+                // Disable CSRF protection if using it in Postman
                 .csrf()
                 .disable()
+
+                // Configure request authorization
                 .authorizeRequests()
+
+                // Allow specific URLs without authentication
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
+
+                // Require authentication for any other request
                 .anyRequest()
                 .authenticated()
+
+                // Configure additional filters
                 .and()
                 .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+
+                // Apply authentication filter only to specific URLs
                 .addFilter(authenticationFilter)
                 .addFilterAfter(new JWTAuthenticationFilter(jwtUtil), AuthenticationFilter.class)
+
+                // Configure session management
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         return http.build();
     }
 }
