@@ -25,6 +25,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
@@ -158,16 +159,19 @@ class EnvironmentalReadingControllerTest {
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
 
-        ResponseEntity<EnvironmentalReading> environmentalReadingResponseEntity =
-                new ResponseEntity<EnvironmentalReading>(
-                        modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class),
-                        HttpStatus.CREATED);
+        MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                new MessageResponse<>(environmentalReadingDTO, "Record added successfully");
+
+        ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
+                environmentalReadingDTOMessageResponseResponseEntity =
+                        new ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>(
+                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
 
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndSaveEnvironmentalReading(
                                         any(EnvironmentalReadingDTO.class)))
-                .willReturn(environmentalReadingResponseEntity);
+                .willReturn(environmentalReadingDTOMessageResponseResponseEntity);
 
         this.mockMvc
                 .perform(

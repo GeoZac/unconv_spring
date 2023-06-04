@@ -2,6 +2,7 @@ package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.utils.AppConstants;
@@ -95,7 +96,7 @@ public class EnvironmentalReadingController {
     }
 
     @PostMapping
-    public ResponseEntity<EnvironmentalReading> createEnvironmentalReading(
+    public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>> createEnvironmentalReading(
             @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO) {
         return environmentalReadingService.generateTimestampIfRequiredAndSaveEnvironmentalReading(
                 environmentalReadingDTO);

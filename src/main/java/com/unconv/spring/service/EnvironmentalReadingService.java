@@ -2,8 +2,10 @@ package com.unconv.spring.service;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -32,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class EnvironmentalReadingService {
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -74,7 +78,7 @@ public class EnvironmentalReadingService {
         return environmentalReadingRepository.save(environmentalReading);
     }
 
-    public ResponseEntity<EnvironmentalReading>
+    public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
             generateTimestampIfRequiredAndSaveEnvironmentalReading(
                     EnvironmentalReadingDTO environmentalReadingDTO) {
         if (environmentalReadingDTO.getTimestamp() == null) {
@@ -84,7 +88,11 @@ public class EnvironmentalReadingService {
                 saveEnvironmentalReading(
                         modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
 
-        return new ResponseEntity<EnvironmentalReading>(environmentalReading, HttpStatus.CREATED);
+        MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                new MessageResponse<>(
+                        modelMapper.map(environmentalReading, EnvironmentalReadingDTO.class),
+                        "Record added successfully");
+        return new ResponseEntity<>(environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
     }
 
     public void deleteEnvironmentalReadingById(UUID id) {
