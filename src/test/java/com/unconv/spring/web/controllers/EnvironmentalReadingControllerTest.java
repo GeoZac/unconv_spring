@@ -43,7 +43,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -156,11 +158,16 @@ class EnvironmentalReadingControllerTest {
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
 
+        ResponseEntity<EnvironmentalReading> environmentalReadingResponseEntity =
+                new ResponseEntity<EnvironmentalReading>(
+                        modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class),
+                        HttpStatus.CREATED);
+
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndSaveEnvironmentalReading(
                                         any(EnvironmentalReadingDTO.class)))
-                .willReturn(modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+                .willReturn(environmentalReadingResponseEntity);
 
         this.mockMvc
                 .perform(

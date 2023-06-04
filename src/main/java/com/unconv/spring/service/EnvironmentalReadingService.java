@@ -22,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,13 +74,17 @@ public class EnvironmentalReadingService {
         return environmentalReadingRepository.save(environmentalReading);
     }
 
-    public EnvironmentalReading generateTimestampIfRequiredAndSaveEnvironmentalReading(
-            EnvironmentalReadingDTO environmentalReadingDTO) {
+    public ResponseEntity<EnvironmentalReading>
+            generateTimestampIfRequiredAndSaveEnvironmentalReading(
+                    EnvironmentalReadingDTO environmentalReadingDTO) {
         if (environmentalReadingDTO.getTimestamp() == null) {
             environmentalReadingDTO.setTimestamp();
         }
-        return saveEnvironmentalReading(
-                modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+        EnvironmentalReading environmentalReading =
+                saveEnvironmentalReading(
+                        modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+
+        return new ResponseEntity<EnvironmentalReading>(environmentalReading, HttpStatus.CREATED);
     }
 
     public void deleteEnvironmentalReadingById(UUID id) {
