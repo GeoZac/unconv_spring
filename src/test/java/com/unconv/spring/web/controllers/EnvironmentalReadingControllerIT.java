@@ -363,6 +363,35 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenCreateNewEnvironmentalReadingWithoutValidSensorSystem()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, savedUnconvUser);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), sensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Unknown SensorSystem on request")))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+    }
+
+    @Test
     void shouldUpdateEnvironmentalReading() throws Exception {
         EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
         environmentalReading.setTemperature(45L);
