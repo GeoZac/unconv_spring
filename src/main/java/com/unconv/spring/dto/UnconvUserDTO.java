@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Collection;
 import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UnconvUserDTO implements UserDetails {
     private UUID id;
 
