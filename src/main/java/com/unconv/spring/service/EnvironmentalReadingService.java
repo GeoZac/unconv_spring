@@ -1,9 +1,12 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -22,6 +25,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class EnvironmentalReadingService {
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -72,13 +80,42 @@ public class EnvironmentalReadingService {
         return environmentalReadingRepository.save(environmentalReading);
     }
 
-    public EnvironmentalReading generateTimestampIfRequiredAndSaveEnvironmentalReading(
-            EnvironmentalReadingDTO environmentalReadingDTO) {
+    public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
+            generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                    EnvironmentalReadingDTO environmentalReadingDTO,
+                    Authentication authentication) {
+        Optional<SensorSystem> sensorSystem =
+                sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
+
+        if (sensorSystem.isEmpty()) {
+            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                    new MessageResponse<>(
+                            environmentalReadingDTO, "Unknown SensorSystem on request");
+            return new ResponseEntity<>(
+                    environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
+        }
+
+        if (!sensorSystem.get().getUnconvUser().getUsername().equals(authentication.getName())) {
+            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                    new MessageResponse<>(
+                            environmentalReadingDTO, "User validation failed on SensorSystem");
+            return new ResponseEntity<>(
+                    environmentalReadingDTOMessageResponse, HttpStatus.UNAUTHORIZED);
+        }
+
         if (environmentalReadingDTO.getTimestamp() == null) {
             environmentalReadingDTO.setTimestamp();
         }
-        return saveEnvironmentalReading(
-                modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+
+        EnvironmentalReading environmentalReading =
+                saveEnvironmentalReading(
+                        modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+
+        MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                new MessageResponse<>(
+                        modelMapper.map(environmentalReading, EnvironmentalReadingDTO.class),
+                        "Record added successfully");
+        return new ResponseEntity<>(environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
     }
 
     public void deleteEnvironmentalReadingById(UUID id) {

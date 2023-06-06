@@ -2,6 +2,7 @@ package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.utils.AppConstants;
@@ -12,8 +13,8 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -97,11 +97,12 @@ public class EnvironmentalReadingController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public EnvironmentalReading createEnvironmentalReading(
-            @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO) {
-        return environmentalReadingService.generateTimestampIfRequiredAndSaveEnvironmentalReading(
-                environmentalReadingDTO);
+    public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>> createEnvironmentalReading(
+            @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO,
+            Authentication authentication) {
+        return environmentalReadingService
+                .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                        environmentalReadingDTO, authentication);
     }
 
     @PutMapping("/{id}")
