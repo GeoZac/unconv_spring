@@ -25,6 +25,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
@@ -43,7 +44,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -156,11 +160,20 @@ class EnvironmentalReadingControllerTest {
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
 
+        MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                new MessageResponse<>(environmentalReadingDTO, "Record added successfully");
+
+        ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
+                environmentalReadingDTOMessageResponseResponseEntity =
+                        new ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>(
+                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+
         given(
                         environmentalReadingService
-                                .generateTimestampIfRequiredAndSaveEnvironmentalReading(
-                                        any(EnvironmentalReadingDTO.class)))
-                .willReturn(modelMapper.map(environmentalReadingDTO, EnvironmentalReading.class));
+                                .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                                        any(EnvironmentalReadingDTO.class),
+                                        any(Authentication.class)))
+                .willReturn(environmentalReadingDTOMessageResponseResponseEntity);
 
         this.mockMvc
                 .perform(
@@ -169,8 +182,11 @@ class EnvironmentalReadingControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReadingDTO.getTemperature())));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())));
     }
 
     @Test

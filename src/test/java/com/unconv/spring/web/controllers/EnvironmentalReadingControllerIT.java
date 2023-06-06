@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
@@ -77,7 +78,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("UnconvUser").roles("USER")))
                         .apply(springSecurity())
                         .build();
 
@@ -257,9 +258,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
-                .andExpect(jsonPath("$.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
     }
 
     @Test
@@ -282,13 +284,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                                 objectMapper.writeValueAsString(
                                                         environmentalReadingDTO)))
                         .andExpect(status().isCreated())
-                        .andExpect(jsonPath("$.id", notNullValue()))
+                        .andExpect(jsonPath("$.entity.id", notNullValue()))
                         .andExpect(
                                 jsonPath(
-                                        "$.temperature",
+                                        "$.entity.temperature",
                                         is(environmentalReadingDTO.getTemperature())))
-                        .andExpect(jsonPath("$.sensorSystem", notNullValue()))
-                        .andExpect(jsonPath("$.timestamp", notNullValue()));
+                        .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
 
         // Get the response body
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -298,7 +300,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         // Extract the specific attribute from the JSON node
-        String extractedValue = jsonNode.get("timestamp").asText();
+        String extractedValue = jsonNode.get("entity").get("timestamp").asText();
 
         OffsetDateTime responseDateTime =
                 OffsetDateTime.parse(extractedValue, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
@@ -330,6 +332,63 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor system cannot be empty")))
                 .andReturn();
+    }
+
+    @Test
+    void shouldReturn401WhenCreateNewEnvironmentalReadingForUnauthenticatedUser() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Some other user", "someonelse@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("User validation failed on SensorSystem")))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+    }
+
+    @Test
+    void shouldReturn404WhenCreateNewEnvironmentalReadingWithoutValidSensorSystem()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, savedUnconvUser);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), sensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Unknown SensorSystem on request")))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
     }
 
     @Test
