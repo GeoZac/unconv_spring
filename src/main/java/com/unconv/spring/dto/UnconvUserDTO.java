@@ -2,6 +2,9 @@ package com.unconv.spring.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.unconv.spring.base.BaseUser;
+import com.unconv.spring.domain.UnconvRole;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -25,4 +28,14 @@ public class UnconvUserDTO extends BaseUser {
 
     @NotEmpty(message = "Password cannot be empty")
     private String password;
+
+    private Set<UnconvRole> unconvRoles = new HashSet<>();
+
+    public UnconvUserDTO(UUID id, String username, String email, String password) {
+
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }
