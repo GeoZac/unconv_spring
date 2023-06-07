@@ -18,14 +18,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -39,6 +44,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
 
     @Autowired private UnconvUserService unconvUserService;
 
@@ -60,12 +67,16 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                         .apply(springSecurity())
                         .build();
 
-        unconvUserRepository.deleteAllInBatch();
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        Set<UnconvRole> unconvRoleSet = new HashSet<>();
+        unconvRoleSet.add(savedUnconvRole);
 
         unconvUserList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
                         .size(7)
+                        .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
                         .ignore(field(UnconvUser::getId))
                         .create();
 
@@ -278,5 +289,17 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @AfterEach
+    void tearDown() {
+        List<UnconvUser> unconvUsers = unconvUserRepository.findAll();
+        for (UnconvUser unconvUser : unconvUsers) {
+            Set<UnconvRole> unconvRoleSet = unconvUser.getUnconvRoles();
+            unconvUser.getUnconvRoles().removeAll(unconvRoleSet);
+            unconvUserRepository.save(unconvUser);
+        }
+        unconvRoleRepository.deleteAllInBatch();
+        unconvUserRepository.deleteAllInBatch();
     }
 }
