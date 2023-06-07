@@ -29,11 +29,11 @@ public class EnvironmentalReading {
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 7, scale = 3)
     @NotNull(message = "Temperature cannot be empty")
     private double temperature;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 5, scale = 2)
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
 
