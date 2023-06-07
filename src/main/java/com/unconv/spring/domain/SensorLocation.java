@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -34,8 +36,12 @@ public class SensorLocation {
     @NotEmpty(message = "Sensor location text cannot be empty")
     private String sensorLocationText;
 
+    @DecimalMin(value = "-90.0", inclusive = true)
+    @DecimalMax(value = "90.0", inclusive = true)
     private Double latitude;
 
+    @DecimalMin(value = "-180.0", inclusive = true)
+    @DecimalMax(value = "180.0", inclusive = true)
     private Double longitude;
 
     @Enumerated(EnumType.ORDINAL)

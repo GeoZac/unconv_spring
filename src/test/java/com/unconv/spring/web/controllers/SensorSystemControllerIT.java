@@ -12,12 +12,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -44,6 +46,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     private List<SensorSystem> sensorSystemList = null;
 
+    private List<SensorLocation> sensorLocationList = null;
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -56,7 +60,29 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         sensorSystemRepository.deleteAllInBatch();
 
-        sensorSystemList = Instancio.ofList(SensorSystem.class).size(6).create();
+        Random randomUtil = new Random();
+
+        sensorLocationList =
+                Instancio.ofList(SensorLocation.class)
+                        .size(12)
+                        .supply(
+                                field(SensorLocation::getLatitude),
+                                random -> random.doubleRange(-90.0, 90.0))
+                        .supply(
+                                field(SensorLocation::getLongitude),
+                                random -> random.doubleRange(-180, 180))
+                        .create();
+
+        sensorSystemList =
+                Instancio.ofList(SensorSystem.class)
+                        .size(6)
+                        .supply(
+                                field(SensorSystem::getSensorLocation),
+                                () -> {
+                                    int randomIndex = randomUtil.nextInt(sensorLocationList.size());
+                                    return sensorLocationList.get(randomIndex);
+                                })
+                        .create();
         totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
     }
