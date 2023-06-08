@@ -14,12 +14,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +43,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
     @Autowired private UnconvUserService unconvUserService;
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
@@ -47,6 +54,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     private List<SensorSystem> sensorSystemList = null;
 
     private List<SensorLocation> sensorLocationList = null;
+
+    private List<UnconvUser> unconvUserList = null;
 
     @BeforeEach
     void setUp() {
@@ -59,6 +68,21 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .build();
 
         sensorSystemRepository.deleteAllInBatch();
+
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        Set<UnconvRole> unconvRoleSet = new HashSet<>();
+        unconvRoleSet.add(savedUnconvRole);
+
+        unconvUserList = new ArrayList<>();
+        this.unconvUserList =
+                Instancio.ofList(UnconvUser.class)
+                        .size(7)
+                        .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
+                        .ignore(field(UnconvUser::getId))
+                        .create();
+
+        unconvUserList = unconvUserRepository.saveAll(unconvUserList);
 
         Random randomUtil = new Random();
 
@@ -81,6 +105,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 () -> {
                                     int randomIndex = randomUtil.nextInt(sensorLocationList.size());
                                     return sensorLocationList.get(randomIndex);
+                                })
+                        .supply(
+                                field(SensorSystem::getUnconvUser),
+                                () -> {
+                                    int randomIndex = randomUtil.nextInt(unconvUserList.size());
+                                    return unconvUserList.get(randomIndex);
                                 })
                         .create();
         totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
@@ -302,7 +332,14 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        List<UnconvUser> unconvUsers = unconvUserRepository.findAll();
+        for (UnconvUser unconvUser : unconvUsers) {
+            Set<UnconvRole> unconvRoleSet = unconvUser.getUnconvRoles();
+            unconvUser.getUnconvRoles().removeAll(unconvRoleSet);
+            unconvUserRepository.save(unconvUser);
+        }
         sensorSystemRepository.deleteAll();
+        unconvRoleRepository.deleteAllInBatch();
         unconvUserRepository.deleteAll();
     }
 }
