@@ -28,6 +28,7 @@ import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -65,6 +66,8 @@ class EnvironmentalReadingControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     @Autowired private ObjectMapper objectMapper;
 
