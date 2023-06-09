@@ -7,6 +7,8 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.utils.CSVUtil;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -30,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -116,6 +119,19 @@ public class EnvironmentalReadingService {
                         modelMapper.map(environmentalReading, EnvironmentalReadingDTO.class),
                         "Record added successfully");
         return new ResponseEntity<>(environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+    }
+
+    public int parseFromCSVAndSaveEnvironmentalReading(
+            MultipartFile file, SensorSystem sensorSystem) {
+        try {
+            List<EnvironmentalReading> environmentalReadings =
+                    CSVUtil.csvToEnvironmentalReadings(file.getInputStream(), sensorSystem);
+            List<EnvironmentalReading> savedEnvironmentalReadings =
+                    environmentalReadingRepository.saveAll(environmentalReadings);
+            return savedEnvironmentalReadings.size();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read file data" + e.getMessage());
+        }
     }
 
     public void deleteEnvironmentalReadingById(UUID id) {
