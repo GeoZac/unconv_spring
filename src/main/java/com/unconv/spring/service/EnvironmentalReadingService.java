@@ -42,6 +42,8 @@ public class EnvironmentalReadingService {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
+    @Autowired private SensorSystemService sensorSystemService;
+
     @Autowired private ModelMapper modelMapper;
 
     public PagedResult<EnvironmentalReading> findAllEnvironmentalReadings(
@@ -237,5 +239,38 @@ public class EnvironmentalReadingService {
         return BigDecimal.valueOf(sum / data.size())
                 .setScale(3, RoundingMode.HALF_UP)
                 .doubleValue();
+    }
+
+    public ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+            UUID sensorSystemId, MultipartFile file) {
+        String message;
+        final Optional<SensorSystem> sensorSystem =
+                sensorSystemService.findSensorSystemById(sensorSystemId);
+
+        if (sensorSystem.isEmpty()) {
+            message = "Unknown sensor system";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
+
+        if (CSVUtil.isOfCSVFormat(file)) {
+            try {
+                int recordsProcessed =
+                        parseFromCSVAndSaveEnvironmentalReading(file, sensorSystem.get());
+
+                message =
+                        "Uploaded the file successfully: "
+                                + file.getOriginalFilename()
+                                + " with "
+                                + recordsProcessed
+                                + " records";
+                return ResponseEntity.status(HttpStatus.OK).body(message);
+            } catch (Exception e) {
+                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+            }
+        }
+
+        message = "Please upload a csv file!";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 }

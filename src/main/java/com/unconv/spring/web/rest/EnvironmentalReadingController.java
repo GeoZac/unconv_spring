@@ -1,23 +1,18 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.domain.EnvironmentalReading;
-import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
-import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.utils.AppConstants;
-import com.unconv.spring.utils.CSVUtil;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -38,8 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class EnvironmentalReadingController {
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
-
-    @Autowired private SensorSystemService sensorSystemService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -116,37 +109,9 @@ public class EnvironmentalReadingController {
     @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
     public ResponseEntity<String> uploadFile(
             @PathVariable UUID sensorSystemId, @RequestParam("file") MultipartFile file) {
-        String message;
-        final Optional<SensorSystem> sensorSystem =
-                sensorSystemService.findSensorSystemById(sensorSystemId);
-
-        if (sensorSystem.isEmpty()) {
-            message = "Unknown sensor system";
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
-
-        if (CSVUtil.isOfCSVFormat(file)) {
-            try {
-                int recordsProcessed =
-                        environmentalReadingService.parseFromCSVAndSaveEnvironmentalReading(
-                                file, sensorSystem.get());
-
-                message =
-                        "Uploaded the file successfully: "
-                                + file.getOriginalFilename()
-                                + " with "
-                                + recordsProcessed
-                                + " records";
-                return ResponseEntity.status(HttpStatus.OK).body(message);
-            } catch (Exception e) {
-                e.printStackTrace();
-                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
-            }
-        }
-
-        message = "Please upload a csv file!";
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+        return environmentalReadingService
+                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                        sensorSystemId, file);
     }
 
     @PutMapping("/{id}")
