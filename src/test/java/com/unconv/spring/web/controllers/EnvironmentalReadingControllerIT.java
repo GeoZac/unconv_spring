@@ -13,6 +13,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -31,6 +32,7 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.UnconvUserService;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -48,6 +50,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -307,6 +310,203 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         // Verify that the parsed datetime has the UTC zone offset
         assertEquals(ZoneOffset.UTC, responseDateTime.getOffset());
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+            // stringBuilder.append(environmentalReadingDTO.toCSVString());
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse =
+                "Uploaded the file successfully: test.csv with "
+                        + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
+                        + " records";
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", is(expectedResponse)));
+    }
+
+    @Test
+    void shouldreturn417WhenUploadingNewEnvironmentalReadingsAsBulkWithoutHeader()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse = "Could not upload the file: test.csv!";
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andExpect(status().isExpectationFailed())
+                .andExpect(jsonPath("$", is(expectedResponse)));
+    }
+
+    @Test
+    void shouldReturn404WhenUploadingNewEnvironmentalReadingsInBulkWithInvalidSensorSystem()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        System.out.println(savedSensorSystem.getId());
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+            // stringBuilder.append(environmentalReadingDTO.toCSVString());
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse = "Unknown sensor system";
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        UUID.randomUUID())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$", is(expectedResponse)));
+    }
+
+    @Test
+    void shouldReturn400WhenUploadingNewEnvironmentalReadingsWithInvalidFile() throws Exception {
+
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse = "Please upload a csv file!";
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.txt",
+                        "text/plain",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$", is(expectedResponse)));
     }
 
     @Test

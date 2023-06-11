@@ -32,4 +32,8 @@ public class EnvironmentalReadingDTO {
     public void setTimestamp() {
         this.timestamp = OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
     }
+
+    public String toCSVString() {
+        return this.temperature + "," + this.humidity + "," + this.timestamp;
+    }
 }

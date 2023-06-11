@@ -7,6 +7,8 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.utils.CSVUtil;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -30,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -38,6 +41,8 @@ public class EnvironmentalReadingService {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private SensorSystemService sensorSystemService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -116,6 +121,19 @@ public class EnvironmentalReadingService {
                         modelMapper.map(environmentalReading, EnvironmentalReadingDTO.class),
                         "Record added successfully");
         return new ResponseEntity<>(environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+    }
+
+    public int parseFromCSVAndSaveEnvironmentalReading(
+            MultipartFile file, SensorSystem sensorSystem) {
+        try {
+            List<EnvironmentalReading> environmentalReadings =
+                    CSVUtil.csvToEnvironmentalReadings(file.getInputStream(), sensorSystem);
+            List<EnvironmentalReading> savedEnvironmentalReadings =
+                    environmentalReadingRepository.saveAll(environmentalReadings);
+            return savedEnvironmentalReadings.size();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read file data" + e.getMessage());
+        }
     }
 
     public void deleteEnvironmentalReadingById(UUID id) {
@@ -221,5 +239,38 @@ public class EnvironmentalReadingService {
         return BigDecimal.valueOf(sum / data.size())
                 .setScale(3, RoundingMode.HALF_UP)
                 .doubleValue();
+    }
+
+    public ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+            UUID sensorSystemId, MultipartFile file) {
+        String message;
+        final Optional<SensorSystem> sensorSystem =
+                sensorSystemService.findSensorSystemById(sensorSystemId);
+
+        if (sensorSystem.isEmpty()) {
+            message = "Unknown sensor system";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
+
+        if (CSVUtil.isOfCSVFormat(file)) {
+            try {
+                int recordsProcessed =
+                        parseFromCSVAndSaveEnvironmentalReading(file, sensorSystem.get());
+
+                message =
+                        "Uploaded the file successfully: "
+                                + file.getOriginalFilename()
+                                + " with "
+                                + recordsProcessed
+                                + " records";
+                return ResponseEntity.status(HttpStatus.CREATED).body(message);
+            } catch (Exception e) {
+                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+            }
+        }
+
+        message = "Please upload a csv file!";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 }
