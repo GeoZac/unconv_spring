@@ -263,7 +263,7 @@ public class EnvironmentalReadingService {
                                 + " with "
                                 + recordsProcessed
                                 + " records";
-                return ResponseEntity.status(HttpStatus.OK).body(message);
+                return ResponseEntity.status(HttpStatus.CREATED).body(message);
             } catch (Exception e) {
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
