@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/EnvironmentalReading")
@@ -103,6 +104,14 @@ public class EnvironmentalReadingController {
         return environmentalReadingService
                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                         environmentalReadingDTO, authentication);
+    }
+
+    @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
+    public ResponseEntity<String> uploadFile(
+            @PathVariable UUID sensorSystemId, @RequestParam("file") MultipartFile file) {
+        return environmentalReadingService
+                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                        sensorSystemId, file);
     }
 
     @PutMapping("/{id}")
