@@ -156,6 +156,72 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenCreateNewSensorLocationWithImproperCoordinatesInNegativeRange()
+            throws Exception {
+        SensorLocation sensorLocation =
+                new SensorLocation(null, "Heaven", -100.0, -200.0, SensorLocationType.OUTDOOR);
+        this.mockMvc
+                .perform(
+                        post("/SensorLocation")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("latitude")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must be greater than or equal to -90.0")))
+                .andExpect(jsonPath("$.violations[1].field", is("longitude")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("must be greater than or equal to -180.0")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewSensorLocationWithImproperCoordinatesInPositiveRange()
+            throws Exception {
+        SensorLocation sensorLocation =
+                new SensorLocation(null, "Heaven", 100.0, 200.0, SensorLocationType.OUTDOOR);
+        this.mockMvc
+                .perform(
+                        post("/SensorLocation")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("latitude")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must be less than or equal to 90.0")))
+                .andExpect(jsonPath("$.violations[1].field", is("longitude")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("must be less than or equal to 180.0")))
+                .andReturn();
+    }
+
+    @Test
     void shouldUpdateSensorLocation() throws Exception {
         SensorLocation sensorLocation = sensorLocationList.get(0);
         sensorLocation.setSensorLocationText("Updated SensorLocation");
