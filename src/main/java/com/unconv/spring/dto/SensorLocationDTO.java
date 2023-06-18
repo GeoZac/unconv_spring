@@ -2,6 +2,8 @@ package com.unconv.spring.dto;
 
 import com.unconv.spring.consts.SensorLocationType;
 import java.util.UUID;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,8 +22,12 @@ public class SensorLocationDTO {
     @NotEmpty(message = "Sensor location text cannot be empty")
     private String sensorLocationText;
 
+    @DecimalMin(value = "-90.0", inclusive = true)
+    @DecimalMax(value = "90.0", inclusive = true)
     private Double latitude;
 
+    @DecimalMin(value = "-180.0", inclusive = true)
+    @DecimalMax(value = "180.0", inclusive = true)
     private Double longitude;
 
     @NotNull(message = "SensorLocationType cannot be null")
