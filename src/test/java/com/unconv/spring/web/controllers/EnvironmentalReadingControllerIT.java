@@ -99,6 +99,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(15)
                         .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random -> random.doubleRange(0, 100))
+                        .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
                         .ignore(field(EnvironmentalReading::getId))
@@ -141,8 +147,14 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(5)
                         .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random -> random.doubleRange(0, 100))
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -202,6 +214,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random -> random.doubleRange(0, 100))
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -324,6 +342,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
                         .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random -> random.doubleRange(0, 100))
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -680,6 +704,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
                             .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random -> random.doubleRange(-9999.000, 9999.000))
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random -> random.doubleRange(0, 100))
+                            .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
                                             ZonedDateTime.of(
@@ -726,6 +756,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
                             .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random -> random.doubleRange(-9999.000, 9999.000))
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random -> random.doubleRange(0, 100))
+                            .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
                                             ZonedDateTime.of(
@@ -771,6 +807,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
+                            .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random -> random.doubleRange(-9999.000, 9999.000))
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random -> random.doubleRange(0, 100))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
