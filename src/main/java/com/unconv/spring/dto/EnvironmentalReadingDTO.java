@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,9 +20,13 @@ import lombok.Setter;
 public class EnvironmentalReadingDTO {
     private UUID id;
 
+    @DecimalMin(value = "-9999.000", inclusive = true)
+    @DecimalMax(value = "9999.000", inclusive = true)
     @NotNull(message = "Temperature cannot be empty")
     private double temperature;
 
+    @DecimalMin(value = "0.0", inclusive = true)
+    @DecimalMax(value = "100.00", inclusive = true)
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
 

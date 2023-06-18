@@ -99,6 +99,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(15)
                         .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random -> random.doubleRange(0, 100))
+                        .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
                         .ignore(field(EnvironmentalReading::getId))
@@ -141,8 +147,14 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(5)
                         .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random -> random.doubleRange(0, 100))
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -202,6 +214,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random -> random.doubleRange(0, 100))
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -313,6 +331,92 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenCreatingNewEnvironmentalReadingWithValuesLowerThanLimits()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        -100000,
+                        -5,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidity")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must be greater than or equal to 0.0")))
+                .andExpect(jsonPath("$.violations[1].field", is("temperature")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("must be greater than or equal to -9999.000")));
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingNewEnvironmentalReadingWithValuesHigherThanLimits()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        100000,
+                        105,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidity")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must be less than or equal to 100.00")))
+                .andExpect(jsonPath("$.violations[1].field", is("temperature")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("must be less than or equal to 9999.000")));
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
@@ -324,6 +428,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
                         .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random -> random.doubleRange(-9999.000, 9999.000))
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random -> random.doubleRange(0, 100))
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -680,6 +790,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
                             .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random -> random.doubleRange(-9999.000, 9999.000))
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random -> random.doubleRange(0, 100))
+                            .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
                                             ZonedDateTime.of(
@@ -726,6 +842,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
                             .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random -> random.doubleRange(-9999.000, 9999.000))
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random -> random.doubleRange(0, 100))
+                            .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
                                             ZonedDateTime.of(
@@ -771,6 +893,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
+                            .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random -> random.doubleRange(-9999.000, 9999.000))
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random -> random.doubleRange(0, 100))
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
