@@ -1,40 +1,14 @@
 package com.unconv.spring.web.rest;
 
-import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
-import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
-import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
-import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
-import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
-
-import com.unconv.spring.consts.AppConstants;
-import com.unconv.spring.domain.UnconvUser;
-import com.unconv.spring.dto.UnconvUserDTO;
-import com.unconv.spring.model.response.MessageResponse;
-import com.unconv.spring.model.response.PagedResult;
-import com.unconv.spring.service.UnconvUserService;
-import java.util.UUID;
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/UnconvUser")
 @Slf4j
 public class UnconvUserController {
-
+    /*
     @Autowired private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
@@ -118,6 +92,7 @@ public class UnconvUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<UnconvUser> deleteUnconvUser(@PathVariable UUID id) {
         return unconvUserService
@@ -129,4 +104,5 @@ public class UnconvUserController {
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+    */
 }
