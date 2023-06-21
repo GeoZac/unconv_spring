@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
@@ -501,7 +503,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Could not upload the file: test.csv!";
+        String expectedResponse = String.format(ENVT_FILE_REJ_ERR, "test.csv");
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -552,7 +554,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Unknown sensor system";
+        String expectedResponse = ENVT_RECORD_REJ_SENS;
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -600,7 +602,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Please upload a csv file!";
+        String expectedResponse = ENVT_FILE_FORMAT_ERROR;
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =

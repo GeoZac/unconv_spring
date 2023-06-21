@@ -1,5 +1,7 @@
 package com.unconv.spring.service;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
@@ -250,7 +252,7 @@ public class EnvironmentalReadingService {
                 sensorSystemService.findSensorSystemById(sensorSystemId);
 
         if (sensorSystem.isEmpty()) {
-            message = "Unknown sensor system";
+            message = ENVT_RECORD_REJ_SENS;
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
         }
 
@@ -267,12 +269,12 @@ public class EnvironmentalReadingService {
                                 + " records";
                 return ResponseEntity.status(HttpStatus.CREATED).body(message);
             } catch (Exception e) {
-                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+                message = String.format(ENVT_FILE_REJ_ERR, file.getOriginalFilename());
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
             }
         }
 
-        message = "Please upload a csv file!";
+        message = ENVT_FILE_FORMAT_ERROR;
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 }
