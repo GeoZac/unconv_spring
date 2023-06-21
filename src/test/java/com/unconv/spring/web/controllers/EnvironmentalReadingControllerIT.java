@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -662,7 +664,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("User validation failed on SensorSystem")))
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(
@@ -691,7 +693,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("Unknown SensorSystem on request")))
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_SENS)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(

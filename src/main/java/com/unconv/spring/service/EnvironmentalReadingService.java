@@ -1,5 +1,9 @@
 package com.unconv.spring.service;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
@@ -94,16 +98,14 @@ public class EnvironmentalReadingService {
 
         if (sensorSystem.isEmpty()) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
-                    new MessageResponse<>(
-                            environmentalReadingDTO, "Unknown SensorSystem on request");
+                    new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_SENS);
             return new ResponseEntity<>(
                     environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
         }
 
         if (!sensorSystem.get().getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
-                    new MessageResponse<>(
-                            environmentalReadingDTO, "User validation failed on SensorSystem");
+                    new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_USER);
             return new ResponseEntity<>(
                     environmentalReadingDTOMessageResponse, HttpStatus.UNAUTHORIZED);
         }
@@ -119,7 +121,7 @@ public class EnvironmentalReadingService {
         MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                 new MessageResponse<>(
                         modelMapper.map(environmentalReading, EnvironmentalReadingDTO.class),
-                        "Record added successfully");
+                        ENVT_RECORD_ACCEPTED);
         return new ResponseEntity<>(environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
     }
 

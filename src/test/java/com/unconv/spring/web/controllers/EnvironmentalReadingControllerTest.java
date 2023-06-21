@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -161,7 +162,7 @@ class EnvironmentalReadingControllerTest {
                         sensorSystem);
 
         MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
-                new MessageResponse<>(environmentalReadingDTO, "Record added successfully");
+                new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_ACCEPTED);
 
         ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
                 environmentalReadingDTOMessageResponseResponseEntity =
