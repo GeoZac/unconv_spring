@@ -21,14 +21,17 @@ import com.unconv.spring.persistence.PassengerRepository;
 import java.time.LocalDate;
 import java.util.List;
 import org.instancio.Instancio;
+import org.instancio.junit.InstancioExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+@ExtendWith(InstancioExtension.class)
 class PassengerControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
