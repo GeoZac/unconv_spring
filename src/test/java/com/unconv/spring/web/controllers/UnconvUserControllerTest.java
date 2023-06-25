@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
@@ -144,7 +145,7 @@ class UnconvUserControllerTest {
         UnconvUserDTO unconvUserDTO =
                 new UnconvUserDTO(UUID.randomUUID(), "some text", "email@provider.com", "secret");
         MessageResponse<UnconvUserDTO> messageResponse =
-                new MessageResponse<>("User created successfully", unconvUserDTO);
+                new MessageResponse<>(USER_CREATE_SUCCESS, unconvUserDTO);
 
         ResponseEntity<MessageResponse<UnconvUserDTO>> responseEntity =
                 new ResponseEntity<>(messageResponse, HttpStatus.CREATED);

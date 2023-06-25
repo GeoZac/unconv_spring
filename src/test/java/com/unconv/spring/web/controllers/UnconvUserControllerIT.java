@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -148,7 +149,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Username already taken")))
+                .andExpect(jsonPath("$.message", is(USER_NAME_IN_USE)))
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(jsonPath("$.entity.email", is(unconvUserDTO.getEmail())));
