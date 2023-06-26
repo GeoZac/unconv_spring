@@ -32,6 +32,8 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.UnconvUserService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -100,10 +102,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         .size(15)
                         .supply(
                                 field(EnvironmentalReading::getTemperature),
-                                random -> random.doubleRange(-9999.000, 9999.000))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getHumidity),
-                                random -> random.doubleRange(0, 100))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -148,13 +156,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         .size(5)
                         .supply(
                                 field(EnvironmentalReading::getTemperature),
-                                random -> random.doubleRange(-9999.000, 9999.000))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
                         .supply(
                                 field(EnvironmentalReading::getHumidity),
-                                random -> random.doubleRange(0, 100))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -216,10 +230,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 () -> savedSensorSystem)
                         .supply(
                                 field(EnvironmentalReading::getTemperature),
-                                random -> random.doubleRange(-9999.000, 9999.000))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getHumidity),
-                                random -> random.doubleRange(0, 100))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -430,10 +450,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         .size(5)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
-                                random -> random.doubleRange(-9999.000, 9999.000))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReadingDTO::getHumidity),
-                                random -> random.doubleRange(0, 100))
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -791,10 +817,17 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     () -> sensorSystem)
                             .supply(
                                     field(EnvironmentalReading::getTemperature),
-                                    random -> random.doubleRange(-9999.000, 9999.000))
+                                    random ->
+                                            BigDecimal.valueOf(
+                                                            random.doubleRange(-9999.000, 9999.000))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getHumidity),
-                                    random -> random.doubleRange(0, 100))
+                                    random ->
+                                            BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -843,10 +876,17 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     () -> sensorSystem)
                             .supply(
                                     field(EnvironmentalReading::getTemperature),
-                                    random -> random.doubleRange(-9999.000, 9999.000))
+                                    random ->
+                                            BigDecimal.valueOf(
+                                                            random.doubleRange(-9999.000, 9999.000))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getHumidity),
-                                    random -> random.doubleRange(0, 100))
+                                    random ->
+                                            BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -895,10 +935,17 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     () -> sensorSystem)
                             .supply(
                                     field(EnvironmentalReading::getTemperature),
-                                    random -> random.doubleRange(-9999.000, 9999.000))
+                                    random ->
+                                            BigDecimal.valueOf(
+                                                            random.doubleRange(-9999.000, 9999.000))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getHumidity),
-                                    random -> random.doubleRange(0, 100))
+                                    random ->
+                                            BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
