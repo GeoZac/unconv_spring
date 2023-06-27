@@ -10,6 +10,8 @@ public final class MessageConstants {
     public static final String ENVT_FILE_REJ_ERR = "Could not upload the file: %s!";
     public static final String ENVT_FILE_FORMAT_ERROR = "Please upload a csv file!";
 
+    public static final String ENVT_VALID_SENSOR_SYSTEM = "Sensor system cannot be empty";
+
     // Unconv user
     public static final String USER_NAME_IN_USE = "Username already taken";
     public static final String USER_CREATE_SUCCESS = "User created successfully";

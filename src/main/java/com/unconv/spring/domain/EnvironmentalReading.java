@@ -1,5 +1,7 @@
 package com.unconv.spring.domain;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -49,6 +51,6 @@ public class EnvironmentalReading {
 
     @ManyToOne
     @JoinColumn(name = "sensor_id")
-    @NotNull(message = "Sensor system cannot be empty")
+    @NotNull(message = ENVT_VALID_SENSOR_SYSTEM)
     private SensorSystem sensorSystem;
 }
