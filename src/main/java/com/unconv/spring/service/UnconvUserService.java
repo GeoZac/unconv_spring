@@ -1,5 +1,8 @@
 package com.unconv.spring.service;
 
+import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
+
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
@@ -64,14 +67,13 @@ public class UnconvUserService {
         if (existingUnconvUser != null) {
             UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
             unconvUserDTO.setPassword(rawPassword);
-            messageResponse = new MessageResponse<>(unconvUserDTO, "Username already taken");
+            messageResponse = new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE);
             httpStatus = HttpStatus.BAD_REQUEST;
         } else {
             UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
             UnconvUserDTO savedUnconvUserDTO =
                     modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
-            messageResponse =
-                    new MessageResponse<>(savedUnconvUserDTO, "User created successfully");
+            messageResponse = new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS);
             httpStatus = HttpStatus.CREATED;
         }
         return new ResponseEntity<>(messageResponse, httpStatus);

@@ -1,5 +1,7 @@
 package com.unconv.spring.dto;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+
 import com.unconv.spring.domain.SensorSystem;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -32,7 +34,7 @@ public class EnvironmentalReadingDTO {
 
     private OffsetDateTime timestamp;
 
-    @NotNull(message = "Sensor system cannot be empty")
+    @NotNull(message = ENVT_VALID_SENSOR_SYSTEM)
     private SensorSystem sensorSystem;
 
     public void setTimestamp() {

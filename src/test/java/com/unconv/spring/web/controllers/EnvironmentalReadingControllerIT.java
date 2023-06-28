@@ -1,5 +1,10 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -525,7 +530,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Could not upload the file: test.csv!";
+        String expectedResponse = String.format(ENVT_FILE_REJ_ERR, "test.csv");
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -576,7 +581,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Unknown sensor system";
+        String expectedResponse = ENVT_RECORD_REJ_SENS;
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -624,7 +629,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Please upload a csv file!";
+        String expectedResponse = ENVT_FILE_FORMAT_ERROR;
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -666,7 +671,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
-                .andExpect(jsonPath("$.violations[0].message", is("Sensor system cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
                 .andReturn();
     }
 
@@ -688,7 +693,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("User validation failed on SensorSystem")))
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(
@@ -717,7 +722,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("Unknown SensorSystem on request")))
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_SENS)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(
