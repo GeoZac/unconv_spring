@@ -3,7 +3,7 @@ package com.unconv.spring.consts;
 public final class MessageConstants {
 
     private MessageConstants() {
-        throw new IllegalStateException("MessageConstants");
+        // Placeholder constructor
     }
 
     // EnvironmentalReading
