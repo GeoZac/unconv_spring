@@ -1,32 +1,15 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.FruitProduct;
-import com.unconv.spring.persistence.FruitProductRepository;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@Transactional
-public class FruitProductService {
+public interface FruitProductService {
+    List<FruitProduct> findAllFruitProducts();
 
-    @Autowired private FruitProductRepository fruitProductRepository;
+    Optional<FruitProduct> findFruitProductById(Long id);
 
-    public List<FruitProduct> findAllFruitProducts() {
-        return fruitProductRepository.findAll();
-    }
+    FruitProduct saveFruitProduct(FruitProduct fruitProduct);
 
-    public Optional<FruitProduct> findFruitProductById(Long id) {
-        return fruitProductRepository.findById(id);
-    }
-
-    public FruitProduct saveFruitProduct(FruitProduct fruitProduct) {
-        return fruitProductRepository.save(fruitProduct);
-    }
-
-    public void deleteFruitProductById(Long id) {
-        fruitProductRepository.deleteById(id);
-    }
+    void deleteFruitProductById(Long id);
 }
