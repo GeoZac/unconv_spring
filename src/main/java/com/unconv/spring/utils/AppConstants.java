@@ -14,4 +14,8 @@ public final class AppConstants {
     // Environmental Reading
     public static final String DEFAULT_ER_SORT_BY = "timestamp";
     public static final String DEFAULT_ER_SORT_DIRECTION = "desc";
+
+    // Sensor System
+    public static final String DEFAULT_SS_SORT_BY = "sensorName";
+    public static final String DEFAULT_SS_SORT_DIRECTION = DEFAULT_SORT_DIRECTION;
 }
