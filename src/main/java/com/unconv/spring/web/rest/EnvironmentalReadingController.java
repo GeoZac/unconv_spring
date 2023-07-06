@@ -50,12 +50,12 @@ public class EnvironmentalReadingController {
                     int pageSize,
             @RequestParam(
                             value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            defaultValue = AppConstants.DEFAULT_ER_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
                             value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadings(
@@ -77,12 +77,12 @@ public class EnvironmentalReadingController {
                     int pageSize,
             @RequestParam(
                             value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            defaultValue = AppConstants.DEFAULT_ER_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
                             value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
