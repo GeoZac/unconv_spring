@@ -47,12 +47,12 @@ public class SensorSystemController {
                     int pageSize,
             @RequestParam(
                             value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
                             value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
         return sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
@@ -73,12 +73,12 @@ public class SensorSystemController {
                     int pageSize,
             @RequestParam(
                             value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
                             value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
         return sensorSystemService.findAllSensorSystemsByUnconvUserId(

@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.utils.AppConstants.DEFAULT_SS_SORT_BY;
+import static com.unconv.spring.utils.AppConstants.DEFAULT_SS_SORT_DIRECTION;
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -91,7 +93,9 @@ class SensorSystemControllerTest {
     void shouldFetchAllSensorSystems() throws Exception {
         Page<SensorSystem> page = new PageImpl<>(sensorSystemList);
         PagedResult<SensorSystem> sensorSystemPagedResult = new PagedResult<>(page);
-        given(sensorSystemService.findAllSensorSystems(0, 10, "id", "asc"))
+        given(
+                        sensorSystemService.findAllSensorSystems(
+                                0, 10, DEFAULT_SS_SORT_BY, DEFAULT_SS_SORT_DIRECTION))
                 .willReturn(sensorSystemPagedResult);
 
         this.mockMvc
