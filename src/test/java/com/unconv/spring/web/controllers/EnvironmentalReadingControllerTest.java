@@ -2,6 +2,8 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+import static com.unconv.spring.utils.AppConstants.DEFAULT_ER_SORT_BY;
+import static com.unconv.spring.utils.AppConstants.DEFAULT_ER_SORT_DIRECTION;
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -105,7 +107,9 @@ class EnvironmentalReadingControllerTest {
     void shouldFetchAllEnvironmentalReadings() throws Exception {
         Page<EnvironmentalReading> page = new PageImpl<>(environmentalReadingList);
         PagedResult<EnvironmentalReading> environmentalReadingPagedResult = new PagedResult<>(page);
-        given(environmentalReadingService.findAllEnvironmentalReadings(0, 10, "id", "asc"))
+        given(
+                        environmentalReadingService.findAllEnvironmentalReadings(
+                                0, 10, DEFAULT_ER_SORT_BY, DEFAULT_ER_SORT_DIRECTION))
                 .willReturn(environmentalReadingPagedResult);
 
         this.mockMvc
