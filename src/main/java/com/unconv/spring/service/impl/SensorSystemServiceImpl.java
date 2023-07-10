@@ -1,11 +1,13 @@
 package com.unconv.spring.service.impl;
 
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.SensorSystemService;
 import java.util.Optional;
 import java.util.UUID;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class SensorSystemServiceImpl implements SensorSystemService {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private ModelMapper modelMapper;
 
     @Override
     public PagedResult<SensorSystem> findAllSensorSystems(
@@ -53,6 +57,18 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Override
     public Optional<SensorSystem> findSensorSystemById(UUID id) {
         return sensorSystemRepository.findById(id);
+    }
+
+    @Override
+    public Optional<SensorSystemDTO> findSensorSystemDTOById(UUID id) {
+        Optional<SensorSystem> sensorSystem = sensorSystemRepository.findById(id);
+        if (sensorSystem.isEmpty()) {
+            return Optional.ofNullable(modelMapper.map(sensorSystem, SensorSystemDTO.class));
+        } else {
+            SensorSystemDTO sensorSystemDTO =
+                    modelMapper.map(sensorSystem.get(), SensorSystemDTO.class);
+            return Optional.of(sensorSystemDTO);
+        }
     }
 
     @Override
