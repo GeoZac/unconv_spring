@@ -116,8 +116,9 @@ class SensorSystemControllerTest {
         UUID sensorSystemId = UUID.randomUUID();
         ;
         SensorSystem sensorSystem = new SensorSystem(null, "text 1", null, null);
-        given(sensorSystemService.findSensorSystemById(sensorSystemId))
-                .willReturn(Optional.of(sensorSystem));
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+        given(sensorSystemService.findSensorSystemDTOById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystemDTO));
 
         this.mockMvc
                 .perform(get("/SensorSystem/{id}", sensorSystemId))

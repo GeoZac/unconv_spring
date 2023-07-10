@@ -86,9 +86,9 @@ public class SensorSystemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SensorSystem> getSensorSystemById(@PathVariable UUID id) {
+    public ResponseEntity<SensorSystemDTO> getSensorSystemById(@PathVariable UUID id) {
         return sensorSystemService
-                .findSensorSystemById(id)
+                .findSensorSystemDTOById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
