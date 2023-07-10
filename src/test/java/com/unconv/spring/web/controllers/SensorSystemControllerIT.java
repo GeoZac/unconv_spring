@@ -4,6 +4,7 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -194,7 +195,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFindSensorSystemById() throws Exception {
+    void shouldFindSensorSystemDTOById() throws Exception {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         UUID sensorSystemId = sensorSystem.getId();
 
@@ -202,6 +203,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.latestReading", is(nullValue())))
+                .andExpect(jsonPath("$.readingCount", is(0)))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
