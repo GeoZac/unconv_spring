@@ -12,12 +12,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -37,6 +41,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private UnconvUserService unconvUserService;
 
@@ -200,6 +206,47 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFindSensorSystemDTOByIdWithReadingsPresent() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+
+        UUID sensorSystemId = sensorSystem.getId();
+
+        this.mockMvc
+                .perform(get("/SensorSystem/{id}", sensorSystemId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.latestReading.id", is(notNullValue())))
+                .andExpect(
+                        jsonPath(
+                                "$.readingCount",
+                                is(savedEnvironmentalReadingsOfSpecificSensor.size())))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+    }
+
+    @Test
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Test user", "testuser@email.com", "test_password");
@@ -302,6 +349,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
         unconvUserRepository.deleteAll();
     }
