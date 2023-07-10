@@ -14,7 +14,6 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
-import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.utils.CSVUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -49,8 +48,6 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
-
-    @Autowired private SensorSystemService sensorSystemService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -264,8 +261,7 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
     public ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
             UUID sensorSystemId, MultipartFile file) {
         String message;
-        final Optional<SensorSystem> sensorSystem =
-                sensorSystemService.findSensorSystemById(sensorSystemId);
+        final Optional<SensorSystem> sensorSystem = sensorSystemRepository.findById(sensorSystemId);
 
         if (sensorSystem.isEmpty()) {
             message = ENVT_RECORD_REJ_SENS;
