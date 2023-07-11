@@ -47,6 +47,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
 
         for (SensorSystem sensorSystem : sensorSystems) {
             SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+            sensorSystemDTO.setReadingCount(
+                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
+            sensorSystemDTO.setLatestReading(
+                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                            sensorSystem.getId()));
 
             sensorSystemDTOs.add(sensorSystemDTO);
         }
@@ -73,6 +78,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
 
         for (SensorSystem sensorSystem : sensorSystems) {
             SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+            sensorSystemDTO.setReadingCount(
+                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
+            sensorSystemDTO.setLatestReading(
+                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                            sensorSystem.getId()));
 
             sensorSystemDTOs.add(sensorSystemDTO);
         }
