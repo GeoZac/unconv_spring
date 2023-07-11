@@ -5,6 +5,7 @@ import com.unconv.spring.dto.SensorLocationDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.utils.AppConstants;
+import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,11 @@ public class SensorLocationController {
                             required = false)
                     String sortDir) {
         return sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
+    }
+
+    @GetMapping("/UnconvUser/{unconvUserId}")
+    public List<SensorLocation> getAllSensorSystemsByUnconvUserId(@PathVariable UUID unconvUserId) {
+        return sensorLocationService.findAllSensorLocationsByUnconvUserId(unconvUserId);
     }
 
     @GetMapping("/{id}")
