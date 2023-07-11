@@ -42,21 +42,8 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<SensorSystem> sensorSystemsPage = sensorSystemRepository.findAll(pageable);
 
-        List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
-        List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
-
-        for (SensorSystem sensorSystem : sensorSystems) {
-            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
-            sensorSystemDTO.setReadingCount(
-                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
-            sensorSystemDTO.setLatestReading(
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            sensorSystem.getId()));
-
-            sensorSystemDTOs.add(sensorSystemDTO);
-        }
-
-        Page<SensorSystemDTO> sensorSystemDTOPage = new PageImpl<SensorSystemDTO>(sensorSystemDTOs);
+        Page<SensorSystemDTO> sensorSystemDTOPage =
+                new PageImpl<>(populateSensorSystemDTOFromSensorSystemPage(sensorSystemsPage));
 
         return new PagedResult<>(sensorSystemDTOPage);
     }
@@ -73,21 +60,8 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         Page<SensorSystem> sensorSystemsPage =
                 sensorSystemRepository.findAllByUnconvUserId(unconvUserId, pageable);
 
-        List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
-        List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
-
-        for (SensorSystem sensorSystem : sensorSystems) {
-            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
-            sensorSystemDTO.setReadingCount(
-                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
-            sensorSystemDTO.setLatestReading(
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            sensorSystem.getId()));
-
-            sensorSystemDTOs.add(sensorSystemDTO);
-        }
-
-        Page<SensorSystemDTO> sensorSystemDTOPage = new PageImpl<SensorSystemDTO>(sensorSystemDTOs);
+        Page<SensorSystemDTO> sensorSystemDTOPage =
+                new PageImpl<>(populateSensorSystemDTOFromSensorSystemPage(sensorSystemsPage));
 
         return new PagedResult<>(sensorSystemDTOPage);
     }
@@ -122,5 +96,23 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Override
     public void deleteSensorSystemById(UUID id) {
         sensorSystemRepository.deleteById(id);
+    }
+
+    private List<SensorSystemDTO> populateSensorSystemDTOFromSensorSystemPage(
+            Page<SensorSystem> sensorSystemsPage) {
+        List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
+        List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
+        for (SensorSystem sensorSystem : sensorSystems) {
+            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+            sensorSystemDTO.setReadingCount(
+                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
+            sensorSystemDTO.setLatestReading(
+                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                            sensorSystem.getId()));
+
+            sensorSystemDTOs.add(sensorSystemDTO);
+        }
+
+        return sensorSystemDTOs;
     }
 }
