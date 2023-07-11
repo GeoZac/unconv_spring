@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -94,8 +95,12 @@ class SensorSystemControllerTest {
 
     @Test
     void shouldFetchAllSensorSystems() throws Exception {
-        Page<SensorSystem> page = new PageImpl<>(sensorSystemList);
-        PagedResult<SensorSystem> sensorSystemPagedResult = new PagedResult<>(page);
+        Page<SensorSystemDTO> page =
+                new PageImpl<>(
+                        sensorSystemList.stream()
+                                .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
+                                .collect(Collectors.toList()));
+        PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);
         given(
                         sensorSystemService.findAllSensorSystems(
                                 0, 10, DEFAULT_SS_SORT_BY, DEFAULT_SS_SORT_DIRECTION))
