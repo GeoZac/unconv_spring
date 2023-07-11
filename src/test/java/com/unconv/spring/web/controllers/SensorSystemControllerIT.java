@@ -4,6 +4,7 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -12,12 +13,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -37,6 +42,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private UnconvUserService unconvUserService;
 
@@ -93,6 +100,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem").param("sortDir", "asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
+                .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
+                .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
@@ -128,6 +137,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .param("sortDir", "asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
+                .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
@@ -143,6 +154,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
+                .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
+                .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
@@ -178,6 +191,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
+                .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
@@ -188,7 +203,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFindSensorSystemById() throws Exception {
+    void shouldFindSensorSystemDTOById() throws Exception {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         UUID sensorSystemId = sensorSystem.getId();
 
@@ -196,6 +211,49 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.latestReading", is(nullValue())))
+                .andExpect(jsonPath("$.readingCount", is(0)))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+    }
+
+    @Test
+    void shouldFindSensorSystemDTOByIdWithReadingsPresent() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+
+        UUID sensorSystemId = sensorSystem.getId();
+
+        this.mockMvc
+                .perform(get("/SensorSystem/{id}", sensorSystemId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.latestReading.id", is(notNullValue())))
+                .andExpect(
+                        jsonPath(
+                                "$.readingCount",
+                                is(savedEnvironmentalReadingsOfSpecificSensor.size())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
@@ -302,6 +360,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
         unconvUserRepository.deleteAll();
     }

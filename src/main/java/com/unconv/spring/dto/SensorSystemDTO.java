@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
 import java.util.UUID;
@@ -25,4 +26,8 @@ public class SensorSystemDTO {
 
     @NotNull(message = "UnconvUser cannot be empty")
     private UnconvUser unconvUser;
+
+    private long readingCount;
+
+    private EnvironmentalReading latestReading;
 }
