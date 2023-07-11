@@ -6,11 +6,14 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.SensorSystemService;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,7 +31,7 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Autowired private ModelMapper modelMapper;
 
     @Override
-    public PagedResult<SensorSystem> findAllSensorSystems(
+    public PagedResult<SensorSystemDTO> findAllSensorSystems(
             int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort =
                 sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
@@ -39,11 +42,22 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<SensorSystem> sensorSystemsPage = sensorSystemRepository.findAll(pageable);
 
-        return new PagedResult<>(sensorSystemsPage);
+        List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
+        List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
+
+        for (SensorSystem sensorSystem : sensorSystems) {
+            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+
+            sensorSystemDTOs.add(sensorSystemDTO);
+        }
+
+        Page<SensorSystemDTO> sensorSystemDTOPage = new PageImpl<SensorSystemDTO>(sensorSystemDTOs);
+
+        return new PagedResult<>(sensorSystemDTOPage);
     }
 
     @Override
-    public PagedResult<SensorSystem> findAllSensorSystemsByUnconvUserId(
+    public PagedResult<SensorSystemDTO> findAllSensorSystemsByUnconvUserId(
             UUID unconvUserId, int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort =
                 sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
@@ -54,7 +68,18 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         Page<SensorSystem> sensorSystemsPage =
                 sensorSystemRepository.findAllByUnconvUserId(unconvUserId, pageable);
 
-        return new PagedResult<>(sensorSystemsPage);
+        List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
+        List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
+
+        for (SensorSystem sensorSystem : sensorSystems) {
+            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+
+            sensorSystemDTOs.add(sensorSystemDTO);
+        }
+
+        Page<SensorSystemDTO> sensorSystemDTOPage = new PageImpl<SensorSystemDTO>(sensorSystemDTOs);
+
+        return new PagedResult<>(sensorSystemDTOPage);
     }
 
     @Override

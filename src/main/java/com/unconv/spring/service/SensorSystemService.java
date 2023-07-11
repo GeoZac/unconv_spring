@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SensorSystemService {
-    PagedResult<SensorSystem> findAllSensorSystems(
+    PagedResult<SensorSystemDTO> findAllSensorSystems(
             int pageNo, int pageSize, String sortBy, String sortDir);
 
-    PagedResult<SensorSystem> findAllSensorSystemsByUnconvUserId(
+    PagedResult<SensorSystemDTO> findAllSensorSystemsByUnconvUserId(
             UUID unconvUserId, int pageNo, int pageSize, String sortBy, String sortDir);
 
     Optional<SensorSystem> findSensorSystemById(UUID id);
