@@ -34,7 +34,7 @@ public class SensorSystemController {
     @Autowired private ModelMapper modelMapper;
 
     @GetMapping
-    public PagedResult<SensorSystem> getAllSensorSystems(
+    public PagedResult<SensorSystemDTO> getAllSensorSystems(
             @RequestParam(
                             value = "pageNo",
                             defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
@@ -59,7 +59,7 @@ public class SensorSystemController {
     }
 
     @GetMapping("UnconvUser/{unconvUserId}")
-    public PagedResult<SensorSystem> getAllSensorSystemsByUnconvUserId(
+    public PagedResult<SensorSystemDTO> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId,
             @RequestParam(
                             value = "pageNo",
@@ -86,9 +86,9 @@ public class SensorSystemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SensorSystem> getSensorSystemById(@PathVariable UUID id) {
+    public ResponseEntity<SensorSystemDTO> getSensorSystemById(@PathVariable UUID id) {
         return sensorSystemService
-                .findSensorSystemById(id)
+                .findSensorSystemDTOById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

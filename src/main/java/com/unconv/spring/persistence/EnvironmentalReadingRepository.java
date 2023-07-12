@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.Nullable;
 
 public interface EnvironmentalReadingRepository extends JpaRepository<EnvironmentalReading, UUID> {
 
@@ -16,4 +17,9 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
             UUID sensorSystemId, OffsetDateTime start, OffsetDateTime end);
 
     Page<EnvironmentalReading> findAllBySensorSystemId(UUID sensorSystemId, Pageable pageable);
+
+    long countBySensorSystemId(UUID sensorSystemId);
+
+    @Nullable
+    EnvironmentalReading findFirstBySensorSystemIdOrderByTimestampDesc(UUID sensorSystemId);
 }
