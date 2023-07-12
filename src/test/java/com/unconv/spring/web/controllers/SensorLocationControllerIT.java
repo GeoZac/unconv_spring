@@ -335,7 +335,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 "/SensorLocation/UnconvUser/{unconvUserId}",
                                 savedUnconvUser.getId().toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(savedSensorSystems.size())));
+                .andExpect(jsonPath("$.size()", is(savedSensorLocations.size())));
     }
 
     @AfterEach

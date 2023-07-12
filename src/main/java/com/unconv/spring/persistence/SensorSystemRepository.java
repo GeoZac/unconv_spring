@@ -11,7 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID> {
-    @Query("SELECT s.sensorLocation FROM SensorSystem s WHERE s.unconvUser.id = :unconvUserId")
+    @Query(
+            "SELECT DISTINCT s.sensorLocation FROM SensorSystem s WHERE s.unconvUser.id = :unconvUserId")
     List<SensorLocation> findDistinctByUnconvUserId(@Param("unconvUserId") UUID unconvUserId);
 
     Page<SensorSystem> findAllByUnconvUserId(UUID unconvUserId, Pageable pageable);
