@@ -35,7 +35,9 @@ public class SensorSystem {
     @NotEmpty(message = "Sensor name cannot be empty")
     private String sensorName;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(
+            fetch = FetchType.EAGER,
+            cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "sensor_location_id")
     private SensorLocation sensorLocation;
 
