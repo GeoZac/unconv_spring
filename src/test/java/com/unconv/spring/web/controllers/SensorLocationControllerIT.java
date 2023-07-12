@@ -326,6 +326,16 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 random -> random.oneOf(savedSensorLocations))
                         .create();
 
+        for (SensorLocation sensorLocation : savedSensorLocations) {
+            SensorSystem sensorSystem =
+                    Instancio.of(SensorSystem.class)
+                            .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                            .ignore(field(SensorSystem::getId))
+                            .supply(field(SensorSystem::getSensorLocation), () -> sensorLocation)
+                            .create();
+            sensorSystemsOfSpecificUnconvUser.add(sensorSystem);
+        }
+
         List<SensorSystem> savedSensorSystems =
                 sensorSystemRepository.saveAllAndFlush(sensorSystemsOfSpecificUnconvUser);
 
