@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -17,10 +18,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorLocationRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.service.UnconvUserService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +40,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorLocationRepository sensorLocationRepository;
+
+    @Autowired private UnconvUserService unconvUserService;
+
+    @Autowired private SensorSystemRepository sensorSystemRepository;
 
     private List<SensorLocation> sensorLocationList = null;
 
@@ -282,5 +293,64 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocationId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldFetchAllSensorLocationsAssociatedWithAnUnconvUser() throws Exception {
+        List<SensorLocation> sensorLocations =
+                Instancio.ofList(SensorLocation.class)
+                        .size(3)
+                        .supply(
+                                field(SensorLocation::getLatitude),
+                                random -> random.doubleRange(-90.0, 90.0))
+                        .supply(
+                                field(SensorLocation::getLongitude),
+                                random -> random.doubleRange(-180, 180))
+                        .create();
+
+        List<SensorLocation> savedSensorLocations =
+                sensorLocationRepository.saveAll(sensorLocations);
+
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                        .ignore(field(SensorSystem::getId))
+                        .supply(
+                                field(SensorSystem::getSensorLocation),
+                                random -> random.oneOf(savedSensorLocations))
+                        .create();
+
+        for (SensorLocation sensorLocation : savedSensorLocations) {
+            SensorSystem sensorSystem =
+                    Instancio.of(SensorSystem.class)
+                            .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
+                            .ignore(field(SensorSystem::getId))
+                            .supply(field(SensorSystem::getSensorLocation), () -> sensorLocation)
+                            .create();
+            sensorSystemsOfSpecificUnconvUser.add(sensorSystem);
+        }
+
+        List<SensorSystem> savedSensorSystems =
+                sensorSystemRepository.saveAllAndFlush(sensorSystemsOfSpecificUnconvUser);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/SensorLocation/UnconvUser/{unconvUserId}",
+                                savedUnconvUser.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(savedSensorLocations.size())));
+    }
+
+    @AfterEach
+    void tearDown() {
+        sensorSystemRepository.deleteAll();
+        sensorLocationRepository.deleteAll();
     }
 }

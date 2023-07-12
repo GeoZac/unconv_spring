@@ -3,7 +3,9 @@ package com.unconv.spring.service.impl;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorLocationRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.SensorLocationService;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ public class SensorLocationServiceImpl implements SensorLocationService {
 
     @Autowired private SensorLocationRepository sensorLocationRepository;
 
+    @Autowired private SensorSystemRepository sensorSystemRepository;
+
     @Override
     public PagedResult<SensorLocation> findAllSensorLocations(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -33,6 +37,11 @@ public class SensorLocationServiceImpl implements SensorLocationService {
         Page<SensorLocation> sensorLocationsPage = sensorLocationRepository.findAll(pageable);
 
         return new PagedResult<>(sensorLocationsPage);
+    }
+
+    @Override
+    public List<SensorLocation> findAllSensorLocationsByUnconvUserId(UUID unconvUserId) {
+        return sensorSystemRepository.findDistinctByUnconvUserId(unconvUserId);
     }
 
     @Override
