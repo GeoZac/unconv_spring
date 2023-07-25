@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
@@ -21,6 +22,14 @@ public class SensorSystemDTO {
 
     @NotEmpty(message = "Sensor name cannot be empty")
     private String sensorName;
+
+    private String description;
+
+    @NotNull(message = "Deleted status cannot be null for Sensor")
+    private boolean deleted = false;
+
+    @NotNull(message = "Sensor status cannot be null")
+    private SensorStatus sensorStatus;
 
     private SensorLocation sensorLocation;
 
