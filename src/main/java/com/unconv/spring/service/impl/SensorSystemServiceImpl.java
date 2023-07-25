@@ -95,7 +95,13 @@ public class SensorSystemServiceImpl implements SensorSystemService {
 
     @Override
     public void deleteSensorSystemById(UUID id) {
-        sensorSystemRepository.deleteById(id);
+        if (environmentalReadingRepository.countBySensorSystemId(id) != 0) {
+            Optional<SensorSystem> sensorSystem = findSensorSystemById(id);
+            assert sensorSystem.isPresent();
+            sensorSystem.get().setDeleted(true);
+        } else {
+            sensorSystemRepository.deleteById(id);
+        }
     }
 
     private List<SensorSystemDTO> populateSensorSystemDTOFromSensorSystemPage(
