@@ -124,11 +124,15 @@ public class SensorSystemController {
                 .findSensorSystemById(id)
                 .map(
                         sensorSystem -> {
-                            sensorSystemService.deleteSensorSystemById(id);
-                            Optional<SensorSystem> deletedSensorSystem =
-                                    sensorSystemService.findSensorSystemById(id);
-                            assert deletedSensorSystem.isPresent();
-                            return ResponseEntity.ok(deletedSensorSystem.get());
+                            boolean wasDeleted = sensorSystemService.deleteSensorSystemById(id);
+                            if (!wasDeleted) {
+                                Optional<SensorSystem> deletedSensorSystem =
+                                        sensorSystemService.findSensorSystemById(id);
+                                assert deletedSensorSystem.isPresent();
+                                return ResponseEntity.ok(deletedSensorSystem.get());
+                            }
+                            sensorSystem.setDeleted(true);
+                            return ResponseEntity.ok(sensorSystem);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
