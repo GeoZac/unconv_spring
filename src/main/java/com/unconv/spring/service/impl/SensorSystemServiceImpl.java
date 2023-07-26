@@ -99,6 +99,7 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             Optional<SensorSystem> sensorSystem = findSensorSystemById(id);
             assert sensorSystem.isPresent();
             sensorSystem.get().setDeleted(true);
+            sensorSystemRepository.save(sensorSystem.get());
         } else {
             sensorSystemRepository.deleteById(id);
         }
