@@ -331,6 +331,43 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldMarkSensorSystemAsDeletedWithReadingsPresent() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+
+        UUID sensorSystemId = sensorSystem.getId();
+
+        this.mockMvc
+                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.deleted", is(true)));
+    }
+
+    @Test
     void shouldReturn404WhenFetchingNonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         this.mockMvc
