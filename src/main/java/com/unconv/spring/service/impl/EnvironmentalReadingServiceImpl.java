@@ -99,17 +99,19 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
             generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                     EnvironmentalReadingDTO environmentalReadingDTO,
                     Authentication authentication) {
-        Optional<SensorSystem> sensorSystem =
+
+        Optional<SensorSystem> optionalSensorSystem =
                 sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
 
-        if (sensorSystem.isEmpty()) {
+        if (optionalSensorSystem.isEmpty()) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                     new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_SENS);
             return new ResponseEntity<>(
                     environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
         }
 
-        if (!sensorSystem.get().getUnconvUser().getUsername().equals(authentication.getName())) {
+        SensorSystem sensorSystem = optionalSensorSystem.get();
+        if (!sensorSystem.getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                     new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_USER);
             return new ResponseEntity<>(
