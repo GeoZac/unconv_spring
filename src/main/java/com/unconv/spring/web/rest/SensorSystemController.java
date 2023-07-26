@@ -128,7 +128,6 @@ public class SensorSystemController {
                             if (!wasDeleted) {
                                 Optional<SensorSystem> deletedSensorSystem =
                                         sensorSystemService.findSensorSystemById(id);
-                                assert deletedSensorSystem.isPresent();
                                 return ResponseEntity.ok(deletedSensorSystem.get());
                             }
                             sensorSystem.setDeleted(true);
