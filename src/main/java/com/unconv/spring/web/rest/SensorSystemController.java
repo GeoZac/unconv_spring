@@ -5,6 +5,7 @@ import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.utils.AppConstants;
+import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -124,7 +125,10 @@ public class SensorSystemController {
                 .map(
                         sensorSystem -> {
                             sensorSystemService.deleteSensorSystemById(id);
-                            return ResponseEntity.ok(sensorSystem);
+                            Optional<SensorSystem> deletedSensorSystem =
+                                    sensorSystemService.findSensorSystemById(id);
+                            assert deletedSensorSystem.isPresent();
+                            return ResponseEntity.ok(deletedSensorSystem.get());
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
