@@ -311,6 +311,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldCreateNewEnvironmentalReadingWithMinimalInfo() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorSystem minimalSensorSystem = new SensorSystem();
+        minimalSensorSystem.setId(savedSensorSystem.getId());
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        minimalSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.sensorSystem.id",
+                                is(savedSensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReadingWithoutTimestamp() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
