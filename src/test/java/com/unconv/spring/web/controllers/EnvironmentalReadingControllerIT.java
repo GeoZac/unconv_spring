@@ -2,6 +2,8 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
@@ -723,6 +726,69 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_SENS)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewEnvironmentalReadingForDeletedSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+
+        sensorSystem.setDeleted(true);
+
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_DLTD)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewEnvironmentalReadingForInactiveSensorSystem()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+
+        sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
+
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_INAT)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(

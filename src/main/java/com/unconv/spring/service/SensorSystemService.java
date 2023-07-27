@@ -19,5 +19,5 @@ public interface SensorSystemService {
 
     SensorSystem saveSensorSystem(SensorSystem sensorSystem);
 
-    void deleteSensorSystemById(UUID id);
+    boolean deleteSensorSystemById(UUID id);
 }

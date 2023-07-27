@@ -3,9 +3,12 @@ package com.unconv.spring.service.impl;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
@@ -99,21 +102,37 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
             generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                     EnvironmentalReadingDTO environmentalReadingDTO,
                     Authentication authentication) {
-        Optional<SensorSystem> sensorSystem =
+
+        Optional<SensorSystem> optionalSensorSystem =
                 sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
 
-        if (sensorSystem.isEmpty()) {
+        if (optionalSensorSystem.isEmpty()) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                     new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_SENS);
             return new ResponseEntity<>(
                     environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
         }
 
-        if (!sensorSystem.get().getUnconvUser().getUsername().equals(authentication.getName())) {
+        SensorSystem sensorSystem = optionalSensorSystem.get();
+        if (!sensorSystem.getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                     new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_USER);
             return new ResponseEntity<>(
                     environmentalReadingDTOMessageResponse, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (sensorSystem.isDeleted()) {
+            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                    new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_DLTD);
+            return new ResponseEntity<>(
+                    environmentalReadingDTOMessageResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        if (sensorSystem.getSensorStatus() != SensorStatus.ACTIVE) {
+            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
+                    new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_INAT);
+            return new ResponseEntity<>(
+                    environmentalReadingDTOMessageResponse, HttpStatus.BAD_REQUEST);
         }
 
         if (environmentalReadingDTO.getTimestamp() == null) {

@@ -16,4 +16,6 @@ public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID
     List<SensorLocation> findDistinctByUnconvUserId(@Param("unconvUserId") UUID unconvUserId);
 
     Page<SensorSystem> findAllByUnconvUserId(UUID unconvUserId, Pageable pageable);
+
+    Page<SensorSystem> findByUnconvUserIdAndDeletedFalse(UUID unconvUserId, Pageable pageable);
 }

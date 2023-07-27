@@ -1,9 +1,12 @@
 package com.unconv.spring.domain;
 
+import com.unconv.spring.consts.SensorStatus;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,6 +29,19 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SensorSystem {
 
+    public SensorSystem(
+            UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
+        this.id = uuid;
+        this.sensorName = sensorName;
+        this.sensorLocation = sensorLocation;
+        this.unconvUser = unconvUser;
+
+        // Set defaults for backward compatibility
+        this.description = null;
+        this.deleted = false;
+        this.sensorStatus = SensorStatus.ACTIVE;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "BINARY(16)")
@@ -34,6 +50,18 @@ public class SensorSystem {
     @Column(nullable = false)
     @NotEmpty(message = "Sensor name cannot be empty")
     private String sensorName;
+
+    @Column(length = 500)
+    private String description;
+
+    @Column(nullable = false)
+    @NotNull(message = "Deleted status cannot be null for Sensor")
+    private boolean deleted = false;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    @NotNull(message = "Sensor status cannot be null")
+    private SensorStatus sensorStatus;
 
     @ManyToOne(
             fetch = FetchType.EAGER,

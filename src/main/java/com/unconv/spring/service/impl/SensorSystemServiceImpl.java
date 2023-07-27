@@ -58,7 +58,7 @@ public class SensorSystemServiceImpl implements SensorSystemService {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<SensorSystem> sensorSystemsPage =
-                sensorSystemRepository.findAllByUnconvUserId(unconvUserId, pageable);
+                sensorSystemRepository.findByUnconvUserIdAndDeletedFalse(unconvUserId, pageable);
 
         Page<SensorSystemDTO> sensorSystemDTOPage =
                 new PageImpl<>(populateSensorSystemDTOFromSensorSystemPage(sensorSystemsPage));
@@ -94,8 +94,16 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     }
 
     @Override
-    public void deleteSensorSystemById(UUID id) {
-        sensorSystemRepository.deleteById(id);
+    public boolean deleteSensorSystemById(UUID id) {
+        if (environmentalReadingRepository.countBySensorSystemId(id) != 0) {
+            Optional<SensorSystem> sensorSystem = findSensorSystemById(id);
+            sensorSystem.get().setDeleted(true);
+            sensorSystemRepository.save(sensorSystem.get());
+            return false;
+        } else {
+            sensorSystemRepository.deleteById(id);
+            return true;
+        }
     }
 
     private List<SensorSystemDTO> populateSensorSystemDTOFromSensorSystemPage(

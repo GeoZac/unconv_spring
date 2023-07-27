@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -251,7 +250,7 @@ class SensorSystemControllerTest {
                 new SensorSystem(sensorSystemId, "Some text", sensorLocation, null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
-        doNothing().when(sensorSystemService).deleteSensorSystemById(sensorSystem.getId());
+        given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(true);
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
