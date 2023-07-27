@@ -278,6 +278,33 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldCreateNewSensorSystemWithMinimalInfo() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        UnconvUser minimalUnconvUser = new UnconvUser();
+        minimalUnconvUser.setId(savedUnconvUser.getId());
+
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "New SensorSystem", null, minimalUnconvUser);
+
+        assert sensorSystem.getUnconvUser().getUsername() == null;
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.unconvUser.id", is(savedUnconvUser.getId().toString())));
+    }
+
+    @Test
     void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
         SensorSystem sensorSystem = new SensorSystem(null, null, null, null);
 
