@@ -5,6 +5,7 @@ import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.utils.AppConstants;
+import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class SensorSystemController {
     @Autowired private ModelMapper modelMapper;
 
     @GetMapping
-    public PagedResult<SensorSystem> getAllSensorSystems(
+    public PagedResult<SensorSystemDTO> getAllSensorSystems(
             @RequestParam(
                             value = "pageNo",
                             defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
@@ -47,19 +48,19 @@ public class SensorSystemController {
                     int pageSize,
             @RequestParam(
                             value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
                             value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
         return sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
     }
 
     @GetMapping("UnconvUser/{unconvUserId}")
-    public PagedResult<SensorSystem> getAllSensorSystemsByUnconvUserId(
+    public PagedResult<SensorSystemDTO> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId,
             @RequestParam(
                             value = "pageNo",
@@ -73,12 +74,12 @@ public class SensorSystemController {
                     int pageSize,
             @RequestParam(
                             value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
                             value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
+                            defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
         return sensorSystemService.findAllSensorSystemsByUnconvUserId(
@@ -86,9 +87,9 @@ public class SensorSystemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SensorSystem> getSensorSystemById(@PathVariable UUID id) {
+    public ResponseEntity<SensorSystemDTO> getSensorSystemById(@PathVariable UUID id) {
         return sensorSystemService
-                .findSensorSystemById(id)
+                .findSensorSystemDTOById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -123,7 +124,13 @@ public class SensorSystemController {
                 .findSensorSystemById(id)
                 .map(
                         sensorSystem -> {
-                            sensorSystemService.deleteSensorSystemById(id);
+                            boolean wasDeleted = sensorSystemService.deleteSensorSystemById(id);
+                            if (!wasDeleted) {
+                                Optional<SensorSystem> deletedSensorSystem =
+                                        sensorSystemService.findSensorSystemById(id);
+                                return ResponseEntity.ok(deletedSensorSystem.get());
+                            }
+                            sensorSystem.setDeleted(true);
                             return ResponseEntity.ok(sensorSystem);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());

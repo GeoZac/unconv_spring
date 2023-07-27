@@ -1,12 +1,13 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.utils.AppConstants.DEFAULT_SS_SORT_BY;
+import static com.unconv.spring.utils.AppConstants.DEFAULT_SS_SORT_DIRECTION;
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
@@ -27,10 +29,13 @@ import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorSystemController;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -89,9 +94,15 @@ class SensorSystemControllerTest {
 
     @Test
     void shouldFetchAllSensorSystems() throws Exception {
-        Page<SensorSystem> page = new PageImpl<>(sensorSystemList);
-        PagedResult<SensorSystem> sensorSystemPagedResult = new PagedResult<>(page);
-        given(sensorSystemService.findAllSensorSystems(0, 10, "id", "asc"))
+        Page<SensorSystemDTO> page =
+                new PageImpl<>(
+                        sensorSystemList.stream()
+                                .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
+                                .collect(Collectors.toList()));
+        PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);
+        given(
+                        sensorSystemService.findAllSensorSystems(
+                                0, 10, DEFAULT_SS_SORT_BY, DEFAULT_SS_SORT_DIRECTION))
                 .willReturn(sensorSystemPagedResult);
 
         this.mockMvc
@@ -112,12 +123,23 @@ class SensorSystemControllerTest {
         UUID sensorSystemId = UUID.randomUUID();
         ;
         SensorSystem sensorSystem = new SensorSystem(null, "text 1", null, null);
-        given(sensorSystemService.findSensorSystemById(sensorSystemId))
-                .willReturn(Optional.of(sensorSystem));
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+        sensorSystemDTO.setReadingCount(new Random().nextLong());
+        sensorSystemDTO.setLatestReading(environmentalReading);
+        given(sensorSystemService.findSensorSystemDTOById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystemDTO));
 
         this.mockMvc
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
+                .andExpect(
+                        jsonPath(
+                                "$.latestReading.id",
+                                is(sensorSystemDTO.getLatestReading().getId().toString())))
+                .andExpect(jsonPath("$.readingCount", is(sensorSystemDTO.getReadingCount())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
@@ -228,7 +250,7 @@ class SensorSystemControllerTest {
                 new SensorSystem(sensorSystemId, "Some text", sensorLocation, null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
-        doNothing().when(sensorSystemService).deleteSensorSystemById(sensorSystem.getId());
+        given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(true);
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))

@@ -1,32 +1,15 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.Heater;
-import com.unconv.spring.persistence.HeaterRepository;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@Transactional
-public class HeaterService {
+public interface HeaterService {
+    List<Heater> findAllHeaters();
 
-    @Autowired private HeaterRepository heaterRepository;
+    Optional<Heater> findHeaterById(Long id);
 
-    public List<Heater> findAllHeaters() {
-        return heaterRepository.findAll();
-    }
+    Heater saveHeater(Heater heater);
 
-    public Optional<Heater> findHeaterById(Long id) {
-        return heaterRepository.findById(id);
-    }
-
-    public Heater saveHeater(Heater heater) {
-        return heaterRepository.save(heater);
-    }
-
-    public void deleteHeaterById(Long id) {
-        heaterRepository.deleteById(id);
-    }
+    void deleteHeaterById(Long id);
 }

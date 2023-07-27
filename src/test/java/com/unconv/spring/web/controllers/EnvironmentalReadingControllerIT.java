@@ -1,5 +1,12 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -23,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
@@ -32,6 +40,8 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.UnconvUserService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -99,6 +109,18 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(15)
                         .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
                         .ignore(field(EnvironmentalReading::getId))
@@ -141,8 +163,20 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(EnvironmentalReading.class)
                         .size(5)
                         .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -202,6 +236,18 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReading::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .ignore(field(EnvironmentalReading::getId))
                         .create();
 
@@ -313,6 +359,92 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenCreatingNewEnvironmentalReadingWithValuesLowerThanLimits()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        -100000,
+                        -5,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidity")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must be greater than or equal to 0.0")))
+                .andExpect(jsonPath("$.violations[1].field", is("temperature")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("must be greater than or equal to -9999.000")));
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingNewEnvironmentalReadingWithValuesHigherThanLimits()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        100000,
+                        105,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidity")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("must be less than or equal to 100.00")))
+                .andExpect(jsonPath("$.violations[1].field", is("temperature")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("must be less than or equal to 9999.000")));
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
@@ -324,6 +456,18 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
                         .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -389,7 +533,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Could not upload the file: test.csv!";
+        String expectedResponse = String.format(ENVT_FILE_REJ_ERR, "test.csv");
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -440,7 +584,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Unknown sensor system";
+        String expectedResponse = ENVT_RECORD_REJ_SENS;
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -488,7 +632,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = "Please upload a csv file!";
+        String expectedResponse = ENVT_FILE_FORMAT_ERROR;
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -530,7 +674,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
-                .andExpect(jsonPath("$.violations[0].message", is("Sensor system cannot be empty")))
+                .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
                 .andReturn();
     }
 
@@ -552,7 +696,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("User validation failed on SensorSystem")))
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(
@@ -581,7 +725,70 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message", is("Unknown SensorSystem on request")))
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_SENS)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewEnvironmentalReadingForDeletedSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+
+        sensorSystem.setDeleted(true);
+
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_DLTD)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.temperature",
+                                is(environmentalReadingDTO.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewEnvironmentalReadingForInactiveSensorSystem()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+
+        sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
+
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null, 3L, 56L, OffsetDateTime.now(ZoneOffset.UTC), savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_INAT)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(
                         jsonPath(
@@ -680,6 +887,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
                             .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random ->
+                                            BigDecimal.valueOf(
+                                                            random.doubleRange(-9999.000, 9999.000))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random ->
+                                            BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
+                            .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
                                             ZonedDateTime.of(
@@ -726,6 +946,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
                             .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random ->
+                                            BigDecimal.valueOf(
+                                                            random.doubleRange(-9999.000, 9999.000))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random ->
+                                            BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
+                            .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
                                             ZonedDateTime.of(
@@ -771,6 +1004,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
+                            .supply(
+                                    field(EnvironmentalReading::getTemperature),
+                                    random ->
+                                            BigDecimal.valueOf(
+                                                            random.doubleRange(-9999.000, 9999.000))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
+                            .supply(
+                                    field(EnvironmentalReading::getHumidity),
+                                    random ->
+                                            BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                    .setScale(3, RoundingMode.HALF_UP)
+                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->

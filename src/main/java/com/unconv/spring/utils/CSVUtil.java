@@ -30,10 +30,12 @@ public class CSVUtil {
                 CSVParser csvParser =
                         new CSVParser(
                                 fileReader,
-                                CSVFormat.DEFAULT
-                                        .withFirstRecordAsHeader()
-                                        .withIgnoreHeaderCase()
-                                        .withTrim()); ) {
+                                CSVFormat.Builder.create()
+                                        .setHeader()
+                                        .setSkipHeaderRecord(true)
+                                        .setIgnoreHeaderCase(false)
+                                        .setTrim(true)
+                                        .build()); ) {
 
             List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
 

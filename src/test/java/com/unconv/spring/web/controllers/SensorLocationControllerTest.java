@@ -4,6 +4,7 @@ import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.web.rest.SensorLocationController;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -266,5 +269,34 @@ class SensorLocationControllerTest {
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocationId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldFetchAllSensorLocationOfSpecificUnconvUser() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        UUID.randomUUID(),
+                        "Specific UnconvUser",
+                        "unconvuser@email.com",
+                        "password");
+
+        List<SensorLocation> sensorLocations =
+                Instancio.ofList(SensorLocation.class)
+                        .size(5)
+                        .supply(
+                                field(SensorLocation::getLatitude),
+                                random -> random.doubleRange(-90.0, 90.0))
+                        .supply(
+                                field(SensorLocation::getLongitude),
+                                random -> random.doubleRange(-180, 180))
+                        .create();
+
+        given(sensorLocationService.findAllSensorLocationsByUnconvUserId(unconvUser.getId()))
+                .willReturn(sensorLocations);
+
+        this.mockMvc
+                .perform(get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
     }
 }
