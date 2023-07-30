@@ -620,8 +620,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = ENVT_RECORD_REJ_SENS;
-
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
                 new MockMultipartFile(
@@ -638,7 +636,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .file(csvFile)
                                 .with(csrf()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$", is(expectedResponse)));
+                .andExpect(jsonPath("$", is(ENVT_RECORD_REJ_SENS)));
     }
 
     @Test
@@ -668,8 +666,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = ENVT_FILE_FORMAT_ERROR;
-
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
                 new MockMultipartFile(
@@ -686,7 +682,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .file(csvFile)
                                 .with(csrf()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", is(expectedResponse)));
+                .andExpect(jsonPath("$", is(ENVT_FILE_FORMAT_ERROR)));
     }
 
     @Test
