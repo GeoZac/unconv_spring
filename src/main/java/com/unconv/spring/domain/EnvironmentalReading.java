@@ -33,14 +33,14 @@ public class EnvironmentalReading {
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @DecimalMin(value = "-9999.000", inclusive = true)
-    @DecimalMax(value = "9999.000", inclusive = true)
+    @DecimalMin(value = "-9999.000")
+    @DecimalMax(value = "9999.000")
     @Column(nullable = false, precision = 7, scale = 3)
     @NotNull(message = "Temperature cannot be empty")
     private double temperature;
 
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "100.00", inclusive = true)
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "100.00")
     @Column(nullable = false, precision = 5, scale = 2)
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
