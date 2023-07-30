@@ -356,7 +356,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
                 .andExpect(jsonPath("$.deleted", is(true)));
-        ;
     }
 
     @Test

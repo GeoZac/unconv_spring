@@ -121,7 +121,6 @@ class SensorSystemControllerTest {
     @Test
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        ;
         SensorSystem sensorSystem = new SensorSystem(null, "text 1", null, null);
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
