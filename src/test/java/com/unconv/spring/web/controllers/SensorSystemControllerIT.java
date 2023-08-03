@@ -243,7 +243,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
-        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
 
         UUID sensorSystemId = sensorSystem.getId();
 
@@ -383,7 +383,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
-        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
 
         UUID sensorSystemId = sensorSystem.getId();
 
