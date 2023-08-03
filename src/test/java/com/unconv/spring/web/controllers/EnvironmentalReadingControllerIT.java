@@ -899,7 +899,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures =
                 setupTestDataForQuarterHourly(savedSensorSystem);
-        averageTemperatures.size();
+        assert !averageTemperatures.isEmpty();
         this.mockMvc
                 .perform(
                         get(
@@ -958,7 +958,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
-        averageTemperatures.size();
+        assert !averageTemperatures.isEmpty();
         this.mockMvc
                 .perform(
                         get(
@@ -1017,7 +1017,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
-        averageTemperatures.size();
+        assert !averageTemperatures.isEmpty();
         this.mockMvc
                 .perform(
                         get(
