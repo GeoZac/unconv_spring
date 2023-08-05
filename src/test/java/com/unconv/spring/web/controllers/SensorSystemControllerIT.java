@@ -240,7 +240,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFindSensorSystemDTOByIdWithReadingsPresent() throws Exception {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
-                Instancio.ofList(environemntalReadingModel).size(5).create();
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
