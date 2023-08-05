@@ -5,11 +5,15 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Slf4j
+@Testcontainers
 public class DBContainerInitializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
+    @Container
     private static final MySQLContainer<?> sqlContainer =
             new MySQLContainer<>("mysql:8.0")
                     .withDatabaseName("integration-tests-db")
