@@ -19,7 +19,7 @@ jobs:
           command: chmod +x mvnw
       - run:
           name: Download dependecies
-          command: ./mvnw dependency:resolve
+          command: ./mvnw dependency:resolve dependency:resolve-plugins
       - save_cache:
           paths:
             - ~/.m2
