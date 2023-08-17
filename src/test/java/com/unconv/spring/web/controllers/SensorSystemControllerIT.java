@@ -256,7 +256,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.latestReading.id", is(notNullValue())))
+                .andExpect(jsonPath("$.latestReading.temperature", is(notNullValue())))
                 .andExpect(
                         jsonPath(
                                 "$.readingCount",
