@@ -2,6 +2,7 @@ package com.unconv.spring.service.impl;
 
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -82,8 +83,10 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             sensorSystemDTO.setReadingCount(
                     environmentalReadingRepository.countBySensorSystemId(id));
             sensorSystemDTO.setLatestReading(
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            id));
+                    modelMapper.map(
+                            environmentalReadingRepository
+                                    .findFirstBySensorSystemIdOrderByTimestampDesc(id),
+                            BaseEnvironmentalReadingDTO.class));
             return Optional.of(sensorSystemDTO);
         }
     }
@@ -115,8 +118,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             sensorSystemDTO.setReadingCount(
                     environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
             sensorSystemDTO.setLatestReading(
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            sensorSystem.getId()));
+                    modelMapper.map(
+                            environmentalReadingRepository
+                                    .findFirstBySensorSystemIdOrderByTimestampDesc(
+                                            sensorSystem.getId()),
+                            BaseEnvironmentalReadingDTO.class));
 
             sensorSystemDTOs.add(sensorSystemDTO);
         }
