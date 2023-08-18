@@ -148,6 +148,16 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
                 sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
 
+        List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
+                        .create();
+
+        environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
+
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
 
         this.mockMvc
@@ -203,6 +213,16 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
                 sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
 
+        List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
+                        .create();
+
+        environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
+
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
 
         this.mockMvc
@@ -256,7 +276,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.latestReading.id", is(notNullValue())))
+                .andExpect(jsonPath("$.latestReading.temperature", is(notNullValue())))
                 .andExpect(
                         jsonPath(
                                 "$.readingCount",

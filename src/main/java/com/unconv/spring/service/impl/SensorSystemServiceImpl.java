@@ -1,7 +1,9 @@
 package com.unconv.spring.service.impl;
 
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -81,9 +83,13 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     modelMapper.map(sensorSystem.get(), SensorSystemDTO.class);
             sensorSystemDTO.setReadingCount(
                     environmentalReadingRepository.countBySensorSystemId(id));
-            sensorSystemDTO.setLatestReading(
+            EnvironmentalReading environmentalReading =
                     environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            id));
+                            id);
+            if (environmentalReading != null) {
+                sensorSystemDTO.setLatestReading(
+                        modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
+            }
             return Optional.of(sensorSystemDTO);
         }
     }
@@ -114,10 +120,14 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
             sensorSystemDTO.setReadingCount(
                     environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
-            sensorSystemDTO.setLatestReading(
+            EnvironmentalReading environmentalReading =
                     environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            sensorSystem.getId()));
+                            sensorSystem.getId());
 
+            if (environmentalReading != null) {
+                sensorSystemDTO.setLatestReading(
+                        modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
+            }
             sensorSystemDTOs.add(sensorSystemDTO);
         }
 
