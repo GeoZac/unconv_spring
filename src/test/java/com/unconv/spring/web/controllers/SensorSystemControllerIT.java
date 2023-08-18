@@ -148,6 +148,16 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
                 sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
 
+        List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
+                        .create();
+
+        environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
+
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
 
         this.mockMvc
@@ -202,6 +212,16 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
                 sensorSystemRepository.saveAll(sensorSystemsOfSpecificUnconvUser);
+
+        List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
+                        .create();
+
+        environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
 
