@@ -26,6 +26,7 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorSystemController;
@@ -127,7 +128,8 @@ class SensorSystemControllerTest {
                         UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
         sensorSystemDTO.setReadingCount(new Random().nextLong());
-        sensorSystemDTO.setLatestReading(environmentalReading);
+        sensorSystemDTO.setLatestReading(
+                modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
         given(sensorSystemService.findSensorSystemDTOById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystemDTO));
 
@@ -136,8 +138,8 @@ class SensorSystemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
-                                "$.latestReading.id",
-                                is(sensorSystemDTO.getLatestReading().getId().toString())))
+                                "$.latestReading.temperature",
+                                is(sensorSystemDTO.getLatestReading().getTemperature())))
                 .andExpect(jsonPath("$.readingCount", is(sensorSystemDTO.getReadingCount())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }

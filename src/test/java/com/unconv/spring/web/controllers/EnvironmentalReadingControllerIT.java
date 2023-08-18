@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
+import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,6 +86,23 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     private static int totalPages;
 
+    private static final Model<EnvironmentalReading> environemntalReadingModel =
+            Instancio.of(EnvironmentalReading.class)
+                    .supply(
+                            field(EnvironmentalReading::getTemperature),
+                            random ->
+                                    BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                            .setScale(3, RoundingMode.HALF_UP)
+                                            .doubleValue())
+                    .supply(
+                            field(EnvironmentalReading::getHumidity),
+                            random ->
+                                    BigDecimal.valueOf(random.doubleRange(0, 100))
+                                            .setScale(3, RoundingMode.HALF_UP)
+                                            .doubleValue())
+                    .ignore(field(EnvironmentalReading::getId))
+                    .toModel();
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -106,24 +124,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         environmentalReadingList =
-                Instancio.ofList(EnvironmentalReading.class)
+                Instancio.ofList(environemntalReadingModel)
                         .size(15)
-                        .supply(
-                                field(EnvironmentalReading::getTemperature),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .supply(
-                                field(EnvironmentalReading::getHumidity),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
-                        .ignore(field(EnvironmentalReading::getId))
                         .create();
 
         totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
@@ -160,24 +165,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
-                Instancio.ofList(EnvironmentalReading.class)
+                Instancio.ofList(environemntalReadingModel)
                         .size(5)
-                        .supply(
-                                field(EnvironmentalReading::getTemperature),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
-                        .supply(
-                                field(EnvironmentalReading::getHumidity),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .ignore(field(EnvironmentalReading::getId))
                         .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
@@ -231,24 +223,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
-                Instancio.ofList(EnvironmentalReading.class)
+                Instancio.ofList(environemntalReadingModel)
                         .size(5)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
-                        .supply(
-                                field(EnvironmentalReading::getTemperature),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .supply(
-                                field(EnvironmentalReading::getHumidity),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .ignore(field(EnvironmentalReading::getId))
                         .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
@@ -914,23 +893,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
-                    Instancio.of(EnvironmentalReading.class)
+                    Instancio.of(environemntalReadingModel)
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTemperature),
-                                    random ->
-                                            BigDecimal.valueOf(
-                                                            random.doubleRange(-9999.000, 9999.000))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
-                            .supply(
-                                    field(EnvironmentalReading::getHumidity),
-                                    random ->
-                                            BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -973,23 +939,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
-                    Instancio.of(EnvironmentalReading.class)
+                    Instancio.of(environemntalReadingModel)
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTemperature),
-                                    random ->
-                                            BigDecimal.valueOf(
-                                                            random.doubleRange(-9999.000, 9999.000))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
-                            .supply(
-                                    field(EnvironmentalReading::getHumidity),
-                                    random ->
-                                            BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -1032,23 +985,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
-                    Instancio.of(EnvironmentalReading.class)
+                    Instancio.of(environemntalReadingModel)
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTemperature),
-                                    random ->
-                                            BigDecimal.valueOf(
-                                                            random.doubleRange(-9999.000, 9999.000))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
-                            .supply(
-                                    field(EnvironmentalReading::getHumidity),
-                                    random ->
-                                            BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
