@@ -486,6 +486,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         BigDecimal.valueOf(random.doubleRange(0, 100))
                                                 .setScale(3, RoundingMode.HALF_UP)
                                                 .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
