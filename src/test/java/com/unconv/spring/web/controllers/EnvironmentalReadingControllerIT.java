@@ -100,6 +100,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                     BigDecimal.valueOf(random.doubleRange(0, 100))
                                             .setScale(3, RoundingMode.HALF_UP)
                                             .doubleValue())
+                    .generate(
+                            field(EnvironmentalReading::getTimestamp),
+                            gen -> gen.temporal().offsetDateTime().past())
                     .ignore(field(EnvironmentalReading::getId))
                     .toModel();
 
@@ -483,6 +486,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         BigDecimal.valueOf(random.doubleRange(0, 100))
                                                 .setScale(3, RoundingMode.HALF_UP)
                                                 .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -671,7 +677,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null, null);
+                new EnvironmentalReading(
+                        UUID.randomUUID(), 0L, 0L, OffsetDateTime.now().plusDays(1), null);
 
         this.mockMvc
                 .perform(
@@ -687,9 +694,14 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
+                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("Readings has to be in past or present")))
                 .andReturn();
     }
 
