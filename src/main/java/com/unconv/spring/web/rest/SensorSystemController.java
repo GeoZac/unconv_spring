@@ -5,6 +5,7 @@ import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.utils.AppConstants;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -92,6 +93,11 @@ public class SensorSystemController {
                 .findSensorSystemDTOById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/SensorName/{sensorName}")
+    public List<SensorSystem> findAllSensorSystemsBySensorName(@PathVariable String sensorName) {
+        return sensorSystemService.findAllSensorSystemsBySensorName(sensorName);
     }
 
     @PostMapping
