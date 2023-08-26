@@ -112,6 +112,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         }
     }
 
+    @Override
+    public List<SensorSystem> findAllSensorSystemsBySensorName(String sensorName) {
+        return sensorSystemRepository.findDistinctBySensorNameIgnoreCaseOrderBySensorNameAsc(
+                sensorName);
+    }
+
     private List<SensorSystemDTO> populateSensorSystemDTOFromSensorSystemPage(
             Page<SensorSystem> sensorSystemsPage) {
         List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
