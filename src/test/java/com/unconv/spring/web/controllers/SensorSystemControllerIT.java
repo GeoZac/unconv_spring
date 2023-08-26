@@ -288,6 +288,36 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFindSensorSystemBySensorName() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+        String sensorSystemSensorName = sensorSystem.getSensorName();
+
+        this.mockMvc
+                .perform(get("/SensorSystem/SensorName/{sensorName}", sensorSystemSensorName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(1)));
+    }
+
+    @Test
+    void shouldFindSensorSystemsBySensorName() throws Exception {
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(4)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .create();
+
+        List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
+
+        this.mockMvc
+                .perform(get("/SensorSystem/SensorName/{sensorName}", "Sensor"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(savedSensorSystems.size())));
+    }
+
+    @Test
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Test user", "testuser@email.com", "test_password");
