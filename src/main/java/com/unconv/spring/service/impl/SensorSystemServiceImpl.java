@@ -123,20 +123,27 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
         List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
         for (SensorSystem sensorSystem : sensorSystems) {
-            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
-            sensorSystemDTO.setReadingCount(
-                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
-            EnvironmentalReading environmentalReading =
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            sensorSystem.getId());
-
-            if (environmentalReading != null) {
-                sensorSystemDTO.setLatestReading(
-                        modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
-            }
+            SensorSystemDTO sensorSystemDTO =
+                    mapSensorSystemEntityToDTOAndPopulateExtraFields(sensorSystem);
             sensorSystemDTOs.add(sensorSystemDTO);
         }
 
         return sensorSystemDTOs;
+    }
+
+    private SensorSystemDTO mapSensorSystemEntityToDTOAndPopulateExtraFields(
+            SensorSystem sensorSystem) {
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+        sensorSystemDTO.setReadingCount(
+                environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
+        EnvironmentalReading environmentalReading =
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                        sensorSystem.getId());
+
+        if (environmentalReading != null) {
+            sensorSystemDTO.setLatestReading(
+                    modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
+        }
+        return sensorSystemDTO;
     }
 }
