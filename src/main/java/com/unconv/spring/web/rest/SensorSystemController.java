@@ -100,6 +100,13 @@ public class SensorSystemController {
         return sensorSystemService.findAllSensorSystemsBySensorName(sensorName);
     }
 
+    @GetMapping("/SensorName/{sensorName}/UnconvUser/{unconvUserId}")
+    public List<SensorSystem> findAllSensorSystemsBySensorNameAndUnconvUserId(
+            @PathVariable String sensorName, @PathVariable UUID unconvUserId) {
+        return sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
+                sensorName, unconvUserId);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SensorSystem createSensorSystem(
