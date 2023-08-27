@@ -299,6 +299,22 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFindSensorSystemOfSpecificUnconvUserBySensorName() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+        String sensorSystemSensorName = sensorSystem.getSensorName();
+        UUID unconvUserId = sensorSystem.getUnconvUser().getId();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/SensorSystem/SensorName/{sensorName}/UnconvUser/{unconvUserId}",
+                                sensorSystemSensorName,
+                                unconvUserId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(1)));
+    }
+
+    @Test
     void shouldFindSensorSystemsBySensorName() throws Exception {
         List<SensorSystem> sensorSystems =
                 Instancio.ofList(SensorSystem.class)
