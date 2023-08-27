@@ -23,4 +23,7 @@ public interface SensorSystemService {
     boolean deleteSensorSystemById(UUID id);
 
     List<SensorSystem> findAllSensorSystemsBySensorName(String sensorName);
+
+    List<SensorSystem> findAllBySensorSystemsBySensorNameAndUnconvUserId(
+            String sensorName, UUID unconvUserId);
 }
