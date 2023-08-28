@@ -118,6 +118,14 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                 .findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(sensorName);
     }
 
+    @Override
+    public List<SensorSystem> findAllBySensorSystemsBySensorNameAndUnconvUserId(
+            String sensorName, UUID unconvUserId) {
+        return sensorSystemRepository
+                .findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
+                        sensorName, unconvUserId);
+    }
+
     private List<SensorSystemDTO> populateSensorSystemDTOFromSensorSystemPage(
             Page<SensorSystem> sensorSystemsPage) {
         List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();

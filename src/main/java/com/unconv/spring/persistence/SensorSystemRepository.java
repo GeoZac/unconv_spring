@@ -21,6 +21,10 @@ public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID
     List<SensorSystem> findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(
             String sensorName);
 
+    List<SensorSystem>
+            findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
+                    String sensorName, UUID unconvUserId);
+
     Page<SensorSystem> findAllByUnconvUserId(UUID unconvUserId, Pageable pageable);
 
     Page<SensorSystem> findByUnconvUserIdAndDeletedFalse(UUID unconvUserId, Pageable pageable);
