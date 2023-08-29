@@ -23,6 +23,8 @@ public interface EnvironmentalReadingService {
 
     Optional<EnvironmentalReading> findEnvironmentalReadingById(UUID id);
 
+    List<EnvironmentalReading> findLatestEnvironmentalReadingsByUnconvUserId(UUID id);
+
     EnvironmentalReading saveEnvironmentalReading(EnvironmentalReading environmentalReading);
 
     ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
