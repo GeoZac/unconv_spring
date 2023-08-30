@@ -523,7 +523,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldreturn417WhenUploadingNewEnvironmentalReadingsAsBulkWithoutHeader()
+    void shouldReturn417WhenUploadingNewEnvironmentalReadingsAsBulkWithoutHeader()
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
