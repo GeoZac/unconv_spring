@@ -6,6 +6,7 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.utils.AppConstants;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -98,6 +99,12 @@ public class SensorSystemController {
     @GetMapping("/SensorName/{sensorName}")
     public List<SensorSystem> findAllSensorSystemsBySensorName(@PathVariable String sensorName) {
         return sensorSystemService.findAllSensorSystemsBySensorName(sensorName);
+    }
+
+    @GetMapping("/ReadingsCount/{sensorSystemId}")
+    public Map<Integer, Long> findRecentReadingsCountBySensorSystem(
+            @PathVariable UUID sensorSystemId) {
+        return sensorSystemService.findRecentStatsBySensorSystemId(sensorSystemId);
     }
 
     @GetMapping("/SensorName/{sensorName}/UnconvUser/{unconvUserId}")
