@@ -22,4 +22,6 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
 
     @Nullable
     EnvironmentalReading findFirstBySensorSystemIdOrderByTimestampDesc(UUID sensorSystemId);
+
+    List<EnvironmentalReading> findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(UUID id);
 }
