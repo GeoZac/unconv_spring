@@ -8,8 +8,13 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.SensorSystemService;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
@@ -116,6 +121,22 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     public List<SensorSystem> findAllSensorSystemsBySensorName(String sensorName) {
         return sensorSystemRepository
                 .findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(sensorName);
+    }
+
+    @Override
+    public Map<Integer, Long> findRecentStatsBySensorSystemId(UUID sensorSystemId) {
+        List<Integer> timePeriods = Arrays.asList(1, 3, 8, 24, 168);
+        Map<Integer, Long> recentReadingCounts = new HashMap<>();
+        for (Integer timePeriod : timePeriods) {
+
+            long count =
+                    environmentalReadingRepository.countBySensorSystemIdAndTimestampBetween(
+                            sensorSystemId,
+                            OffsetDateTime.now(ZoneOffset.UTC).minusHours(timePeriod),
+                            OffsetDateTime.now(ZoneOffset.UTC));
+            recentReadingCounts.put(timePeriod, count);
+        }
+        return recentReadingCounts;
     }
 
     @Override

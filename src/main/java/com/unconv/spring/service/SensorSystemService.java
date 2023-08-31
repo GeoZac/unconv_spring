@@ -4,6 +4,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,4 +27,6 @@ public interface SensorSystemService {
 
     List<SensorSystem> findAllBySensorSystemsBySensorNameAndUnconvUserId(
             String sensorName, UUID unconvUserId);
+
+    Map<Integer, Long> findRecentStatsBySensorSystemId(UUID sensorSystemId);
 }
