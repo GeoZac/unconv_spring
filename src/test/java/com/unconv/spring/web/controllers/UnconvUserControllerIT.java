@@ -113,6 +113,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .perform(get("/UnconvUser/{id}", unconvUserId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvUser.getId().toString())))
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
     }
 
@@ -152,6 +153,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is(USER_NAME_IN_USE)))
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(jsonPath("$.entity.email", is(unconvUserDTO.getEmail())));
     }
@@ -236,6 +238,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvUserDTO.getId().toString())))
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUserDTO.getUsername())));
     }
 
@@ -247,6 +250,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvUser.getId().toString())))
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
     }
 
