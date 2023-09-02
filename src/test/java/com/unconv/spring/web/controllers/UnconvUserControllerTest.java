@@ -145,8 +145,13 @@ class UnconvUserControllerTest {
 
         UnconvUserDTO unconvUserDTO =
                 new UnconvUserDTO(UUID.randomUUID(), "some text", "email@provider.com", "secret");
+
+        UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
+        unconvUser.setPassword(null);
+        UnconvUserDTO unconvUserDTOWithPasswordObscured =
+                modelMapper.map(unconvUser, UnconvUserDTO.class);
         MessageResponse<UnconvUserDTO> messageResponse =
-                new MessageResponse<>(USER_CREATE_SUCCESS, unconvUserDTO);
+                new MessageResponse<>(USER_CREATE_SUCCESS, unconvUserDTOWithPasswordObscured);
 
         ResponseEntity<MessageResponse<UnconvUserDTO>> responseEntity =
                 new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
