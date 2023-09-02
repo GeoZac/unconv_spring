@@ -4,6 +4,7 @@ import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -23,9 +24,13 @@ import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
@@ -360,6 +365,42 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 savedUnconvUser.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(savedSensorSystems.size())));
+    }
+
+    @Test
+    void shouldFetchRecentSensorReadingCountsWithReadingsPresent() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(75)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .supply(
+                                field(EnvironmentalReading::getTimestamp),
+                                random ->
+                                        ZonedDateTime.of(
+                                                        LocalDateTime.now()
+                                                                .minusHours(
+                                                                        random.intRange(0, 167)),
+                                                        ZoneId.systemDefault())
+                                                .toOffsetDateTime())
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
+
+        UUID sensorSystemId = sensorSystem.getId();
+
+        this.mockMvc
+                .perform(get("/SensorSystem/ReadingsCount/{sensorSystemId}", sensorSystemId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)))
+                .andExpect(jsonPath("$.1", notNullValue(long.class)))
+                .andExpect(jsonPath("$.3", notNullValue(long.class)))
+                .andExpect(jsonPath("$.8", notNullValue(long.class)))
+                .andExpect(jsonPath("$.24", notNullValue(long.class)))
+                .andExpect(jsonPath("$.168", is(75)));
     }
 
     @Test

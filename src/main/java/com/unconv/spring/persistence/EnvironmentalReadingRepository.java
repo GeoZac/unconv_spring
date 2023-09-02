@@ -20,6 +20,9 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
 
     long countBySensorSystemId(UUID sensorSystemId);
 
+    long countBySensorSystemIdAndTimestampBetween(
+            UUID sensorSystemId, OffsetDateTime start, OffsetDateTime end);
+
     @Nullable
     EnvironmentalReading findFirstBySensorSystemIdOrderByTimestampDesc(UUID sensorSystemId);
 
