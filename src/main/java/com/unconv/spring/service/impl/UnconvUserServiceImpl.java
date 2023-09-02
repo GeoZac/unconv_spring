@@ -72,13 +72,14 @@ public class UnconvUserServiceImpl implements UnconvUserService {
                 unconvUserRepository.findByUsername(unconvUser.getUsername());
         if (existingUnconvUser != null) {
             UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-            unconvUserDTO.setPassword(rawPassword);
+            unconvUserDTO.setPassword(null);
             messageResponse = new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE);
             httpStatus = HttpStatus.BAD_REQUEST;
         } else {
             UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
             UnconvUserDTO savedUnconvUserDTO =
                     modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
+            savedUnconvUserDTO.setPassword(null);
             messageResponse = new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS);
             httpStatus = HttpStatus.CREATED;
         }
