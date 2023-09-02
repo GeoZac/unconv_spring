@@ -130,6 +130,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
     }
 
