@@ -126,6 +126,7 @@ class UnconvUserControllerTest {
         this.mockMvc
                 .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
     }
 
@@ -144,8 +145,13 @@ class UnconvUserControllerTest {
 
         UnconvUserDTO unconvUserDTO =
                 new UnconvUserDTO(UUID.randomUUID(), "some text", "email@provider.com", "secret");
+
+        UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
+        unconvUser.setPassword(null);
+        UnconvUserDTO unconvUserDTOWithPasswordObscured =
+                modelMapper.map(unconvUser, UnconvUserDTO.class);
         MessageResponse<UnconvUserDTO> messageResponse =
-                new MessageResponse<>(USER_CREATE_SUCCESS, unconvUserDTO);
+                new MessageResponse<>(USER_CREATE_SUCCESS, unconvUserDTOWithPasswordObscured);
 
         ResponseEntity<MessageResponse<UnconvUserDTO>> responseEntity =
                 new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
@@ -162,6 +168,7 @@ class UnconvUserControllerTest {
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())));
     }
 
@@ -209,6 +216,7 @@ class UnconvUserControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
     }
 
@@ -241,6 +249,7 @@ class UnconvUserControllerTest {
         this.mockMvc
                 .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
     }
 
