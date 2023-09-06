@@ -144,7 +144,8 @@ class UnconvUserControllerTest {
     void shouldCreateNewUnconvUser() throws Exception {
 
         UnconvUserDTO unconvUserDTO =
-                new UnconvUserDTO(UUID.randomUUID(), "some text", "email@provider.com", "secret");
+                new UnconvUserDTO(
+                        UUID.randomUUID(), "some text", "email@provider.com", "$ecreT123");
 
         UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
         unconvUser.setPassword(null);
@@ -201,7 +202,7 @@ class UnconvUserControllerTest {
         UUID unconvUserId = UUID.randomUUID();
         UnconvUser unconvUser =
                 new UnconvUser(
-                        unconvUserId, "Updated text", "newemail@provider.com", "new_password");
+                        unconvUserId, "Updated text", "newemail@provider.com", "new!1Password");
         given(unconvUserService.findUnconvUserById(unconvUserId))
                 .willReturn(Optional.of(unconvUser));
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
@@ -226,7 +227,7 @@ class UnconvUserControllerTest {
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
         UnconvUserDTO unconvUserDTO =
                 new UnconvUserDTO(
-                        unconvUserId, "Non existant user", "nonexistant@email.com", "password");
+                        unconvUserId, "Non existant user", "nonexistant@email.com", "404Pas$word");
 
         this.mockMvc
                 .perform(

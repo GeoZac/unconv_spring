@@ -68,6 +68,15 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(UnconvUser.class)
                         .size(7)
                         .ignore(field(UnconvUser::getId))
+                        .supply(field(UnconvUser::getUsername), random -> random.alphanumeric(10))
+                        .supply(
+                                field(UnconvUser::getEmail),
+                                random ->
+                                        random.alphanumeric(5)
+                                                + "@"
+                                                + random.alphanumeric(5)
+                                                + "."
+                                                + random.alphanumeric(3))
                         .create();
 
         unconvUserList = unconvUserRepository.saveAll(unconvUserList);
@@ -120,7 +129,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "New UnconvUser", "newuser@email.com", "password");
+                new UnconvUser(null, "New UnconvUser", "newuser@email.com", "1StrongPas$word");
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         this.mockMvc
@@ -137,12 +146,13 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenAlreadyRegisterAsUser() throws Exception {
-        String rawPassword = "new password";
+        String rawPassword = "new_password";
         UnconvUser unconvUser = new UnconvUser(null, "new_user", "newuser@gmail.com", rawPassword);
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setId(null);
+        unconvUserDTO.setPassword("Another1Pas$word");
 
         this.mockMvc
                 .perform(
@@ -228,7 +238,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldUpdateUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-        unconvUserDTO.setUsername("Updated UnconvUser");
+        unconvUserDTO.setUsername("UpdatedUnconvUser");
+        unconvUserDTO.setPassword("UpdatedPas$w0rd");
 
         this.mockMvc
                 .perform(
@@ -267,7 +278,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         UUID unconvUserId = UUID.randomUUID();
         UnconvUser unconvUser = unconvUserList.get(1);
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-        unconvUserDTO.setPassword("New password");
+        unconvUserDTO.setPassword("NewPas$w0rd");
 
         this.mockMvc
                 .perform(
