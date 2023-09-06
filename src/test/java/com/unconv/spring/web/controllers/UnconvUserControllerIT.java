@@ -68,6 +68,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(UnconvUser.class)
                         .size(7)
                         .ignore(field(UnconvUser::getId))
+                        .supply(
+                                field(UnconvUser::getEmail),
+                                random ->
+                                        random.alphanumeric(5)
+                                                + "@"
+                                                + random.alphanumeric(5)
+                                                + "."
+                                                + random.alphanumeric(3))
                         .create();
 
         unconvUserList = unconvUserRepository.saveAll(unconvUserList);
