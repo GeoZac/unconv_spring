@@ -129,7 +129,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "New UnconvUser", "newuser@email.com", "1StrongPas$word");
+                new UnconvUser(null, "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         this.mockMvc
@@ -147,7 +147,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn400WhenAlreadyRegisterAsUser() throws Exception {
         String rawPassword = "new_password";
-        UnconvUser unconvUser = new UnconvUser(null, "new_user", "newuser@gmail.com", rawPassword);
+        UnconvUser unconvUser = new UnconvUser(null, "New_User", "newuser@gmail.com", rawPassword);
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
