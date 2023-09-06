@@ -1,9 +1,10 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.annotation.ValidPassword;
+import com.unconv.spring.annotation.ValidUsername;
 import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class UnconvUserDTO {
     private UUID id;
 
     @NotEmpty(message = "Username cannot be empty")
-    @Size(min = 6, max = 25)
+    @ValidUsername
     private String username;
 
     @NotEmpty(message = "E-mail cannot be empty")
@@ -25,6 +26,6 @@ public class UnconvUserDTO {
     private String email;
 
     @NotEmpty(message = "Password cannot be empty")
-    @Size(min = 6, max = 25)
+    @ValidPassword
     private String password;
 }
