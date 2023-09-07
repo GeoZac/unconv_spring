@@ -44,7 +44,8 @@ public class UsernameConstraintValidator implements ConstraintValidator<ValidUse
         }
         List<String> messages = validator.getMessages(result);
 
-        String messageTemplate = messages.stream().collect(Collectors.joining(","));
+        String messageTemplate =
+                messages.stream().collect(Collectors.joining(",")).replace("Password", "Username");
         context.buildConstraintViolationWithTemplate(messageTemplate)
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();

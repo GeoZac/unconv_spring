@@ -43,7 +43,7 @@ class UsernameConstraintValidatorTest {
         // Ensure that the violation message contains the expected error message
         ConstraintViolation<ValidUsernameBean> violation = violations.iterator().next();
         assertEquals(
-                "Password must be 6 or more characters in length.,Password must contain 1 or more uppercase characters.",
+                "Username must be 6 or more characters in length.,Username must contain 1 or more uppercase characters.",
                 violation.getMessage());
     }
 
