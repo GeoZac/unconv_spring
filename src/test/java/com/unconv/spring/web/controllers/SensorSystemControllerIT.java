@@ -519,9 +519,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         UUID sensorSystemId = sensorSystem.getId();
 
         this.mockMvc
-                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
                 .andExpect(jsonPath("$.deleted", is(true)));
     }
