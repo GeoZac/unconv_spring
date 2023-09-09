@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.UUID;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
+import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,6 +86,26 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     private static int totalPages;
 
+    private static final Model<EnvironmentalReading> environemntalReadingModel =
+            Instancio.of(EnvironmentalReading.class)
+                    .supply(
+                            field(EnvironmentalReading::getTemperature),
+                            random ->
+                                    BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                            .setScale(3, RoundingMode.HALF_UP)
+                                            .doubleValue())
+                    .supply(
+                            field(EnvironmentalReading::getHumidity),
+                            random ->
+                                    BigDecimal.valueOf(random.doubleRange(0, 100))
+                                            .setScale(3, RoundingMode.HALF_UP)
+                                            .doubleValue())
+                    .generate(
+                            field(EnvironmentalReading::getTimestamp),
+                            gen -> gen.temporal().offsetDateTime().past())
+                    .ignore(field(EnvironmentalReading::getId))
+                    .toModel();
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -106,24 +127,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         environmentalReadingList =
-                Instancio.ofList(EnvironmentalReading.class)
+                Instancio.ofList(environemntalReadingModel)
                         .size(15)
-                        .supply(
-                                field(EnvironmentalReading::getTemperature),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .supply(
-                                field(EnvironmentalReading::getHumidity),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
-                        .ignore(field(EnvironmentalReading::getId))
                         .create();
 
         totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
@@ -160,24 +168,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
-                Instancio.ofList(EnvironmentalReading.class)
+                Instancio.ofList(environemntalReadingModel)
                         .size(5)
-                        .supply(
-                                field(EnvironmentalReading::getTemperature),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
-                        .supply(
-                                field(EnvironmentalReading::getHumidity),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .ignore(field(EnvironmentalReading::getId))
                         .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
@@ -231,24 +226,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
-                Instancio.ofList(EnvironmentalReading.class)
+                Instancio.ofList(environemntalReadingModel)
                         .size(5)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
-                        .supply(
-                                field(EnvironmentalReading::getTemperature),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .supply(
-                                field(EnvironmentalReading::getHumidity),
-                                random ->
-                                        BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                .setScale(3, RoundingMode.HALF_UP)
-                                                .doubleValue())
-                        .ignore(field(EnvironmentalReading::getId))
                         .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
@@ -286,6 +268,39 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(15)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Latest/UnconvUser/{unconvUserId}",
+                                unconvUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(10)));
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
@@ -310,6 +325,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWithMinimalInfo() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorSystem minimalSensorSystem = new SensorSystem();
+        minimalSensorSystem.setId(savedSensorSystem.getId());
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        minimalSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.sensorSystem.id",
+                                is(savedSensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
     }
 
@@ -468,6 +519,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         BigDecimal.valueOf(random.doubleRange(0, 100))
                                                 .setScale(3, RoundingMode.HALF_UP)
                                                 .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -656,7 +710,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(UUID.randomUUID(), 0L, 0L, null, null);
+                new EnvironmentalReading(
+                        UUID.randomUUID(), 0L, 0L, OffsetDateTime.now().plusDays(1), null);
 
         this.mockMvc
                 .perform(
@@ -672,9 +727,14 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
+                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("Readings has to be in past or present")))
                 .andReturn();
     }
 
@@ -882,23 +942,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
             EnvironmentalReading environmentalReading =
-                    Instancio.of(EnvironmentalReading.class)
+                    Instancio.of(environemntalReadingModel)
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTemperature),
-                                    random ->
-                                            BigDecimal.valueOf(
-                                                            random.doubleRange(-9999.000, 9999.000))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
-                            .supply(
-                                    field(EnvironmentalReading::getHumidity),
-                                    random ->
-                                            BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -941,23 +988,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 75; i++) {
             EnvironmentalReading environmentalReading =
-                    Instancio.of(EnvironmentalReading.class)
+                    Instancio.of(environemntalReadingModel)
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTemperature),
-                                    random ->
-                                            BigDecimal.valueOf(
-                                                            random.doubleRange(-9999.000, 9999.000))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
-                            .supply(
-                                    field(EnvironmentalReading::getHumidity),
-                                    random ->
-                                            BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->
@@ -1000,23 +1034,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
             EnvironmentalReading environmentalReading =
-                    Instancio.of(EnvironmentalReading.class)
+                    Instancio.of(environemntalReadingModel)
                             .supply(
                                     field(EnvironmentalReading::getSensorSystem),
                                     () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTemperature),
-                                    random ->
-                                            BigDecimal.valueOf(
-                                                            random.doubleRange(-9999.000, 9999.000))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
-                            .supply(
-                                    field(EnvironmentalReading::getHumidity),
-                                    random ->
-                                            BigDecimal.valueOf(random.doubleRange(0, 100))
-                                                    .setScale(3, RoundingMode.HALF_UP)
-                                                    .doubleValue())
                             .supply(
                                     field(EnvironmentalReading::getTimestamp),
                                     random ->

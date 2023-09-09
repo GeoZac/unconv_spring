@@ -6,6 +6,7 @@ import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -26,16 +27,20 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorSystemController;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -128,7 +133,8 @@ class SensorSystemControllerTest {
                         UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
         sensorSystemDTO.setReadingCount(new Random().nextLong());
-        sensorSystemDTO.setLatestReading(environmentalReading);
+        sensorSystemDTO.setLatestReading(
+                modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
         given(sensorSystemService.findSensorSystemDTOById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystemDTO));
 
@@ -137,10 +143,36 @@ class SensorSystemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
-                                "$.latestReading.id",
-                                is(sensorSystemDTO.getLatestReading().getId().toString())))
+                                "$.latestReading.temperature",
+                                is(sensorSystemDTO.getLatestReading().getTemperature())))
                 .andExpect(jsonPath("$.readingCount", is(sensorSystemDTO.getReadingCount())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+    }
+
+    @Test
+    void shouldFetchRecentSensorReadingCountsWithReadingsPresent() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        Map<Integer, Long> recentReadingCounts = new HashMap<>();
+        recentReadingCounts.put(1, 0L);
+        recentReadingCounts.put(3, 4L);
+        recentReadingCounts.put(8, 23L);
+        recentReadingCounts.put(24, 40L);
+        recentReadingCounts.put(168, 64L);
+
+        given(sensorSystemService.findRecentStatsBySensorSystemId(sensorSystemId))
+                .willReturn(recentReadingCounts);
+
+        this.mockMvc
+                .perform(get("/SensorSystem/ReadingsCount/{sensorSystemId}", sensorSystemId))
+                .andExpect(status().isOk())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)))
+                .andExpect(jsonPath("$.1", is(0)))
+                .andExpect(jsonPath("$.3", is(4)))
+                .andExpect(jsonPath("$.8", is(23)))
+                .andExpect(jsonPath("$.24", is(40)))
+                .andExpect(jsonPath("$.168", is(64)));
     }
 
     @Test

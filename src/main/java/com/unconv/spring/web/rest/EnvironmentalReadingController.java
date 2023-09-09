@@ -7,6 +7,7 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.utils.AppConstants;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -95,6 +96,13 @@ public class EnvironmentalReadingController {
                 .findEnvironmentalReadingById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/Latest/UnconvUser/{unconvUserId}")
+    public List<EnvironmentalReading> findLatestEnvironmentalReadingsByUnconvUser(
+            @PathVariable UUID unconvUserId) {
+        return environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
+                unconvUserId);
     }
 
     @PostMapping

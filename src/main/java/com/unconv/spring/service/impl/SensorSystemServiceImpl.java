@@ -1,13 +1,20 @@
 package com.unconv.spring.service.impl;
 
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.SensorSystemService;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
@@ -81,9 +88,13 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     modelMapper.map(sensorSystem.get(), SensorSystemDTO.class);
             sensorSystemDTO.setReadingCount(
                     environmentalReadingRepository.countBySensorSystemId(id));
-            sensorSystemDTO.setLatestReading(
+            EnvironmentalReading environmentalReading =
                     environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            id));
+                            id);
+            if (environmentalReading != null) {
+                sensorSystemDTO.setLatestReading(
+                        modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
+            }
             return Optional.of(sensorSystemDTO);
         }
     }
@@ -96,9 +107,9 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Override
     public boolean deleteSensorSystemById(UUID id) {
         if (environmentalReadingRepository.countBySensorSystemId(id) != 0) {
-            Optional<SensorSystem> sensorSystem = findSensorSystemById(id);
-            sensorSystem.get().setDeleted(true);
-            sensorSystemRepository.save(sensorSystem.get());
+            SensorSystem sensorSystem = sensorSystemRepository.findSensorSystemById(id);
+            sensorSystem.setDeleted(true);
+            sensorSystemRepository.save(sensorSystem);
             return false;
         } else {
             sensorSystemRepository.deleteById(id);
@@ -106,21 +117,62 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         }
     }
 
+    @Override
+    public List<SensorSystem> findAllSensorSystemsBySensorName(String sensorName) {
+        return sensorSystemRepository
+                .findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(sensorName);
+    }
+
+    @Override
+    public Map<Integer, Long> findRecentStatsBySensorSystemId(UUID sensorSystemId) {
+        List<Integer> timePeriods = Arrays.asList(1, 3, 8, 24, 168);
+        Map<Integer, Long> recentReadingCounts = new HashMap<>();
+        for (Integer timePeriod : timePeriods) {
+
+            long count =
+                    environmentalReadingRepository.countBySensorSystemIdAndTimestampBetween(
+                            sensorSystemId,
+                            OffsetDateTime.now(ZoneOffset.UTC).minusHours(timePeriod),
+                            OffsetDateTime.now(ZoneOffset.UTC));
+            recentReadingCounts.put(timePeriod, count);
+        }
+        return recentReadingCounts;
+    }
+
+    @Override
+    public List<SensorSystem> findAllBySensorSystemsBySensorNameAndUnconvUserId(
+            String sensorName, UUID unconvUserId) {
+        return sensorSystemRepository
+                .findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
+                        sensorName, unconvUserId);
+    }
+
     private List<SensorSystemDTO> populateSensorSystemDTOFromSensorSystemPage(
             Page<SensorSystem> sensorSystemsPage) {
         List<SensorSystem> sensorSystems = sensorSystemsPage.getContent();
         List<SensorSystemDTO> sensorSystemDTOs = new ArrayList<>();
         for (SensorSystem sensorSystem : sensorSystems) {
-            SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
-            sensorSystemDTO.setReadingCount(
-                    environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
-            sensorSystemDTO.setLatestReading(
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            sensorSystem.getId()));
-
+            SensorSystemDTO sensorSystemDTO =
+                    mapSensorSystemEntityToDTOAndPopulateExtraFields(sensorSystem);
             sensorSystemDTOs.add(sensorSystemDTO);
         }
 
         return sensorSystemDTOs;
+    }
+
+    private SensorSystemDTO mapSensorSystemEntityToDTOAndPopulateExtraFields(
+            SensorSystem sensorSystem) {
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
+        sensorSystemDTO.setReadingCount(
+                environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
+        EnvironmentalReading environmentalReading =
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                        sensorSystem.getId());
+
+        if (environmentalReading != null) {
+            sensorSystemDTO.setLatestReading(
+                    modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
+        }
+        return sensorSystemDTO;
     }
 }

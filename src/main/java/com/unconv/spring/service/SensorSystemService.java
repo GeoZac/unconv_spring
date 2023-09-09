@@ -3,6 +3,8 @@ package com.unconv.spring.service;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.PagedResult;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,4 +22,11 @@ public interface SensorSystemService {
     SensorSystem saveSensorSystem(SensorSystem sensorSystem);
 
     boolean deleteSensorSystemById(UUID id);
+
+    List<SensorSystem> findAllSensorSystemsBySensorName(String sensorName);
+
+    List<SensorSystem> findAllBySensorSystemsBySensorNameAndUnconvUserId(
+            String sensorName, UUID unconvUserId);
+
+    Map<Integer, Long> findRecentStatsBySensorSystemId(UUID sensorSystemId);
 }

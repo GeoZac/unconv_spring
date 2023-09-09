@@ -11,9 +11,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID> {
+
+    SensorSystem findSensorSystemById(UUID id);
+
     @Query(
             "SELECT DISTINCT s.sensorLocation FROM SensorSystem s WHERE s.unconvUser.id = :unconvUserId")
     List<SensorLocation> findDistinctByUnconvUserId(@Param("unconvUserId") UUID unconvUserId);
+
+    List<SensorSystem> findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(
+            String sensorName);
+
+    List<SensorSystem>
+            findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
+                    String sensorName, UUID unconvUserId);
 
     Page<SensorSystem> findAllByUnconvUserId(UUID unconvUserId, Pageable pageable);
 

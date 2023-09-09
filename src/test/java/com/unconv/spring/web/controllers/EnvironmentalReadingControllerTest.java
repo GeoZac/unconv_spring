@@ -8,6 +8,7 @@ import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -156,6 +157,28 @@ class EnvironmentalReadingControllerTest {
     }
 
     @Test
+    void shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId() throws Exception {
+        List<EnvironmentalReading> environmentalReadings =
+                Instancio.ofList(EnvironmentalReading.class)
+                        .size(9)
+                        .ignore(field(EnvironmentalReading::getId))
+                        .create();
+
+        UUID unconvUserId = UUID.randomUUID();
+        given(
+                        environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
+                                unconvUserId))
+                .willReturn(environmentalReadings);
+
+        this.mockMvc
+                .perform(
+                        get("/EnvironmentalReading/Latest/UnconvUser/{unconvUserId}", unconvUserId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(9)));
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
 
         EnvironmentalReadingDTO environmentalReadingDTO =
@@ -198,7 +221,7 @@ class EnvironmentalReadingControllerTest {
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
         EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(null, 0L, 0L, null, null);
+                new EnvironmentalReading(null, 0L, 0L, OffsetDateTime.now().plusDays(1), null);
 
         this.mockMvc
                 .perform(
@@ -214,9 +237,14 @@ class EnvironmentalReadingControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
+                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("Readings has to be in past or present")))
                 .andReturn();
     }
 
