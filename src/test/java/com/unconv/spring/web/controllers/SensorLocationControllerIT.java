@@ -339,6 +339,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> savedSensorSystems =
                 sensorSystemRepository.saveAllAndFlush(sensorSystemsOfSpecificUnconvUser);
 
+        assert !savedSensorSystems.isEmpty();
+
         this.mockMvc
                 .perform(
                         get(
