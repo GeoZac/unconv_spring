@@ -43,7 +43,6 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -72,8 +71,6 @@ class EnvironmentalReadingControllerTest {
     @MockBean private EnvironmentalReadingService environmentalReadingService;
 
     @Autowired private ObjectMapper objectMapper;
-
-    @Autowired private ModelMapper modelMapper;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
