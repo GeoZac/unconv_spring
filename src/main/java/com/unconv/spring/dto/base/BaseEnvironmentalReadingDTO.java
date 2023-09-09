@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class BaseEnvironmentalReadingDTO {
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
 
+    @PastOrPresent(message = "Readings has to be in past or present")
     private OffsetDateTime timestamp;
 
     public void setTimestamp() {

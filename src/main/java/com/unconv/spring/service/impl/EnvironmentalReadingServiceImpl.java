@@ -92,6 +92,12 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
     }
 
     @Override
+    public List<EnvironmentalReading> findLatestEnvironmentalReadingsByUnconvUserId(UUID id) {
+        return environmentalReadingRepository
+                .findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(id);
+    }
+
+    @Override
     public EnvironmentalReading saveEnvironmentalReading(
             EnvironmentalReading environmentalReading) {
         return environmentalReadingRepository.save(environmentalReading);

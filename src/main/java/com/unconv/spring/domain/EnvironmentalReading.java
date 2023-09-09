@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +47,7 @@ public class EnvironmentalReading {
     private double humidity;
 
     @Column(nullable = false)
+    @PastOrPresent(message = "Readings has to be in past or present")
     @NotNull(message = "Timestamp cannot be empty")
     private OffsetDateTime timestamp;
 
