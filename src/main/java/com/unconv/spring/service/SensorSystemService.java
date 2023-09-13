@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 public interface SensorSystemService {
     PagedResult<SensorSystemDTO> findAllSensorSystems(
@@ -24,7 +25,7 @@ public interface SensorSystemService {
     SensorSystem saveSensorSystem(SensorSystem sensorSystem);
 
     ResponseEntity<MessageResponse<SensorSystemDTO>> validateUnconvUserAndSaveSensorSystem(
-            SensorSystemDTO sensorSystemDTO);
+            SensorSystemDTO sensorSystemDTO, Authentication authentication);
 
     boolean deleteSensorSystemById(UUID id);
 

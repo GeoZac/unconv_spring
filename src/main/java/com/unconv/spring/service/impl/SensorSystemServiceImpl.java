@@ -1,6 +1,7 @@
 package com.unconv.spring.service.impl;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 
 import com.unconv.spring.domain.EnvironmentalReading;
@@ -32,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,7 +118,7 @@ public class SensorSystemServiceImpl implements SensorSystemService {
 
     @Override
     public ResponseEntity<MessageResponse<SensorSystemDTO>> validateUnconvUserAndSaveSensorSystem(
-            SensorSystemDTO sensorSystemDTO) {
+            SensorSystemDTO sensorSystemDTO, Authentication authentication) {
 
         Optional<UnconvUser> unconvUser =
                 unconvUserRepository.findById(sensorSystemDTO.getUnconvUser().getId());
@@ -124,6 +126,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             MessageResponse<SensorSystemDTO> sensorSystemDTOMessageResponse =
                     new MessageResponse<>(sensorSystemDTO, SENS_RECORD_REJ_USER);
             return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.NOT_FOUND);
+        }
+        if (!sensorSystemDTO.getUnconvUser().getUsername().equals(authentication.getName())) {
+            MessageResponse<SensorSystemDTO> sensorSystemDTOMessageResponse =
+                    new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_REJ_USER);
+            return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.UNAUTHORIZED);
         }
 
         SensorSystem sensorSystem =
