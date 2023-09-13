@@ -1,9 +1,12 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -24,6 +27,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +107,19 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Override
     public SensorSystem saveSensorSystem(SensorSystem sensorSystem) {
         return sensorSystemRepository.save(sensorSystem);
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse<SensorSystemDTO>> validateUnconvUserAndSaveSensorSystem(
+            SensorSystemDTO sensorSystemDTO) {
+
+        SensorSystem sensorSystem =
+                saveSensorSystem(modelMapper.map(sensorSystemDTO, SensorSystem.class));
+
+        MessageResponse<SensorSystemDTO> sensorSystemDTOMessageResponse =
+                new MessageResponse<>(
+                        modelMapper.map(sensorSystem, SensorSystemDTO.class), ENVT_RECORD_ACCEPTED);
+        return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.CREATED);
     }
 
     @Override
