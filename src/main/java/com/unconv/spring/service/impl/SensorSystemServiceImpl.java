@@ -1,15 +1,18 @@
 package com.unconv.spring.service.impl;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorSystemService;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -39,6 +42,8 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Autowired private UnconvUserRepository unconvUserRepository;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -112,6 +117,14 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     @Override
     public ResponseEntity<MessageResponse<SensorSystemDTO>> validateUnconvUserAndSaveSensorSystem(
             SensorSystemDTO sensorSystemDTO) {
+
+        Optional<UnconvUser> unconvUser =
+                unconvUserRepository.findById(sensorSystemDTO.getUnconvUser().getId());
+        if (unconvUser.isEmpty()) {
+            MessageResponse<SensorSystemDTO> sensorSystemDTOMessageResponse =
+                    new MessageResponse<>(sensorSystemDTO, SENS_RECORD_REJ_USER);
+            return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.NOT_FOUND);
+        }
 
         SensorSystem sensorSystem =
                 saveSensorSystem(modelMapper.map(sensorSystemDTO, SensorSystem.class));

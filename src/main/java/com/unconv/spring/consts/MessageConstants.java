@@ -13,6 +13,8 @@ public final class MessageConstants {
     public static final String ENVT_RECORD_REJ_DLTD = "Invalid Sensor system on request";
     public static final String ENVT_RECORD_REJ_INAT = "Inactive sensor system on request";
 
+    public static final String SENS_RECORD_REJ_USER = "Unknown UnconvUser on request";
+
     public static final String ENVT_FILE_REJ_ERR = "Could not upload the file: %s!";
     public static final String ENVT_FILE_FORMAT_ERROR = "Please upload a csv file!";
 
