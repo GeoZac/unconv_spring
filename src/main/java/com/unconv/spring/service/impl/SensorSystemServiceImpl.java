@@ -127,6 +127,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     new MessageResponse<>(sensorSystemDTO, SENS_RECORD_REJ_USER);
             return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.NOT_FOUND);
         }
+
+        if (sensorSystemDTO.getUnconvUser().getUsername() == null) {
+            sensorSystemDTO.setUnconvUser(unconvUser.get());
+        }
+
         if (!sensorSystemDTO.getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<SensorSystemDTO> sensorSystemDTOMessageResponse =
                     new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_REJ_USER);
