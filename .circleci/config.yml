@@ -80,8 +80,10 @@ jobs:
           path: target/test-results
       - codecov/upload:
           file: target/jacoco/test/jacoco.xml
+          flags: controllers_test
       - codecov/upload:
           file: target/jacoco/integrationTest/jacoco.xml
+          flags: integration_test
       - store_artifacts:
           path: target
       - save_cache:
