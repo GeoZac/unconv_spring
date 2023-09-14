@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -21,6 +22,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
@@ -504,6 +506,27 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(
                         jsonPath(
                                 "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
+    }
+
+    @Test
+    void shouldReturn404WhenCreateNewSensorSystemWithoutValidUnconvUser() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystemDTO sensorSystemDTO =
+                new SensorSystemDTO(null, "New SensorSystem", null, unconvUser);
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystemDTO)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is(SENS_RECORD_REJ_USER)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())))
+                .andExpect(jsonPath("$.entity.unconvUser.username", is(unconvUser.getUsername())));
     }
 
     @Test
