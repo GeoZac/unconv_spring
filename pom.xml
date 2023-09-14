@@ -376,6 +376,14 @@
                         <configuration>
                             <dataFile>${jacoco.utReportFile}</dataFile>
                             <outputDirectory>${jacoco.utReportFolder}</outputDirectory>
+                            <excludes>
+                                <exclude>**/*Application.*</exclude>
+                                <exclude>**/config/**</exclude>
+                                <exclude>**/dto/*</exclude>
+                                <exclude>**/utils/*</exclude>
+                                <exclude>**/security/**</exclude>
+                                <exclude>**/service/impl/**</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                     <execution>
