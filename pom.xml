@@ -398,6 +398,10 @@
                         <configuration>
                             <dataFile>${jacoco.itReportFile}</dataFile>
                             <outputDirectory>${jacoco.itReportFolder}</outputDirectory>
+                            <excludes>
+                                <exclude>**/*Application.*</exclude>
+                                <exclude>**/config/**</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
