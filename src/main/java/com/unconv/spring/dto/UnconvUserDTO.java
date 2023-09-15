@@ -22,7 +22,7 @@ public class UnconvUserDTO {
     private String username;
 
     @NotEmpty(message = "E-mail cannot be empty")
-    @Email()
+    @Email(message = "Must be a well-formed email address")
     private String email;
 
     @NotEmpty(message = "Password cannot be empty")
