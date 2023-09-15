@@ -235,6 +235,33 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenCreateNewUnconvUserWithInvalidValues() throws Exception {
+        UnconvUser unconvUser = new UnconvUser(null, "unconv user", "what_is_this", "let me pass");
+
+        this.mockMvc
+                .perform(
+                        post("/UnconvUser")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUser)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(4)))
+                .andExpect(jsonPath("$.violations[0].field", is("email")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Must be a well-formed email address")))
+                .andReturn();
+    }
+
+    @Test
     void shouldUpdateUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
