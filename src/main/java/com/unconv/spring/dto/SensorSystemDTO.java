@@ -18,6 +18,19 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SensorSystemDTO {
 
+    public SensorSystemDTO(
+            UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
+        this.id = uuid;
+        this.sensorName = sensorName;
+        this.sensorLocation = sensorLocation;
+        this.unconvUser = unconvUser;
+
+        // Set defaults for backward compatibility
+        this.description = null;
+        this.deleted = false;
+        this.sensorStatus = SensorStatus.ACTIVE;
+    }
+
     private UUID id;
 
     @NotEmpty(message = "Sensor name cannot be empty")

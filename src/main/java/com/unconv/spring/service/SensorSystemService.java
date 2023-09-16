@@ -2,11 +2,14 @@ package com.unconv.spring.service;
 
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 public interface SensorSystemService {
     PagedResult<SensorSystemDTO> findAllSensorSystems(
@@ -20,6 +23,9 @@ public interface SensorSystemService {
     Optional<SensorSystemDTO> findSensorSystemDTOById(UUID id);
 
     SensorSystem saveSensorSystem(SensorSystem sensorSystem);
+
+    ResponseEntity<MessageResponse<SensorSystemDTO>> validateUnconvUserAndSaveSensorSystem(
+            SensorSystemDTO sensorSystemDTO, Authentication authentication);
 
     boolean deleteSensorSystemById(UUID id);
 

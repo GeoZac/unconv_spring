@@ -20,7 +20,7 @@ public class FruitProductDTO {
     @NotNull(message = "Fruit cannot be empty")
     private FruitDTO fruit;
 
-    private OfferDTO offerDTO;
+    private OfferDTO offer;
 
     @NotNull(message = "Package weight cannot be empty")
     private String packageWeight;

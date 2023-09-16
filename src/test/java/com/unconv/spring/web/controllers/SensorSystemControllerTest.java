@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_SS_SORT_BY;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_SS_SORT_DIRECTION;
 import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
@@ -28,6 +29,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorSystemController;
@@ -49,7 +51,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -192,17 +197,31 @@ class SensorSystemControllerTest {
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        SensorSystem sensorSystem =
-                new SensorSystem(UUID.randomUUID(), "some text", sensorLocation, unconvUser);
+        SensorSystemDTO sensorSystemDTO =
+                new SensorSystemDTO(UUID.randomUUID(), "some text", sensorLocation, unconvUser);
+
+        MessageResponse<SensorSystemDTO> environmentalReadingDTOMessageResponse =
+                new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_ACCEPTED);
+
+        ResponseEntity<MessageResponse<SensorSystemDTO>>
+                sensorSystemDTOMessageResponseResponseEntity =
+                        new ResponseEntity<MessageResponse<SensorSystemDTO>>(
+                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+
+        given(
+                        sensorSystemService.validateUnconvUserAndSaveSensorSystem(
+                                any(SensorSystemDTO.class), any(Authentication.class)))
+                .willReturn(sensorSystemDTOMessageResponseResponseEntity);
+
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                                .content(objectMapper.writeValueAsString(sensorSystemDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())));
     }
 
     @Test

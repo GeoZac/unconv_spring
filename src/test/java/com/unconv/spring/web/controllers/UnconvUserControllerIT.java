@@ -68,6 +68,15 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(UnconvUser.class)
                         .size(7)
                         .ignore(field(UnconvUser::getId))
+                        .supply(field(UnconvUser::getUsername), random -> random.alphanumeric(10))
+                        .supply(
+                                field(UnconvUser::getEmail),
+                                random ->
+                                        random.alphanumeric(5)
+                                                + "@"
+                                                + random.alphanumeric(5)
+                                                + "."
+                                                + random.alphanumeric(3))
                         .create();
 
         unconvUserList = unconvUserRepository.saveAll(unconvUserList);
@@ -120,7 +129,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "New UnconvUser", "newuser@email.com", "password");
+                new UnconvUser(null, "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         this.mockMvc
@@ -137,12 +146,13 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenAlreadyRegisterAsUser() throws Exception {
-        String rawPassword = "new password";
-        UnconvUser unconvUser = new UnconvUser(null, "new_user", "newuser@gmail.com", rawPassword);
+        String rawPassword = "new_password";
+        UnconvUser unconvUser = new UnconvUser(null, "New_User", "newuser@gmail.com", rawPassword);
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setId(null);
+        unconvUserDTO.setPassword("Another1Pas$word");
 
         this.mockMvc
                 .perform(
@@ -218,9 +228,36 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations", hasSize(5)))
                 .andExpect(jsonPath("$.violations[0].field", is("email")))
                 .andExpect(jsonPath("$.violations[0].message", is("E-mail cannot be empty")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewUnconvUserWithInvalidValues() throws Exception {
+        UnconvUser unconvUser = new UnconvUser(null, "unconv user", "what_is_this", "let me pass");
+
+        this.mockMvc
+                .perform(
+                        post("/UnconvUser")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUser)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(4)))
+                .andExpect(jsonPath("$.violations[0].field", is("email")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Must be a well-formed email address")))
                 .andReturn();
     }
 
@@ -228,7 +265,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldUpdateUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-        unconvUserDTO.setUsername("Updated UnconvUser");
+        unconvUserDTO.setUsername("UpdatedUnconvUser");
+        unconvUserDTO.setPassword("UpdatedPas$w0rd");
 
         this.mockMvc
                 .perform(
@@ -267,7 +305,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         UUID unconvUserId = UUID.randomUUID();
         UnconvUser unconvUser = unconvUserList.get(1);
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-        unconvUserDTO.setPassword("New password");
+        unconvUserDTO.setPassword("NewPas$w0rd");
 
         this.mockMvc
                 .perform(

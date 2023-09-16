@@ -1,5 +1,8 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -11,6 +14,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
@@ -18,6 +22,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
@@ -87,7 +92,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorSystem")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("UnconvUser").roles("USER")))
                         .apply(springSecurity())
                         .build();
 
@@ -406,7 +411,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "Test user", "testuser@email.com", "test_password");
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -417,10 +422,14 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
-                .andExpect(jsonPath("$.unconvUser.username", is(savedUnconvUser.getUsername())));
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
     }
 
     @Test
@@ -445,9 +454,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
-                .andExpect(jsonPath("$.unconvUser.id", is(savedUnconvUser.getId().toString())));
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(
+                        jsonPath("$.entity.unconvUser.id", is(savedUnconvUser.getId().toString())));
     }
 
     @Test
@@ -472,6 +482,51 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
+    }
+
+    @Test
+    void shouldReturn401WhenCreateNewSensorSystemForUnauthenticatedUser() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "Some other user", "someonelse@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "New SensorSystem", null, savedUnconvUser);
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_USER)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
+    }
+
+    @Test
+    void shouldReturn404WhenCreateNewSensorSystemWithoutValidUnconvUser() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystemDTO sensorSystemDTO =
+                new SensorSystemDTO(null, "New SensorSystem", null, unconvUser);
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystemDTO)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is(SENS_RECORD_REJ_USER)))
+                .andExpect(jsonPath("$.entity.id", nullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())))
+                .andExpect(jsonPath("$.entity.unconvUser.username", is(unconvUser.getUsername())));
     }
 
     @Test
