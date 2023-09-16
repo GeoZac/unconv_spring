@@ -37,6 +37,8 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
+                .antMatchers("/public/**")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
