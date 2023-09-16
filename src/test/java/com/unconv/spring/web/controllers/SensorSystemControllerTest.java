@@ -205,7 +205,7 @@ class SensorSystemControllerTest {
 
         ResponseEntity<MessageResponse<SensorSystemDTO>>
                 sensorSystemDTOMessageResponseResponseEntity =
-                        new ResponseEntity<MessageResponse<SensorSystemDTO>>(
+                        new ResponseEntity<>(
                                 environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
 
         given(
