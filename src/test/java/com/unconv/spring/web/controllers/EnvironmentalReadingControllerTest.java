@@ -191,7 +191,7 @@ class EnvironmentalReadingControllerTest {
 
         ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
                 environmentalReadingDTOMessageResponseResponseEntity =
-                        new ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>(
+                        new ResponseEntity<>(
                                 environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
 
         given(
