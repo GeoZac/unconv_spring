@@ -562,7 +562,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldreturn417WhenUploadingNewEnvironmentalReadingsAsBulkWithoutHeader()
+    void shouldReturn417WhenUploadingNewEnvironmentalReadingsAsBulkWithoutHeader()
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
@@ -638,8 +638,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = ENVT_RECORD_REJ_SENS;
-
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
                 new MockMultipartFile(
@@ -656,7 +654,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .file(csvFile)
                                 .with(csrf()))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$", is(expectedResponse)));
+                .andExpect(jsonPath("$", is(ENVT_RECORD_REJ_SENS)));
     }
 
     @Test
@@ -686,8 +684,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = ENVT_FILE_FORMAT_ERROR;
-
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
                 new MockMultipartFile(
@@ -704,7 +700,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .file(csvFile)
                                 .with(csrf()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", is(expectedResponse)));
+                .andExpect(jsonPath("$", is(ENVT_FILE_FORMAT_ERROR)));
     }
 
     @Test
@@ -927,7 +923,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures =
                 setupTestDataForQuarterHourly(savedSensorSystem);
-        averageTemperatures.size();
+        assert !averageTemperatures.isEmpty();
         this.mockMvc
                 .perform(
                         get(
@@ -973,7 +969,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
-        averageTemperatures.size();
+        assert !averageTemperatures.isEmpty();
         this.mockMvc
                 .perform(
                         get(
@@ -1019,7 +1015,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
-        averageTemperatures.size();
+        assert !averageTemperatures.isEmpty();
         this.mockMvc
                 .perform(
                         get(

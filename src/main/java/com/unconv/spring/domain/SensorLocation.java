@@ -36,12 +36,12 @@ public class SensorLocation {
     @NotEmpty(message = "Sensor location text cannot be empty")
     private String sensorLocationText;
 
-    @DecimalMin(value = "-90.0", inclusive = true)
-    @DecimalMax(value = "90.0", inclusive = true)
+    @DecimalMin(value = "-90.0")
+    @DecimalMax(value = "90.0")
     private Double latitude;
 
-    @DecimalMin(value = "-180.0", inclusive = true)
-    @DecimalMax(value = "180.0", inclusive = true)
+    @DecimalMin(value = "-180.0")
+    @DecimalMax(value = "180.0")
     private Double longitude;
 
     @Enumerated(EnumType.ORDINAL)

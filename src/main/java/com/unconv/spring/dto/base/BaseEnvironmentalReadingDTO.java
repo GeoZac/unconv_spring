@@ -18,13 +18,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BaseEnvironmentalReadingDTO {
 
-    @DecimalMin(value = "-9999.000", inclusive = true)
-    @DecimalMax(value = "9999.000", inclusive = true)
+    @DecimalMin(value = "-9999.000")
+    @DecimalMax(value = "9999.000")
     @NotNull(message = "Temperature cannot be empty")
     private double temperature;
 
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "100.00", inclusive = true)
+    @DecimalMin(value = "0.0")
+    @DecimalMax(value = "100.00")
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
 

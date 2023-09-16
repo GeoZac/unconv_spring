@@ -281,7 +281,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
-        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
 
         UUID sensorSystemId = sensorSystem.getId();
 
@@ -555,7 +555,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
                 .andExpect(jsonPath("$.deleted", is(true)));
-        ;
     }
 
     @Test
@@ -570,14 +569,14 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
-        assert savedEnvironmentalReadingsOfSpecificSensor.size() > 0;
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
 
         UUID sensorSystemId = sensorSystem.getId();
 
         this.mockMvc
-                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
                 .andExpect(jsonPath("$.deleted", is(true)));
     }
