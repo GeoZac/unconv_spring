@@ -379,8 +379,8 @@
                             <excludes>
                                 <exclude>**/*Application.*</exclude>
                                 <exclude>**/config/**</exclude>
-                                <exclude>**/dto/*</exclude>
                                 <exclude>**/utils/*</exclude>
+                                <exclude>**/*Constants*</exclude>
                                 <exclude>**/security/**</exclude>
                                 <exclude>**/service/impl/**</exclude>
                             </excludes>
