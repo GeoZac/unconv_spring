@@ -42,8 +42,8 @@ public class HumidityThresholdServiceImpl implements HumidityThresholdService {
     }
 
     @Override
-    public HumidityThreshold saveHumidityThreshold(HumidityThreshold sensorLocation) {
-        return humidityThresholdRepository.save(sensorLocation);
+    public HumidityThreshold saveHumidityThreshold(HumidityThreshold humidityThreshold) {
+        return humidityThresholdRepository.save(humidityThreshold);
     }
 
     @Override

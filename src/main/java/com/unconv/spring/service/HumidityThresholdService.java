@@ -11,7 +11,7 @@ public interface HumidityThresholdService {
 
     Optional<HumidityThreshold> findHumidityThresholdById(UUID id);
 
-    HumidityThreshold saveHumidityThreshold(HumidityThreshold sensorLocation);
+    HumidityThreshold saveHumidityThreshold(HumidityThreshold humidtiyThreshold);
 
     void deleteHumidityThresholdById(UUID id);
 }

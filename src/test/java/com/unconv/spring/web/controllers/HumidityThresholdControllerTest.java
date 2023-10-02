@@ -78,7 +78,7 @@ class HumidityThresholdControllerTest {
     }
 
     @Test
-    void shouldFetchAllSensorLocations() throws Exception {
+    void shouldFetchAllHumidityThresholds() throws Exception {
         Page<HumidityThreshold> page = new PageImpl<>(humidityThresholdList);
         PagedResult<HumidityThreshold> humidityThresholdPagedResult = new PagedResult<>(page);
         given(humidityThresholdService.findAllHumidityThresholds(0, 10, "id", "asc"))
