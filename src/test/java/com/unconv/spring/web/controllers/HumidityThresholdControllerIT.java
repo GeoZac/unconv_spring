@@ -55,10 +55,24 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldFetchAllHumidityThresholds() throws Exception {
+    void shouldFetchAllHumidityThresholdsInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/HumidityThreshold").with(csrf()))
+                .perform(get("/HumidityThreshold").param("sortDir", "asc"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
+                .andExpect(jsonPath("$.totalElements", is(5)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllHumidityThresholdsInDescendingOrder() throws Exception {
+        this.mockMvc
+                .perform(get("/HumidityThreshold").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
                 .andExpect(jsonPath("$.totalElements", is(5)))
@@ -110,6 +124,20 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenUpdatingNonExistingHumidityThreshold() throws Exception {
+        UUID humidityThresholdId = UUID.randomUUID();
+        HumidityThreshold humidityThreshold = humidityThresholdList.get(1);
+
+        this.mockMvc
+                .perform(
+                        put("/HumidityThreshold/{id}", humidityThresholdId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldDeleteHumidityThreshold() throws Exception {
         HumidityThreshold humidityThreshold = humidityThresholdList.get(0);
 
@@ -117,6 +145,14 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/HumidityThreshold/{id}", humidityThreshold.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingNonExistingHumidityThreshold() throws Exception {
+        UUID humidityThresholdId = UUID.randomUUID();
+        this.mockMvc
+                .perform(delete("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
+                .andExpect(status().isNotFound());
     }
 
     @AfterEach
