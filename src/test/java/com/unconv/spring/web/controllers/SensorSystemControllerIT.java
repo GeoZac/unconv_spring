@@ -156,6 +156,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
                         .ignore(field(SensorSystem::getSensorLocation))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
         List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
@@ -221,6 +223,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
                         .ignore(field(SensorSystem::getSensorLocation))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
         List<SensorSystem> savedSensorSystemsOfSpecificUnconvUser =
