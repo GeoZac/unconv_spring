@@ -18,9 +18,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
@@ -419,7 +422,20 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
-                new SensorSystem(null, "New SensorSystem", null, savedUnconvUser);
+                new SensorSystem(
+                        null,
+                        "New SensorSystem",
+                        "Fully qualified sensor",
+                        false,
+                        SensorStatus.ACTIVE,
+                        null,
+                        savedUnconvUser,
+                        new HumidityThreshold(null, 0, 100),
+                        new TemperatureThreshold(null, -100, 100));
+
+        assert sensorSystem.getHumidityThreshold().getId() == null;
+        assert sensorSystem.getTemperatureThreshold().getId() == null;
+
         this.mockMvc
                 .perform(
                         post("/SensorSystem")
@@ -431,6 +447,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.humidityThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.temperatureThreshold", notNullValue()))
                 .andExpect(
                         jsonPath(
                                 "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
