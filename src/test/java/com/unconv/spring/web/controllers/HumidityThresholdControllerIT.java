@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.HumidityThreshold;
-import com.unconv.spring.persistence.ThresholdRepository;
+import com.unconv.spring.persistence.HumidityThresholdRepository;
 import java.util.List;
 import java.util.UUID;
 import org.instancio.Instancio;
@@ -31,7 +31,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     @Autowired private WebApplicationContext webApplicationContext;
 
-    @Autowired private ThresholdRepository humidityThresholdRepository;
+    @Autowired private HumidityThresholdRepository humidityThresholdRepository;
 
     private List<HumidityThreshold> humidityThresholdList = null;
 
