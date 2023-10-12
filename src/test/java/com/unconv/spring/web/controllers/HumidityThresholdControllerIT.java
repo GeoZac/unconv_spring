@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -107,6 +108,8 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(humidityThresholdId.toString())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
     }
 
@@ -120,6 +123,8 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(notNullValue())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
     }
 

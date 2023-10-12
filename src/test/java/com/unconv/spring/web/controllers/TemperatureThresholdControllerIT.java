@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -107,6 +108,8 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(temperatureThresholdId.toString())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
     }
 
@@ -128,6 +131,8 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(notNullValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
     }
 
