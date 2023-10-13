@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -14,7 +15,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.HumidityThreshold;
+import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.persistence.HumidityThresholdRepository;
+import com.unconv.spring.persistence.TemperatureThresholdRepository;
 import java.util.List;
 import java.util.UUID;
 import org.instancio.Instancio;
@@ -33,6 +36,8 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     @Autowired private HumidityThresholdRepository humidityThresholdRepository;
 
+    @Autowired private TemperatureThresholdRepository temperatureThresholdRepository;
+
     private List<HumidityThreshold> humidityThresholdList = null;
 
     @BeforeEach
@@ -46,12 +51,23 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                         .build();
 
         humidityThresholdRepository.deleteAllInBatch();
+        final int setUpListSize = 7;
         humidityThresholdList =
                 Instancio.ofList(HumidityThreshold.class)
-                        .size(5)
+                        .size(setUpListSize)
                         .ignore(field(HumidityThreshold::getId))
                         .create();
         humidityThresholdList = humidityThresholdRepository.saveAll(humidityThresholdList);
+
+        assert humidityThresholdList.size() == setUpListSize;
+
+        List<TemperatureThreshold> temperatureThresholdList =
+                Instancio.ofList(TemperatureThreshold.class)
+                        .size(5)
+                        .ignore(field(TemperatureThreshold::getId))
+                        .create();
+
+        temperatureThresholdRepository.saveAll(temperatureThresholdList);
     }
 
     @Test
@@ -60,7 +76,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/HumidityThreshold").param("sortDir", "asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
-                .andExpect(jsonPath("$.totalElements", is(5)))
+                .andExpect(jsonPath("$.totalElements", is(humidityThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -75,7 +91,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/HumidityThreshold").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
-                .andExpect(jsonPath("$.totalElements", is(5)))
+                .andExpect(jsonPath("$.totalElements", is(humidityThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -92,6 +108,8 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(humidityThresholdId.toString())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
     }
 
@@ -105,6 +123,8 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(notNullValue())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
     }
 

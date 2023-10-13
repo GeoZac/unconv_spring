@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -13,7 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.TemperatureThreshold;
+import com.unconv.spring.persistence.HumidityThresholdRepository;
 import com.unconv.spring.persistence.TemperatureThresholdRepository;
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +36,8 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     @Autowired private TemperatureThresholdRepository temperatureThresholdRepository;
 
+    @Autowired private HumidityThresholdRepository humidityThresholdRepository;
+
     private List<TemperatureThreshold> temperatureThresholdList = null;
 
     @BeforeEach
@@ -46,12 +51,23 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         .build();
 
         temperatureThresholdRepository.deleteAllInBatch();
+        final int setUpListSize = 7;
         temperatureThresholdList =
                 Instancio.ofList(TemperatureThreshold.class)
-                        .size(5)
+                        .size(setUpListSize)
                         .ignore(field(TemperatureThreshold::getId))
                         .create();
         temperatureThresholdList = temperatureThresholdRepository.saveAll(temperatureThresholdList);
+
+        assert temperatureThresholdList.size() == setUpListSize;
+
+        List<HumidityThreshold> humidityThresholdList =
+                Instancio.ofList(HumidityThreshold.class)
+                        .size(5)
+                        .ignore(field(HumidityThreshold::getId))
+                        .create();
+
+        humidityThresholdRepository.saveAll(humidityThresholdList);
     }
 
     @Test
@@ -60,7 +76,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/TemperatureThreshold").param("sortDir", "asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
-                .andExpect(jsonPath("$.totalElements", is(5)))
+                .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -75,7 +91,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/TemperatureThreshold").param("sortDir", "desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
-                .andExpect(jsonPath("$.totalElements", is(5)))
+                .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -92,6 +108,8 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(temperatureThresholdId.toString())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
     }
 
@@ -113,6 +131,8 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(notNullValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
     }
 
