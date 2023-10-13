@@ -78,7 +78,7 @@ class TemperatureThresholdControllerTest {
     }
 
     @Test
-    void shouldFetchAllSensorLocations() throws Exception {
+    void shouldFetchAllTemperatureThresholds() throws Exception {
         Page<TemperatureThreshold> page = new PageImpl<>(temperatureThresholdList);
         PagedResult<TemperatureThreshold> temperatureThresholdPagedResult = new PagedResult<>(page);
         given(temperatureThresholdService.findAllTemperatureThresholds(0, 10, "id", "asc"))

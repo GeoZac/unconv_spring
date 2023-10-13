@@ -11,7 +11,7 @@ public interface TemperatureThresholdService {
 
     Optional<TemperatureThreshold> findTemperatureThresholdById(UUID id);
 
-    TemperatureThreshold saveTemperatureThreshold(TemperatureThreshold sensorLocation);
+    TemperatureThreshold saveTemperatureThreshold(TemperatureThreshold temperatureThreshold);
 
     void deleteTemperatureThresholdById(UUID id);
 }

@@ -42,8 +42,9 @@ public class TemperatureThresholdServiceImpl implements TemperatureThresholdServ
     }
 
     @Override
-    public TemperatureThreshold saveTemperatureThreshold(TemperatureThreshold sensorLocation) {
-        return temperatureThresholdRepository.save(sensorLocation);
+    public TemperatureThreshold saveTemperatureThreshold(
+            TemperatureThreshold temperatureThreshold) {
+        return temperatureThresholdRepository.save(temperatureThreshold);
     }
 
     @Override
