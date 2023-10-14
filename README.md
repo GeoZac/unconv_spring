@@ -1,5 +1,8 @@
 # Unconvetional Spring Project
 
+## Build Status
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/GeoZac/unconv_spring/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/GeoZac/unconv_spring/tree/master)
+
 ## Coverage
 [![codecov](https://codecov.io/gh/GeoZac/unconv_spring/graph/badge.svg?token=93FS5ZZLMW)](https://codecov.io/gh/GeoZac/unconv_spring)
 
