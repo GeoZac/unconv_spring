@@ -1,7 +1,7 @@
 # Unconvetional Spring Project
 
 ## Coverage
-![Coverage](.github/badges/jacoco.svg)
+[![codecov](https://codecov.io/gh/GeoZac/unconv_spring/graph/badge.svg?token=93FS5ZZLMW)](https://codecov.io/gh/GeoZac/unconv_spring)
 
 ### Run tests
 `$ ./mvnw clean verify`
