@@ -1,4 +1,4 @@
-# spring
+# Unconvetional Spring Project
 
 ## Coverage
 ![Coverage](.github/badges/jacoco.svg)
