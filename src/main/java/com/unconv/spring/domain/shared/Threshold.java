@@ -27,8 +27,4 @@ public class Threshold {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID id;
-
-    @Column private double maxValue;
-
-    @Column private double minValue;
 }
