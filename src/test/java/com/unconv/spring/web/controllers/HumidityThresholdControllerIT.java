@@ -56,6 +56,12 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(HumidityThreshold.class)
                         .size(setUpListSize)
                         .ignore(field(HumidityThreshold::getId))
+                        .generate(
+                                field(HumidityThreshold::getMinValue),
+                                gen -> gen.doubles().range(0.0, 49.0))
+                        .generate(
+                                field(HumidityThreshold::getMaxValue),
+                                gen -> gen.doubles().range(51.0, 100.0))
                         .create();
         humidityThresholdList = humidityThresholdRepository.saveAll(humidityThresholdList);
 
@@ -65,6 +71,12 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(TemperatureThreshold.class)
                         .size(5)
                         .ignore(field(TemperatureThreshold::getId))
+                        .generate(
+                                field(TemperatureThreshold::getMinValue),
+                                gen -> gen.doubles().range(-9999.000, -1.0))
+                        .generate(
+                                field(TemperatureThreshold::getMaxValue),
+                                gen -> gen.doubles().range(1.0, 9999.000))
                         .create();
 
         temperatureThresholdRepository.saveAll(temperatureThresholdList);
