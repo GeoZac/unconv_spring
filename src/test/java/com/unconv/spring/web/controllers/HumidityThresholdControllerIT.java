@@ -121,8 +121,10 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(humidityThresholdId.toString())))
-                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
-                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+                .andExpect(
+                        jsonPath("$.minValue", is(humidityThreshold.getMinValue()), Double.class))
+                .andExpect(
+                        jsonPath("$.maxValue", is(humidityThreshold.getMaxValue()), Double.class));
     }
 
     @Test

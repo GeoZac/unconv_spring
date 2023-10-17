@@ -121,8 +121,14 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(temperatureThresholdId.toString())))
-                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(
+                        jsonPath(
+                                "$.minValue", is(temperatureThreshold.getMinValue()), Double.class))
+                .andExpect(
+                        jsonPath(
+                                "$.maxValue",
+                                is(temperatureThreshold.getMaxValue()),
+                                Double.class));
     }
 
     @Test
