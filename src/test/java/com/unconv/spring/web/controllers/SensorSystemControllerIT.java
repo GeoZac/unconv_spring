@@ -123,6 +123,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                     int randomIndex = randomUtil.nextInt(sensorLocationList.size());
                                     return sensorLocationList.get(randomIndex);
                                 })
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
         totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
@@ -340,6 +342,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .generate(
                                 field(SensorSystem.class, "sensorName"),
                                 gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
         List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
@@ -365,6 +369,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .generate(
                                 field(SensorSystem.class, "sensorName"),
                                 gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
         List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
