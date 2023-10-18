@@ -52,6 +52,11 @@ public class ThresholdValidator implements ConstraintValidator<ValidThreshold, O
             return minValue < maxValue;
         }
 
+        String message = context.getDefaultConstraintMessageTemplate();
+
+        context.buildConstraintViolationWithTemplate(message)
+                .addConstraintViolation()
+                .disableDefaultConstraintViolation();
         return false;
     }
 }
