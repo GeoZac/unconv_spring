@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,6 +58,12 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(HumidityThreshold.class)
                         .size(setUpListSize)
                         .ignore(field(HumidityThreshold::getId))
+                        .generate(
+                                field(HumidityThreshold::getMinValue),
+                                gen -> gen.doubles().range(0.0, 49.0))
+                        .generate(
+                                field(HumidityThreshold::getMaxValue),
+                                gen -> gen.doubles().range(51.0, 100.0))
                         .create();
         humidityThresholdList = humidityThresholdRepository.saveAll(humidityThresholdList);
 
@@ -65,6 +73,12 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(TemperatureThreshold.class)
                         .size(5)
                         .ignore(field(TemperatureThreshold::getId))
+                        .generate(
+                                field(TemperatureThreshold::getMinValue),
+                                gen -> gen.doubles().range(-9999.000, -1.0))
+                        .generate(
+                                field(TemperatureThreshold::getMaxValue),
+                                gen -> gen.doubles().range(1.0, 9999.000))
                         .create();
 
         temperatureThresholdRepository.saveAll(temperatureThresholdList);
@@ -109,8 +123,10 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(humidityThresholdId.toString())))
-                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
-                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+                .andExpect(
+                        jsonPath("$.minValue", is(humidityThreshold.getMinValue()), Double.class))
+                .andExpect(
+                        jsonPath("$.maxValue", is(humidityThreshold.getMaxValue()), Double.class));
     }
 
     @Test
@@ -126,6 +142,70 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperCoordinatesInPositiveRange()
+            throws Exception {
+        HumidityThreshold humidityThreshold = new HumidityThreshold(null, 101, 101);
+        this.mockMvc
+                .perform(
+                        post("/HumidityThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[1].field", is("minValue")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("Min value must be less than or equal to 100")))
+                .andExpect(jsonPath("$.violations[0].field", is("maxValue")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Max value must be less than or equal to 100")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperCoordinatesInNegativeRange()
+            throws Exception {
+        HumidityThreshold humidityThreshold = new HumidityThreshold(null, -1.0, -1.0);
+        this.mockMvc
+                .perform(
+                        post("/HumidityThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[1].field", is("minValue")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("Min value must be greater than or equal to 0")))
+                .andExpect(jsonPath("$.violations[0].field", is("maxValue")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Max value must be greater than or equal to 0")))
+                .andReturn();
     }
 
     @Test

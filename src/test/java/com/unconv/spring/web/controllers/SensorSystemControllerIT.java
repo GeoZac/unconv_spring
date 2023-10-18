@@ -123,6 +123,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                     int randomIndex = randomUtil.nextInt(sensorLocationList.size());
                                     return sensorLocationList.get(randomIndex);
                                 })
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
         totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
@@ -340,6 +342,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .generate(
                                 field(SensorSystem.class, "sensorName"),
                                 gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
         List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
@@ -365,6 +369,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .generate(
                                 field(SensorSystem.class, "sensorName"),
                                 gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
         List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
@@ -565,6 +571,29 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+    }
+
+    @Test
+    void shouldUpdateExistingSensorSystemWithNewThresholds() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+
+        assert sensorSystem.getHumidityThreshold() == null;
+        assert sensorSystem.getTemperatureThreshold() == null;
+
+        sensorSystem.setHumidityThreshold(new HumidityThreshold(null, 0, 100));
+        sensorSystem.setTemperatureThreshold(new TemperatureThreshold(null, 50, -50));
+
+        this.mockMvc
+                .perform(
+                        put("/SensorSystem/{id}", sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.humidityThreshold", notNullValue()))
+                .andExpect(jsonPath("$.temperatureThreshold", notNullValue()));
     }
 
     @Test
