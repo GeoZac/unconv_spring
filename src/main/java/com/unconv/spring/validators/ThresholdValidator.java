@@ -17,34 +17,26 @@ public class ThresholdValidator implements ConstraintValidator<ValidThreshold, O
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
-        if (value == null) {
-            return true;
-        }
-
-        if (value instanceof HumidityThreshold) {
-            HumidityThreshold humidityThreshold = (HumidityThreshold) value;
+        if (value instanceof HumidityThreshold humidityThreshold) {
 
             double minValue = humidityThreshold.getMinValue();
             double maxValue = humidityThreshold.getMaxValue();
 
             return minValue < maxValue;
-        } else if (value instanceof TemperatureThreshold) {
-            TemperatureThreshold temperatureThreshold = (TemperatureThreshold) value;
+        } else if (value instanceof TemperatureThreshold temperatureThreshold) {
 
             double minValue = temperatureThreshold.getMinValue();
             double maxValue = temperatureThreshold.getMaxValue();
 
             return minValue < maxValue;
 
-        } else if (value instanceof HumidityThresholdDTO) {
-            HumidityThresholdDTO humidityThresholdDTO = (HumidityThresholdDTO) value;
+        } else if (value instanceof HumidityThresholdDTO humidityThresholdDTO) {
 
             double minValue = humidityThresholdDTO.getMinValue();
             double maxValue = humidityThresholdDTO.getMaxValue();
 
             return minValue < maxValue;
-        } else if (value instanceof TemperatureThresholdDTO) {
-            TemperatureThresholdDTO temperatureThresholdDTO = (TemperatureThresholdDTO) value;
+        } else if (value instanceof TemperatureThresholdDTO temperatureThresholdDTO) {
 
             double minValue = temperatureThresholdDTO.getMinValue();
             double maxValue = temperatureThresholdDTO.getMaxValue();
