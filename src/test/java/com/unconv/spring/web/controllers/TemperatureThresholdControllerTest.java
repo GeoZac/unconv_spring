@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,13 +128,14 @@ class TemperatureThresholdControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(UUID.randomUUID(), 0, 100);
+                new TemperatureThreshold(UUID.randomUUID(), 100, 0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));

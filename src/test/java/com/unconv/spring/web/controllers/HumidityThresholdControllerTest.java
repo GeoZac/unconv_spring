@@ -126,7 +126,7 @@ class HumidityThresholdControllerTest {
         given(humidityThresholdService.saveHumidityThreshold(any(HumidityThreshold.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        HumidityThreshold humidityThreshold = new HumidityThreshold(UUID.randomUUID(), 0, 100);
+        HumidityThreshold humidityThreshold = new HumidityThreshold(UUID.randomUUID(), 100, 0);
         this.mockMvc
                 .perform(
                         post("/HumidityThreshold")

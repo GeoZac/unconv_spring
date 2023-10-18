@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -88,6 +89,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllTemperatureThresholdsInAscendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/TemperatureThreshold").param("sortDir", "asc"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
@@ -143,7 +145,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewTemperatureThreshold() throws Exception {
-        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 0, 100);
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 100, 0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
@@ -160,7 +162,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInPositiveRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(null, 10000.0, 10000.0);
+                new TemperatureThreshold(null, 10001.0, 10000.0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
@@ -193,7 +195,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInNegativeRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(null, -10000.0, -10000.0);
+                new TemperatureThreshold(null, -10000.0, -10001.0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
