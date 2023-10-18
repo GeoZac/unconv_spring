@@ -162,7 +162,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInPositiveRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(null, 10001.0, 10000.0);
+                new TemperatureThreshold(null, 10000.0, 10000.0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
@@ -177,7 +177,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[1].field", is("minValue")))
                 .andExpect(
                         jsonPath(
@@ -188,6 +188,11 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.violations[0].message",
                                 is("Max value must be less than or equal to 9999")))
+                .andExpect(jsonPath("$.violations[2].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[2].message",
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 
@@ -195,7 +200,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInNegativeRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(null, -10000.0, -10001.0);
+                new TemperatureThreshold(null, -10000.0, -10000.0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
@@ -210,7 +215,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[1].field", is("minValue")))
                 .andExpect(
                         jsonPath(
@@ -221,6 +226,11 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.violations[0].message",
                                 is("Max value must be greater than or equal to -9999")))
+                .andExpect(jsonPath("$.violations[2].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[2].message",
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 
