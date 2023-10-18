@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.annotation.ValidThreshold;
 import java.util.UUID;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ValidThreshold
 public class HumidityThresholdDTO {
 
     private UUID id;
