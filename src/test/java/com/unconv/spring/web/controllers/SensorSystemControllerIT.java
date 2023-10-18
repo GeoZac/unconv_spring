@@ -574,6 +574,29 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldUpdateExistingSensorSystemWithNewThresholds() throws Exception {
+        SensorSystem sensorSystem = sensorSystemList.get(0);
+
+        assert sensorSystem.getHumidityThreshold() == null;
+        assert sensorSystem.getTemperatureThreshold() == null;
+
+        sensorSystem.setHumidityThreshold(new HumidityThreshold(null, 0, 100));
+        sensorSystem.setTemperatureThreshold(new TemperatureThreshold(null, 50, -50));
+
+        this.mockMvc
+                .perform(
+                        put("/SensorSystem/{id}", sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.humidityThreshold", notNullValue()))
+                .andExpect(jsonPath("$.temperatureThreshold", notNullValue()));
+    }
+
+    @Test
     void shouldDeleteSensorSystem() throws Exception {
         SensorSystem sensorSystem = sensorSystemList.get(0);
 
