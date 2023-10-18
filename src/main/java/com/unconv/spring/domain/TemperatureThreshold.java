@@ -1,5 +1,6 @@
 package com.unconv.spring.domain;
 
+import com.unconv.spring.annotation.ValidThreshold;
 import com.unconv.spring.domain.shared.Threshold;
 import java.util.UUID;
 import javax.persistence.DiscriminatorValue;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @DiscriminatorValue("T")
 @NoArgsConstructor
 @AllArgsConstructor
+@ValidThreshold
 public class TemperatureThreshold extends Threshold {
     @DecimalMin(value = "-9999", message = "Max value must be greater than or equal to -9999")
     @DecimalMax(value = "9999", message = "Max value must be less than or equal to 9999")

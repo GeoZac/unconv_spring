@@ -131,7 +131,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewHumidityThreshold() throws Exception {
-        HumidityThreshold humidityThreshold = new HumidityThreshold(null, 0, 100);
+        HumidityThreshold humidityThreshold = new HumidityThreshold(null, 100, 0);
         this.mockMvc
                 .perform(
                         post("/HumidityThreshold")
@@ -162,17 +162,22 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
-                .andExpect(jsonPath("$.violations[1].field", is("minValue")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[2].field", is("minValue")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[2].message",
+                                is("Min value must be less than or equal to 100")))
+                .andExpect(jsonPath("$.violations[1].field", is("maxValue")))
                 .andExpect(
                         jsonPath(
                                 "$.violations[1].message",
-                                is("Min value must be less than or equal to 100")))
-                .andExpect(jsonPath("$.violations[0].field", is("maxValue")))
+                                is("Max value must be less than or equal to 100")))
+                .andExpect(jsonPath("$.violations[0].field", is("humidityThresholdDTO")))
                 .andExpect(
                         jsonPath(
                                 "$.violations[0].message",
-                                is("Max value must be less than or equal to 100")))
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 
@@ -194,17 +199,22 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
-                .andExpect(jsonPath("$.violations[1].field", is("minValue")))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
+                .andExpect(jsonPath("$.violations[2].field", is("minValue")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[2].message",
+                                is("Min value must be greater than or equal to 0")))
+                .andExpect(jsonPath("$.violations[1].field", is("maxValue")))
                 .andExpect(
                         jsonPath(
                                 "$.violations[1].message",
-                                is("Min value must be greater than or equal to 0")))
-                .andExpect(jsonPath("$.violations[0].field", is("maxValue")))
+                                is("Max value must be greater than or equal to 0")))
+                .andExpect(jsonPath("$.violations[0].field", is("humidityThresholdDTO")))
                 .andExpect(
                         jsonPath(
                                 "$.violations[0].message",
-                                is("Max value must be greater than or equal to 0")))
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 

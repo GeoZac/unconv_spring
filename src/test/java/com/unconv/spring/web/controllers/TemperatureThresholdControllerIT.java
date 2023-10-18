@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -88,6 +89,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllTemperatureThresholdsInAscendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/TemperatureThreshold").param("sortDir", "asc"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
@@ -143,7 +145,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewTemperatureThreshold() throws Exception {
-        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 0, 100);
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 100, 0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
@@ -175,7 +177,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[1].field", is("minValue")))
                 .andExpect(
                         jsonPath(
@@ -186,6 +188,11 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.violations[0].message",
                                 is("Max value must be less than or equal to 9999")))
+                .andExpect(jsonPath("$.violations[2].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[2].message",
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 
@@ -208,7 +215,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[1].field", is("minValue")))
                 .andExpect(
                         jsonPath(
@@ -219,6 +226,11 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.violations[0].message",
                                 is("Max value must be greater than or equal to -9999")))
+                .andExpect(jsonPath("$.violations[2].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[2].message",
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 

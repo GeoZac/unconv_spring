@@ -436,8 +436,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         SensorStatus.ACTIVE,
                         null,
                         savedUnconvUser,
-                        new HumidityThreshold(null, 0, 100),
-                        new TemperatureThreshold(null, -100, 100));
+                        new HumidityThreshold(null, 100, 0),
+                        new TemperatureThreshold(null, 100, 0));
 
         assert sensorSystem.getHumidityThreshold().getId() == null;
         assert sensorSystem.getTemperatureThreshold().getId() == null;
@@ -580,7 +580,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         assert sensorSystem.getHumidityThreshold() == null;
         assert sensorSystem.getTemperatureThreshold() == null;
 
-        sensorSystem.setHumidityThreshold(new HumidityThreshold(null, 0, 100));
+        sensorSystem.setHumidityThreshold(new HumidityThreshold(null, 100, 0));
         sensorSystem.setTemperatureThreshold(new TemperatureThreshold(null, 50, -50));
 
         this.mockMvc
