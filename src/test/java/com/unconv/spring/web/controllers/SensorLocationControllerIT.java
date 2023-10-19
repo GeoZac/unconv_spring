@@ -321,6 +321,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                         .size(5)
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
                         .supply(
                                 field(SensorSystem::getSensorLocation),
                                 random -> random.oneOf(savedSensorLocations))
@@ -332,6 +334,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                             .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                             .ignore(field(SensorSystem::getId))
                             .supply(field(SensorSystem::getSensorLocation), () -> sensorLocation)
+                            .ignore(field(SensorSystem::getHumidityThreshold))
+                            .ignore(field(SensorSystem::getTemperatureThreshold))
                             .create();
             sensorSystemsOfSpecificUnconvUser.add(sensorSystem);
         }
