@@ -77,6 +77,7 @@ public class PassengerController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Passenger createPassenger(@RequestBody @Validated PassengerDTO passengerDTO) {
+        passengerDTO.setId(null);
         return passengerService.savePassenger(modelMapper.map(passengerDTO, Passenger.class));
     }
 

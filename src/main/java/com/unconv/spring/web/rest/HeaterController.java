@@ -46,6 +46,7 @@ public class HeaterController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Heater createHeater(@RequestBody @Validated HeaterDTO heaterDTO) {
+        heaterDTO.setId(null);
         return heaterService.saveHeater(modelMapper.map(heaterDTO, Heater.class));
     }
 

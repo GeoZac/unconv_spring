@@ -70,6 +70,7 @@ public class OrderProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderProduct createOrderProduct(
             @RequestBody @Validated OrderProductDTO orderProductDTO) {
+        orderProductDTO.setId(null);
         return orderProductService.saveOrderProduct(
                 modelMapper.map(orderProductDTO, OrderProduct.class));
     }
