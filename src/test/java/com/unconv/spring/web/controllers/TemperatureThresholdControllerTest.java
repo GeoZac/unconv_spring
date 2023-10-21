@@ -125,7 +125,12 @@ class TemperatureThresholdControllerTest {
     @Test
     void shouldCreateNewTemperatureThreshold() throws Exception {
         given(temperatureThresholdService.saveTemperatureThreshold(any(TemperatureThreshold.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            TemperatureThreshold temperatureThreshold = invocation.getArgument(0);
+                            temperatureThreshold.setId(UUID.randomUUID());
+                            return temperatureThreshold;
+                        });
 
         TemperatureThreshold temperatureThreshold =
                 new TemperatureThreshold(UUID.randomUUID(), 100, 0);
