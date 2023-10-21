@@ -118,6 +118,7 @@ public class SensorSystemController {
     public ResponseEntity<MessageResponse<SensorSystemDTO>> createSensorSystem(
             @RequestBody @Validated SensorSystemDTO sensorSystemDTO,
             Authentication authentication) {
+        sensorSystemDTO.setId(null);
         return sensorSystemService.validateUnconvUserAndSaveSensorSystem(
                 sensorSystemDTO, authentication);
     }

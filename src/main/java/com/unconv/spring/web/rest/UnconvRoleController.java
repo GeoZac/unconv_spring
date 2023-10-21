@@ -69,6 +69,7 @@ public class UnconvRoleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UnconvRole createUnconvRole(@RequestBody @Validated UnconvRoleDTO unconvRoleDTO) {
+        unconvRoleDTO.setId(null);
         return unconvRoleService.saveUnconvRole(modelMapper.map(unconvRoleDTO, UnconvRole.class));
     }
 

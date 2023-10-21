@@ -75,6 +75,7 @@ public class TemperatureThresholdController {
     @ResponseStatus(HttpStatus.CREATED)
     public TemperatureThreshold createTemperatureThreshold(
             @RequestBody @Validated TemperatureThresholdDTO temperatureThresholdDTO) {
+        temperatureThresholdDTO.setId(null);
         return temperatureThresholdService.saveTemperatureThreshold(
                 modelMapper.map(temperatureThresholdDTO, TemperatureThreshold.class));
     }

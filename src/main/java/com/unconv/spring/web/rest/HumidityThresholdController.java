@@ -75,6 +75,7 @@ public class HumidityThresholdController {
     @ResponseStatus(HttpStatus.CREATED)
     public HumidityThreshold createHumidityThreshold(
             @RequestBody @Validated HumidityThresholdDTO humidityThresholdDTO) {
+        humidityThresholdDTO.setId(null);
         return humidityThresholdService.saveHumidityThreshold(
                 modelMapper.map(humidityThresholdDTO, HumidityThreshold.class));
     }

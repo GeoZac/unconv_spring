@@ -76,6 +76,7 @@ public class SensorLocationController {
     @ResponseStatus(HttpStatus.CREATED)
     public SensorLocation createSensorLocation(
             @RequestBody @Validated SensorLocationDTO sensorLocationDTO) {
+        sensorLocationDTO.setId(null);
         return sensorLocationService.saveSensorLocation(
                 modelMapper.map(sensorLocationDTO, SensorLocation.class));
     }
