@@ -134,7 +134,12 @@ class PassengerControllerTest {
     @Test
     void shouldCreateNewPassenger() throws Exception {
         given(passengerService.savePassenger(any(Passenger.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Passenger passenger = invocation.getArgument(0);
+                            passenger.setId(1L);
+                            return passenger;
+                        });
 
         Passenger passenger =
                 new Passenger(

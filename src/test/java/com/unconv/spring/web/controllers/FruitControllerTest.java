@@ -125,7 +125,12 @@ class FruitControllerTest {
     @Test
     void shouldCreateNewFruit() throws Exception {
         given(fruitService.saveFruit(any(Fruit.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Fruit fruit = invocation.getArgument(0);
+                            fruit.setId(1L);
+                            return fruit;
+                        });
 
         Fruit fruit =
                 new Fruit(

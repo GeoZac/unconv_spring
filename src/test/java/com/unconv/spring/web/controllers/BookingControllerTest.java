@@ -148,7 +148,12 @@ class BookingControllerTest {
     @Test
     void shouldCreateNewBooking() throws Exception {
         given(bookingService.saveBooking(any(Booking.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Booking booking = invocation.getArgument(0);
+                            booking.setId(1L);
+                            return booking;
+                        });
 
         Booking booking = new Booking(1L, "some text", passengerList);
         this.mockMvc

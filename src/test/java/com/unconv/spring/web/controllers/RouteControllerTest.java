@@ -117,7 +117,12 @@ class RouteControllerTest {
     @Test
     void shouldCreateNewRoute() throws Exception {
         given(routeService.saveRoute(any(Route.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Route route = invocation.getArgument(0);
+                            route.setId(1L);
+                            return route;
+                        });
 
         Route route = new Route(1L, "some text");
         this.mockMvc
