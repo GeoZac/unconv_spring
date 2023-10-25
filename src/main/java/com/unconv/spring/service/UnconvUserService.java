@@ -18,6 +18,9 @@ public interface UnconvUserService {
 
     UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword);
 
+    ResponseEntity<MessageResponse<UnconvUserDTO>> setUpRoleAndSaveAfterVerify(
+            UnconvUserDTO unconvUserDTO);
+
     ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
             UnconvUser unconvUser, String rawPassword);
 

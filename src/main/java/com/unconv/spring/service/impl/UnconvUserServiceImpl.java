@@ -3,13 +3,17 @@ package com.unconv.spring.service.impl;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.UnconvRoleService;
 import com.unconv.spring.service.UnconvUserService;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private UnconvRoleService unconvRoleService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -61,6 +67,17 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     public UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword) {
         unconvUser.setPassword(bCryptPasswordEncoder().encode(rawPassword));
         return unconvUserRepository.save(unconvUser);
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse<UnconvUserDTO>> setUpRoleAndSaveAfterVerify(
+            UnconvUserDTO unconvUserDTO) {
+        UnconvRole userUnconvRole = unconvRoleService.findUnconvRoleByName("ROLE_USER");
+        Set<UnconvRole> unconvRoleSet = new HashSet<>();
+        unconvRoleSet.add(userUnconvRole);
+        unconvUserDTO.setUnconvRoles(unconvRoleSet);
+        return checkUsernameUniquenessAndSaveUnconvUser(
+                modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
     }
 
     @Override
