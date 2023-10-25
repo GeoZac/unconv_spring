@@ -10,6 +10,7 @@ import com.unconv.spring.domain.UnconvUser;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class JWTUtil {
     @Value("${jwt_secret}")
     private String jwtSecret;
 
+    @Getter
     @Value("${jwt_expiry}")
     private Long jwtExpiry;
 
@@ -44,9 +46,5 @@ public class JWTUtil {
                         .build();
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getClaim("username").asString();
-    }
-
-    public Long getJwtExpiry() {
-        return jwtExpiry;
     }
 }

@@ -1,7 +1,9 @@
 package com.unconv.spring.dto;
 
 import com.unconv.spring.consts.SensorStatus;
+import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import java.util.UUID;
@@ -17,6 +19,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SensorSystemDTO {
+
+    public SensorSystemDTO(
+            UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
+        this.id = uuid;
+        this.sensorName = sensorName;
+        this.sensorLocation = sensorLocation;
+        this.unconvUser = unconvUser;
+
+        // Set defaults for backward compatibility
+        this.description = null;
+        this.deleted = false;
+        this.sensorStatus = SensorStatus.ACTIVE;
+    }
 
     private UUID id;
 
@@ -35,6 +50,10 @@ public class SensorSystemDTO {
 
     @NotNull(message = "UnconvUser cannot be empty")
     private UnconvUser unconvUser;
+
+    private HumidityThreshold humidityThreshold;
+
+    private TemperatureThreshold temperatureThreshold;
 
     private long readingCount;
 

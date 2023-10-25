@@ -35,7 +35,7 @@ public class CSVUtil {
                                         .setSkipHeaderRecord(true)
                                         .setIgnoreHeaderCase(false)
                                         .setTrim(true)
-                                        .build()); ) {
+                                        .build())) {
 
             List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
 

@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -76,4 +77,12 @@ public class SensorSystem {
     @JoinColumn(name = "unconv_user_id")
     @NotNull(message = "UnconvUser cannot be empty")
     private UnconvUser unconvUser;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "humidity_threshold_id")
+    private HumidityThreshold humidityThreshold;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "temperature_threshold_id")
+    private TemperatureThreshold temperatureThreshold;
 }

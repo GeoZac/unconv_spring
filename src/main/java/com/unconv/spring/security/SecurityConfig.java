@@ -41,6 +41,8 @@ public class SecurityConfig {
                 // Allow specific URLs without authentication
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
+                .antMatchers("/public/**")
+                .permitAll()
 
                 // Require authentication for any other request
                 .anyRequest()
