@@ -374,6 +374,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .supply(
+                                field(SensorSystem::getUnconvUser),
+                                random -> random.oneOf(unconvUserList))
                         .create();
 
         List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
