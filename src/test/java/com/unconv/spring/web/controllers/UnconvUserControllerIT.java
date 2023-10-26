@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -140,6 +141,30 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+    }
+
+    @Test
+    void shouldCreateNewUnconvUserEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
+        UUID alreadyExistingUUID = unconvUserList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        alreadyExistingUUID,
+                        "NewUnconvUser",
+                        "newuser@email.com",
+                        "1StrongPas$word");
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        this.mockMvc
+                .perform(
+                        post("/UnconvUser")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
     }
