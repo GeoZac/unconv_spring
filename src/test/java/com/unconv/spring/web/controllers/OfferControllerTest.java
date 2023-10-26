@@ -105,7 +105,12 @@ class OfferControllerTest {
     @Test
     void shouldCreateNewOffer() throws Exception {
         given(offerService.saveOffer(any(Offer.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Offer offer = invocation.getArgument(0);
+                            offer.setId(1L);
+                            return offer;
+                        });
 
         Offer offer = new Offer(1L, "0xff000000", "25% OFF");
         this.mockMvc

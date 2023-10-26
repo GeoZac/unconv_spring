@@ -109,6 +109,7 @@ public class EnvironmentalReadingController {
     public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>> createEnvironmentalReading(
             @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO,
             Authentication authentication) {
+        environmentalReadingDTO.setId(null);
         return environmentalReadingService
                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                         environmentalReadingDTO, authentication);

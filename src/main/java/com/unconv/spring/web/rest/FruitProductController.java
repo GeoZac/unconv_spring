@@ -47,6 +47,7 @@ public class FruitProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public FruitProduct createFruitProduct(
             @RequestBody @Validated FruitProductDTO fruitProductDTO) {
+        fruitProductDTO.setId(null);
         return fruitProductService.saveFruitProduct(
                 modelMapper.map(fruitProductDTO, FruitProduct.class));
     }

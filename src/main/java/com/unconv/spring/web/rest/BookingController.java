@@ -72,6 +72,7 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Booking createBooking(@RequestBody @Validated BookingDTO bookingDTO) {
+        bookingDTO.setId(null);
         return bookingService.saveBooking(modelMapper.map(bookingDTO, Booking.class));
     }
 

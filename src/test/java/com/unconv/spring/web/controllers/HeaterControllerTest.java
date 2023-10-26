@@ -105,7 +105,12 @@ class HeaterControllerTest {
     @Test
     void shouldCreateNewHeater() throws Exception {
         given(heaterService.saveHeater(any(Heater.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Heater heater = invocation.getArgument(0);
+                            heater.setId(1L);
+                            return heater;
+                        });
 
         Heater heater = new Heater(1L, 30F, .5F);
         this.mockMvc

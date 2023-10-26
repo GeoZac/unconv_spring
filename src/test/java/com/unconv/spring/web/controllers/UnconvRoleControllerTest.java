@@ -122,7 +122,12 @@ class UnconvRoleControllerTest {
     @Test
     void shouldCreateNewUnconvRole() throws Exception {
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            UnconvRole unconvRole = invocation.getArgument(0);
+                            unconvRole.setId(UUID.randomUUID());
+                            return unconvRole;
+                        });
 
         UnconvRole unconvRole = new UnconvRole(UUID.randomUUID(), "some text");
         this.mockMvc

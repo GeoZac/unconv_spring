@@ -46,6 +46,7 @@ public class OfferController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Offer createOffer(@RequestBody @Validated OfferDTO offerDTO) {
+        offerDTO.setId(null);
         return offerService.saveOffer(modelMapper.map(offerDTO, Offer.class));
     }
 

@@ -141,7 +141,12 @@ class SensorLocationControllerTest {
     @Test
     void shouldCreateNewSensorLocation() throws Exception {
         given(sensorLocationService.saveSensorLocation(any(SensorLocation.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            SensorLocation sensorLocation = invocation.getArgument(0);
+                            sensorLocation.setId(UUID.randomUUID());
+                            return sensorLocation;
+                        });
 
         SensorLocation sensorLocation =
                 new SensorLocation(

@@ -123,7 +123,12 @@ class OrderProductControllerTest {
     @Test
     void shouldCreateNewOrderProduct() throws Exception {
         given(orderProductService.saveOrderProduct(any(OrderProduct.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            OrderProduct orderProduct = invocation.getArgument(0);
+                            orderProduct.setId(UUID.randomUUID());
+                            return orderProduct;
+                        });
 
         OrderProduct orderProduct = new OrderProduct(UUID.randomUUID(), "some text");
         this.mockMvc
