@@ -491,7 +491,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldCreateNewSensorSystemWithAlreadyExistingPrimaryKey() throws Exception {
+    void shouldCreateNewSensorSystemEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         UnconvUser savedUnconvUser =
