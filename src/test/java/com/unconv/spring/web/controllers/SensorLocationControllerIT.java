@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
@@ -133,6 +134,28 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(
+                        jsonPath(
+                                "$.sensorLocationText",
+                                is(sensorLocation.getSensorLocationText())));
+    }
+
+    @Test
+    void shouldCreateNewSensorLocationEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
+        UUID alreadyExistingUUID = sensorLocationList.get(0).getId();
+
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        alreadyExistingUUID, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
+        this.mockMvc
+                .perform(
+                        post("/SensorLocation")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.id", not(alreadyExistingUUID.toString())))
                 .andExpect(
                         jsonPath(
                                 "$.sensorLocationText",
