@@ -64,6 +64,12 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
+    public boolean checkUsernameAvailability(String username) {
+        UnconvUser unconvUser = unconvUserRepository.findByUsername(username);
+        return unconvUser == null;
+    }
+
+    @Override
     public ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
             UnconvUser unconvUser, String rawPassword) {
         MessageResponse<UnconvUserDTO> messageResponse;

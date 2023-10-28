@@ -18,6 +18,8 @@ public interface UnconvUserService {
 
     UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword);
 
+    boolean checkUsernameAvailability(String username);
+
     ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
             UnconvUser unconvUser, String rawPassword);
 
