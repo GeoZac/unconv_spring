@@ -65,6 +65,11 @@ public class UnconvUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/Username/Available/{username}")
+    public boolean checkUsernameAvailability(@PathVariable String username) {
+        return unconvUserService.checkUsernameAvailability(username);
+    }
+
     @PostMapping
     public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
