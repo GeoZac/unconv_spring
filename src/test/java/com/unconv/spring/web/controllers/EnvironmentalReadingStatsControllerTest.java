@@ -140,4 +140,92 @@ class EnvironmentalReadingStatsControllerTest {
         }
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForHourlyStats();
+
+        given(environmentalReadingStatsService.getAverageTempsForHourly(sensorSystemId))
+                .willReturn(averageTemperatures);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReadingStats/Hourly/SensorSystem/{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    private Map<OffsetDateTime, Double> generateMockDataForHourlyStats() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 75; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(environemntalReadingModel)
+                            .supply(
+                                    field(EnvironmentalReading::getSensorSystem),
+                                    () -> sensorSystem)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusHours(24)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 1440)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
+    }
+
+    @Test
+    void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForDailyStats();
+
+        given(environmentalReadingStatsService.getAverageTempsForDaily(sensorSystemId))
+                .willReturn(averageTemperatures);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReadingStats/Daily/SensorSystem/{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
+    }
+
+    public Map<OffsetDateTime, Double> generateMockDataForDailyStats() {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 150; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(environemntalReadingModel)
+                            .supply(
+                                    field(EnvironmentalReading::getSensorSystem),
+                                    () -> sensorSystem)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusDays(7)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 10080)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
+    }
 }
