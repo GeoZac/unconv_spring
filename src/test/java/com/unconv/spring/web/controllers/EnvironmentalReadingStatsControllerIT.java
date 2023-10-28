@@ -1,6 +1,5 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -52,10 +51,6 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
-    private List<EnvironmentalReading> environmentalReadingList = null;
-
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static final Model<EnvironmentalReading> environemntalReadingModel =
             Instancio.of(EnvironmentalReading.class)
                     .supply(
@@ -96,7 +91,7 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
-        environmentalReadingList =
+        List<EnvironmentalReading> environmentalReadingList =
                 Instancio.ofList(environemntalReadingModel)
                         .size(15)
                         .supply(
@@ -104,7 +99,7 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
                                 () -> savedSensorSystem)
                         .create();
 
-        environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
+        environmentalReadingRepository.saveAll(environmentalReadingList);
     }
 
     @Test
