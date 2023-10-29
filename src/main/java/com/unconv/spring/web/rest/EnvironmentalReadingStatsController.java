@@ -17,7 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class EnvironmentalReadingStatsController {
 
-    @Autowired private EnvironmentalReadingStatsService environmentalReadingStatsService;
+    private final EnvironmentalReadingStatsService environmentalReadingStatsService;
+
+    @Autowired
+    public EnvironmentalReadingStatsController(
+            EnvironmentalReadingStatsService environmentalReadingStatsService) {
+        this.environmentalReadingStatsService = environmentalReadingStatsService;
+    }
 
     @GetMapping("/QuarterHourly/SensorSystem/{sensorSystemId}")
     public ResponseEntity<Map<OffsetDateTime, Double>> getQuarterHourlyTemperature(

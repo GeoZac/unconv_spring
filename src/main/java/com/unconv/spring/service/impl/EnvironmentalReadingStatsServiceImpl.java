@@ -22,7 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadingStatsService {
 
-    @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+    private final EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Autowired
+    public EnvironmentalReadingStatsServiceImpl(
+            EnvironmentalReadingRepository environmentalReadingRepository) {
+        this.environmentalReadingRepository = environmentalReadingRepository;
+    }
 
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(UUID sensorSystemId) {
