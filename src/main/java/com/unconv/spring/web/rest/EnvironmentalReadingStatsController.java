@@ -1,6 +1,7 @@
 package com.unconv.spring.web.rest;
 
 import com.unconv.spring.service.EnvironmentalReadingStatsService;
+import com.unconv.spring.service.SensorSystemService;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -19,6 +20,8 @@ public class EnvironmentalReadingStatsController {
 
     private final EnvironmentalReadingStatsService environmentalReadingStatsService;
 
+    @Autowired private SensorSystemService sensorSystemService;
+
     @Autowired
     public EnvironmentalReadingStatsController(
             EnvironmentalReadingStatsService environmentalReadingStatsService) {
@@ -28,9 +31,17 @@ public class EnvironmentalReadingStatsController {
     @GetMapping("/QuarterHourly/SensorSystem/{sensorSystemId}")
     public ResponseEntity<Map<OffsetDateTime, Double>> getQuarterHourlyTemperature(
             @PathVariable UUID sensorSystemId) {
-        Map<OffsetDateTime, Double> tenMinuteTemperatures =
-                environmentalReadingStatsService.getAverageTempsForQuarterHourly(sensorSystemId);
-        return ResponseEntity.ok(tenMinuteTemperatures);
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystemDTO -> {
+                            Map<OffsetDateTime, Double> tenMinuteTemperatures =
+                                    environmentalReadingStatsService
+                                            .getAverageTempsForQuarterHourly(
+                                                    sensorSystemDTO.getId());
+                            return ResponseEntity.ok(tenMinuteTemperatures);
+                        })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/Hourly/SensorSystem/{sensorSystemId}")
