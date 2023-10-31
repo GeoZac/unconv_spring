@@ -27,6 +27,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.instancio.Model;
@@ -148,6 +149,20 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadings);
         return environmentalReadingStatsService.getAverageTempsForQuarterHourly(
                 sensorSystem.getId());
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingQuarterHourlyStatsForNonExistentSensorSystem()
+            throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReadingStats/QuarterHourly/SensorSystem/{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf()))
+                .andExpect(status().isNotFound());
     }
 
     @Test
