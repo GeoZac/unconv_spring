@@ -103,9 +103,12 @@ class EnvironmentalReadingStatsControllerTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        UUID sensorSystemId = UUID.randomUUID();
+        UUID sensorSystemId = sensorSystem.getId();
 
         Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForQuarterHourlyStats();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystem));
 
         given(environmentalReadingStatsService.getAverageTempsForHourly(sensorSystemId))
                 .willReturn(averageTemperatures);
