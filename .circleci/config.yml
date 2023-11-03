@@ -88,6 +88,9 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
+      - store_artifacts:
+          path: ~/junit
+          destination: reports
 
   analyse:
     machine:
