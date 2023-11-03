@@ -76,10 +76,14 @@ jobs:
           command: |
             circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings --timings-type=classname
             ./mvnw -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings --timings-type=classname); do basename $file | sed -e "s/.java/,/"; done | tr -d '\r\n') -e test
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/
+            mv target/test-results/**/*.xml ~/junit/
+          when: always
       - store_test_results:
-          path: target/test-results
-      - store_artifacts:
-          path: target
+          path: ~/junit
       - save_cache:
           paths:
             - ~/.m2
