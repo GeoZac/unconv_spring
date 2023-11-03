@@ -7,6 +7,7 @@ jobs:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
+    working_directory: /tmp/spring
     steps:
       - checkout
       - restore_cache:
@@ -24,16 +25,17 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       - persist_to_workspace:
-          root: /
+          root: /tmp/spring
           paths: ["*", "**/*"]
   build:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
+    working_directory: /tmp/spring
     steps:
       - attach_workspace:
-          at: /
+          at: /tmp/spring
       - run:
           name: Install OpenJDK 17
           command: |
@@ -53,10 +55,11 @@ jobs:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
+    working_directory: /tmp/spring
     parallelism: 2
     steps:
       - attach_workspace:
-          at: /
+          at: /tmp/spring
       - run:
           name: Install OpenJDK 17
           command: |
@@ -94,10 +97,11 @@ jobs:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
+    working_directory: /tmp/spring
     parallelism: 1
     steps:
       - attach_workspace:
-          at: /
+          at: /tmp/spring
       - run:
           name: Install OpenJDK 17
           command: |
