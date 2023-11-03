@@ -56,7 +56,7 @@ jobs:
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
-    parallelism: 1
+    parallelism: 2
     steps:
       - attach_workspace:
           at: /tmp/spring
