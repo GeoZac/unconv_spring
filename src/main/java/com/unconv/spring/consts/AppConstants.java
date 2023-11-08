@@ -1,4 +1,4 @@
-package com.unconv.spring.utils;
+package com.unconv.spring.consts;
 
 public final class AppConstants {
     public static final String PROFILE_PROD = "prod";

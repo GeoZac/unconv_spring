@@ -1,10 +1,10 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.OrderProduct;
 import com.unconv.spring.dto.OrderProductDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.OrderProductService;
-import com.unconv.spring.utils.AppConstants;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
