@@ -36,12 +36,11 @@ public class EnvironmentalReadingStatsController {
         return sensorSystemService
                 .findSensorSystemById(sensorSystemId)
                 .map(
-                        sensorSystemDTO -> {
-                            Map<OffsetDateTime, Double> tenMinuteTemperatures =
+                        sensorSystem -> {
+                            Map<OffsetDateTime, Double> quarterHourlyTemperatures =
                                     environmentalReadingStatsService
-                                            .getAverageTempsForQuarterHourly(
-                                                    sensorSystemDTO.getId());
-                            return ResponseEntity.ok(tenMinuteTemperatures);
+                                            .getAverageTempsForQuarterHourly(sensorSystem.getId());
+                            return ResponseEntity.ok(quarterHourlyTemperatures);
                         })
                 .orElse(ResponseEntity.notFound().build());
     }
