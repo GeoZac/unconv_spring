@@ -49,16 +49,31 @@ public class EnvironmentalReadingStatsController {
     @GetMapping("/Hourly/SensorSystem/{sensorSystemId}")
     public ResponseEntity<Map<OffsetDateTime, Double>> getHourlyTemperature(
             @PathVariable UUID sensorSystemId) {
-        Map<OffsetDateTime, Double> hourlyTemperatures =
-                environmentalReadingStatsService.getAverageTempsForHourly(sensorSystemId);
-        return ResponseEntity.ok(hourlyTemperatures);
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystem -> {
+                            Map<OffsetDateTime, Double> hourlyTemperatures =
+                                    environmentalReadingStatsService.getAverageTempsForHourly(
+                                            sensorSystem.getId());
+                            return ResponseEntity.ok(hourlyTemperatures);
+                        })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/Daily/SensorSystem/{sensorSystemId}")
     public ResponseEntity<Map<OffsetDateTime, Double>> getDailyTemperature(
             @PathVariable UUID sensorSystemId) {
-        Map<OffsetDateTime, Double> hourlyTemperatures =
-                environmentalReadingStatsService.getAverageTempsForDaily(sensorSystemId);
-        return ResponseEntity.ok(hourlyTemperatures);
+
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystem -> {
+                            Map<OffsetDateTime, Double> dailyTemperatures =
+                                    environmentalReadingStatsService.getAverageTempsForDaily(
+                                            sensorSystem.getId());
+                            return ResponseEntity.ok(dailyTemperatures);
+                        })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
