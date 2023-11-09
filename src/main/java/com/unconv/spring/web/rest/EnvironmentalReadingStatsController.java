@@ -20,12 +20,14 @@ public class EnvironmentalReadingStatsController {
 
     private final EnvironmentalReadingStatsService environmentalReadingStatsService;
 
-    @Autowired private SensorSystemService sensorSystemService;
+    private final SensorSystemService sensorSystemService;
 
     @Autowired
     public EnvironmentalReadingStatsController(
-            EnvironmentalReadingStatsService environmentalReadingStatsService) {
+            EnvironmentalReadingStatsService environmentalReadingStatsService,
+            SensorSystemService sensorSystemService) {
         this.environmentalReadingStatsService = environmentalReadingStatsService;
+        this.sensorSystemService = sensorSystemService;
     }
 
     @GetMapping("/QuarterHourly/SensorSystem/{sensorSystemId}")
