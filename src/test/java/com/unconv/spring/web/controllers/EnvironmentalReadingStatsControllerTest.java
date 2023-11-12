@@ -17,6 +17,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.service.EnvironmentalReadingStatsService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingStatsController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
@@ -53,6 +55,8 @@ class EnvironmentalReadingStatsControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private EnvironmentalReadingStatsService environmentalReadingStatsService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     @Autowired private ObjectMapper objectMapper;
 
@@ -99,9 +103,12 @@ class EnvironmentalReadingStatsControllerTest {
 
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        UUID sensorSystemId = UUID.randomUUID();
+        UUID sensorSystemId = sensorSystem.getId();
 
         Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForQuarterHourlyStats();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystem));
 
         given(environmentalReadingStatsService.getAverageTempsForHourly(sensorSystemId))
                 .willReturn(averageTemperatures);
@@ -142,10 +149,30 @@ class EnvironmentalReadingStatsControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingQuarterHourlyStatsForNonExistentSensorSystem()
+            throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReadingStats/QuarterHourly/SensorSystem/{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
 
         Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForHourlyStats();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystem));
 
         given(environmentalReadingStatsService.getAverageTempsForHourly(sensorSystemId))
                 .willReturn(averageTemperatures);
@@ -190,6 +217,9 @@ class EnvironmentalReadingStatsControllerTest {
         UUID sensorSystemId = UUID.randomUUID();
 
         Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForDailyStats();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystem));
 
         given(environmentalReadingStatsService.getAverageTempsForDaily(sensorSystemId))
                 .willReturn(averageTemperatures);
