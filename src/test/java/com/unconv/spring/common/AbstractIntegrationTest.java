@@ -1,6 +1,6 @@
 package com.unconv.spring.common;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

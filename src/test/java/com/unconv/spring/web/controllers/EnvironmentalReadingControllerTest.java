@@ -1,10 +1,10 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_ER_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_ER_SORT_DIRECTION;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
-import static com.unconv.spring.utils.AppConstants.DEFAULT_ER_SORT_BY;
-import static com.unconv.spring.utils.AppConstants.DEFAULT_ER_SORT_DIRECTION;
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
