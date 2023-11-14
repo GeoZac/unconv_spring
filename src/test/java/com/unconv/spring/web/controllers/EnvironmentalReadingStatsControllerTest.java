@@ -1,6 +1,6 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
 import static org.mockito.BDDMockito.given;

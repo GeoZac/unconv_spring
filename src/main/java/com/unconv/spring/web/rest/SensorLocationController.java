@@ -1,10 +1,10 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.dto.SensorLocationDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
-import com.unconv.spring.utils.AppConstants;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
