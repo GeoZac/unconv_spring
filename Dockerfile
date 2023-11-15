@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-focal as builder
+FROM eclipse-temurin:17-jre-focal AS builder
 WORKDIR application
 ARG JAR_FILE=target/spring-0.0.5-SNAPSHOT.jar
 COPY ${JAR_FILE} application.jar
