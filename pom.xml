@@ -454,7 +454,7 @@
                         <configuration>
                             <backend>html</backend>
                             <doctype>book</doctype>
-                            <sourceDirectory>src/main/asciidoc</sourceDirectory>
+                            <sourceDirectory>src/main/doc</sourceDirectory>
                             <attributes>
                                 <snippets>target/snippets</snippets>
                             </attributes>
