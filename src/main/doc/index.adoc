@@ -52,3 +52,20 @@ Unconventional Spring Project tries to adhere as closely as possible to standard
 | `404 Not Found`
 | The requested resource did not exist
 |===
+
+== Entities
+
+Following are the entities associated with this project
+
+=== Environmental Reading
+
+    The EnvironmentalReading class represents environmental readings, including temperature, humidity, timestamp, and associated sensor system information.
+
+=== Sensor System
+
+    The SensorSystem class represents a sensor system information, including its unique identifier, sensor name, location, user information, and additional thresholds and readings.
+
+=== Unconvuser
+
+    The UnconvUser class represents user information, including a unique identifier, username, email, and password.
+
