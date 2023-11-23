@@ -8,6 +8,7 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -34,11 +35,13 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -49,11 +52,14 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
 class SensorLocationControllerTest {
 
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private MockMvc mockMvc;
+
+    @Autowired private MockMvcRestDocumentationConfigurer mockMvcRestDocumentationConfigurer;
 
     @MockBean private SensorLocationService sensorLocationService;
 
@@ -68,6 +74,7 @@ class SensorLocationControllerTest {
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorLocation")
                                         .with(user("username").roles("USER")))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -120,6 +127,7 @@ class SensorLocationControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andDo(document("shouldFindSensorLocationById"))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
