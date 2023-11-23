@@ -40,9 +40,9 @@ public class EnvironmentalReadingStatsUtils {
                     .toModel();
 
     public static List<EnvironmentalReading> generateMockDataForQuarterHourlyStats(
-            SensorSystem sensorSystem) {
+            SensorSystem sensorSystem, int listLength) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
+        for (int i = 0; i < listLength; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(environemntalReadingModel)
                             .supply(
@@ -69,15 +69,15 @@ public class EnvironmentalReadingStatsUtils {
             EnvironmentalReadingStatsService environmentalReadingStatsService,
             SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings =
-                generateMockDataForQuarterHourlyStats(sensorSystem);
+                generateMockDataForQuarterHourlyStats(sensorSystem, 75);
 
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 
     private static List<EnvironmentalReading> generateMockDataForHourlyStats(
-            SensorSystem sensorSystem) {
+            SensorSystem sensorSystem, int listLength) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
+        for (int i = 0; i < listLength; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(environemntalReadingModel)
                             .supply(
@@ -104,15 +104,15 @@ public class EnvironmentalReadingStatsUtils {
             EnvironmentalReadingStatsService environmentalReadingStatsService,
             SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings =
-                generateMockDataForHourlyStats(sensorSystem);
+                generateMockDataForHourlyStats(sensorSystem, 75);
 
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 
     public static List<EnvironmentalReading> generateMockDataForDailyStats(
-            SensorSystem sensorSystem) {
+            SensorSystem sensorSystem, int listLength) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < listLength; i++) {
             EnvironmentalReading environmentalReading =
                     Instancio.of(environemntalReadingModel)
                             .supply(
@@ -139,7 +139,7 @@ public class EnvironmentalReadingStatsUtils {
             EnvironmentalReadingStatsService environmentalReadingStatsService,
             SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings =
-                generateMockDataForDailyStats(sensorSystem);
+                generateMockDataForDailyStats(sensorSystem, 150);
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 }
