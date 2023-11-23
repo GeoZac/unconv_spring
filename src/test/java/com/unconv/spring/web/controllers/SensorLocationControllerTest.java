@@ -9,6 +9,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -20,6 +22,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
@@ -27,6 +32,7 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.web.rest.SensorLocationController;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +48,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
+import org.springframework.restdocs.operation.preprocess.ContentModifyingOperationPreprocessor;
+import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -169,6 +177,11 @@ class SensorLocationControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldCreateNewSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(
@@ -312,4 +325,21 @@ class SensorLocationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
     }
+
+    OperationPreprocessor prettyPrint =
+            new ContentModifyingOperationPreprocessor(
+                    (content, contentType) -> {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        PrettyPrinter prettyPrinter =
+                                new DefaultPrettyPrinter()
+                                        .withArrayIndenter(
+                                                DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+                        try {
+                            return objectMapper
+                                    .writer(prettyPrinter)
+                                    .writeValueAsBytes(objectMapper.readTree(content));
+                        } catch (IOException ex) {
+                            return content;
+                        }
+                    });
 }
