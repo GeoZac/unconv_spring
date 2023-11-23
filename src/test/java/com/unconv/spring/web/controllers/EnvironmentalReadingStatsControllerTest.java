@@ -18,6 +18,7 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.service.EnvironmentalReadingStatsService;
 import com.unconv.spring.service.SensorSystemService;
+import com.unconv.spring.utils.EnvironmentalReadingStatsUtils;
 import com.unconv.spring.web.rest.EnvironmentalReadingStatsController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -105,7 +106,9 @@ class EnvironmentalReadingStatsControllerTest {
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
         UUID sensorSystemId = sensorSystem.getId();
 
-        Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForQuarterHourlyStats();
+        Map<OffsetDateTime, Double> averageTemperatures =
+                EnvironmentalReadingStatsUtils.generateMockDataForQuarterHourlyStats(
+                        environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
@@ -121,31 +124,6 @@ class EnvironmentalReadingStatsControllerTest {
                                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> generateMockDataForQuarterHourlyStats() {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(24)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 1440)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 
     @Test
@@ -216,7 +194,9 @@ class EnvironmentalReadingStatsControllerTest {
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
 
-        Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForDailyStats();
+        Map<OffsetDateTime, Double> averageTemperatures =
+                EnvironmentalReadingStatsUtils.generateMockDataForDailyStats(
+                        environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
@@ -232,30 +212,5 @@ class EnvironmentalReadingStatsControllerTest {
                                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    public Map<OffsetDateTime, Double> generateMockDataForDailyStats() {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusDays(7)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 10080)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 }
