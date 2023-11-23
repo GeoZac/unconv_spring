@@ -107,7 +107,7 @@ class EnvironmentalReadingStatsControllerTest {
         UUID sensorSystemId = sensorSystem.getId();
 
         Map<OffsetDateTime, Double> averageTemperatures =
-                EnvironmentalReadingStatsUtils.generateMockDataForQuarterHourlyStats(
+                EnvironmentalReadingStatsUtils.calculateAverageTempsForQuarterHourly(
                         environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
@@ -195,7 +195,7 @@ class EnvironmentalReadingStatsControllerTest {
         UUID sensorSystemId = UUID.randomUUID();
 
         Map<OffsetDateTime, Double> averageTemperatures =
-                EnvironmentalReadingStatsUtils.generateMockDataForDailyStats(
+                EnvironmentalReadingStatsUtils.calculateAverageTempsForDaily(
                         environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))

@@ -39,8 +39,7 @@ public class EnvironmentalReadingStatsUtils {
                     .ignore(field(EnvironmentalReading::getId))
                     .toModel();
 
-    public static Map<OffsetDateTime, Double> generateMockDataForQuarterHourlyStats(
-            EnvironmentalReadingStatsService environmentalReadingStatsService,
+    public static List<EnvironmentalReading> generateMockDataForQuarterHourlyStats(
             SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 75; i++) {
@@ -63,11 +62,19 @@ public class EnvironmentalReadingStatsUtils {
                             .create();
             environmentalReadings.add(environmentalReading);
         }
+        return environmentalReadings;
+    }
+
+    public static Map<OffsetDateTime, Double> calculateAverageTempsForQuarterHourly(
+            EnvironmentalReadingStatsService environmentalReadingStatsService,
+            SensorSystem sensorSystem) {
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForQuarterHourlyStats(sensorSystem);
+
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 
-    public static Map<OffsetDateTime, Double> generateMockDataForDailyStats(
-            EnvironmentalReadingStatsService environmentalReadingStatsService,
+    public static List<EnvironmentalReading> generateMockDataForDailyStats(
             SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < 150; i++) {
@@ -90,6 +97,14 @@ public class EnvironmentalReadingStatsUtils {
                             .create();
             environmentalReadings.add(environmentalReading);
         }
+        return environmentalReadings;
+    }
+
+    public static Map<OffsetDateTime, Double> calculateAverageTempsForDaily(
+            EnvironmentalReadingStatsService environmentalReadingStatsService,
+            SensorSystem sensorSystem) {
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForDailyStats(sensorSystem);
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 }
