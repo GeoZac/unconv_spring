@@ -74,6 +74,41 @@ public class EnvironmentalReadingStatsUtils {
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 
+    private static List<EnvironmentalReading> generateMockDataForHourlyStats(
+            SensorSystem sensorSystem) {
+        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
+        for (int i = 0; i < 75; i++) {
+            EnvironmentalReading environmentalReading =
+                    Instancio.of(environemntalReadingModel)
+                            .supply(
+                                    field(EnvironmentalReading::getSensorSystem),
+                                    () -> sensorSystem)
+                            .supply(
+                                    field(EnvironmentalReading::getTimestamp),
+                                    random ->
+                                            ZonedDateTime.of(
+                                                            LocalDateTime.now()
+                                                                    .minusHours(24)
+                                                                    .plusMinutes(
+                                                                            random.intRange(
+                                                                                    0, 1440)),
+                                                            ZoneId.systemDefault())
+                                                    .toOffsetDateTime())
+                            .create();
+            environmentalReadings.add(environmentalReading);
+        }
+        return environmentalReadings;
+    }
+
+    public static Map<OffsetDateTime, Double> calculateAverageTempsForHourly(
+            EnvironmentalReadingStatsService environmentalReadingStatsService,
+            SensorSystem sensorSystem) {
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForHourlyStats(sensorSystem);
+
+        return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
+    }
+
     public static List<EnvironmentalReading> generateMockDataForDailyStats(
             SensorSystem sensorSystem) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
