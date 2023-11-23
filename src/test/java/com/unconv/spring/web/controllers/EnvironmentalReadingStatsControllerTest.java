@@ -1,8 +1,10 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.calculateAverageTempsForDaily;
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.calculateAverageTempsForHourly;
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.calculateAverageTempsForQuarterHourly;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.instancio.Select.field;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -13,27 +15,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.consts.SensorLocationType;
-import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.service.EnvironmentalReadingStatsService;
 import com.unconv.spring.service.SensorSystemService;
-import com.unconv.spring.utils.EnvironmentalReadingStatsUtils;
 import com.unconv.spring.web.rest.EnvironmentalReadingStatsController;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import net.minidev.json.JSONArray;
-import org.instancio.Instancio;
-import org.instancio.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,26 +59,6 @@ class EnvironmentalReadingStatsControllerTest {
     private final SensorSystem sensorSystem =
             new SensorSystem(UUID.randomUUID(), "Sensor ABCD", sensorLocation, null);
 
-    private static final Model<EnvironmentalReading> environemntalReadingModel =
-            Instancio.of(EnvironmentalReading.class)
-                    .supply(
-                            field(EnvironmentalReading::getTemperature),
-                            random ->
-                                    BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
-                                            .setScale(3, RoundingMode.HALF_UP)
-                                            .doubleValue())
-                    .supply(
-                            field(EnvironmentalReading::getHumidity),
-                            random ->
-                                    BigDecimal.valueOf(random.doubleRange(0, 100))
-                                            .setScale(3, RoundingMode.HALF_UP)
-                                            .doubleValue())
-                    .generate(
-                            field(EnvironmentalReading::getTimestamp),
-                            gen -> gen.temporal().offsetDateTime().past())
-                    .ignore(field(EnvironmentalReading::getId))
-                    .toModel();
-
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -107,7 +78,7 @@ class EnvironmentalReadingStatsControllerTest {
         UUID sensorSystemId = sensorSystem.getId();
 
         Map<OffsetDateTime, Double> averageTemperatures =
-                EnvironmentalReadingStatsUtils.calculateAverageTempsForQuarterHourly(
+                calculateAverageTempsForQuarterHourly(
                         environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
@@ -147,7 +118,8 @@ class EnvironmentalReadingStatsControllerTest {
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
 
-        Map<OffsetDateTime, Double> averageTemperatures = generateMockDataForHourlyStats();
+        Map<OffsetDateTime, Double> averageTemperatures =
+                calculateAverageTempsForHourly(environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
@@ -165,38 +137,12 @@ class EnvironmentalReadingStatsControllerTest {
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
     }
 
-    private Map<OffsetDateTime, Double> generateMockDataForHourlyStats() {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(24)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 1440)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
-    }
-
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
 
         Map<OffsetDateTime, Double> averageTemperatures =
-                EnvironmentalReadingStatsUtils.calculateAverageTempsForDaily(
-                        environmentalReadingStatsService, sensorSystem);
+                calculateAverageTempsForDaily(environmentalReadingStatsService, sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
