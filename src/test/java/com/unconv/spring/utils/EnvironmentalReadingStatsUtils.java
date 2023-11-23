@@ -74,7 +74,7 @@ public class EnvironmentalReadingStatsUtils {
         return environmentalReadingStatsService.getAverageTempsForHourly(environmentalReadings);
     }
 
-    private static List<EnvironmentalReading> generateMockDataForHourlyStats(
+    public static List<EnvironmentalReading> generateMockDataForHourlyStats(
             SensorSystem sensorSystem, int listLength) {
         List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
         for (int i = 0; i < listLength; i++) {
