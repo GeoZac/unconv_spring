@@ -23,9 +23,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
@@ -131,7 +134,20 @@ class SensorSystemControllerTest {
     @Test
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        SensorSystem sensorSystem = new SensorSystem(null, "text 1", null, null);
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
+        SensorSystem sensorSystem =
+                new SensorSystem(
+                        sensorSystemId,
+                        "Workspace sensor system",
+                        "Monitors temperature and humidity for personal workspace",
+                        false,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        new HumidityThreshold(UUID.randomUUID(), 75, 23),
+                        new TemperatureThreshold(UUID.randomUUID(), 100, 0));
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
