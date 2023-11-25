@@ -247,7 +247,7 @@ class SensorSystemControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewSensorSystemWithNullValues() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         SensorSystem sensorSystem = new SensorSystem(null, null, null, unconvUser);
