@@ -168,7 +168,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewBookingWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewBookingWithNullValues() throws Exception {
         Booking booking = new Booking(null, null, null);
 
         this.mockMvc

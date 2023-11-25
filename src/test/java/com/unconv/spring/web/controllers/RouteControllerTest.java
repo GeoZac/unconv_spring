@@ -137,7 +137,7 @@ class RouteControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewRouteWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewRouteWithNullValues() throws Exception {
         Route route = new Route(null, null);
 
         this.mockMvc

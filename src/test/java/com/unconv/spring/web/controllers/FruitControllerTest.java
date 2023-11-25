@@ -150,7 +150,7 @@ class FruitControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewFruitWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewFruitWithNullValues() throws Exception {
         Fruit fruit = new Fruit(null, null, null, null);
 
         this.mockMvc
