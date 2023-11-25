@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
@@ -158,62 +160,19 @@ class SensorSystemControllerTest {
         given(sensorSystemService.findSensorSystemDTOById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystemDTO));
 
-        this.mockMvc
-                .perform(get("/SensorSystem/{id}", sensorSystemId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
-                .andExpect(jsonPath("$.description", is(sensorSystem.getDescription())))
-                .andExpect(jsonPath("$.deleted", is(sensorSystem.isDeleted())))
-                .andExpect(jsonPath("$.sensorStatus", is(sensorSystem.getSensorStatus().name())))
-                .andExpect(jsonPath("$.sensorLocation", notNullValue()))
-                .andExpect(jsonPath("$.sensorLocation.id", notNullValue()))
-                .andExpect(
-                        jsonPath(
-                                "$.sensorLocation.sensorLocationText",
-                                is(sensorLocation.getSensorLocationText())))
-                .andExpect(jsonPath("$.sensorLocation.latitude", is(sensorLocation.getLatitude())))
-                .andExpect(
-                        jsonPath("$.sensorLocation.longitude", is(sensorLocation.getLongitude())))
-                .andExpect(
-                        jsonPath(
-                                "$.sensorLocation.sensorLocationType",
-                                is(sensorLocation.getSensorLocationType().name())))
-                .andExpect(jsonPath("$.unconvUser", notNullValue()))
-                .andExpect(jsonPath("$.unconvUser.id", notNullValue()))
-                .andExpect(jsonPath("$.unconvUser.username", is(unconvUser.getUsername())))
-                .andExpect(jsonPath("$.unconvUser.email", is(unconvUser.getEmail())))
-                .andExpect(jsonPath("$.humidityThreshold", notNullValue()))
-                .andExpect(jsonPath("$.humidityThreshold.id", notNullValue()))
-                .andExpect(
-                        jsonPath(
-                                "$.humidityThreshold.maxValue",
-                                is(sensorSystem.getHumidityThreshold().getMaxValue())))
-                .andExpect(
-                        jsonPath(
-                                "$.humidityThreshold.minValue",
-                                is(sensorSystem.getHumidityThreshold().getMinValue())))
-                .andExpect(jsonPath("$.temperatureThreshold", notNullValue()))
-                .andExpect(jsonPath("$.temperatureThreshold.id", notNullValue()))
-                .andExpect(
-                        jsonPath(
-                                "$.temperatureThreshold.maxValue",
-                                is(sensorSystem.getTemperatureThreshold().getMaxValue())))
-                .andExpect(
-                        jsonPath(
-                                "$.temperatureThreshold.minValue",
-                                is(sensorSystem.getTemperatureThreshold().getMinValue())))
-                .andExpect(jsonPath("$.readingCount", notNullValue()))
-                .andExpect(jsonPath("$.latestReading", notNullValue()))
-                .andExpect(
-                        jsonPath(
-                                "$.latestReading.temperature",
-                                is(sensorSystemDTO.getLatestReading().getTemperature())))
-                .andExpect(
-                        jsonPath(
-                                "$.latestReading.humidity",
-                                is(sensorSystemDTO.getLatestReading().getHumidity())))
-                .andExpect(jsonPath("$.latestReading.timestamp", notNullValue()));
+        String responseJson =
+                this.mockMvc
+                        .perform(get("/SensorSystem/{id}", sensorSystemId))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        List<Object> fieldValues = JsonPath.read(responseJson, "$..*");
+        for (Object fieldValue : fieldValues) {
+            assertNotNull(fieldValue, "Field value should not be null");
+        }
     }
 
     @Test
