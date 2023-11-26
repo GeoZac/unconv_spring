@@ -1,5 +1,8 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForDailyStats;
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForHourlyStats;
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForQuarterHourlyStats;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -20,11 +23,7 @@ import com.unconv.spring.service.EnvironmentalReadingStatsService;
 import com.unconv.spring.service.UnconvUserService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -125,27 +124,8 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     }
 
     private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 25; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(3)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 180)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForQuarterHourlyStats(sensorSystem, 25);
         environmentalReadingRepository.saveAll(environmentalReadings);
         return environmentalReadingStatsService.getAverageTempsForQuarterHourly(
                 sensorSystem.getId());
@@ -186,27 +166,8 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     }
 
     private Map<OffsetDateTime, Double> setupTestDataForHourly(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(24)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 1440)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForHourlyStats(sensorSystem, 75);
         environmentalReadingRepository.saveAll(environmentalReadings);
         return environmentalReadingStatsService.getAverageTempsForHourly(sensorSystem.getId());
     }
@@ -232,27 +193,8 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     }
 
     private Map<OffsetDateTime, Double> setupTestDataForDaily(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusDays(7)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 10080)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForDailyStats(sensorSystem, 150);
         environmentalReadingRepository.saveAll(environmentalReadings);
         return environmentalReadingStatsService.getAverageTempsForDaily(sensorSystem.getId());
     }

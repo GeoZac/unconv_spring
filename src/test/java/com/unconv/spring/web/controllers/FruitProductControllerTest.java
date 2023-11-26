@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.Fruit;
 import com.unconv.spring.domain.FruitProduct;
 import com.unconv.spring.domain.Offer;
@@ -31,32 +31,24 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = FruitProductController.class)
 @ActiveProfiles(PROFILE_TEST)
-class FruitProductControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-    @Autowired private MockMvc mockMvc;
+class FruitProductControllerTest extends AbstractControllerTest {
 
     @MockBean private FruitProductService fruitProductService;
 
     @MockBean private FruitService fruitService;
 
     @MockBean private OfferService offerService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<FruitProduct> fruitProductList;
 
