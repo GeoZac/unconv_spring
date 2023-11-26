@@ -169,7 +169,7 @@ class BookingControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewBookingWithNullValues() throws Exception {
-        Booking booking = new Booking(null, null, null);
+        Booking booking = new Booking();
 
         this.mockMvc
                 .perform(

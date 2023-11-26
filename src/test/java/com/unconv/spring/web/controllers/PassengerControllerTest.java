@@ -157,7 +157,7 @@ class PassengerControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewPassengerWithNullValues() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
+        Passenger passenger = new Passenger();
 
         this.mockMvc
                 .perform(

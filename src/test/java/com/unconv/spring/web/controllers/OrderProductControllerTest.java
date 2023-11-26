@@ -144,7 +144,7 @@ class OrderProductControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewOrderProductWithNullValues() throws Exception {
-        OrderProduct orderProduct = new OrderProduct(null, null);
+        OrderProduct orderProduct = new OrderProduct();
 
         this.mockMvc
                 .perform(

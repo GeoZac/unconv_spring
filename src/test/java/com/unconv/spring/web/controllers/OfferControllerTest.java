@@ -126,7 +126,7 @@ class OfferControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewOfferWithNullValues() throws Exception {
-        Offer offer = new Offer(null, null, null);
+        Offer offer = new Offer();
 
         this.mockMvc
                 .perform(
