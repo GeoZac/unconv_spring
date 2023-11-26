@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -144,6 +146,34 @@ class TemperatureThresholdControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithNullValues() throws Exception {
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold();
+
+        this.mockMvc
+                .perform(
+                        post("/TemperatureThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Min. value must be less than Max. value")))
+                .andReturn();
     }
 
     @Test
