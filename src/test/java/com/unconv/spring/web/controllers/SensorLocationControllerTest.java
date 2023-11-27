@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
@@ -51,27 +52,18 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.restdocs.operation.preprocess.ContentModifyingOperationPreprocessor;
 import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
-class SensorLocationControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
-
+class SensorLocationControllerTest extends AbstractControllerTest {
     @Autowired private MockMvcRestDocumentationConfigurer mockMvcRestDocumentationConfigurer;
 
     @MockBean private SensorLocationService sensorLocationService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<SensorLocation> sensorLocationList;
 

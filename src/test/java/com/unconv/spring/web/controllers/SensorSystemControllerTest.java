@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
@@ -67,29 +68,20 @@ import org.springframework.restdocs.operation.preprocess.ContentModifyingOperati
 import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorSystemController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
-class SensorSystemControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
-
+class SensorSystemControllerTest extends AbstractControllerTest {
     @Autowired private MockMvcRestDocumentationConfigurer mockMvcRestDocumentationConfigurer;
 
     @MockBean private SensorSystemService sensorSystemService;
 
     @Autowired private ModelMapper modelMapper;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<SensorSystem> sensorSystemList;
 

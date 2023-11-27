@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
@@ -56,27 +56,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = EnvironmentalReadingController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/EnvironmentalReading")
-class EnvironmentalReadingControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
+class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @Autowired private MockMvcRestDocumentationConfigurer mockMvcRestDocumentationConfigurer;
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
