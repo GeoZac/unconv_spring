@@ -63,7 +63,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.restdocs.operation.preprocess.ContentModifyingOperationPreprocessor;
 import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.security.core.Authentication;
@@ -77,8 +76,6 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
 class SensorSystemControllerTest extends AbstractControllerTest {
-    @Autowired private MockMvcRestDocumentationConfigurer mockMvcRestDocumentationConfigurer;
-
     @MockBean private SensorSystemService sensorSystemService;
 
     @Autowired private ModelMapper modelMapper;
