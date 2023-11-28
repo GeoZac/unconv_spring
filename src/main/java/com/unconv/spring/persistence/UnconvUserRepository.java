@@ -10,4 +10,6 @@ public interface UnconvUserRepository extends JpaRepository<UnconvUser, UUID> {
     UnconvUser findByUsername(String username);
 
     Optional<UnconvUser> findById(UUID id);
+
+    UnconvUser findUnconvUserById(UUID id);
 }
