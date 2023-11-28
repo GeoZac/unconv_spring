@@ -44,7 +44,6 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -53,7 +52,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -65,8 +63,6 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/EnvironmentalReading")
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
-
-    @Autowired private MockMvcRestDocumentationConfigurer mockMvcRestDocumentationConfigurer;
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
 
