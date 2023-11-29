@@ -24,10 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.EnvironmentalReading;
@@ -40,7 +36,6 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorSystemController;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,8 +58,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.restdocs.operation.preprocess.ContentModifyingOperationPreprocessor;
-import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -328,21 +321,4 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
                 .andExpect(status().isNotFound());
     }
-
-    OperationPreprocessor prettyPrint =
-            new ContentModifyingOperationPreprocessor(
-                    (content, contentType) -> {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        PrettyPrinter prettyPrinter =
-                                new DefaultPrettyPrinter()
-                                        .withArrayIndenter(
-                                                DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-                        try {
-                            return objectMapper
-                                    .writer(prettyPrinter)
-                                    .writeValueAsBytes(objectMapper.readTree(content));
-                        } catch (IOException ex) {
-                            return content;
-                        }
-                    });
 }

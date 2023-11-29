@@ -22,10 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
@@ -33,7 +29,6 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.web.rest.SensorLocationController;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,8 +42,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.operation.preprocess.ContentModifyingOperationPreprocessor;
-import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -313,21 +306,4 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
     }
-
-    OperationPreprocessor prettyPrint =
-            new ContentModifyingOperationPreprocessor(
-                    (content, contentType) -> {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        PrettyPrinter prettyPrinter =
-                                new DefaultPrettyPrinter()
-                                        .withArrayIndenter(
-                                                DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-                        try {
-                            return objectMapper
-                                    .writer(prettyPrinter)
-                                    .writeValueAsBytes(objectMapper.readTree(content));
-                        } catch (IOException ex) {
-                            return content;
-                        }
-                    });
 }
