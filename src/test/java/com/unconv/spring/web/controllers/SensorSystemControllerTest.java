@@ -211,7 +211,8 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         SensorSystemDTO sensorSystemDTO =
-                new SensorSystemDTO(UUID.randomUUID(), "some text", sensorLocation, unconvUser);
+                new SensorSystemDTO(
+                        UUID.randomUUID(), "New sensor system", sensorLocation, unconvUser);
 
         MessageResponse<SensorSystemDTO> environmentalReadingDTOMessageResponse =
                 new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_ACCEPTED);
@@ -239,9 +240,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithNullValues() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        SensorSystem sensorSystem = new SensorSystem(null, null, null, unconvUser);
+        SensorSystem sensorSystem = new SensorSystem();
 
         this.mockMvc
                 .perform(
@@ -257,7 +256,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
@@ -266,7 +265,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     @Test
     void shouldUpdateSensorSystem() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
                 new SensorSystem(sensorSystemId, "Updated text", sensorLocation, unconvUser);
