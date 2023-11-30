@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
@@ -104,17 +106,28 @@ class SensorLocationControllerTest extends AbstractControllerTest {
     void shouldFindSensorLocationById() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
         SensorLocation sensorLocation =
-                new SensorLocation(null, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
+                new SensorLocation(
+                        sensorLocationId, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.of(sensorLocation));
 
-        this.mockMvc
-                .perform(get("/SensorLocation/{id}", sensorLocationId))
-                .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath(
-                                "$.sensorLocationText",
-                                is(sensorLocation.getSensorLocationText())));
+        String responseJson =
+                this.mockMvc
+                        .perform(get("/SensorLocation/{id}", sensorLocationId))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id", is(sensorLocationId.toString())))
+                        .andExpect(
+                                jsonPath(
+                                        "$.sensorLocationText",
+                                        is(sensorLocation.getSensorLocationText())))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        List<Object> fieldValues = JsonPath.read(responseJson, "$..*");
+        for (Object fieldValue : fieldValues) {
+            assertNotNull(fieldValue, "Field value should not be null");
+        }
     }
 
     @Test
@@ -140,11 +153,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         SensorLocation sensorLocation =
                 new SensorLocation(
-                        UUID.randomUUID(),
-                        "Moai Statues",
-                        -27.1212,
-                        -109.3667,
-                        SensorLocationType.OUTDOOR);
+                        null, "Moai Statues", -27.1212, -109.3667, SensorLocationType.OUTDOOR);
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
@@ -161,7 +170,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewSensorLocationWithNullValues() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, null, null, null, null);
+        SensorLocation sensorLocation = new SensorLocation();
 
         this.mockMvc
                 .perform(
