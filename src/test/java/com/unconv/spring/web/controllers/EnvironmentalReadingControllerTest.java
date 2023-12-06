@@ -14,6 +14,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -27,9 +29,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
@@ -68,12 +72,24 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     private List<EnvironmentalReading> environmentalReadingList;
 
+    private final UnconvUser unconvUser =
+            new UnconvUser(UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
+
     private final SensorLocation sensorLocation =
             new SensorLocation(
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
     private final SensorSystem sensorSystem =
-            new SensorSystem(UUID.randomUUID(), "Sensor ABCD", sensorLocation, null);
+            new SensorSystem(
+                    UUID.randomUUID(),
+                    "Workspace sensor system",
+                    "Monitors temperature and humidity for personal workspace",
+                    false,
+                    SensorStatus.ACTIVE,
+                    sensorLocation,
+                    unconvUser,
+                    null,
+                    null);
 
     @BeforeEach
     void setUp() {
@@ -107,6 +123,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/EnvironmentalReading"))
+                .andDo(
+                        document(
+                                "shouldFetchAllEnvironmentalReadings",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
@@ -123,7 +144,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        null,
+                        UUID.randomUUID(),
                         13L,
                         75L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
@@ -133,7 +154,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
-                .andDo(document("shouldFindEnvironmentalReadingById"))
+                .andDo(
+                        document(
+                                "shouldFindEnvironmentalReadingById",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
@@ -146,6 +170,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingEnvironmentalReading",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -166,6 +195,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(
                         get("/EnvironmentalReading/Latest/UnconvUser/{unconvUserId}", unconvUserId))
+                .andDo(
+                        document(
+                                "shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
                 .andExpect(jsonPath("$.size()", is(9)));
@@ -203,6 +236,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andDo(
+                        document(
+                                "shouldCreateNewEnvironmentalReading",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(
@@ -222,6 +260,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -262,6 +305,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andDo(
+                        document(
+                                "shouldUpdateEnvironmentalReading",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
@@ -285,6 +333,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingEnvironmentalReading",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -308,6 +361,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .perform(
                         delete("/EnvironmentalReading/{id}", environmentalReading.getId())
                                 .with(csrf()))
+                .andDo(
+                        document(
+                                "shouldDeleteEnvironmentalReading",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
     }
@@ -320,6 +378,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingEnvironmentalReading",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }
