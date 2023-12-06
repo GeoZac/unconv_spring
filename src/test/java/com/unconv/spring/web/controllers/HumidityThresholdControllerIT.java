@@ -130,6 +130,14 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingNonExistingHumidityThreshold() throws Exception {
+        UUID humidityThresholdId = UUID.randomUUID();
+        this.mockMvc
+                .perform(get("/TemperatureThreshold/{id}", humidityThresholdId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldCreateNewHumidityThreshold() throws Exception {
         HumidityThreshold humidityThreshold = new HumidityThreshold(null, 100, 0);
         this.mockMvc
