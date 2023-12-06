@@ -114,6 +114,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem"))
+                .andDo(
+                        document(
+                                "shouldFetchAllSensorSystems",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -167,6 +172,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem/ReadingsCount/{sensorSystemId}", sensorSystemId))
+                .andDo(
+                        document(
+                                "shouldFetchRecentSensorReadingCountsWithReadingsPresent",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)))
@@ -185,6 +195,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -239,6 +254,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewSensorSystemWithoutText",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -273,6 +293,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystemDTO)))
+                .andDo(
+                        document(
+                                "shouldUpdateSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
@@ -293,6 +318,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -307,6 +337,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldDeleteSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
@@ -319,6 +354,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }
