@@ -129,7 +129,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewPassengerWithNullValues() throws Exception {
         Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
 
         this.mockMvc

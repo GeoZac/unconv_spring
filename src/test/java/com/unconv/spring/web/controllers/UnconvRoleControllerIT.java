@@ -124,7 +124,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewUnconvRoleWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewUnconvRoleWithNullValues() throws Exception {
         UnconvRole unconvRole = new UnconvRole(null, null);
 
         this.mockMvc

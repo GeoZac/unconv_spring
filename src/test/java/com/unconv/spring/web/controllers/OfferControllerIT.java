@@ -85,7 +85,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewOfferWithNullValues() throws Exception {
         Offer offer = new Offer(null, null, null);
 
         this.mockMvc

@@ -702,7 +702,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
+    void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         UUID.randomUUID(), 0L, 0L, OffsetDateTime.now().plusDays(1), null);
