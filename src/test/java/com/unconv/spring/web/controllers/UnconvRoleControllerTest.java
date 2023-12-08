@@ -133,7 +133,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewUnconvRoleWithNullValues() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, null);
+        UnconvRole unconvRole = new UnconvRole();
 
         this.mockMvc
                 .perform(

@@ -166,7 +166,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturn400WhenCreateNewUnconvUserWithNullValues() throws Exception {
-        UnconvUser unconvUser = new UnconvUser(null, null, null, null);
+        UnconvUser unconvUser = new UnconvUser();
 
         this.mockMvc
                 .perform(
