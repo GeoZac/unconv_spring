@@ -524,7 +524,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenCreateNewSensorSystemWithNullValues() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null, null, null);
+        SensorSystem sensorSystem = new SensorSystem();
 
         this.mockMvc
                 .perform(
