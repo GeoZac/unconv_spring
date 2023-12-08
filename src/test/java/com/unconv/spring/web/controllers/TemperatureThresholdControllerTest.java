@@ -94,14 +94,18 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindTemperatureThresholdById() throws Exception {
         UUID temperatureThresholdId = UUID.randomUUID();
-        TemperatureThreshold temperatureThreshold = new TemperatureThreshold();
+        TemperatureThreshold temperatureThreshold =
+                new TemperatureThreshold(temperatureThresholdId, 100, -100);
         given(temperatureThresholdService.findTemperatureThresholdById(temperatureThresholdId))
                 .willReturn(Optional.of(temperatureThreshold));
 
         this.mockMvc
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.id", is(temperatureThresholdId.toString())))
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
@@ -136,7 +140,9 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
@@ -184,7 +190,9 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
@@ -220,7 +228,9 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                         delete("/TemperatureThreshold/{id}", temperatureThreshold.getId())
                                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
