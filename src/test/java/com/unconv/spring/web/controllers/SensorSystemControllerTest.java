@@ -317,7 +317,9 @@ class SensorSystemControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.deleted", is(true)))
+                .andReturn();
     }
 
     @Test
