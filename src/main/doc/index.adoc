@@ -74,3 +74,13 @@ include::entity/sensorSystem.adoc[]
     The UnconvUser class represents user information, including a unique identifier, username, email, and password.
 
 include::entity/unconvUser.adoc[]
+
+=== API Documentation
+==== Environmental Reading
+include::api/EnvironmentalReading/index.adoc/[]
+
+==== SensorSystem
+include::api/SensorSystem/index.adoc[]
+
+==== UnconvUser
+include::api/UnconvUser/index.adoc[]
