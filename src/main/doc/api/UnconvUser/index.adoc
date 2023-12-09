@@ -1,0 +1,61 @@
+===== Searching for a UnconvUser
+
+*Searching by UUID* +
+_Search for a UnconvUser by its UUID_ +
+
+Request
+include::{snippets}/UnconvUser/shouldFindUnconvUserById/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_#
+include::{snippets}/UnconvUser/shouldFindUnconvUserById/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/UnconvUser/shouldReturn404WhenFetchingNonExistingUnconvUser/http-response.adoc[]
+
+===== Creating a UnconvUser
+*Creating a UnconvUser* +
+_Create a new UnconvUser_ +
+
+Request
+include::{snippets}/UnconvUser/shouldCreateNewUnconvUser/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_#
+include::{snippets}/UnconvUser/shouldCreateNewUnconvUser/http-response.adoc[]
+
+* 400 Response - _Invalid Request_
+include::{snippets}/UnconvUser/shouldReturn400WhenCreateNewUnconvUserWithoutText/http-response.adoc[]
+
+===== Updating a UnconvUser
+*Updating a UnconvUser* +
+_Updating an existing UnconvUser by its UUID_ +
+
+Request
+include::{snippets}/UnconvUser/shouldUpdateUnconvUser/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_#
+include::{snippets}/UnconvUser/shouldUpdateUnconvUser/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/UnconvUser/shouldReturn404WhenUpdatingNonExistingUnconvUser/http-response.adoc[]
+
+===== Deleting a UnconvUser
+*Deleting a UnconvUser* +
+_Deleting an existing UnconvUser by its UUID_ +
+
+Request
+include::{snippets}/UnconvUser/shouldDeleteUnconvUser/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_#
+include::{snippets}/UnconvUser/shouldDeleteUnconvUser/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/UnconvUser/shouldReturn404WhenDeletingNonExistingUnconvUser/http-response.adoc[]
+
