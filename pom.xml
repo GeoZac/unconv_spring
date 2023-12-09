@@ -463,7 +463,7 @@
                             <doctype>book</doctype>
                             <sourceDirectory>src/main/doc</sourceDirectory>
                             <attributes>
-                                <snippets>target/snippets</snippets>
+                                <snippets>${project.build.directory}/snippets</snippets>
                             </attributes>
                         </configuration>
                     </execution>
