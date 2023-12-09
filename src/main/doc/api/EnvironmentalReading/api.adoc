@@ -8,7 +8,7 @@ include::{snippets}/EnvironmentalReading/shouldFindEnvironmentalReadingById/http
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/EnvironmentalReading/shouldFindEnvironmentalReadingById/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
@@ -23,7 +23,7 @@ include::{snippets}/EnvironmentalReading/shouldCreateNewEnvironmentalReading/htt
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/EnvironmentalReading/shouldCreateNewEnvironmentalReading/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
@@ -38,7 +38,7 @@ include::{snippets}/EnvironmentalReading/shouldUpdateEnvironmentalReading/http-r
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/EnvironmentalReading/shouldUpdateEnvironmentalReading/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
@@ -53,7 +53,7 @@ include::{snippets}/EnvironmentalReading/shouldDeleteEnvironmentalReading/http-r
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/EnvironmentalReading/shouldDeleteEnvironmentalReading/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_

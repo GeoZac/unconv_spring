@@ -8,7 +8,7 @@ include::{snippets}/UnconvUser/shouldFindUnconvUserById/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/UnconvUser/shouldFindUnconvUserById/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
@@ -23,7 +23,7 @@ include::{snippets}/UnconvUser/shouldCreateNewUnconvUser/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/UnconvUser/shouldCreateNewUnconvUser/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
@@ -38,7 +38,7 @@ include::{snippets}/UnconvUser/shouldUpdateUnconvUser/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/UnconvUser/shouldUpdateUnconvUser/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
@@ -53,7 +53,7 @@ include::{snippets}/UnconvUser/shouldDeleteUnconvUser/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/UnconvUser/shouldDeleteUnconvUser/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_

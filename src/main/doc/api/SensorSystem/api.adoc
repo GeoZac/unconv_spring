@@ -8,7 +8,7 @@ include::{snippets}/SensorSystem/shouldFindSensorSystemById/http-request.adoc[]
 
 Response +
 
-    * 200 Response - _Successful execution_#
+    * 200 Response - _Successful execution_
 include::{snippets}/SensorSystem/shouldFindSensorSystemById/http-response.adoc[]
 
 	* 404 Response - _Non-existent entity_
@@ -23,7 +23,7 @@ include::{snippets}/SensorSystem/shouldCreateNewSensorSystem/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/SensorSystem/shouldCreateNewSensorSystem/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
@@ -38,7 +38,7 @@ include::{snippets}/SensorSystem/shouldUpdateSensorSystem/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/SensorSystem/shouldUpdateSensorSystem/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
@@ -53,7 +53,7 @@ include::{snippets}/SensorSystem/shouldDeleteSensorSystem/http-request.adoc[]
 
 Response +
 
-* 200 Response - _Successful execution_#
+* 200 Response - _Successful execution_
 include::{snippets}/SensorSystem/shouldDeleteSensorSystem/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
