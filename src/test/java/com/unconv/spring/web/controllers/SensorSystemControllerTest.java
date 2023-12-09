@@ -10,6 +10,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -47,6 +50,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -63,6 +67,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorSystemController.class)
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
 class SensorSystemControllerTest extends AbstractControllerTest {
     @MockBean private SensorSystemService sensorSystemService;
 
@@ -81,6 +86,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorSystem")
                                         .with(user("username").roles("USER")))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -108,6 +114,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem"))
+                .andDo(
+                        document(
+                                "shouldFetchAllSensorSystems",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -135,6 +146,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
+                .andDo(document("shouldFindSensorSystemById", preprocessRequest(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
@@ -160,6 +172,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem/ReadingsCount/{sensorSystemId}", sensorSystemId))
+                .andDo(
+                        document(
+                                "shouldFetchRecentSensorReadingCountsWithReadingsPresent",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)))
@@ -178,6 +195,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem/{id}", sensorSystemId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -210,6 +232,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystemDTO)))
+                .andDo(
+                        document(
+                                "shouldCreateNewSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())));
@@ -227,6 +254,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewSensorSystemWithoutText",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -261,6 +293,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystemDTO)))
+                .andDo(
+                        document(
+                                "shouldUpdateSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
@@ -281,6 +318,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -295,6 +337,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldDeleteSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
@@ -307,6 +354,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystemId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }

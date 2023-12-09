@@ -1,0 +1,26 @@
+==== Fields
+
+- `id` (UUID): Unique identifier for the sensor system.
+
+- `sensorName` (String): The name of the sensor system.
+Cannot be empty.
+
+- `description` (String): Description of the sensor system.
+
+- `deleted` (boolean): Deleted status of the sensor system.
+
+- `sensorStatus` (SensorStatus): The status of the sensor system.
+
+- `sensorLocation` (SensorLocation): Location information of the sensor system.
+
+- `unconvUser` (UnconvUser): The user associated with the sensor system.
+
+- `humidityThreshold` (HumidityThreshold): Humidity threshold information.
+
+- `temperatureThreshold` (TemperatureThreshold): Temperature threshold information.
+
+- `readingCount` (long): Number of readings associated with the sensor system.
+
+- `latestReading` (BaseEnvironmentalReadingDTO): Information about the latest environmental reading associated with the sensor system.
+
+==== Constraints
