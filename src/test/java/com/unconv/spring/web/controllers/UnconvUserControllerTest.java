@@ -196,10 +196,13 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
         given(unconvUserService.findUnconvUserById(unconvUserId))
                 .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
 
         this.mockMvc
                 .perform(
@@ -208,8 +211,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
     }
 
     @Test
