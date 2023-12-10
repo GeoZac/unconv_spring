@@ -180,7 +180,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperCoordinatesInPositiveRange()
+    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperLimitsInPositiveRange()
             throws Exception {
         HumidityThreshold humidityThreshold = new HumidityThreshold(null, 101, 101);
         this.mockMvc
@@ -217,7 +217,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperCoordinatesInNegativeRange()
+    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperLimitsInNegativeRange()
             throws Exception {
         HumidityThreshold humidityThreshold = new HumidityThreshold(null, -1.0, -1.0);
         this.mockMvc

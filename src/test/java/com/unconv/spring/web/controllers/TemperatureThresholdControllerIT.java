@@ -186,7 +186,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInPositiveRange()
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperLimitsInPositiveRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
                 new TemperatureThreshold(null, 10000.0, 10000.0);
@@ -224,7 +224,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInNegativeRange()
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperLimitsInNegativeRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
                 new TemperatureThreshold(null, -10000.0, -10000.0);
