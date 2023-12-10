@@ -2,6 +2,7 @@ package com.unconv.spring.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.service.UnconvUserService;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,11 +37,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         try {
-            UnconvUser unconvUser =
-                    new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
+            UnconvUserDTO unconvUserDTO =
+                    new ObjectMapper().readValue(request.getInputStream(), UnconvUserDTO.class);
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(
-                            unconvUser.getUsername(), unconvUser.getPassword());
+                            unconvUserDTO.getUsername(), unconvUserDTO.getPassword());
             return customAuthenticationManager.authenticate(authentication);
         } catch (IOException e) {
             throw new AuthenticationException("Authentication failed") {};
