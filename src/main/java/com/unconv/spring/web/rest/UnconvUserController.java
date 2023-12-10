@@ -88,16 +88,24 @@ public class UnconvUserController {
                                                 new MessageResponse<>(
                                                         unconvUserDTO, "Provide current password"));
                             }
-                            unconvUserDTO.setId(id);
-                            UnconvUser unconvUser =
-                                    unconvUserService.saveUnconvUser(
-                                            modelMapper.map(unconvUserDTO, UnconvUser.class),
-                                            unconvUserDTO.getPassword());
-                            unconvUser.setPassword(null);
-                            return ResponseEntity.ok(
-                                    new MessageResponse<>(
-                                            modelMapper.map(unconvUser, UnconvUserDTO.class),
-                                            "Updated Unconvuser info"));
+                            if (unconvUserService.checkPasswordMatch(
+                                    unconvUserObj.getId(), unconvUserDTO.getCurrentPassword())) {
+                                unconvUserDTO.setId(id);
+                                UnconvUser unconvUser =
+                                        unconvUserService.saveUnconvUser(
+                                                modelMapper.map(unconvUserDTO, UnconvUser.class),
+                                                unconvUserDTO.getPassword());
+                                unconvUser.setPassword(null);
+                                return ResponseEntity.ok(
+                                        new MessageResponse<>(
+                                                modelMapper.map(unconvUser, UnconvUserDTO.class),
+                                                "Updated Unconvuser info"));
+                            } else {
+                                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                        .body(
+                                                new MessageResponse<>(
+                                                        unconvUserDTO, "Wrong password"));
+                            }
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
