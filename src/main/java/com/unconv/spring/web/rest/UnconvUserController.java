@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,6 +82,12 @@ public class UnconvUserController {
                 .findUnconvUserById(id)
                 .map(
                         unconvUserObj -> {
+                            if (unconvUserDTO.getCurrentPassword() == null) {
+                                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                        .body(
+                                                new MessageResponse<>(
+                                                        unconvUserDTO, "Provide current password"));
+                            }
                             unconvUserDTO.setId(id);
                             UnconvUser unconvUser =
                                     unconvUserService.saveUnconvUser(
