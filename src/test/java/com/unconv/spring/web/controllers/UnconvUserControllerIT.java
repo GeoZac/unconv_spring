@@ -297,21 +297,23 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateUnconvUser() throws Exception {
-        UnconvUser unconvUser = unconvUserList.get(0);
-        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
         unconvUserDTO.setUsername("UpdatedUnconvUser");
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
         unconvUserDTO.setPassword("UpdatedPas$w0rd");
 
         this.mockMvc
                 .perform(
-                        put("/UnconvUser/{id}", unconvUser.getId())
+                        put("/UnconvUser/{id}", unconvUserDTO.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(unconvUserDTO.getId().toString())))
-                .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUserDTO.getUsername())));
+                .andExpect(jsonPath("$.message", is("Updated Unconvuser info")))
+                .andExpect(jsonPath("$.entity.id", is(unconvUserDTO.getId().toString())))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andReturn();
     }
 
     @Test
