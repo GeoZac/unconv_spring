@@ -47,6 +47,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Autowired private ModelMapper modelMapper;
 
     private List<UnconvUser> unconvUserList = null;
+    private List<UnconvUserDTO> unconvUserDTOList = null;
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
@@ -65,6 +66,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         unconvUserRepository.deleteAllInBatch();
 
         unconvUserList = new ArrayList<>();
+        unconvUserDTOList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
                         .size(7)
@@ -80,7 +82,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                                 + random.alphanumeric(3))
                         .create();
 
-        unconvUserList = unconvUserRepository.saveAll(unconvUserList);
+        for (UnconvUser unconvUser : unconvUserList) {
+            UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+            UnconvUser savedUnconvUser =
+                    unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+            unconvUserDTO.setId(savedUnconvUser.getId());
+            unconvUserDTOList.add(unconvUserDTO);
+        }
         totalPages = (int) Math.ceil((double) unconvUserList.size() / defaultPageSize);
     }
 
