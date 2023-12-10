@@ -74,7 +74,7 @@ public class UnconvUserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UnconvUser> updateUnconvUser(
+    public ResponseEntity<MessageResponse<UnconvUserDTO>> updateUnconvUser(
             @PathVariable UUID id, @RequestBody @Valid UnconvUserDTO unconvUserDTO) {
 
         return unconvUserService
@@ -82,10 +82,15 @@ public class UnconvUserController {
                 .map(
                         unconvUserObj -> {
                             unconvUserDTO.setId(id);
-                            return ResponseEntity.ok(
+                            UnconvUser unconvUser =
                                     unconvUserService.saveUnconvUser(
                                             modelMapper.map(unconvUserDTO, UnconvUser.class),
-                                            unconvUserDTO.getPassword()));
+                                            unconvUserDTO.getPassword());
+                            unconvUser.setPassword(null);
+                            return ResponseEntity.ok(
+                                    new MessageResponse<>(
+                                            modelMapper.map(unconvUser, UnconvUserDTO.class),
+                                            "Updated Unconvuser info"));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
