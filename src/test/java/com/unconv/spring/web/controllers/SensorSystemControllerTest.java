@@ -89,10 +89,14 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
+        // TODO Switch to Instancio generated objects
         this.sensorSystemList = new ArrayList<>();
-        this.sensorSystemList.add(new SensorSystem(null, "text 1", sensorLocation, null));
-        this.sensorSystemList.add(new SensorSystem(null, "text 2", sensorLocation, null));
-        this.sensorSystemList.add(new SensorSystem(null, "text 3", sensorLocation, null));
+        this.sensorSystemList.add(
+                new SensorSystem(UUID.randomUUID(), "text 1", sensorLocation, null));
+        this.sensorSystemList.add(
+                new SensorSystem(UUID.randomUUID(), "text 2", sensorLocation, null));
+        this.sensorSystemList.add(
+                new SensorSystem(UUID.randomUUID(), "text 3", sensorLocation, null));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
