@@ -210,13 +210,22 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        SensorSystemDTO sensorSystemDTO =
-                new SensorSystemDTO(
-                        UUID.randomUUID(), "New sensor system", sensorLocation, unconvUser);
+        SensorSystem sensorSystem =
+                new SensorSystem(
+                        UUID.randomUUID(),
+                        "New sensor system",
+                        "A description about the new sensor system",
+                        false,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        new HumidityThreshold(60, 40),
+                        new TemperatureThreshold(33, 23));
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
 
         MessageResponse<SensorSystemDTO> environmentalReadingDTOMessageResponse =
                 new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_ACCEPTED);
