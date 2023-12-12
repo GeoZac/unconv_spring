@@ -216,6 +216,34 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
+        given(unconvUserService.findUnconvUserById(unconvUserId))
+                .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(false);
+        given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(Charset.defaultCharset())
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+    }
+
+    @Test
     void shouldReturn404WhenUpdatingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
