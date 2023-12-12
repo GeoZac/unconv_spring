@@ -197,26 +197,31 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         EnvironmentalReadingDTO environmentalReadingDTO =
                 new EnvironmentalReadingDTO(
-                        UUID.randomUUID(),
+                        null,
                         -3L,
                         53L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
-
-        MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
-                new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_ACCEPTED);
-
-        ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
-                environmentalReadingDTOMessageResponseResponseEntity =
-                        new ResponseEntity<>(
-                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
 
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                                         any(EnvironmentalReadingDTO.class),
                                         any(Authentication.class)))
-                .willReturn(environmentalReadingDTOMessageResponseResponseEntity);
+                .willAnswer(
+                        (invocation) -> {
+                            EnvironmentalReadingDTO environmentalReadingArg =
+                                    invocation.getArgument(0);
+                            environmentalReadingArg.setId(UUID.randomUUID());
+
+                            MessageResponse<EnvironmentalReadingDTO>
+                                    environmentalReadingDTOMessageResponse =
+                                            new MessageResponse<>(
+                                                    environmentalReadingArg, ENVT_RECORD_ACCEPTED);
+
+                            return new ResponseEntity<>(
+                                    environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+                        });
 
         this.mockMvc
                 .perform(
