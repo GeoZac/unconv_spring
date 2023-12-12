@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
@@ -108,7 +109,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("UnconvUser").roles("USER")))
+                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 

@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@3.2.5
+  codecov: codecov/codecov@3.3.0
 jobs:
   setup:
     machine:
@@ -91,7 +91,6 @@ jobs:
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
-    parallelism: 1
     steps:
       - attach_workspace:
           at: /tmp/spring
@@ -121,7 +120,6 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
 workflows:
-  version: 2
   build-and-test:
     jobs:
       - setup

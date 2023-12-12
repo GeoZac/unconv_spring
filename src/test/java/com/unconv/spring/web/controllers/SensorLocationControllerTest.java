@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -9,6 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -35,6 +39,7 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -48,6 +53,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
 class SensorLocationControllerTest extends AbstractControllerTest {
     @MockBean private SensorLocationService sensorLocationService;
 
@@ -59,7 +65,8 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorLocation")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -91,6 +98,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation"))
+                .andDo(document("shouldFetchAllSensorLocations", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -114,6 +122,10 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         String responseJson =
                 this.mockMvc
                         .perform(get("/SensorLocation/{id}", sensorLocationId))
+                        .andDo(
+                                document(
+                                        "shouldFindSensorLocationById",
+                                        preprocessResponse(prettyPrint)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id", is(sensorLocationId.toString())))
                         .andExpect(
@@ -138,6 +150,10 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingSensorLocation",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -160,6 +176,11 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldCreateNewSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(
@@ -178,6 +199,11 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewSensorLocationWithoutText",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -212,6 +238,11 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldUpdateSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
@@ -238,6 +269,11 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -257,6 +293,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))
+                .andDo(document("shouldDeleteSensorLocation", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
@@ -272,6 +309,10 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocationId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingSensorLocation",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -300,6 +341,10 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUser.getId()))
+                .andDo(
+                        document(
+                                "shouldFetchAllSensorLocationOfSpecificUnconvUser",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
     }

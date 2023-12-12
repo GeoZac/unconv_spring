@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForDailyStats;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForHourlyStats;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForQuarterHourlyStats;
@@ -77,7 +78,7 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReadingStats")
-                                        .with(user("UnconvUser").roles("USER")))
+                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
