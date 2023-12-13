@@ -339,6 +339,26 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided() throws Exception {
+        UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
+        unconvUserDTO.setUsername("UpdatedUnconvUser");
+        unconvUserDTO.setCurrentPassword(null);
+        unconvUserDTO.setPassword("UpdatedPas$w0rd");
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvUser/{id}", unconvUserDTO.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Provide current password")))
+                .andExpect(jsonPath("$.entity.password", is(unconvUserDTO.getPassword())))
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andReturn();
+    }
+
+    @Test
     void shouldDeleteUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
 
