@@ -2,6 +2,9 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
+import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
+import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -311,7 +314,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message", is("Updated Unconvuser info")))
+                .andExpect(jsonPath("$.message", is(USER_UPDATE_SUCCESS)))
                 .andExpect(jsonPath("$.entity.id", is(unconvUserDTO.getId().toString())))
                 .andExpect(jsonPath("$.entity.email", is(unconvUserDTO.getEmail())))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
@@ -334,7 +337,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Wrong password")))
+                .andExpect(jsonPath("$.message", is(USER_WRONG_PASSWORD)))
                 .andExpect(jsonPath("$.entity.password", is(unconvUserDTO.getPassword())))
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
                 .andReturn();
@@ -354,7 +357,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Provide current password")))
+                .andExpect(jsonPath("$.message", is(USER_PROVIDE_PASSWORD)))
                 .andExpect(jsonPath("$.entity.password", is(unconvUserDTO.getPassword())))
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
                 .andReturn();

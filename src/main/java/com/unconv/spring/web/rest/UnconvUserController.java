@@ -1,5 +1,9 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
+import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
+
 import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
@@ -86,7 +90,7 @@ public class UnconvUserController {
                                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                         .body(
                                                 new MessageResponse<>(
-                                                        unconvUserDTO, "Provide current password"));
+                                                        unconvUserDTO, USER_PROVIDE_PASSWORD));
                             }
                             if (unconvUserService.checkPasswordMatch(
                                     unconvUserObj.getId(), unconvUserDTO.getCurrentPassword())) {
@@ -100,12 +104,12 @@ public class UnconvUserController {
                                 return ResponseEntity.ok(
                                         new MessageResponse<>(
                                                 modelMapper.map(unconvUser, UnconvUserDTO.class),
-                                                "Updated Unconvuser info"));
+                                                USER_UPDATE_SUCCESS));
                             } else {
                                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                                         .body(
                                                 new MessageResponse<>(
-                                                        unconvUserDTO, "Wrong password"));
+                                                        unconvUserDTO, USER_WRONG_PASSWORD));
                             }
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
