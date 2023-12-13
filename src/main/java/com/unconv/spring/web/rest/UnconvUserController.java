@@ -91,6 +91,7 @@ public class UnconvUserController {
                             if (unconvUserService.checkPasswordMatch(
                                     unconvUserObj.getId(), unconvUserDTO.getCurrentPassword())) {
                                 unconvUserDTO.setId(id);
+                                unconvUserDTO.setUsername(unconvUserObj.getUsername());
                                 UnconvUser unconvUser =
                                         unconvUserService.saveUnconvUser(
                                                 modelMapper.map(unconvUserDTO, UnconvUser.class),
