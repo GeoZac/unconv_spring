@@ -300,6 +300,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldUpdateUnconvUser() throws Exception {
         UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
         unconvUserDTO.setUsername("UpdatedUnconvUser");
+        unconvUserDTO.setEmail("whodis_newemail@provider.com");
         unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
         unconvUserDTO.setPassword("UpdatedPas$w0rd");
 
@@ -312,8 +313,9 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Updated Unconvuser info")))
                 .andExpect(jsonPath("$.entity.id", is(unconvUserDTO.getId().toString())))
+                .andExpect(jsonPath("$.entity.email", is(unconvUserDTO.getEmail())))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
-                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andExpect(jsonPath("$.entity.username", not(unconvUserDTO.getUsername())))
                 .andReturn();
     }
 
