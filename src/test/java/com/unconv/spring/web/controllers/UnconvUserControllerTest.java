@@ -240,8 +240,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .characterEncoding(Charset.defaultCharset())
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Wrong password")))
                 .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
-                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -269,8 +271,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .characterEncoding(Charset.defaultCharset())
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Provide current password")))
                 .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
-                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
