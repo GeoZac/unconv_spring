@@ -15,6 +15,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UnconvUserDTO {
+
+    public UnconvUserDTO(UUID id, String username, String email, String password) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
     private UUID id;
 
     @NotEmpty(message = "Username cannot be empty")
@@ -28,4 +36,6 @@ public class UnconvUserDTO {
     @NotEmpty(message = "Password cannot be empty")
     @ValidPassword
     private String password;
+
+    private String currentPassword;
 }

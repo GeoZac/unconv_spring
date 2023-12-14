@@ -4,6 +4,9 @@ import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
+import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -32,6 +35,7 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.UnconvUserController;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -219,10 +223,13 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
         given(unconvUserService.findUnconvUserById(unconvUserId))
                 .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
 
         this.mockMvc
                 .perform(
@@ -236,8 +243,70 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.message", is(USER_UPDATE_SUCCESS)))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+    }
+
+    @Test
+    void shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
+        given(unconvUserService.findUnconvUserById(unconvUserId))
+                .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(false);
+        given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(Charset.defaultCharset())
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(USER_WRONG_PASSWORD)))
+                .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
+        given(unconvUserService.findUnconvUserById(unconvUserId))
+                .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(false);
+        given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+
+        assert unconvUserDTO.getCurrentPassword() == null;
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(Charset.defaultCharset())
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(USER_PROVIDE_PASSWORD)))
+                .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test

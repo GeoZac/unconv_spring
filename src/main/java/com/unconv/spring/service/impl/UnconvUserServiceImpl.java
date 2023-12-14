@@ -64,6 +64,13 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
+    public boolean checkPasswordMatch(UUID unconvUserId, String currentPassword) {
+        UnconvUser unconvUser = unconvUserRepository.findUnconvUserById(unconvUserId);
+
+        return bCryptPasswordEncoder().matches(currentPassword, unconvUser.getPassword());
+    }
+
+    @Override
     public ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
             UnconvUser unconvUser, String rawPassword) {
         MessageResponse<UnconvUserDTO> messageResponse;
