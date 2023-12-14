@@ -242,7 +242,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         SensorSystem sensorSystem =
                 new SensorSystem(
-                        UUID.randomUUID(),
+                        null,
                         "New sensor system",
                         "A description about the new sensor system",
                         false,
@@ -253,18 +253,22 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         new TemperatureThreshold(33, 23));
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
 
-        MessageResponse<SensorSystemDTO> environmentalReadingDTOMessageResponse =
-                new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_ACCEPTED);
-
-        ResponseEntity<MessageResponse<SensorSystemDTO>>
-                sensorSystemDTOMessageResponseResponseEntity =
-                        new ResponseEntity<>(
-                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
-
         given(
                         sensorSystemService.validateUnconvUserAndSaveSensorSystem(
                                 any(SensorSystemDTO.class), any(Authentication.class)))
-                .willReturn(sensorSystemDTOMessageResponseResponseEntity);
+                .willAnswer(
+                        (invocation) -> {
+                            SensorSystemDTO sensorSystemArg = invocation.getArgument(0);
+                            sensorSystemArg.setId(UUID.randomUUID());
+
+                            MessageResponse<SensorSystemDTO>
+                                    environmentalReadingDTOMessageResponse =
+                                            new MessageResponse<>(
+                                                    sensorSystemArg, ENVT_RECORD_ACCEPTED);
+
+                            return new ResponseEntity<>(
+                                    environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+                        });
 
         this.mockMvc
                 .perform(
@@ -279,7 +283,8 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())));
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())))
+                .andReturn();
     }
 
     @Test
