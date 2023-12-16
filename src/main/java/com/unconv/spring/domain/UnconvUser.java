@@ -2,8 +2,13 @@ package com.unconv.spring.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.unconv.spring.base.BaseUser;
+import com.unconv.spring.utils.UnconvAuthorityDeserializer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -21,6 +26,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Entity
 @Table(name = "unconv_users")
@@ -55,6 +62,16 @@ public class UnconvUser extends BaseUser {
             joinColumns = @JoinColumn(name = "unconv_user_id"),
             inverseJoinColumns = @JoinColumn(name = "unconv_role_id"))
     private Set<UnconvRole> unconvRoles = new HashSet<>();
+
+    @Override
+    @JsonDeserialize(using = UnconvAuthorityDeserializer.class)
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (UnconvRole unconvRole : unconvRoles) {
+            authorities.add(new SimpleGrantedAuthority(unconvRole.getName()));
+        }
+        return authorities;
+    }
 
     public UnconvUser(UUID id, String username, String email, String password) {
 
