@@ -166,3 +166,10 @@ workflows:
       - doc:
           requires:
             - test
+          filters:
+            branches:
+                only:
+                - /docs\/.*/
+                - main
+            tags:
+                only: /^v.*/
