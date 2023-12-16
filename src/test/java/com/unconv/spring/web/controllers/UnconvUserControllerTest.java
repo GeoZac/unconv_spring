@@ -1,8 +1,12 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
-import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
+import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -10,6 +14,9 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -21,13 +28,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.UnconvUserController;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -45,26 +54,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = UnconvUserController.class)
 @ActiveProfiles(PROFILE_TEST)
-class UnconvUserControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
-
+@AutoConfigureRestDocs(outputDir = "target/snippets/UnconvUser")
+class UnconvUserControllerTest extends AbstractControllerTest {
     @MockBean private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<UnconvUser> unconvUserList;
 
@@ -78,7 +79,8 @@ class UnconvUserControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/UnconvUser")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -104,6 +106,7 @@ class UnconvUserControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvUser"))
+                .andDo(document("shouldFetchAllUnconvUsers", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
@@ -125,6 +128,7 @@ class UnconvUserControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(document("shouldFindUnconvUserById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
@@ -137,6 +141,10 @@ class UnconvUserControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvUser",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -167,6 +175,11 @@ class UnconvUserControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldCreateNewUnconvUser",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
@@ -183,6 +196,11 @@ class UnconvUserControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUser)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewUnconvUserWithoutText",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -205,10 +223,13 @@ class UnconvUserControllerTest {
                         unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
         given(unconvUserService.findUnconvUserById(unconvUserId))
                 .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
 
         this.mockMvc
                 .perform(
@@ -216,9 +237,76 @@ class UnconvUserControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldUpdateUnconvUser",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.message", is(USER_UPDATE_SUCCESS)))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+    }
+
+    @Test
+    void shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
+        given(unconvUserService.findUnconvUserById(unconvUserId))
+                .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(false);
+        given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+        unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(Charset.defaultCharset())
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(USER_WRONG_PASSWORD)))
+                .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Updated-username", "newemail@provider.com", "new!1Password");
+        given(unconvUserService.findUnconvUserById(unconvUserId))
+                .willReturn(Optional.of(unconvUser));
+        given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
+                .willReturn(false);
+        given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+
+        assert unconvUserDTO.getCurrentPassword() == null;
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(Charset.defaultCharset())
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(USER_PROVIDE_PASSWORD)))
+                .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -235,6 +323,11 @@ class UnconvUserControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingUnconvUser",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -249,6 +342,7 @@ class UnconvUserControllerTest {
 
         this.mockMvc
                 .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
+                .andDo(document("shouldDeleteUnconvUser", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
@@ -261,6 +355,10 @@ class UnconvUserControllerTest {
 
         this.mockMvc
                 .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingUnconvUser",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }

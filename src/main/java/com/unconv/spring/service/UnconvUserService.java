@@ -21,6 +21,8 @@ public interface UnconvUserService {
     ResponseEntity<MessageResponse<UnconvUserDTO>> setUpRoleAndSaveAfterVerify(
             UnconvUserDTO unconvUserDTO);
 
+    boolean checkPasswordMatch(UUID unconvUserId, String currentPassword);
+
     ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
             UnconvUser unconvUser, String rawPassword);
 

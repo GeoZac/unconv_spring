@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.Fruit;
 import com.unconv.spring.domain.FruitProduct;
 import com.unconv.spring.domain.Offer;
@@ -31,32 +32,24 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = FruitProductController.class)
 @ActiveProfiles(PROFILE_TEST)
-class FruitProductControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-    @Autowired private MockMvc mockMvc;
+class FruitProductControllerTest extends AbstractControllerTest {
 
     @MockBean private FruitProductService fruitProductService;
 
     @MockBean private FruitService fruitService;
 
     @MockBean private OfferService offerService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<FruitProduct> fruitProductList;
 
@@ -66,7 +59,7 @@ class FruitProductControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/FruitProduct")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -135,7 +128,12 @@ class FruitProductControllerTest {
     @Test
     void shouldCreateNewFruitProduct() throws Exception {
         given(fruitProductService.saveFruitProduct(any(FruitProduct.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            FruitProduct fruitProduct = invocation.getArgument(0);
+                            fruitProduct.setId(1L);
+                            return fruitProduct;
+                        });
 
         Fruit fruit = new Fruit();
         Offer offer = new Offer();

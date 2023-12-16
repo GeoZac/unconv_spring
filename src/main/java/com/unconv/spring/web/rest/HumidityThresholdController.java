@@ -1,10 +1,10 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.dto.HumidityThresholdDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.HumidityThresholdService;
-import com.unconv.spring.utils.AppConstants;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -75,6 +75,7 @@ public class HumidityThresholdController {
     @ResponseStatus(HttpStatus.CREATED)
     public HumidityThreshold createHumidityThreshold(
             @RequestBody @Validated HumidityThresholdDTO humidityThresholdDTO) {
+        humidityThresholdDTO.setId(null);
         return humidityThresholdService.saveHumidityThreshold(
                 modelMapper.map(humidityThresholdDTO, HumidityThreshold.class));
     }

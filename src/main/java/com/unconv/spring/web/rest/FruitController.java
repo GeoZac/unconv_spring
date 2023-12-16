@@ -46,6 +46,7 @@ public class FruitController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Fruit createFruit(@RequestBody @Validated FruitDTO fruitDTO) {
+        fruitDTO.setId(null);
         return fruitService.saveFruit(modelMapper.map(fruitDTO, Fruit.class));
     }
 

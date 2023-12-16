@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.Booking;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.model.response.PagedResult;
@@ -28,32 +29,24 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = com.unconv.spring.web.rest.BookingController.class)
 @ActiveProfiles(PROFILE_TEST)
-class BookingControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-    @Autowired private MockMvc mockMvc;
+class BookingControllerTest extends AbstractControllerTest {
 
     @MockBean private BookingService bookingService;
 
     //    @Autowired private com.unconv.spring.persistence.PassengerRepository passengerService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<Booking> bookingList;
 
@@ -65,7 +58,7 @@ class BookingControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Booking")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -148,7 +141,12 @@ class BookingControllerTest {
     @Test
     void shouldCreateNewBooking() throws Exception {
         given(bookingService.saveBooking(any(Booking.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(
+                        (invocation) -> {
+                            Booking booking = invocation.getArgument(0);
+                            booking.setId(1L);
+                            return booking;
+                        });
 
         Booking booking = new Booking(1L, "some text", passengerList);
         this.mockMvc

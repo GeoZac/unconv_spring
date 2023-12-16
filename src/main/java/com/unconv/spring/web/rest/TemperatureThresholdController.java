@@ -1,10 +1,10 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.dto.TemperatureThresholdDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.TemperatureThresholdService;
-import com.unconv.spring.utils.AppConstants;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -75,6 +75,7 @@ public class TemperatureThresholdController {
     @ResponseStatus(HttpStatus.CREATED)
     public TemperatureThreshold createTemperatureThreshold(
             @RequestBody @Validated TemperatureThresholdDTO temperatureThresholdDTO) {
+        temperatureThresholdDTO.setId(null);
         return temperatureThresholdService.saveTemperatureThreshold(
                 modelMapper.map(temperatureThresholdDTO, TemperatureThreshold.class));
     }

@@ -1,0 +1,25 @@
+==== Fields
+
+- `id` (UUID): Unique identifier for the environmental reading.
+
+- `temperature` (double): The temperature reading.
+Must be between -9999.000 and 9999.000.
+
+- `humidity` (double): The humidity reading.
+Must be between 0.0 and 100.00.
+
+- `timestamp` (OffsetDateTime): Timestamp of the reading.
+Must be in the past or present.
+
+- `sensorSystem` (SensorSystem): The associated sensor system for the reading.
+Must be valid according to the defined constants.
+
+==== Constraints
+
+- `temperature`: Must be between -9999.000 and 9999.000.
+
+- `humidity`: Must be between 0.0 and 100.00.
+
+- `timestamp`: Must be in the past or present.
+
+- `sensorSystem`: Must be a valid sensor system.

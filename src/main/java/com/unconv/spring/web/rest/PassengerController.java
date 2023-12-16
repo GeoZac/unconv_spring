@@ -1,10 +1,10 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.dto.PassengerDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
-import com.unconv.spring.utils.AppConstants;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -77,6 +77,7 @@ public class PassengerController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Passenger createPassenger(@RequestBody @Validated PassengerDTO passengerDTO) {
+        passengerDTO.setId(null);
         return passengerService.savePassenger(modelMapper.map(passengerDTO, Passenger.class));
     }
 

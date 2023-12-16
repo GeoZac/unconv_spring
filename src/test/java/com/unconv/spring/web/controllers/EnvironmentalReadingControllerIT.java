@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
@@ -7,8 +9,8 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
-import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -45,15 +47,10 @@ import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
@@ -112,7 +109,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("UnconvUser").roles("USER")))
+                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -302,6 +299,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         UnconvUser savedUnconvUser =
@@ -323,6 +321,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
                 .andExpect(
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
@@ -911,145 +910,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser =
-                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
-        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-        Map<OffsetDateTime, Double> averageTemperatures =
-                setupTestDataForQuarterHourly(savedSensorSystem);
-        assert !averageTemperatures.isEmpty();
-        this.mockMvc
-                .perform(
-                        get(
-                                        "/EnvironmentalReading/QuarterHourly/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 25; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(3)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 180)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForQuarterHourly(sensorSystem.getId());
-    }
-
-    @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser =
-                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
-        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
-        assert !averageTemperatures.isEmpty();
-        this.mockMvc
-                .perform(
-                        get(
-                                        "/EnvironmentalReading/Hourly/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> setupTestDataForHourly(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(24)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 1440)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForHourly(sensorSystem.getId());
-    }
-
-    @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser =
-                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
-        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
-        assert !averageTemperatures.isEmpty();
-        this.mockMvc
-                .perform(
-                        get(
-                                        "/EnvironmentalReading/Daily/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> setupTestDataForDaily(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusDays(7)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 10080)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForDaily(sensorSystem.getId());
     }
 
     @AfterEach

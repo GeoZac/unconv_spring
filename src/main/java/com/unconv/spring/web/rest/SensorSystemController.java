@@ -1,11 +1,11 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
-import com.unconv.spring.utils.AppConstants;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -118,6 +118,7 @@ public class SensorSystemController {
     public ResponseEntity<MessageResponse<SensorSystemDTO>> createSensorSystem(
             @RequestBody @Validated SensorSystemDTO sensorSystemDTO,
             Authentication authentication) {
+        sensorSystemDTO.setId(null);
         return sensorSystemService.validateUnconvUserAndSaveSensorSystem(
                 sensorSystemDTO, authentication);
     }

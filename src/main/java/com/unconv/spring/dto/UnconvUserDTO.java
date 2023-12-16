@@ -21,6 +21,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UnconvUserDTO extends BaseUser {
+
+    public UnconvUserDTO(UUID id, String username, String email, String password) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
     private UUID id;
 
     @NotEmpty(message = "Username cannot be empty")
@@ -35,13 +43,7 @@ public class UnconvUserDTO extends BaseUser {
     @ValidPassword
     private String password;
 
+    private String currentPassword;
+
     private Set<UnconvRole> unconvRoles = new HashSet<>();
-
-    public UnconvUserDTO(UUID id, String username, String email, String password) {
-
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
 }

@@ -1,6 +1,11 @@
-package com.unconv.spring.utils;
+package com.unconv.spring.consts;
 
 public final class AppConstants {
+
+    private AppConstants() {
+        // Private constructor to hide the implicit public one
+    }
+
     public static final String PROFILE_PROD = "prod";
     public static final String PROFILE_NOT_PROD = "!" + PROFILE_PROD;
     public static final String PROFILE_TEST = "test";
