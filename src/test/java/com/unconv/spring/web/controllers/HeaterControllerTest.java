@@ -104,7 +104,7 @@ class HeaterControllerTest extends AbstractControllerTest {
                             return heater;
                         });
 
-        Heater heater = new Heater(1L, 30F, .5F);
+        Heater heater = new Heater(null, 30F, .5F);
         this.mockMvc
                 .perform(
                         post("/Heater")

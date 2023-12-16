@@ -90,7 +90,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindOrderProductById() throws Exception {
         UUID orderProductId = UUID.randomUUID();
-        OrderProduct orderProduct = new OrderProduct(orderProductId, "text 1");
+        OrderProduct orderProduct = new OrderProduct(orderProductId, "Order Product");
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
 
@@ -121,7 +121,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
                             return orderProduct;
                         });
 
-        OrderProduct orderProduct = new OrderProduct(UUID.randomUUID(), "some text");
+        OrderProduct orderProduct = new OrderProduct(null, "New order product");
         this.mockMvc
                 .perform(
                         post("/OrderProduct")

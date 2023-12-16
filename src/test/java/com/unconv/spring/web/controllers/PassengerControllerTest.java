@@ -135,7 +135,7 @@ class PassengerControllerTest extends AbstractControllerTest {
 
         Passenger passenger =
                 new Passenger(
-                        1L, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
+                        null, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
