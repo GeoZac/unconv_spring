@@ -142,6 +142,8 @@ jobs:
       - run:
           name: Build API doc
           command: ./mvnw package
+      - store_artifacts:
+          path: target/generated-docs/index.pdf
       - save_cache:
           paths:
             - ~/.m2
