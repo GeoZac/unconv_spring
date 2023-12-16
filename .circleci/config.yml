@@ -20,6 +20,9 @@ jobs:
       - run:
           name: Download dependecies
           command: ./mvnw dependency:resolve
+      - run:
+            name: Display dependency tree
+            command: ./mvnw dependency:tree
       - save_cache:
           paths:
             - ~/.m2
