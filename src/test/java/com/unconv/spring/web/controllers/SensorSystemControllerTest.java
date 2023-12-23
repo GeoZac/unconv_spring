@@ -85,6 +85,10 @@ class SensorSystemControllerTest extends AbstractControllerTest {
             new SensorLocation(
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
+    private final UnconvUser unconvUser =
+            new UnconvUser(
+                    UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -143,9 +147,6 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        UnconvUser unconvUser =
-                new UnconvUser(
-                        UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
         SensorSystem sensorSystem =
                 new SensorSystem(
                         sensorSystemId,
@@ -373,7 +374,16 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     void shouldDeleteSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
-                new SensorSystem(sensorSystemId, "Some text", sensorLocation, null);
+                new SensorSystem(
+                        sensorSystemId,
+                        "Existing sensor system",
+                        "Sensor system without any readings associated",
+                        false,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        null,
+                        null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(true);
