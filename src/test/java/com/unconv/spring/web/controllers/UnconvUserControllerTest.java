@@ -118,7 +118,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     void shouldFindUnconvUserById() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         UnconvUser unconvUser =
-                new UnconvUser(unconvUserId, "text 1", "some@email.com", "password");
+                new UnconvUser(
+                        unconvUserId, "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
         given(unconvUserService.findUnconvUserById(unconvUserId))
                 .willReturn(Optional.of(unconvUser));
 
@@ -144,6 +145,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /* TODO: Fix ID generation */
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
 
