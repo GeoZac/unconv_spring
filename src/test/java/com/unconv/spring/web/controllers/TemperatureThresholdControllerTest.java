@@ -130,8 +130,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                             return temperatureThreshold;
                         });
 
-        TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(UUID.randomUUID(), 100, 0);
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 100, 0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
