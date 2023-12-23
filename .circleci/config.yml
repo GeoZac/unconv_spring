@@ -170,6 +170,6 @@ workflows:
             branches:
                 only:
                 - /docs\/.*/
-                - main
+                - master
             tags:
                 only: /^v.*/
