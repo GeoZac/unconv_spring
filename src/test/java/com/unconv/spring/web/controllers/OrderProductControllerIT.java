@@ -112,8 +112,8 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOrderProductWithoutText() throws Exception {
-        OrderProduct orderProduct = new OrderProduct(null, null);
+    void shouldReturn400WhenCreateNewOrderProductWithNullValues() throws Exception {
+        OrderProduct orderProduct = new OrderProduct();
 
         this.mockMvc
                 .perform(

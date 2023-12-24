@@ -59,9 +59,9 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                         .build();
 
         this.unconvRoleList = new ArrayList<>();
-        this.unconvRoleList.add(new UnconvRole(null, "text 1"));
-        this.unconvRoleList.add(new UnconvRole(null, "text 2"));
-        this.unconvRoleList.add(new UnconvRole(null, "text 3"));
+        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_A"));
+        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_B"));
+        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_C"));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -90,7 +90,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindUnconvRoleById() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "text 1");
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "ROLE_X");
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
 
@@ -120,7 +120,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                             return unconvRole;
                         });
 
-        UnconvRole unconvRole = new UnconvRole(UUID.randomUUID(), "some text");
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_NEW");
         this.mockMvc
                 .perform(
                         post("/UnconvRole")
@@ -133,8 +133,8 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewUnconvRoleWithoutText() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, null);
+    void shouldReturn400WhenCreateNewUnconvRoleWithNullValues() throws Exception {
+        UnconvRole unconvRole = new UnconvRole();
 
         this.mockMvc
                 .perform(
@@ -159,7 +159,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldUpdateUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated text");
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated ROLE name");
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
@@ -193,7 +193,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldDeleteUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Some text");
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "ROLE_KING");
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         doNothing().when(unconvRoleService).deleteUnconvRoleById(unconvRole.getId());

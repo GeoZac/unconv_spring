@@ -110,8 +110,8 @@ class RouteControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewRouteWithoutText() throws Exception {
-        Route route = new Route(null, null);
+    void shouldReturn400WhenCreateNewRouteWithNullValues() throws Exception {
+        Route route = new Route();
 
         this.mockMvc
                 .perform(

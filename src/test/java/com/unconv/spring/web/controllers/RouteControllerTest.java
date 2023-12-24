@@ -89,7 +89,7 @@ class RouteControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindRouteById() throws Exception {
         Long routeId = 1L;
-        Route route = new Route(routeId, "text 1");
+        Route route = new Route(routeId, "Route name");
         given(routeService.findRouteById(routeId)).willReturn(Optional.of(route));
 
         this.mockMvc
@@ -116,7 +116,7 @@ class RouteControllerTest extends AbstractControllerTest {
                             return route;
                         });
 
-        Route route = new Route(1L, "some text");
+        Route route = new Route(null, "New route");
         this.mockMvc
                 .perform(
                         post("/Route")
@@ -129,8 +129,8 @@ class RouteControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewRouteWithoutText() throws Exception {
-        Route route = new Route(null, null);
+    void shouldReturn400WhenCreateNewRouteWithNullValues() throws Exception {
+        Route route = new Route();
 
         this.mockMvc
                 .perform(

@@ -164,8 +164,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewSensorLocationWithoutText() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, null, null, null, null);
+    void shouldReturn400WhenCreateNewSensorLocationWithNullValues() throws Exception {
+        SensorLocation sensorLocation = new SensorLocation();
 
         this.mockMvc
                 .perform(

@@ -119,8 +119,8 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewFruitProductWithoutText() throws Exception {
-        FruitProduct fruitProduct = new FruitProduct(null, 0.0f, null, null, null, 0.0f);
+    void shouldReturn400WhenCreateNewFruitProductWithNullValues() throws Exception {
+        FruitProduct fruitProduct = new FruitProduct();
 
         this.mockMvc
                 .perform(
