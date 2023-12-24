@@ -102,6 +102,7 @@ class FruitControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/Fruit/{id}", fruitId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
@@ -125,7 +126,7 @@ class FruitControllerTest extends AbstractControllerTest {
 
         Fruit fruit =
                 new Fruit(
-                        1L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
@@ -141,8 +142,8 @@ class FruitControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewFruitWithoutText() throws Exception {
-        Fruit fruit = new Fruit(null, null, null, null);
+    void shouldReturn400WhenCreateNewFruitWithNullValues() throws Exception {
+        Fruit fruit = new Fruit();
 
         this.mockMvc
                 .perform(

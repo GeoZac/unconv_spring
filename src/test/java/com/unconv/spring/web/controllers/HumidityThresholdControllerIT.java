@@ -131,6 +131,14 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingNonExistingHumidityThreshold() throws Exception {
+        UUID humidityThresholdId = UUID.randomUUID();
+        this.mockMvc
+                .perform(get("/TemperatureThreshold/{id}", humidityThresholdId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldCreateNewHumidityThreshold() throws Exception {
         HumidityThreshold humidityThreshold = new HumidityThreshold(null, 100, 0);
         this.mockMvc
@@ -146,7 +154,34 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperCoordinatesInPositiveRange()
+    void shouldReturn400WhenCreateNewHumidityThresholdWithMaxValueLessThanMinValue()
+            throws Exception {
+        HumidityThreshold humidityThreshold = new HumidityThreshold(null, 30, 70);
+        this.mockMvc
+                .perform(
+                        post("/HumidityThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidityThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Min. value must be less than Max. value")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperLimitsInPositiveRange()
             throws Exception {
         HumidityThreshold humidityThreshold = new HumidityThreshold(null, 101, 101);
         this.mockMvc
@@ -183,7 +218,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperCoordinatesInNegativeRange()
+    void shouldReturn400WhenCreateNewHumidityThresholdWithImproperLimitsInNegativeRange()
             throws Exception {
         HumidityThreshold humidityThreshold = new HumidityThreshold(null, -1.0, -1.0);
         this.mockMvc

@@ -146,8 +146,8 @@ class BookingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewBookingWithoutText() throws Exception {
-        Booking booking = new Booking(4L, null, passengerList);
+    void shouldReturn400WhenCreateNewBookingWithNullValues() throws Exception {
+        Booking booking = new Booking();
 
         this.mockMvc
                 .perform(

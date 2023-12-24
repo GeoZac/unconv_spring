@@ -104,7 +104,7 @@ class HeaterControllerTest extends AbstractControllerTest {
                             return heater;
                         });
 
-        Heater heater = new Heater(1L, 30F, .5F);
+        Heater heater = new Heater(null, 30F, .5F);
         this.mockMvc
                 .perform(
                         post("/Heater")
@@ -117,8 +117,8 @@ class HeaterControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHeaterWithoutText() throws Exception {
-        Heater heater = new Heater(null, null, null);
+    void shouldReturn400WhenCreateNewHeaterWithNullValues() throws Exception {
+        Heater heater = new Heater();
 
         this.mockMvc
                 .perform(

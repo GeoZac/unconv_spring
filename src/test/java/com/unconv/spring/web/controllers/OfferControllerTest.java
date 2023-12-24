@@ -83,6 +83,7 @@ class OfferControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/Offer/{id}", offerId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(offerId), Long.class))
                 .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
@@ -104,7 +105,7 @@ class OfferControllerTest extends AbstractControllerTest {
                             return offer;
                         });
 
-        Offer offer = new Offer(1L, "0xff000000", "25% OFF");
+        Offer offer = new Offer(null, "0xff000000", "25% OFF");
         this.mockMvc
                 .perform(
                         post("/Offer")
@@ -117,8 +118,8 @@ class OfferControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
-        Offer offer = new Offer(null, null, null);
+    void shouldReturn400WhenCreateNewOfferWithNullValues() throws Exception {
+        Offer offer = new Offer();
 
         this.mockMvc
                 .perform(

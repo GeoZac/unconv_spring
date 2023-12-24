@@ -127,6 +127,7 @@ class BookingControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/Booking/{id}", bookingId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.bookingReference", is(booking.getBookingReference())));
     }
 
@@ -148,7 +149,7 @@ class BookingControllerTest extends AbstractControllerTest {
                             return booking;
                         });
 
-        Booking booking = new Booking(1L, "some text", passengerList);
+        Booking booking = new Booking(null, "some text", passengerList);
         this.mockMvc
                 .perform(
                         post("/Booking")
@@ -161,8 +162,8 @@ class BookingControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewBookingWithoutText() throws Exception {
-        Booking booking = new Booking(null, null, null);
+    void shouldReturn400WhenCreateNewBookingWithNullValues() throws Exception {
+        Booking booking = new Booking();
 
         this.mockMvc
                 .perform(

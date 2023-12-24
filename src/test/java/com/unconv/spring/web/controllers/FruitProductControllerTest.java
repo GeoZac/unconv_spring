@@ -98,7 +98,7 @@ class FruitProductControllerTest extends AbstractControllerTest {
         Long fruitProductId = 1L;
         Fruit fruit =
                 new Fruit(
-                        1L,
+                        fruitProductId,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
@@ -111,6 +111,7 @@ class FruitProductControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/FruitProduct/{id}", fruitProductId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(fruitProductId), Long.class))
                 .andExpect(jsonPath("$.costPrice", is(fruitProduct.getCostPrice()), Float.class));
     }
 
@@ -135,9 +136,14 @@ class FruitProductControllerTest extends AbstractControllerTest {
                             return fruitProduct;
                         });
 
-        Fruit fruit = new Fruit();
-        Offer offer = new Offer();
-        FruitProduct fruitProduct = new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f);
+        Fruit fruit =
+                new Fruit(
+                        1L,
+                        "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
+                        "Apple",
+                        "Daily Fresh");
+        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        FruitProduct fruitProduct = new FruitProduct(null, 100.0f, fruit, offer, "1kg", 95.0f);
         this.mockMvc
                 .perform(
                         post("/FruitProduct")
@@ -150,8 +156,8 @@ class FruitProductControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewFruitProductWithoutText() throws Exception {
-        FruitProduct fruitProduct = new FruitProduct(null, 0.0f, null, null, null, 0.0f);
+    void shouldReturn400WhenCreateNewFruitProductWithNullValues() throws Exception {
+        FruitProduct fruitProduct = new FruitProduct();
 
         this.mockMvc
                 .perform(

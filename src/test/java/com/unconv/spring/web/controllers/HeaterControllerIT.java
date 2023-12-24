@@ -86,8 +86,8 @@ class HeaterControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHeaterWithoutText() throws Exception {
-        Heater heater = new Heater(null, null, null);
+    void shouldReturn400WhenCreateNewHeaterWithNullValues() throws Exception {
+        Heater heater = new Heater();
 
         this.mockMvc
                 .perform(

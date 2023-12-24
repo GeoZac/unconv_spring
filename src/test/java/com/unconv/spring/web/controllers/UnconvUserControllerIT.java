@@ -263,8 +263,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewUnconvUserWithoutText() throws Exception {
-        UnconvUser unconvUser = new UnconvUser(null, null, null, null);
+    void shouldReturn400WhenCreateNewUnconvUserWithNullValues() throws Exception {
+        UnconvUser unconvUser = new UnconvUser();
 
         this.mockMvc
                 .perform(

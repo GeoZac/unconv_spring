@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -25,11 +26,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
@@ -80,6 +85,10 @@ class SensorSystemControllerTest extends AbstractControllerTest {
             new SensorLocation(
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
+    private final UnconvUser unconvUser =
+            new UnconvUser(
+                    UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -91,10 +100,14 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
+        // TODO Switch to Instancio generated objects
         this.sensorSystemList = new ArrayList<>();
-        this.sensorSystemList.add(new SensorSystem(null, "text 1", sensorLocation, null));
-        this.sensorSystemList.add(new SensorSystem(null, "text 2", sensorLocation, null));
-        this.sensorSystemList.add(new SensorSystem(null, "text 3", sensorLocation, null));
+        this.sensorSystemList.add(
+                new SensorSystem(UUID.randomUUID(), "text 1", sensorLocation, null));
+        this.sensorSystemList.add(
+                new SensorSystem(UUID.randomUUID(), "text 2", sensorLocation, null));
+        this.sensorSystemList.add(
+                new SensorSystem(UUID.randomUUID(), "text 3", sensorLocation, null));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -134,7 +147,17 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
-        SensorSystem sensorSystem = new SensorSystem(null, "text 1", null, null);
+        SensorSystem sensorSystem =
+                new SensorSystem(
+                        sensorSystemId,
+                        "Workspace sensor system",
+                        "Monitors temperature and humidity for personal workspace",
+                        false,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        new HumidityThreshold(UUID.randomUUID(), 75, 23),
+                        new TemperatureThreshold(UUID.randomUUID(), 100, 0));
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
@@ -145,16 +168,23 @@ class SensorSystemControllerTest extends AbstractControllerTest {
         given(sensorSystemService.findSensorSystemDTOById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystemDTO));
 
-        this.mockMvc
-                .perform(get("/SensorSystem/{id}", sensorSystemId))
-                .andDo(document("shouldFindSensorSystemById", preprocessRequest(prettyPrint)))
-                .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath(
-                                "$.latestReading.temperature",
-                                is(sensorSystemDTO.getLatestReading().getTemperature())))
-                .andExpect(jsonPath("$.readingCount", is(sensorSystemDTO.getReadingCount())))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+        String responseJson =
+                this.mockMvc
+                        .perform(get("/SensorSystem/{id}", sensorSystemId))
+                        .andDo(
+                                document(
+                                        "shouldFindSensorSystemById",
+                                        preprocessRequest(prettyPrint)))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        List<Object> fieldValues = JsonPath.read(responseJson, "$..*");
+        for (Object fieldValue : fieldValues) {
+            assertNotNull(fieldValue, "Field value should not be null");
+        }
     }
 
     @Test
@@ -207,25 +237,39 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     @Test
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
-        SensorSystemDTO sensorSystemDTO =
-                new SensorSystemDTO(UUID.randomUUID(), "some text", sensorLocation, unconvUser);
-
-        MessageResponse<SensorSystemDTO> environmentalReadingDTOMessageResponse =
-                new MessageResponse<>(sensorSystemDTO, ENVT_RECORD_ACCEPTED);
-
-        ResponseEntity<MessageResponse<SensorSystemDTO>>
-                sensorSystemDTOMessageResponseResponseEntity =
-                        new ResponseEntity<>(
-                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+        SensorSystem sensorSystem =
+                new SensorSystem(
+                        null,
+                        "New sensor system",
+                        "A description about the new sensor system",
+                        false,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        new HumidityThreshold(60, 40),
+                        new TemperatureThreshold(33, 23));
+        SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
 
         given(
                         sensorSystemService.validateUnconvUserAndSaveSensorSystem(
                                 any(SensorSystemDTO.class), any(Authentication.class)))
-                .willReturn(sensorSystemDTOMessageResponseResponseEntity);
+                .willAnswer(
+                        (invocation) -> {
+                            SensorSystemDTO sensorSystemArg = invocation.getArgument(0);
+                            sensorSystemArg.setId(UUID.randomUUID());
+
+                            MessageResponse<SensorSystemDTO>
+                                    environmentalReadingDTOMessageResponse =
+                                            new MessageResponse<>(
+                                                    sensorSystemArg, ENVT_RECORD_ACCEPTED);
+
+                            return new ResponseEntity<>(
+                                    environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+                        });
 
         this.mockMvc
                 .perform(
@@ -240,14 +284,13 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())));
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())))
+                .andReturn();
     }
 
     @Test
-    void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        SensorSystem sensorSystem = new SensorSystem(null, null, null, unconvUser);
+    void shouldReturn400WhenCreateNewSensorSystemWithNullValues() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem();
 
         this.mockMvc
                 .perform(
@@ -268,7 +311,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
                 .andReturn();
@@ -277,7 +320,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     @Test
     void shouldUpdateSensorSystem() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
                 new SensorSystem(sensorSystemId, "Updated text", sensorLocation, unconvUser);
@@ -331,7 +374,16 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     void shouldDeleteSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
-                new SensorSystem(sensorSystemId, "Some text", sensorLocation, null);
+                new SensorSystem(
+                        sensorSystemId,
+                        "Existing sensor system",
+                        "Sensor system without any readings associated",
+                        false,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        null,
+                        null);
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(true);
@@ -344,7 +396,9 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.deleted", is(true)))
+                .andReturn();
     }
 
     @Test

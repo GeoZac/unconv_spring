@@ -703,10 +703,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(
-                        UUID.randomUUID(), 0L, 0L, OffsetDateTime.now().plusDays(1), null);
+    void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
+        EnvironmentalReading environmentalReading = new EnvironmentalReading();
 
         this.mockMvc
                 .perform(
@@ -722,14 +720,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
-                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
-                .andExpect(
-                        jsonPath(
-                                "$.violations[1].message",
-                                is("Readings has to be in past or present")))
                 .andReturn();
     }
 

@@ -119,6 +119,36 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
+  doc:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: /tmp/spring
+    steps:
+      - attach_workspace:
+          at: /tmp/spring
+      - run:
+          name: Install OpenJDK 17
+          command: |
+            sudo apt-get update && sudo apt-get install openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            java -version
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Build API doc
+          command: ./mvnw package
+      - store_artifacts:
+          path: target/generated-docs/index.pdf
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
 workflows:
   build-and-test:
     jobs:
@@ -133,3 +163,13 @@ workflows:
           context: SonarCloud
           requires:
             - build
+      - doc:
+          requires:
+            - test
+          filters:
+            branches:
+                only:
+                - /docs\/.*/
+                - master
+            tags:
+                only: /^v.*/
