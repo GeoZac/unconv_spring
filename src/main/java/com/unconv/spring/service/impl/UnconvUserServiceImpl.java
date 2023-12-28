@@ -76,7 +76,7 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
+    public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             UnconvUser unconvUser, String rawPassword) {
         MessageResponse<UnconvUserDTO> messageResponse;
         HttpStatus httpStatus;

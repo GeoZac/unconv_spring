@@ -80,7 +80,7 @@ public class UnconvUserController {
                     new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE), HttpStatus.BAD_REQUEST);
         }
         unconvUserDTO.setId(null);
-        return unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
+        return unconvUserService.createUnconvUser(
                 modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
     }
 

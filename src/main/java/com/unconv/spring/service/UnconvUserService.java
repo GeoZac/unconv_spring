@@ -22,7 +22,7 @@ public interface UnconvUserService {
 
     boolean checkPasswordMatch(UUID unconvUserId, String currentPassword);
 
-    ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
+    ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             UnconvUser unconvUser, String rawPassword);
 
     void deleteUnconvUserById(UUID id);
