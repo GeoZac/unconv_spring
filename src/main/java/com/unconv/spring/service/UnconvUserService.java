@@ -14,6 +14,8 @@ public interface UnconvUserService {
 
     Optional<UnconvUser> findUnconvUserById(UUID id);
 
+    boolean isUsernameUnique(String username);
+
     UnconvUser findUnconvUserByUserName(String username);
 
     UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword);
