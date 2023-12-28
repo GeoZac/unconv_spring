@@ -166,6 +166,9 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         ResponseEntity<MessageResponse<UnconvUserDTO>> responseEntity =
                 new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
+
+        given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(true);
+
         given(
                         unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
                                 any(UnconvUser.class), any(String.class)))
