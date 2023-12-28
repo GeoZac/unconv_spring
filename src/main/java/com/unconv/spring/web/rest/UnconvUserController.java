@@ -74,8 +74,7 @@ public class UnconvUserController {
     public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
         unconvUserDTO.setId(null);
-        return unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
-                modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
+        return unconvUserService.setUpRoleAndSaveAfterVerify(unconvUserDTO);
     }
 
     @PutMapping("/{id}")
