@@ -2,11 +2,9 @@ package com.unconv.spring.service;
 
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
-import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.http.ResponseEntity;
 
 public interface UnconvUserService {
     PagedResult<UnconvUser> findAllUnconvUsers(
@@ -22,8 +20,7 @@ public interface UnconvUserService {
 
     boolean checkPasswordMatch(UUID unconvUserId, String currentPassword);
 
-    ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
-            UnconvUser unconvUser, String rawPassword);
+    UnconvUserDTO createUnconvUser(UnconvUser unconvUser, String rawPassword);
 
     void deleteUnconvUserById(UUID id);
 }

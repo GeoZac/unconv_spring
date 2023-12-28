@@ -1,5 +1,6 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
@@ -80,8 +81,12 @@ public class UnconvUserController {
                     new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE), HttpStatus.BAD_REQUEST);
         }
         unconvUserDTO.setId(null);
-        return unconvUserService.createUnconvUser(
-                modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
+        UnconvUserDTO savedUnconvUserDTO =
+                unconvUserService.createUnconvUser(
+                        modelMapper.map(unconvUserDTO, UnconvUser.class),
+                        unconvUserDTO.getPassword());
+        return new ResponseEntity<>(
+                new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

@@ -1,7 +1,5 @@
 package com.unconv.spring.service.impl;
 
-import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
-
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
@@ -18,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,16 +73,13 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
-            UnconvUser unconvUser, String rawPassword) {
+    public UnconvUserDTO createUnconvUser(UnconvUser unconvUser, String rawPassword) {
         MessageResponse<UnconvUserDTO> messageResponse;
         HttpStatus httpStatus;
         UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
         UnconvUserDTO savedUnconvUserDTO = modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
         savedUnconvUserDTO.setPassword(null);
-        messageResponse = new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS);
-        httpStatus = HttpStatus.CREATED;
-        return new ResponseEntity<>(messageResponse, httpStatus);
+        return savedUnconvUserDTO;
     }
 
     @Override
