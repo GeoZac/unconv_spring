@@ -71,8 +71,11 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
-    public UnconvUserDTO createUnconvUser(UnconvUser unconvUser, String rawPassword) {
-        UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
+    public UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO) {
+        UnconvUser savedUnconvUser =
+                saveUnconvUser(
+                        modelMapper.map(unconvUserDTO, UnconvUser.class),
+                        unconvUserDTO.getPassword());
         UnconvUserDTO savedUnconvUserDTO = modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
         savedUnconvUserDTO.setPassword(null);
         return savedUnconvUserDTO;

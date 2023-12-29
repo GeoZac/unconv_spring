@@ -161,7 +161,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(true);
 
-        given(unconvUserService.createUnconvUser(any(UnconvUser.class), any(String.class)))
+        given(unconvUserService.createUnconvUser(any(UnconvUserDTO.class)))
                 .willReturn(unconvUserDTOWithPasswordObscured);
 
         this.mockMvc

@@ -20,7 +20,7 @@ public interface UnconvUserService {
 
     boolean checkPasswordMatch(UUID unconvUserId, String currentPassword);
 
-    UnconvUserDTO createUnconvUser(UnconvUser unconvUser, String rawPassword);
+    UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO);
 
     void deleteUnconvUserById(UUID id);
 }
