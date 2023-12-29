@@ -102,17 +102,12 @@ public class UnconvUserController {
                             }
                             if (unconvUserService.checkPasswordMatch(
                                     unconvUserObj.getId(), unconvUserDTO.getCurrentPassword())) {
-                                unconvUserDTO.setId(id);
-                                unconvUserDTO.setUsername(unconvUserObj.getUsername());
-                                UnconvUser unconvUser =
-                                        unconvUserService.saveUnconvUser(
-                                                modelMapper.map(unconvUserDTO, UnconvUser.class),
-                                                unconvUserDTO.getPassword());
-                                unconvUser.setPassword(null);
+                                UnconvUserDTO updatedUnconvUserDTO =
+                                        unconvUserService.updateUnconvUser(
+                                                unconvUserObj, unconvUserDTO);
                                 return ResponseEntity.ok(
                                         new MessageResponse<>(
-                                                modelMapper.map(unconvUser, UnconvUserDTO.class),
-                                                USER_UPDATE_SUCCESS));
+                                                updatedUnconvUserDTO, USER_UPDATE_SUCCESS));
                             } else {
                                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                                         .body(
