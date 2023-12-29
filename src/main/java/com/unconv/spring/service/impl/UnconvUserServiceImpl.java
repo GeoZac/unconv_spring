@@ -82,6 +82,21 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
+    public UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO) {
+        unconvUserDTO.setId(unconvUser.getId());
+        unconvUserDTO.setUsername(unconvUser.getUsername());
+
+        UnconvUser updatedUnconvUser =
+                saveUnconvUser(
+                        modelMapper.map(unconvUserDTO, UnconvUser.class),
+                        unconvUserDTO.getPassword());
+        UnconvUserDTO updatedUnconvUserDTO =
+                modelMapper.map(updatedUnconvUser, UnconvUserDTO.class);
+        updatedUnconvUserDTO.setPassword(null);
+        return updatedUnconvUserDTO;
+    }
+
+    @Override
     public void deleteUnconvUserById(UUID id) {
         unconvUserRepository.deleteById(id);
     }

@@ -22,5 +22,7 @@ public interface UnconvUserService {
 
     UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO);
 
+    UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO);
+
     void deleteUnconvUserById(UUID id);
 }
