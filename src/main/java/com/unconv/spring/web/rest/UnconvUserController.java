@@ -1,5 +1,6 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
@@ -73,6 +74,11 @@ public class UnconvUserController {
     @PostMapping
     public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
+        if (!unconvUserService.isUsernameUnique(unconvUserDTO.getUsername())) {
+            unconvUserDTO.setPassword(null);
+            return new ResponseEntity<>(
+                    new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE), HttpStatus.BAD_REQUEST);
+        }
         unconvUserDTO.setId(null);
         return unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
                 modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());

@@ -1,7 +1,6 @@
 package com.unconv.spring.service.impl;
 
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
-import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
@@ -81,21 +80,11 @@ public class UnconvUserServiceImpl implements UnconvUserService {
             UnconvUser unconvUser, String rawPassword) {
         MessageResponse<UnconvUserDTO> messageResponse;
         HttpStatus httpStatus;
-        UnconvUser existingUnconvUser =
-                unconvUserRepository.findByUsername(unconvUser.getUsername());
-        if (existingUnconvUser != null) {
-            UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-            unconvUserDTO.setPassword(null);
-            messageResponse = new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE);
-            httpStatus = HttpStatus.BAD_REQUEST;
-        } else {
-            UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
-            UnconvUserDTO savedUnconvUserDTO =
-                    modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
-            savedUnconvUserDTO.setPassword(null);
-            messageResponse = new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS);
-            httpStatus = HttpStatus.CREATED;
-        }
+        UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
+        UnconvUserDTO savedUnconvUserDTO = modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
+        savedUnconvUserDTO.setPassword(null);
+        messageResponse = new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS);
+        httpStatus = HttpStatus.CREATED;
         return new ResponseEntity<>(messageResponse, httpStatus);
     }
 
