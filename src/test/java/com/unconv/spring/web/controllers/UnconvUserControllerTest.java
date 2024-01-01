@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
-import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.UnconvUserController;
@@ -50,9 +49,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -161,15 +158,11 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         unconvUser.setPassword(null);
         UnconvUserDTO unconvUserDTOWithPasswordObscured =
                 modelMapper.map(unconvUser, UnconvUserDTO.class);
-        MessageResponse<UnconvUserDTO> messageResponse =
-                new MessageResponse<>(USER_CREATE_SUCCESS, unconvUserDTOWithPasswordObscured);
 
-        ResponseEntity<MessageResponse<UnconvUserDTO>> responseEntity =
-                new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
-        given(
-                        unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
-                                any(UnconvUser.class), any(String.class)))
-                .willReturn(responseEntity);
+        given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(true);
+
+        given(unconvUserService.createUnconvUser(any(UnconvUserDTO.class)))
+                .willReturn(unconvUserDTOWithPasswordObscured);
 
         this.mockMvc
                 .perform(
@@ -183,9 +176,11 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is(USER_CREATE_SUCCESS)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
-                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -229,6 +224,13 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
+        given(unconvUserService.updateUnconvUser((any(UnconvUser.class)), any(UnconvUserDTO.class)))
+                .willAnswer(
+                        (invocation) -> {
+                            UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
+                            unconvUserDTO.setPassword(null);
+                            return unconvUserDTO;
+                        });
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());

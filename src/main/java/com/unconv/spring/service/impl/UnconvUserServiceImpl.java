@@ -1,11 +1,7 @@
 package com.unconv.spring.service.impl;
 
-import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
-import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
-
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
-import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
@@ -18,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +47,12 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
+    public boolean isUsernameUnique(String username) {
+        UnconvUser existingUnconvUser = unconvUserRepository.findByUsername(username);
+        return existingUnconvUser == null;
+    }
+
+    @Override
     public UnconvUser findUnconvUserByUserName(String username) {
         return unconvUserRepository.findByUsername(username);
     }
@@ -71,26 +71,29 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
-    public ResponseEntity<MessageResponse<UnconvUserDTO>> checkUsernameUniquenessAndSaveUnconvUser(
-            UnconvUser unconvUser, String rawPassword) {
-        MessageResponse<UnconvUserDTO> messageResponse;
-        HttpStatus httpStatus;
-        UnconvUser existingUnconvUser =
-                unconvUserRepository.findByUsername(unconvUser.getUsername());
-        if (existingUnconvUser != null) {
-            UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
-            unconvUserDTO.setPassword(null);
-            messageResponse = new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE);
-            httpStatus = HttpStatus.BAD_REQUEST;
-        } else {
-            UnconvUser savedUnconvUser = saveUnconvUser(unconvUser, rawPassword);
-            UnconvUserDTO savedUnconvUserDTO =
-                    modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
-            savedUnconvUserDTO.setPassword(null);
-            messageResponse = new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS);
-            httpStatus = HttpStatus.CREATED;
-        }
-        return new ResponseEntity<>(messageResponse, httpStatus);
+    public UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO) {
+        UnconvUser savedUnconvUser =
+                saveUnconvUser(
+                        modelMapper.map(unconvUserDTO, UnconvUser.class),
+                        unconvUserDTO.getPassword());
+        UnconvUserDTO savedUnconvUserDTO = modelMapper.map(savedUnconvUser, UnconvUserDTO.class);
+        savedUnconvUserDTO.setPassword(null);
+        return savedUnconvUserDTO;
+    }
+
+    @Override
+    public UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO) {
+        unconvUserDTO.setId(unconvUser.getId());
+        unconvUserDTO.setUsername(unconvUser.getUsername());
+
+        UnconvUser updatedUnconvUser =
+                saveUnconvUser(
+                        modelMapper.map(unconvUserDTO, UnconvUser.class),
+                        unconvUserDTO.getPassword());
+        UnconvUserDTO updatedUnconvUserDTO =
+                modelMapper.map(updatedUnconvUser, UnconvUserDTO.class);
+        updatedUnconvUserDTO.setPassword(null);
+        return updatedUnconvUserDTO;
     }
 
     @Override
