@@ -224,6 +224,13 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
+        given(unconvUserService.updateUnconvUser((any(UnconvUser.class)), any(UnconvUserDTO.class)))
+                .willAnswer(
+                        (invocation) -> {
+                            UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
+                            unconvUserDTO.setPassword(null);
+                            return unconvUserDTO;
+                        });
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
