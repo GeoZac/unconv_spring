@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@3.3.0
+  owasp: entur/owasp@0.0.19
 jobs:
   setup:
     machine:
@@ -126,6 +127,7 @@ workflows:
   build-and-test:
     jobs:
       - setup
+      - owasp/maven_owasp_dependency_check
       - build:
           requires:
             - setup
