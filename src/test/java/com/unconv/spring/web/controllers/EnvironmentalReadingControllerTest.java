@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -28,12 +29,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
@@ -89,8 +93,8 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                     SensorStatus.ACTIVE,
                     sensorLocation,
                     unconvUser,
-                    null,
-                    null);
+                    new HumidityThreshold(UUID.randomUUID(), 75, 23),
+                    new TemperatureThreshold(UUID.randomUUID(), 100, 0));
 
     @BeforeEach
     void setUp() {
@@ -145,7 +149,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        UUID.randomUUID(),
+                        environmentalReadingId,
                         13L,
                         75L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
@@ -153,14 +157,25 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
 
-        this.mockMvc
-                .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
-                .andDo(
-                        document(
-                                "shouldFindEnvironmentalReadingById",
-                                preprocessResponse(prettyPrint)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+        String responseJson =
+                this.mockMvc
+                        .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
+                        .andDo(
+                                document(
+                                        "shouldFindEnvironmentalReadingById",
+                                        preprocessResponse(prettyPrint)))
+                        .andExpect(status().isOk())
+                        .andExpect(
+                                jsonPath(
+                                        "$.temperature", is(environmentalReading.getTemperature())))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        List<Object> fieldValues = JsonPath.read(responseJson, "$..*");
+        for (Object fieldValue : fieldValues) {
+            assertNotNull(fieldValue, "Field value should not be null");
+        }
     }
 
     @Test
@@ -181,13 +196,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId() throws Exception {
-        List<EnvironmentalReading> environmentalReadings =
-                Instancio.ofList(EnvironmentalReading.class)
-                        .size(9)
-                        .ignore(field(EnvironmentalReading::getId))
-                        .create();
-
         UUID unconvUserId = UUID.randomUUID();
+        List<EnvironmentalReading> environmentalReadings =
+                Instancio.ofList(EnvironmentalReading.class).size(9).create();
+
         given(
                         environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
                                 unconvUserId))
@@ -210,26 +222,31 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         EnvironmentalReadingDTO environmentalReadingDTO =
                 new EnvironmentalReadingDTO(
-                        UUID.randomUUID(),
+                        null,
                         -3L,
                         53L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
-
-        MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
-                new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_ACCEPTED);
-
-        ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
-                environmentalReadingDTOMessageResponseResponseEntity =
-                        new ResponseEntity<>(
-                                environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
 
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                                         any(EnvironmentalReadingDTO.class),
                                         any(Authentication.class)))
-                .willReturn(environmentalReadingDTOMessageResponseResponseEntity);
+                .willAnswer(
+                        (invocation) -> {
+                            EnvironmentalReadingDTO environmentalReadingArg =
+                                    invocation.getArgument(0);
+                            environmentalReadingArg.setId(UUID.randomUUID());
+
+                            MessageResponse<EnvironmentalReadingDTO>
+                                    environmentalReadingDTOMessageResponse =
+                                            new MessageResponse<>(
+                                                    environmentalReadingArg, ENVT_RECORD_ACCEPTED);
+
+                            return new ResponseEntity<>(
+                                    environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
+                        });
 
         this.mockMvc
                 .perform(
@@ -251,9 +268,8 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(null, 0L, 0L, OffsetDateTime.now().plusDays(1), null);
+    void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
+        EnvironmentalReading environmentalReading = new EnvironmentalReading();
 
         this.mockMvc
                 .perform(
@@ -274,13 +290,37 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
-                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewEnvironmentalReadingWithTimestampInFuture() throws Exception {
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null, -3L, 53L, OffsetDateTime.now().plusDays(2), sensorSystem);
+
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
                         jsonPath(
-                                "$.violations[1].message",
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("timestamp")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
                                 is("Readings has to be in past or present")))
                 .andReturn();
     }
@@ -302,7 +342,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        put("/EnvironmentalReading/{id}", environmentalReading.getId())
+                        put("/EnvironmentalReading/{id}", environmentalReadingId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
@@ -359,9 +399,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .deleteEnvironmentalReadingById(environmentalReading.getId());
 
         this.mockMvc
-                .perform(
-                        delete("/EnvironmentalReading/{id}", environmentalReading.getId())
-                                .with(csrf()))
+                .perform(delete("/EnvironmentalReading/{id}", environmentalReadingId).with(csrf()))
                 .andDo(
                         document(
                                 "shouldDeleteEnvironmentalReading",

@@ -135,7 +135,7 @@ class PassengerControllerTest extends AbstractControllerTest {
 
         Passenger passenger =
                 new Passenger(
-                        1L, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
+                        null, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
@@ -148,8 +148,8 @@ class PassengerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
+    void shouldReturn400WhenCreateNewPassengerWithNullValues() throws Exception {
+        Passenger passenger = new Passenger();
 
         this.mockMvc
                 .perform(

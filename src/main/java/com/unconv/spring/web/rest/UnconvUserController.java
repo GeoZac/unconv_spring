@@ -1,5 +1,7 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
@@ -73,9 +75,15 @@ public class UnconvUserController {
     @PostMapping
     public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
+        if (!unconvUserService.isUsernameUnique(unconvUserDTO.getUsername())) {
+            unconvUserDTO.setPassword(null);
+            return new ResponseEntity<>(
+                    new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE), HttpStatus.BAD_REQUEST);
+        }
         unconvUserDTO.setId(null);
-        return unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
-                modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
+        UnconvUserDTO savedUnconvUserDTO = unconvUserService.createUnconvUser(unconvUserDTO);
+        return new ResponseEntity<>(
+                new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -94,17 +102,12 @@ public class UnconvUserController {
                             }
                             if (unconvUserService.checkPasswordMatch(
                                     unconvUserObj.getId(), unconvUserDTO.getCurrentPassword())) {
-                                unconvUserDTO.setId(id);
-                                unconvUserDTO.setUsername(unconvUserObj.getUsername());
-                                UnconvUser unconvUser =
-                                        unconvUserService.saveUnconvUser(
-                                                modelMapper.map(unconvUserDTO, UnconvUser.class),
-                                                unconvUserDTO.getPassword());
-                                unconvUser.setPassword(null);
+                                UnconvUserDTO updatedUnconvUserDTO =
+                                        unconvUserService.updateUnconvUser(
+                                                unconvUserObj, unconvUserDTO);
                                 return ResponseEntity.ok(
                                         new MessageResponse<>(
-                                                modelMapper.map(unconvUser, UnconvUserDTO.class),
-                                                USER_UPDATE_SUCCESS));
+                                                updatedUnconvUserDTO, USER_UPDATE_SUCCESS));
                             } else {
                                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                                         .body(

@@ -4,6 +4,7 @@ import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -93,14 +95,17 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindHumidityThresholdById() throws Exception {
         UUID humidityThresholdId = UUID.randomUUID();
-        HumidityThreshold humidityThreshold = new HumidityThreshold();
+        HumidityThreshold humidityThreshold = new HumidityThreshold(humidityThresholdId, 90, 10);
         given(humidityThresholdService.findHumidityThresholdById(humidityThresholdId))
                 .willReturn(Optional.of(humidityThreshold));
 
         this.mockMvc
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.id", is(humidityThresholdId.toString())))
+                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
@@ -124,7 +129,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                             return humidityThreshold;
                         });
 
-        HumidityThreshold humidityThreshold = new HumidityThreshold(UUID.randomUUID(), 100, 0);
+        HumidityThreshold humidityThreshold = new HumidityThreshold(null, 100, 0);
         this.mockMvc
                 .perform(
                         post("/HumidityThreshold")
@@ -133,7 +138,36 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewHumidityThresholdWithNullValues() throws Exception {
+        HumidityThreshold humidityThreshold = new HumidityThreshold();
+
+        this.mockMvc
+                .perform(
+                        post("/HumidityThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidityThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Min. value must be less than Max. value")))
+                .andReturn();
     }
 
     @Test
@@ -152,7 +186,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
+                .andReturn();
+        ;
     }
 
     @Test
@@ -184,7 +221,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(delete("/HumidityThreshold/{id}", humidityThreshold.getId()).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
+                .andReturn();
+        ;
     }
 
     @Test
