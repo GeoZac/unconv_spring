@@ -157,7 +157,12 @@ workflows:
   build-and-test:
     jobs:
       - setup
-      - owasp/maven_owasp_dependency_check
+      - owasp/maven_owasp_dependency_check:
+          filters:
+            branches:
+                only:
+                - /feature\/.*/
+                - master
       - build:
           requires:
             - setup
