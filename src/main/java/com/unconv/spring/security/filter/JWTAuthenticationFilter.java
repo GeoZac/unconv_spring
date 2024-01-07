@@ -28,6 +28,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.startsWith(BEARER_PREFIX_STRING)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String token =
                 header.startsWith(BEARER_PREFIX_STRING)
                         ? header.replace(BEARER_PREFIX_STRING, "")
