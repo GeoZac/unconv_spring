@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotEmpty;
@@ -37,4 +39,9 @@ public class SensorAuthToken {
     @Future(message = "Expiry has to be in future")
     @NotNull(message = "Expiry cannot be empty")
     private OffsetDateTime expiry;
+
+    @OneToOne
+    @JoinColumn(name = "sensor_system_id")
+    @NotNull(message = "Sensor system cannot be empty")
+    private SensorSystem sensorSystem;
 }

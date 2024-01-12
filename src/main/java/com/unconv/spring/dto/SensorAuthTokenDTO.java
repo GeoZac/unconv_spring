@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.unconv.spring.domain.SensorSystem;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import javax.validation.constraints.Future;
@@ -24,4 +25,7 @@ public class SensorAuthTokenDTO {
     @Future(message = "Expiry has to be in future")
     @NotNull(message = "Expiry cannot be empty")
     private OffsetDateTime expiry;
+
+    @NotNull(message = "Sensor system cannot be empty")
+    private SensorSystem sensorSystem;
 }
