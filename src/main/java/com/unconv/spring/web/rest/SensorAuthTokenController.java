@@ -29,9 +29,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class SensorAuthTokenController {
 
-    @Autowired private SensorAuthTokenService sensorAuthTokenService;
+    private final SensorAuthTokenService sensorAuthTokenService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public SensorAuthTokenController(
+            SensorAuthTokenService sensorAuthTokenService, ModelMapper modelMapper) {
+        this.sensorAuthTokenService = sensorAuthTokenService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
     public PagedResult<SensorAuthToken> getAllSensorAuthTokens(

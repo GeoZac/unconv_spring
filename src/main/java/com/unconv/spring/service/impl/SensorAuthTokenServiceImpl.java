@@ -18,7 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
-    @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
+    private final SensorAuthTokenRepository sensorAuthTokenRepository;
+
+    @Autowired
+    public SensorAuthTokenServiceImpl(SensorAuthTokenRepository sensorAuthTokenRepository) {
+        this.sensorAuthTokenRepository = sensorAuthTokenRepository;
+    }
 
     @Override
     public PagedResult<SensorAuthToken> findAllSensorAuthTokens(
