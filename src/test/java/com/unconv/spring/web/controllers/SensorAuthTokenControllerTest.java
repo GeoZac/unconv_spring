@@ -138,7 +138,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthToken(
                         sensorAuthTokenId,
                         RandomStringUtils.random(25),
-                        OffsetDateTime.now().plusDays(30));
+                        OffsetDateTime.now().plusDays(30),
+                        sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
 
@@ -189,7 +190,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
-                        null, RandomStringUtils.random(25), OffsetDateTime.now().plusDays(30));
+                        null,
+                        RandomStringUtils.random(25),
+                        OffsetDateTime.now().plusDays(30),
+                        sensorSystem);
         this.mockMvc
                 .perform(
                         post("/SensorAuthToken")
@@ -231,11 +235,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[0].field", is("authToken")))
                 .andExpect(jsonPath("$.violations[0].message", is("Auth token cannot be empty")))
                 .andExpect(jsonPath("$.violations[1].field", is("expiry")))
                 .andExpect(jsonPath("$.violations[1].message", is("Expiry cannot be empty")))
+                .andExpect(jsonPath("$.violations[2].field", is("sensorSystem")))
+                .andExpect(jsonPath("$.violations[2].message", is("Sensor system cannot be empty")))
                 .andReturn();
     }
 
@@ -246,7 +252,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthToken(
                         sensorAuthTokenId,
                         RandomStringUtils.random(25),
-                        OffsetDateTime.now().plusDays(30));
+                        OffsetDateTime.now().plusDays(30),
+                        sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
         given(sensorAuthTokenService.saveSensorAuthToken(any(SensorAuthToken.class)))
@@ -276,7 +283,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthToken(
                         sensorAuthTokenId,
                         RandomStringUtils.random(25),
-                        OffsetDateTime.now().plusDays(30));
+                        OffsetDateTime.now().plusDays(30),
+                        sensorSystem);
 
         this.mockMvc
                 .perform(
@@ -301,7 +309,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthToken(
                         sensorAuthTokenId,
                         RandomStringUtils.random(25),
-                        OffsetDateTime.now().plusDays(30));
+                        OffsetDateTime.now().plusDays(30),
+                        sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
         //

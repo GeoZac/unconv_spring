@@ -18,7 +18,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.SensorAuthToken;
+import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
+import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.UnconvUserService;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +42,15 @@ import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
+    @Autowired private UnconvUserService unconvUserService;
+
+    @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private SensorSystemRepository sensorSystemRepository;
+
     @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
+
+    private SensorSystem savedSensorSystem;
 
     private List<SensorAuthToken> sensorAuthTokenList = null;
 
@@ -53,6 +66,14 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
         sensorAuthTokenRepository.deleteAllInBatch();
 
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
         sensorAuthTokenList = new ArrayList<>();
         sensorAuthTokenList =
                 Instancio.ofList(SensorAuthToken.class)
@@ -64,6 +85,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                         .supply(
                                 field(SensorAuthToken::getExpiry),
                                 () -> OffsetDateTime.now().plusDays(10))
+                        .supply(field(SensorAuthToken::getSensorSystem), () -> savedSensorSystem)
                         .create();
         sensorAuthTokenList = sensorAuthTokenRepository.saveAll(sensorAuthTokenList);
     }
@@ -114,7 +136,10 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorAuthToken() throws Exception {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
-                        null, RandomStringUtils.random(25), OffsetDateTime.now().plusDays(30));
+                        null,
+                        RandomStringUtils.random(25),
+                        OffsetDateTime.now().plusDays(30),
+                        savedSensorSystem);
         this.mockMvc
                 .perform(
                         post("/SensorAuthToken")
@@ -144,11 +169,13 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[0].field", is("authToken")))
                 .andExpect(jsonPath("$.violations[0].message", is("Auth token cannot be empty")))
                 .andExpect(jsonPath("$.violations[1].field", is("expiry")))
                 .andExpect(jsonPath("$.violations[1].message", is("Expiry cannot be empty")))
+                .andExpect(jsonPath("$.violations[2].field", is("sensorSystem")))
+                .andExpect(jsonPath("$.violations[2].message", is("Sensor system cannot be empty")))
                 .andReturn();
     }
 
@@ -212,5 +239,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     @AfterEach
     void tearDown() {
         sensorAuthTokenRepository.deleteAll();
+        sensorSystemRepository.deleteAll();
+        unconvUserRepository.deleteAll();
     }
 }
