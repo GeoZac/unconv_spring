@@ -6,6 +6,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
+    @Value("${auth.skip-header:false}")
+    private boolean skipAuthHeader;
+
     public JWTAuthenticationFilter(JWTUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
@@ -28,7 +32,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(BEARER_PREFIX_STRING)) {
+        if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
             filterChain.doFilter(request, response);
             return;
         }
