@@ -2,8 +2,11 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -137,7 +140,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         sensorAuthTokenId,
-                        RandomStringUtils.random(25),
+                        generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
@@ -152,7 +155,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         preprocessResponse(prettyPrint)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id", is(sensorAuthTokenId.toString())))
-                        .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())))
+                        .andExpect(jsonPath("$.authToken", hasLength(25)))
+                        .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
@@ -191,7 +195,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
-                        RandomStringUtils.random(25),
+                        generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
         this.mockMvc
@@ -209,7 +213,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test
@@ -251,7 +257,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         sensorAuthTokenId,
-                        RandomStringUtils.random(25),
+                        generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
@@ -271,7 +277,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test
@@ -308,7 +316,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         sensorAuthTokenId,
-                        RandomStringUtils.random(25),
+                        generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
@@ -320,7 +328,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
                 .andDo(document("shouldDeleteSensorAuthToken", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test

@@ -2,7 +2,9 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -24,6 +26,7 @@ import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.utils.AccessTokenGenerator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +84,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                         .ignore(field(SensorAuthToken::getId))
                         .supply(
                                 field(SensorAuthToken::getAuthToken),
-                                () -> RandomStringUtils.random(25))
+                                AccessTokenGenerator::generateAccessToken)
                         .supply(
                                 field(SensorAuthToken::getExpiry),
                                 () -> OffsetDateTime.now().plusDays(10))
@@ -129,7 +132,9 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorAuthToken/{id}", sensorAuthTokenId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test
@@ -148,7 +153,9 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test
@@ -192,7 +199,9 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test
@@ -203,7 +212,9 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", is(sensorAuthToken.getAuthToken())));
+                .andExpect(jsonPath("$.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andReturn();
     }
 
     @Test
