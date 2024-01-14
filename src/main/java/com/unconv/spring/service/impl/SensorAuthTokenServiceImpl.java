@@ -4,6 +4,8 @@ import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
+import com.unconv.spring.utils.AccessTokenGenerator;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,8 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
+        sensorAuthToken.setAuthToken(AccessTokenGenerator.generateAccessToken());
+        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         return sensorAuthTokenRepository.save(sensorAuthToken);
     }
 
