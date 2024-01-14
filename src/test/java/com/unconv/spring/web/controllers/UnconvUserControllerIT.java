@@ -63,6 +63,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     private List<UnconvUser> unconvUserList = null;
     private List<UnconvUserDTO> unconvUserDTOList = null;
 
+    Set<UnconvRole> unconvRoleSet = new HashSet<>();
+
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
@@ -79,7 +81,6 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
         UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
-        Set<UnconvRole> unconvRoleSet = new HashSet<>();
         unconvRoleSet.add(savedUnconvRole);
 
         unconvUserList = new ArrayList<>();
@@ -106,6 +107,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                     unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
             unconvUserDTO.setId(savedUnconvUser.getId());
+            unconvUserDTO.setUnconvRoles(unconvRoleSet);
             unconvUserDTOList.add(unconvUserDTO);
         }
         totalPages = (int) Math.ceil((double) unconvUserList.size() / defaultPageSize);
@@ -167,9 +169,19 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("User created successfully")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
-                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andExpect(jsonPath("$.entity.unconvRoles").doesNotExist())
+                .andExpect(jsonPath("$.entity.authorities", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0]", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0].authority", is("ROLE_USER")))
+                .andExpect(jsonPath("$.entity.enabled", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
+                .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)))
+                .andReturn();
     }
 
     @Test
@@ -200,6 +212,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenAlreadyRegisterAsUser() throws Exception {
         String rawPassword = "new_password";
         UnconvUser unconvUser = new UnconvUser(null, "New_User", "newuser@gmail.com", rawPassword);
+        unconvUser.setUnconvRoles(unconvRoleSet);
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
@@ -224,6 +237,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldLoginAsAuthenticatedUserAndReceiveJWToken() throws Exception {
         String rawPassword = "password";
         UnconvUser unconvUser = new UnconvUser(null, "new_user", "testuser@gmail.com", rawPassword);
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser, rawPassword);
         assert savedUnconvUser.getId().version() == 4;
 
