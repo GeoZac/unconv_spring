@@ -96,6 +96,7 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     public UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO) {
         unconvUserDTO.setId(unconvUser.getId());
         unconvUserDTO.setUsername(unconvUser.getUsername());
+        unconvUserDTO.setUnconvRoles(unconvUser.getUnconvRoles());
 
         UnconvUser updatedUnconvUser =
                 saveUnconvUser(
