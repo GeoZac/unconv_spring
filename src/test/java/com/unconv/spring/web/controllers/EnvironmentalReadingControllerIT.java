@@ -32,13 +32,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.DefaultUserRole;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.UnconvUserService;
@@ -49,7 +52,10 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.instancio.Model;
@@ -77,7 +83,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
     private List<EnvironmentalReading> environmentalReadingList = null;
+
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
@@ -115,8 +125,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingRepository.deleteAllInBatch();
 
+        UnconvRole userUnconvRole = unconvRoleRepository.findByName(UNCONV_USER.name());
+        unconvRoleSet.add(userUnconvRole);
+
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -158,6 +172,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -216,6 +231,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -268,6 +284,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -302,6 +319,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -331,6 +349,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewEnvironmentalReadingWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -367,6 +386,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewEnvironmentalReadingWithoutTimestamp() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -413,6 +433,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -456,6 +477,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -498,6 +520,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -565,6 +588,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -612,6 +636,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -661,6 +686,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -730,6 +756,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn401WhenCreateNewEnvironmentalReadingForUnauthenticatedUser() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Some other user", "someonelse@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -759,6 +786,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -787,6 +815,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenCreateNewEnvironmentalReadingForDeletedSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -819,6 +848,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -909,6 +939,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void tearDown() {
         environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
+
         unconvUserRepository.deleteAll();
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
     }
 }
