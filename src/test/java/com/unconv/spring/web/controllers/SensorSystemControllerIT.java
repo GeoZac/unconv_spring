@@ -83,6 +83,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     private List<UnconvUser> unconvUserList = null;
 
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
+
     private static final Model<EnvironmentalReading> environemntalReadingModel =
             Instancio.of(EnvironmentalReading.class)
                     .supply(
@@ -117,7 +119,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
-        Set<UnconvRole> unconvRoleSet = new HashSet<>();
         unconvRoleSet.add(savedUnconvRole);
 
         unconvUserList = new ArrayList<>();
@@ -186,6 +187,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -253,6 +255,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInDescendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -396,6 +399,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFindSensorSystemsOfSpecificUnconvUserBySensorName() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -463,6 +467,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -502,6 +507,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystemWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -530,6 +536,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystemEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -590,6 +597,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldReturn401WhenCreateNewSensorSystemForUnauthenticatedUser() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Some other user", "someonelse@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
