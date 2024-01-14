@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.unconv.spring.annotation.ValidPassword;
@@ -52,7 +53,7 @@ public class UnconvUserDTO extends BaseUser {
 
     private String currentPassword;
 
-    private Set<UnconvRole> unconvRoles = new HashSet<>();
+    @JsonIgnore private Set<UnconvRole> unconvRoles = new HashSet<>();
 
     @Override
     @JsonDeserialize(using = UnconvAuthorityDeserializer.class)

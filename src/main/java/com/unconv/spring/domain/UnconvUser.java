@@ -1,5 +1,6 @@
 package com.unconv.spring.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -22,6 +23,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,10 +59,12 @@ public class UnconvUser extends BaseUser {
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
+    @Size(min = 1, max = 3)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "unconv_user_id"),
             inverseJoinColumns = @JoinColumn(name = "unconv_role_id"))
+    @JsonIgnore
     private Set<UnconvRole> unconvRoles = new HashSet<>();
 
     @Override
