@@ -75,12 +75,12 @@ include::entity/sensorSystem.adoc[]
 
 include::entity/unconvUser.adoc[]
 
-=== API Documentation
-==== Environmental Reading
+== API Documentation
+=== Environmental Reading
 include::api/EnvironmentalReading/api.adoc/[]
 
-==== SensorSystem
+=== SensorSystem
 include::api/SensorSystem/api.adoc[]
 
-==== UnconvUser
+=== UnconvUser
 include::api/UnconvUser/api.adoc[]
