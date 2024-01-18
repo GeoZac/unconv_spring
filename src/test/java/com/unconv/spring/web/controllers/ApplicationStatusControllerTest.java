@@ -36,11 +36,11 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
     @Test
     void shouldFetchAppVersion() throws Exception {
 
-        given(buildProperties.getVersion()).willReturn("0.0.5-SNAPSHOT");
+        given(buildProperties.getVersion()).willReturn("0.0.6-SNAPSHOT");
 
         this.mockMvc
                 .perform(get("/public/status/version").characterEncoding(Charset.defaultCharset()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("0.0.5-SNAPSHOT")));
+                .andExpect(jsonPath("$", is("0.0.6-SNAPSHOT")));
     }
 }
