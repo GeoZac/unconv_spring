@@ -39,6 +39,7 @@ import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorAuthTokenService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorAuthTokenController;
 import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
@@ -67,6 +68,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorAuthToken")
 class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @MockBean private SensorAuthTokenService sensorAuthTokenService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
