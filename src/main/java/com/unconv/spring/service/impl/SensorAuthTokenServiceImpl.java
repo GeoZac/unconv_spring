@@ -49,7 +49,7 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
-        sensorAuthToken.setAuthToken(AccessTokenGenerator.generateAccessToken());
+        sensorAuthToken.setAuthToken(generateUniqueSensorAuthToken());
         sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         return sensorAuthTokenRepository.save(sensorAuthToken);
     }
@@ -57,5 +57,17 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     @Override
     public void deleteSensorAuthTokenById(UUID id) {
         sensorAuthTokenRepository.deleteById(id);
+    }
+
+    private String generateUniqueSensorAuthToken() {
+        boolean uniqueSensorAuthToken = false;
+        String sensorAuthTokenString;
+        do {
+            sensorAuthTokenString = AccessTokenGenerator.generateAccessToken();
+            SensorAuthToken sensorAuthToken =
+                    sensorAuthTokenRepository.findByAuthToken(sensorAuthTokenString);
+            if (sensorAuthToken == null) uniqueSensorAuthToken = true;
+        } while (!uniqueSensorAuthToken);
+        return sensorAuthTokenString;
     }
 }
