@@ -401,10 +401,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .perform(
                         get(
                                         "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
-                                        sensorSystem.getId())
+                                        sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isNotFound())
                 .andReturn();
     }

@@ -274,6 +274,21 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andReturn();
     }
 
+    @Test
+    void shouldReturn404WhenRequestingTokenForANonExistingSensorSystem() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
     @AfterEach
     void tearDown() {
         sensorAuthTokenRepository.deleteAll();
