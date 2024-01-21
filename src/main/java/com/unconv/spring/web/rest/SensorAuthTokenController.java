@@ -89,7 +89,7 @@ public class SensorAuthTokenController {
                 modelMapper.map(sensorAuthTokenDTO, SensorAuthToken.class));
     }
 
-    @PostMapping("/GenerateToken/SensorSystem{sensorSystemId}")
+    @GetMapping("/GenerateToken/SensorSystem{sensorSystemId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<MessageResponse<SensorAuthToken>> generateSensorAuthToken(
             @PathVariable @Validated UUID sensorSystemId) {
@@ -102,7 +102,7 @@ public class SensorAuthTokenController {
                             return new ResponseEntity<>(
                                     new MessageResponse<>(
                                             sensorAuthToken, "Generated New Sensor Auth Token"),
-                                    HttpStatus.OK);
+                                    HttpStatus.CREATED);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
