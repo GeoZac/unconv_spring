@@ -247,6 +247,33 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void shouldGenerateAndReturnNewSensorTokenForAValidSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(
+                        jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
     @AfterEach
     void tearDown() {
         sensorAuthTokenRepository.deleteAll();
