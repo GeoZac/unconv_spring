@@ -1,6 +1,7 @@
 package com.unconv.spring.service.impl;
 
 import com.unconv.spring.domain.SensorAuthToken;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
@@ -57,5 +58,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     @Override
     public void deleteSensorAuthTokenById(UUID id) {
         sensorAuthTokenRepository.deleteById(id);
+    }
+
+    @Override
+    public SensorAuthToken generateSensorAuthToken(SensorSystem sensorSystem) {
+        SensorAuthToken sensorAuthToken = new SensorAuthToken();
+        sensorAuthToken.setSensorSystem(sensorSystem);
+        return saveSensorAuthToken(sensorAuthToken);
     }
 }

@@ -39,6 +39,7 @@ import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorAuthTokenService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorAuthTokenController;
 import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
@@ -67,6 +68,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorAuthToken")
 class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @MockBean private SensorAuthTokenService sensorAuthTokenService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
@@ -346,5 +349,62 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenDeletingNonExistingSensorAuthToken",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem() throws Exception {
+
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
+
+        SensorAuthToken sensorAuthToken =
+                new SensorAuthToken(
+                        UUID.randomUUID(),
+                        generateAccessToken(),
+                        OffsetDateTime.now().plusDays(60),
+                        sensorSystem);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem))
+                .willReturn(sensorAuthToken);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.authToken", hasLength(25)))
+                .andExpect(jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(
+                        jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenRequestingTokenForANonExistingSensorSystem() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 }
