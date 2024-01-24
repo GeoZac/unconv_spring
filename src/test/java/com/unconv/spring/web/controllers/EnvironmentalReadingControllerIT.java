@@ -9,6 +9,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -324,7 +325,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
                 .andExpect(
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
-                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -360,7 +363,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.entity.sensorSystem.id",
                                 is(savedSensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andReturn();
     }
 
     @Test
@@ -389,7 +393,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         "$.entity.temperature",
                                         is(environmentalReadingDTO.getTemperature())))
                         .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                        .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()));
 
         // Get the response body
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -751,7 +756,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -780,7 +787,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+        ;
     }
 
     @Test
@@ -811,7 +821,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -843,7 +855,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -859,7 +873,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -872,7 +888,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
