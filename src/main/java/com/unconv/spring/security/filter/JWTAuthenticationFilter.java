@@ -32,15 +32,18 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String contextUser;
+
         if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
             filterChain.doFilter(request, response);
             return;
+        } else {
+            String token =
+                    header.startsWith(BEARER_PREFIX_STRING)
+                            ? header.replace(BEARER_PREFIX_STRING, "")
+                            : header;
+            contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
         }
-        String token =
-                header.startsWith(BEARER_PREFIX_STRING)
-                        ? header.replace(BEARER_PREFIX_STRING, "")
-                        : header;
-        String contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(contextUser, null, List.of());
