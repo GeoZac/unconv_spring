@@ -32,9 +32,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String contextUser;
+        String contextUser = null;
 
-        if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
+        if (isSensorPostingEnvironmentalReadingWithToken(request)) {
+            String accessToken = request.getParameter("access_token");
+        } else if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
             filterChain.doFilter(request, response);
             return;
         } else {
@@ -50,5 +52,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
+    }
+
+    boolean isSensorPostingEnvironmentalReadingWithToken(HttpServletRequest request) {
+        return "/EnvironmentalReading".equals(request.getRequestURI())
+                && "POST".equals(request.getMethod())
+                && request.getParameter("access_token") != null;
     }
 }
