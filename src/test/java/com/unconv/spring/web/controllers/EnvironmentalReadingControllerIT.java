@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -374,6 +375,38 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreatingNewEnvironmentalReadingWithInvalidSensorAuthToken()
+            throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String invalidSensorAuthToken = AccessTokenGenerator.generateAccessToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param("access_token", invalidSensorAuthToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid API token"))
                 .andReturn();
     }
 
