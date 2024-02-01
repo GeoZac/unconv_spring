@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -52,6 +53,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -136,6 +138,59 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        UUID.randomUUID(),
+                        "Specific UnconvUser",
+                        "unconvuser@email.com",
+                        "password");
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::isDeleted), () -> false)
+                        .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        Page<SensorSystemDTO> page =
+                new PageImpl<>(
+                        sensorSystemsOfSpecificUnconvUser.stream()
+                                .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
+                                .collect(Collectors.toList()));
+        PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);
+        given(
+                        sensorSystemService.findAllSensorSystemsByUnconvUserId(
+                                unconvUser.getId(),
+                                0,
+                                10,
+                                DEFAULT_SS_SORT_BY,
+                                DEFAULT_SS_SORT_DIRECTION))
+                .willReturn(sensorSystemPagedResult);
+
+        int dataSize = sensorSystemsOfSpecificUnconvUser.size();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorSystem/UnconvUser/{unconvUserId}", unconvUser.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
+                .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
