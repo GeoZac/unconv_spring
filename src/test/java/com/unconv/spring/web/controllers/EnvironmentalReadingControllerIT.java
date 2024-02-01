@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,14 +36,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.utils.AccessTokenGenerator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
@@ -71,6 +75,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
+
+    @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
@@ -327,6 +333,80 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWithSensorAuthToken() throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorAuthToken sensorAuthToken =
+                new SensorAuthToken(
+                        null,
+                        AccessTokenGenerator.generateAccessToken(),
+                        OffsetDateTime.now().plusHours(2),
+                        sensorSystem);
+        sensorAuthTokenRepository.save(sensorAuthToken);
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param("access_token", sensorAuthToken.getAuthToken()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreatingNewEnvironmentalReadingWithInvalidSensorAuthToken()
+            throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String invalidSensorAuthToken = AccessTokenGenerator.generateAccessToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param("access_token", invalidSensorAuthToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid API token"))
                 .andReturn();
     }
 
@@ -926,6 +1006,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @AfterEach
     void tearDown() {
         environmentalReadingRepository.deleteAll();
+        sensorAuthTokenRepository.deleteAll();
         sensorSystemRepository.deleteAll();
         unconvUserRepository.deleteAll();
     }
