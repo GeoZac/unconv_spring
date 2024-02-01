@@ -457,6 +457,37 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldDeleteSensorSystemWithReadingsPresent() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+        SensorSystem sensorSystem =
+                new SensorSystem(
+                        sensorSystemId,
+                        "Existing sensor system",
+                        "Sensor system with readings associated",
+                        true,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        null,
+                        null);
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystem));
+        given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(false);
+
+        this.mockMvc
+                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldDeleteSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.deleted", is(true)))
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn404WhenDeletingNonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
