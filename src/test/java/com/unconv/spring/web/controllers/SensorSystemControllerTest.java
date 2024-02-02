@@ -296,6 +296,42 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldFindSensorSystemOfSpecificUnconvUserBySensorName() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        UUID.randomUUID(),
+                        "Specific UnconvUser",
+                        "unconvuser@email.com",
+                        "password");
+
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(4)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        given(
+                        sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
+                                any(String.class), any(UUID.class)))
+                .willReturn(sensorSystems);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/SensorSystem/SensorName/{sensorName}/UnconvUser/{unconvUserId}",
+                                "Sensor",
+                                unconvUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(4)));
+    }
+
+    @Test
     void shouldReturn404WhenFetchingNonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
