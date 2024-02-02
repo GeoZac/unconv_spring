@@ -23,6 +23,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -46,6 +47,7 @@ import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -64,10 +66,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -330,6 +334,73 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         jsonPath(
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())));
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, unconvUser);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .supply(field(EnvironmentalReadingDTO::getSensorSystem), () -> sensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse =
+                "Uploaded the file successfully: test.csv with "
+                        + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
+                        + " records";
+
+        given(
+                        environmentalReadingService
+                                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                        any(UUID.class), any(MultipartFile.class)))
+                .willReturn(ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse));
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", is(expectedResponse)));
     }
 
     @Test
