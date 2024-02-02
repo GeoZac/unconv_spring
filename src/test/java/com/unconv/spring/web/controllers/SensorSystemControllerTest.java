@@ -274,6 +274,28 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldFindSensorSystemBySensorName() throws Exception {
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(4)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        given(sensorSystemService.findAllSensorSystemsBySensorName(any(String.class)))
+                .willReturn(sensorSystems);
+
+        this.mockMvc
+                .perform(get("/SensorSystem/SensorName/{sensorName}", "Sensor"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(4)));
+    }
+
+    @Test
     void shouldReturn404WhenFetchingNonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
