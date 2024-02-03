@@ -4,6 +4,7 @@ import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
@@ -177,6 +178,42 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is(USER_CREATE_SUCCESS)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewUnconvUserWithUsernameAlreadyInUse() throws Exception {
+
+        UnconvUserDTO unconvUserDTO =
+                new UnconvUserDTO(
+                        UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
+
+        UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
+        unconvUser.setPassword(null);
+        UnconvUserDTO unconvUserDTOWithPasswordObscured =
+                modelMapper.map(unconvUser, UnconvUserDTO.class);
+
+        given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(false);
+
+        given(unconvUserService.createUnconvUser(any(UnconvUserDTO.class)))
+                .willReturn(unconvUserDTOWithPasswordObscured);
+
+        this.mockMvc
+                .perform(
+                        post("/UnconvUser")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldCreateNewUnconvUser",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(USER_NAME_IN_USE)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
