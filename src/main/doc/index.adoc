@@ -53,6 +53,16 @@ Unconventional Spring Project tries to adhere as closely as possible to standard
 | The requested resource did not exist
 |===
 
+== Constants
+
+=== SensorStatus
+
+include::consts/sensorStatus.adoc[]
+
+=== SensorLocationType
+
+include::consts/sensorLocationType.adoc[]
+
 == Entities
 
 Following are the entities associated with this project
