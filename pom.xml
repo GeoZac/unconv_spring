@@ -391,6 +391,8 @@
                             <outputDirectory>${jacoco.utReportFolder}</outputDirectory>
                             <excludes>
                                 <exclude>**/*Application.*</exclude>
+                                <exclude>**/domain/**</exclude>
+                                <exclude>**/dto/**</exclude>
                                 <exclude>**/config/**</exclude>
                                 <exclude>**/utils/*</exclude>
                                 <exclude>**/*Constants*</exclude>
