@@ -6,6 +6,7 @@ import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorSystemService;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -32,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class EnvironmentalReadingController {
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
+
+    @Autowired private SensorSystemService sensorSystemService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -108,17 +111,29 @@ public class EnvironmentalReadingController {
             @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO,
             Authentication authentication) {
         environmentalReadingDTO.setId(null);
-        return environmentalReadingService
-                .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
-                        environmentalReadingDTO, authentication);
+        return sensorSystemService
+                .findSensorSystemById(environmentalReadingDTO.getSensorSystem().getId())
+                .map(
+                        (sensorSystem -> {
+                            return environmentalReadingService
+                                    .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                                            environmentalReadingDTO, authentication);
+                        }))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
     public ResponseEntity<String> uploadFile(
             @PathVariable UUID sensorSystemId, @RequestParam("file") MultipartFile file) {
-        return environmentalReadingService
-                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-                        sensorSystemId, file);
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        (sensorSystem -> {
+                            return environmentalReadingService
+                                    .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                            sensorSystemId, file);
+                        }))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
