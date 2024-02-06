@@ -300,6 +300,8 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
 
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
@@ -380,6 +382,9 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 "Uploaded the file successfully: test.csv with "
                         + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
                         + " records";
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
 
         given(
                         environmentalReadingService
