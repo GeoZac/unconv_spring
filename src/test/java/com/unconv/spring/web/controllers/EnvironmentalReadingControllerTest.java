@@ -44,6 +44,7 @@ import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -81,6 +82,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
