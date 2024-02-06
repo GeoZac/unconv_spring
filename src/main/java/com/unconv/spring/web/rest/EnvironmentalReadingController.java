@@ -1,5 +1,7 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
+
 import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
@@ -13,6 +15,7 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -119,7 +122,15 @@ public class EnvironmentalReadingController {
                                     .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                                             environmentalReadingDTO, authentication);
                         }))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(
+                        () -> {
+                            MessageResponse<EnvironmentalReadingDTO>
+                                    environmentalReadingDTOMessageResponse =
+                                            new MessageResponse<>(
+                                                    environmentalReadingDTO, ENVT_RECORD_REJ_SENS);
+                            return new ResponseEntity<>(
+                                    environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
+                        });
     }
 
     @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
@@ -133,7 +144,11 @@ public class EnvironmentalReadingController {
                                     .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
                                             sensorSystemId, file);
                         }))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(
+                        () -> {
+                            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                    .body(ENVT_RECORD_REJ_SENS);
+                        });
     }
 
     @PutMapping("/{id}")
