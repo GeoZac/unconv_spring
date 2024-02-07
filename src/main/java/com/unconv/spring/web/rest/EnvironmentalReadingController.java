@@ -117,11 +117,10 @@ public class EnvironmentalReadingController {
         return sensorSystemService
                 .findSensorSystemById(environmentalReadingDTO.getSensorSystem().getId())
                 .map(
-                        (sensorSystem -> {
-                            return environmentalReadingService
-                                    .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
-                                            environmentalReadingDTO, authentication);
-                        }))
+                        (sensorSystem ->
+                                environmentalReadingService
+                                        .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                                                environmentalReadingDTO, authentication)))
                 .orElseGet(
                         () -> {
                             MessageResponse<EnvironmentalReadingDTO>
@@ -139,16 +138,14 @@ public class EnvironmentalReadingController {
         return sensorSystemService
                 .findSensorSystemById(sensorSystemId)
                 .map(
-                        (sensorSystem -> {
-                            return environmentalReadingService
-                                    .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-                                            sensorSystemId, file);
-                        }))
+                        (sensorSystem ->
+                                environmentalReadingService
+                                        .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                                sensorSystemId, file)))
                 .orElseGet(
-                        () -> {
-                            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                    .body(ENVT_RECORD_REJ_SENS);
-                        });
+                        () ->
+                                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                        .body(ENVT_RECORD_REJ_SENS));
     }
 
     @PutMapping("/{id}")
