@@ -43,7 +43,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/spring
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2.12.0
+        uses: EnricoMi/publish-unit-test-result-action@v2.14.0
         with:
           files: "target/test-results/**/*.xml"
                     
