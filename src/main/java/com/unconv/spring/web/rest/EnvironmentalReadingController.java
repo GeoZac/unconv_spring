@@ -35,11 +35,21 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class EnvironmentalReadingController {
 
-    @Autowired private EnvironmentalReadingService environmentalReadingService;
+    private final EnvironmentalReadingService environmentalReadingService;
 
-    @Autowired private SensorSystemService sensorSystemService;
+    private final SensorSystemService sensorSystemService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public EnvironmentalReadingController(
+            EnvironmentalReadingService environmentalReadingService,
+            SensorSystemService sensorSystemService,
+            ModelMapper modelMapper) {
+        this.environmentalReadingService = environmentalReadingService;
+        this.sensorSystemService = sensorSystemService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadings(
