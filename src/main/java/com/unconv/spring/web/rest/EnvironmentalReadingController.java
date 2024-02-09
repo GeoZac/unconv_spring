@@ -151,7 +151,7 @@ public class EnvironmentalReadingController {
                         (sensorSystem ->
                                 environmentalReadingService
                                         .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-                                                sensorSystemId, file)))
+                                                sensorSystem, file)))
                 .orElseGet(
                         () ->
                                 ResponseEntity.status(HttpStatus.NOT_FOUND)

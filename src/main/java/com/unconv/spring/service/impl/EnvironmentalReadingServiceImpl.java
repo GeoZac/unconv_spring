@@ -160,14 +160,12 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
 
     @Override
     public ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-            UUID sensorSystemId, MultipartFile file) {
+            SensorSystem sensorSystem, MultipartFile file) {
         String message;
-        final Optional<SensorSystem> sensorSystem = sensorSystemRepository.findById(sensorSystemId);
 
         if (CSVUtil.isOfCSVFormat(file)) {
             try {
-                int recordsProcessed =
-                        parseFromCSVAndSaveEnvironmentalReading(file, sensorSystem.get());
+                int recordsProcessed = parseFromCSVAndSaveEnvironmentalReading(file, sensorSystem);
 
                 message =
                         "Uploaded the file successfully: "
