@@ -389,7 +389,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         given(
                         environmentalReadingService
                                 .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-                                        any(UUID.class), any(MultipartFile.class)))
+                                        any(SensorSystem.class), any(MultipartFile.class)))
                 .willReturn(ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse));
 
         // Create a MockMultipartFile with the CSV content
