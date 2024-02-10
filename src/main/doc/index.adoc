@@ -98,5 +98,8 @@ include::api/EnvironmentalReading/api.adoc/[]
 === SensorSystem
 include::api/SensorSystem/api.adoc[]
 
+=== SensorLocation
+include::api/SensorLocation/api.adoc[]
+
 === UnconvUser
 include::api/UnconvUser/api.adoc[]
