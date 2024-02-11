@@ -44,6 +44,7 @@ import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -81,6 +82,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
@@ -297,6 +300,8 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
 
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
@@ -378,10 +383,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
                         + " records";
 
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+
         given(
                         environmentalReadingService
                                 .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-                                        any(UUID.class), any(MultipartFile.class)))
+                                        any(SensorSystem.class), any(MultipartFile.class)))
                 .willReturn(ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse));
 
         // Create a MockMultipartFile with the CSV content
