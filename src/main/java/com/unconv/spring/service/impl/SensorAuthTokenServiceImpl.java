@@ -10,10 +10,12 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +52,8 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
-        sensorAuthToken.setAuthToken(AccessTokenGenerator.generateAccessToken());
+        String generatedString = AccessTokenGenerator.generateAccessToken();
+        sensorAuthToken.setAuthToken(bCryptPasswordEncoder().encode(generatedString));
         sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         return sensorAuthTokenRepository.save(sensorAuthToken);
     }
@@ -65,5 +68,10 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         SensorAuthToken sensorAuthToken = new SensorAuthToken();
         sensorAuthToken.setSensorSystem(sensorSystem);
         return saveSensorAuthToken(sensorAuthToken);
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
