@@ -1,5 +1,7 @@
 package com.unconv.spring.security.filter;
 
+import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
+
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.FilterChain;
@@ -38,7 +40,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String contextUser;
 
         if (isSensorPostingEnvironmentalReadingWithToken(request)) {
-            String accessToken = request.getParameter("access_token");
+            String accessToken = request.getParameter(ACCESS_TOKEN);
 
             contextUser = sensorAuthTokenUtil.validateTokenAndRetrieveUser(accessToken);
             if (contextUser == null) {
@@ -67,6 +69,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     boolean isSensorPostingEnvironmentalReadingWithToken(HttpServletRequest request) {
         return "/EnvironmentalReading".equals(request.getRequestURI())
                 && "POST".equals(request.getMethod())
-                && request.getParameter("access_token") != null;
+                && request.getParameter(ACCESS_TOKEN) != null;
     }
 }
