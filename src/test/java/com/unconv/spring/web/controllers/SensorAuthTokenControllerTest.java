@@ -37,6 +37,7 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.SensorSystemService;
@@ -50,6 +51,7 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -70,6 +72,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @MockBean private SensorAuthTokenService sensorAuthTokenService;
 
     @MockBean private SensorSystemService sensorSystemService;
+
+    @MockBean private ModelMapper modelMapper;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
@@ -187,13 +191,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldCreateNewSensorAuthToken() throws Exception {
-        given(sensorAuthTokenService.saveSensorAuthToken(any(SensorAuthToken.class)))
+        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
                 .willAnswer(
-                        (invocation) -> {
-                            SensorAuthToken sensorAuthToken = invocation.getArgument(0);
-                            sensorAuthToken.setId(UUID.randomUUID());
-                            return sensorAuthToken;
-                        });
+                        (invocation) ->
+                                new SensorAuthTokenDTO(
+                                        UUID.randomUUID(),
+                                        generateAccessToken(),
+                                        OffsetDateTime.now().plusDays(10),
+                                        invocation.getArgument(0)));
 
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
@@ -201,6 +206,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
+
         this.mockMvc
                 .perform(
                         post("/SensorAuthToken")
@@ -265,8 +271,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
-        given(sensorAuthTokenService.saveSensorAuthToken(any(SensorAuthToken.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+                .willAnswer(
+                        (invocation) ->
+                                new SensorAuthTokenDTO(
+                                        UUID.randomUUID(),
+                                        generateAccessToken(),
+                                        OffsetDateTime.now().plusDays(10),
+                                        invocation.getArgument(0)));
 
         this.mockMvc
                 .perform(
@@ -360,8 +372,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorSystem sensorSystem =
                 new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
 
-        SensorAuthToken sensorAuthToken =
-                new SensorAuthToken(
+        SensorAuthTokenDTO sensorAuthTokenDTO =
+                new SensorAuthTokenDTO(
                         UUID.randomUUID(),
                         generateAccessToken(),
                         OffsetDateTime.now().plusDays(60),
@@ -370,7 +382,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem))
-                .willReturn(sensorAuthToken);
+                .willReturn(sensorAuthTokenDTO);
 
         this.mockMvc
                 .perform(
