@@ -2,6 +2,7 @@ package com.unconv.spring.service.impl;
 
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
@@ -9,6 +10,7 @@ import com.unconv.spring.utils.AccessTokenGenerator;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
@@ -25,9 +27,13 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     private final SensorAuthTokenRepository sensorAuthTokenRepository;
 
+    private final ModelMapper modelMapper;
+
     @Autowired
-    public SensorAuthTokenServiceImpl(SensorAuthTokenRepository sensorAuthTokenRepository) {
+    public SensorAuthTokenServiceImpl(
+            SensorAuthTokenRepository sensorAuthTokenRepository, ModelMapper modelMapper) {
         this.sensorAuthTokenRepository = sensorAuthTokenRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -64,10 +70,16 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     }
 
     @Override
-    public SensorAuthToken generateSensorAuthToken(SensorSystem sensorSystem) {
+    public SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystem) {
         SensorAuthToken sensorAuthToken = new SensorAuthToken();
+        String generatedString = AccessTokenGenerator.generateAccessToken();
         sensorAuthToken.setSensorSystem(sensorSystem);
-        return saveSensorAuthToken(sensorAuthToken);
+        sensorAuthToken.setAuthToken(generatedString);
+        SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
+        SensorAuthTokenDTO savedSensorAuthTokenDTO =
+                modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
+        savedSensorAuthTokenDTO.setAuthToken(generatedString);
+        return savedSensorAuthTokenDTO;
     }
 
     @Bean
