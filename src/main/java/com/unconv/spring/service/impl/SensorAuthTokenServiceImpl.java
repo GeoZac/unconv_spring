@@ -52,12 +52,10 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
-        String generatedString = AccessTokenGenerator.generateAccessToken();
-        sensorAuthToken.setAuthToken(bCryptPasswordEncoder().encode(generatedString));
+        sensorAuthToken.setAuthToken(
+                bCryptPasswordEncoder().encode(sensorAuthToken.getAuthToken()));
         sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
-        SensorAuthToken savedSensorAuthToken = sensorAuthTokenRepository.save(sensorAuthToken);
-        savedSensorAuthToken.setAuthToken(generatedString);
-        return savedSensorAuthToken;
+        return sensorAuthTokenRepository.saveAndFlush(sensorAuthToken);
     }
 
     @Override
