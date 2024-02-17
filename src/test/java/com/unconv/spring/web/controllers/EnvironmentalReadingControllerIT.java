@@ -36,7 +36,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
-import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
@@ -45,6 +44,7 @@ import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.utils.AccessTokenGenerator;
 import java.math.BigDecimal;
@@ -75,6 +75,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
+
+    @Autowired private SensorAuthTokenService sensorAuthTokenService;
 
     @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
 
@@ -346,13 +348,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
-        SensorAuthToken sensorAuthToken =
-                new SensorAuthToken(
-                        null,
-                        AccessTokenGenerator.generateAccessToken(),
-                        OffsetDateTime.now().plusHours(2),
-                        sensorSystem);
-        sensorAuthTokenRepository.save(sensorAuthToken);
+        String sensorAccessToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getAuthToken();
 
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
@@ -367,7 +364,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading))
-                                .param("access_token", sensorAuthToken.getAuthToken()))
+                                .param("access_token", sensorAccessToken))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
