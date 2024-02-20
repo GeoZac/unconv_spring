@@ -7,7 +7,9 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.utils.AccessTokenGenerator;
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
@@ -73,13 +75,23 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     public SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystem) {
         SensorAuthToken sensorAuthToken = new SensorAuthToken();
         String generatedString = AccessTokenGenerator.generateAccessToken();
+        String generatedSaltedSuffix = generateSaltedSuffix();
         sensorAuthToken.setSensorSystem(sensorSystem);
-        sensorAuthToken.setAuthToken(generatedString);
+        sensorAuthToken.setAuthToken(generatedString + generatedSaltedSuffix);
+        sensorAuthToken.setTokenHash(generatedSaltedSuffix);
         SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
         SensorAuthTokenDTO savedSensorAuthTokenDTO =
                 modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
-        savedSensorAuthTokenDTO.setAuthToken(generatedString);
+        savedSensorAuthTokenDTO.setAuthToken(generatedString + generatedSaltedSuffix);
         return savedSensorAuthTokenDTO;
+    }
+
+    private String generateSaltedSuffix() {
+        final int SALT_LENGTH = 16;
+        byte[] saltBytes = new byte[SALT_LENGTH];
+        new SecureRandom().nextBytes(saltBytes);
+        // TODO: Check uniqueness of the suffix
+        return Base64.getEncoder().encodeToString(saltBytes);
     }
 
     @Bean
