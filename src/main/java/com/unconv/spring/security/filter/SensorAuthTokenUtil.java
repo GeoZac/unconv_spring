@@ -18,7 +18,9 @@ public class SensorAuthTokenUtil {
     }
 
     String validateTokenAndRetrieveUser(String accessToken) {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenRepository.findByAuthToken(accessToken);
+        String hashString = accessToken.substring(accessToken.length() - 24);
+        SensorAuthToken sensorAuthToken =
+                sensorAuthTokenRepository.findByTokenHashAllIgnoreCase(hashString);
 
         if (sensorAuthToken == null) {
             log.error("Request with unknown API token");
