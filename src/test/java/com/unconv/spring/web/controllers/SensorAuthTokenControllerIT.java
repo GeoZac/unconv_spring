@@ -153,8 +153,8 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
                 .andReturn();
     }
 
@@ -199,8 +199,8 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
                 .andReturn();
     }
 
@@ -267,8 +267,9 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
+                .andExpect(
+                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
