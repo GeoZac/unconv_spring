@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SensorAuthTokenRepository extends JpaRepository<SensorAuthToken, UUID> {
     SensorAuthToken findByAuthToken(String authToken);
+
+    SensorAuthToken findByTokenHashAllIgnoreCase(String tokenHash);
 }

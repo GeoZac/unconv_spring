@@ -1,5 +1,6 @@
 package com.unconv.spring.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.unconv.spring.domain.SensorSystem;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SensorAuthTokenDTO {
 
     private UUID id;
