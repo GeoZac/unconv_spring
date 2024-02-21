@@ -377,6 +377,43 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn401CreateNewEnvironmentalReadingWithMatchingSensorAuthHash() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String sensorAccessToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getAuthToken();
+
+        // Create a bogus token by retaining the hash as suffix, but keeping the pattern
+        String bogusSensorAccessToken =
+                AccessTokenGenerator.generateAccessToken()
+                        + sensorAccessToken.substring(sensorAccessToken.length() - 24);
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                // Send the request with bogus token
+                                .param(ACCESS_TOKEN, bogusSensorAccessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid API token"))
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn401CreatingNewEnvironmentalReadingWithInvalidSensorAuthToken()
             throws Exception {
         UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
