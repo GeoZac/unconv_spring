@@ -40,8 +40,21 @@ public class SensorAuthToken {
     @NotNull(message = "Expiry cannot be empty")
     private OffsetDateTime expiry;
 
+    @Column(nullable = false)
+    @NotEmpty(message = "Salted auth token cannot be empty")
+    private String tokenHash;
+
     @OneToOne
     @JoinColumn(name = "sensor_system_id")
     @NotNull(message = "Sensor system cannot be empty")
     private SensorSystem sensorSystem;
+
+    // TODO Remove this once code is tested
+    public SensorAuthToken(
+            UUID id, String authToken, OffsetDateTime expiry, SensorSystem sensorSystem) {
+        this.id = id;
+        this.authToken = authToken;
+        this.expiry = expiry;
+        this.sensorSystem = sensorSystem;
+    }
 }

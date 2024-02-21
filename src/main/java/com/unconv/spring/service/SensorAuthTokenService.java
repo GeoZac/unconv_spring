@@ -1,6 +1,8 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.SensorAuthToken;
+import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,4 +16,6 @@ public interface SensorAuthTokenService {
     SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken);
 
     void deleteSensorAuthTokenById(UUID id);
+
+    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj);
 }

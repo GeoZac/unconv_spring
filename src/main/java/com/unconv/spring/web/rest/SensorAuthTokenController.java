@@ -3,8 +3,10 @@ package com.unconv.spring.web.rest;
 import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorAuthTokenService;
+import com.unconv.spring.service.SensorSystemService;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +33,17 @@ public class SensorAuthTokenController {
 
     private final SensorAuthTokenService sensorAuthTokenService;
 
+    private final SensorSystemService sensorSystemService;
+
     private final ModelMapper modelMapper;
 
     @Autowired
     public SensorAuthTokenController(
-            SensorAuthTokenService sensorAuthTokenService, ModelMapper modelMapper) {
+            SensorAuthTokenService sensorAuthTokenService,
+            SensorSystemService sensorSystemService,
+            ModelMapper modelMapper) {
         this.sensorAuthTokenService = sensorAuthTokenService;
+        this.sensorSystemService = sensorSystemService;
         this.modelMapper = modelMapper;
     }
 
@@ -75,25 +82,42 @@ public class SensorAuthTokenController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SensorAuthToken createSensorAuthToken(
+    public SensorAuthTokenDTO createSensorAuthToken(
             @RequestBody @Validated SensorAuthTokenDTO sensorAuthTokenDTO) {
         sensorAuthTokenDTO.setId(null);
-        return sensorAuthTokenService.saveSensorAuthToken(
-                modelMapper.map(sensorAuthTokenDTO, SensorAuthToken.class));
+        return sensorAuthTokenService.generateSensorAuthToken(sensorAuthTokenDTO.getSensorSystem());
+    }
+
+    @GetMapping("/GenerateToken/SensorSystem{sensorSystemId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<MessageResponse<SensorAuthTokenDTO>> generateSensorAuthToken(
+            @PathVariable @Validated UUID sensorSystemId) {
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystemObj -> {
+                            SensorAuthTokenDTO sensorAuthToken =
+                                    sensorAuthTokenService.generateSensorAuthToken(sensorSystemObj);
+                            return new ResponseEntity<>(
+                                    new MessageResponse<>(
+                                            sensorAuthToken, "Generated New Sensor Auth Token"),
+                                    HttpStatus.CREATED);
+                        })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SensorAuthToken> updateSensorAuthToken(
+    public ResponseEntity<SensorAuthTokenDTO> updateSensorAuthToken(
             @PathVariable UUID id, @RequestBody @Valid SensorAuthTokenDTO sensorAuthTokenDTO) {
         return sensorAuthTokenService
                 .findSensorAuthTokenById(id)
                 .map(
                         sensorAuthTokenObj -> {
-                            sensorAuthTokenDTO.setId(id);
-                            return ResponseEntity.ok(
-                                    sensorAuthTokenService.saveSensorAuthToken(
-                                            modelMapper.map(
-                                                    sensorAuthTokenDTO, SensorAuthToken.class)));
+                            SensorAuthTokenDTO updatedSensorAuthTokenDTO =
+                                    sensorAuthTokenService.generateSensorAuthToken(
+                                            sensorAuthTokenDTO.getSensorSystem());
+                            updatedSensorAuthTokenDTO.setId(id);
+                            return ResponseEntity.ok(updatedSensorAuthTokenDTO);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

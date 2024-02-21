@@ -153,8 +153,8 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
                 .andReturn();
     }
 
@@ -199,8 +199,8 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
                 .andReturn();
     }
 
@@ -245,6 +245,49 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthTokenId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldGenerateAndReturnNewSensorTokenForAValidSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
+                .andExpect(
+                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(
+                        jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenRequestingTokenForANonExistingSensorSystem() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @AfterEach
