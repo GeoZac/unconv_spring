@@ -75,7 +75,7 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     public SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystem) {
         SensorAuthToken sensorAuthToken = new SensorAuthToken();
         String generatedString = AccessTokenGenerator.generateAccessToken();
-        String generatedSaltedSuffix = generateSaltedSuffix();
+        String generatedSaltedSuffix = generateUniqueSaltedSuffix();
         sensorAuthToken.setSensorSystem(sensorSystem);
         sensorAuthToken.setAuthToken(generatedString + generatedSaltedSuffix);
         sensorAuthToken.setTokenHash(generatedSaltedSuffix);
@@ -90,17 +90,16 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         final int SALT_LENGTH = 16;
         byte[] saltBytes = new byte[SALT_LENGTH];
         new SecureRandom().nextBytes(saltBytes);
-        // TODO: Check uniqueness of the suffix
         return Base64.getEncoder().encodeToString(saltBytes);
     }
 
-    private String generateUniqueSensorAuthToken() {
+    private String generateUniqueSaltedSuffix() {
         boolean uniqueSensorAuthToken = false;
         String sensorAuthTokenString;
         do {
-            sensorAuthTokenString = AccessTokenGenerator.generateAccessToken();
+            sensorAuthTokenString = generateSaltedSuffix();
             SensorAuthToken sensorAuthToken =
-                    sensorAuthTokenRepository.findByAuthToken(sensorAuthTokenString);
+                    sensorAuthTokenRepository.findByTokenHashAllIgnoreCase(sensorAuthTokenString);
             if (sensorAuthToken == null) uniqueSensorAuthToken = true;
         } while (!uniqueSensorAuthToken);
         return sensorAuthTokenString;
