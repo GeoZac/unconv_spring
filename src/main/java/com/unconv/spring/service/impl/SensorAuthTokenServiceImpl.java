@@ -86,7 +86,8 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return savedSensorAuthTokenDTO;
     }
 
-    private String generateUniqueSaltedSuffix() {
+    @Override
+    public String generateUniqueSaltedSuffix() {
         boolean uniqueSensorAuthToken = false;
         String sensorAuthTokenString;
         do {
