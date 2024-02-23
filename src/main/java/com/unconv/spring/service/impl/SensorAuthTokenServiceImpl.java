@@ -1,5 +1,7 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
+
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
@@ -7,9 +9,7 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.utils.AccessTokenGenerator;
-import java.security.SecureRandom;
 import java.time.OffsetDateTime;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
@@ -84,13 +84,6 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
                 modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
         savedSensorAuthTokenDTO.setAuthToken(generatedString + generatedSaltedSuffix);
         return savedSensorAuthTokenDTO;
-    }
-
-    private String generateSaltedSuffix() {
-        final int SALT_LENGTH = 16;
-        byte[] saltBytes = new byte[SALT_LENGTH];
-        new SecureRandom().nextBytes(saltBytes);
-        return Base64.getEncoder().encodeToString(saltBytes);
     }
 
     private String generateUniqueSaltedSuffix() {
