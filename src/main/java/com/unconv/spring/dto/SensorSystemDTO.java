@@ -18,8 +18,8 @@ import lombok.Setter;
  * The `SensorSystemDTO` class encapsulates information about a sensor system. It aggregates
  * including ID, name, status, location, user, thresholds, and the latest environmental reading.
  *
- * <p>This class includes a reference to the `{@link BaseEnvironmentalReadingDTO}` class, which serves as
- * the foundation for environmental readings.
+ * <p>This class includes a reference to the `{@link BaseEnvironmentalReadingDTO}` class, which
+ * serves as the foundation for environmental readings.
  */
 @Getter
 @Setter

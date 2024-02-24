@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * A specialized class that extends {@link BaseEnvironmentalReadingDTO} to represent environmental readings
- * within the context of a sensor system. It includes additional attributes specific to sensor
- * readings.
+ * A specialized class that extends {@link BaseEnvironmentalReadingDTO} to represent environmental
+ * readings within the context of a sensor system. It includes additional attributes specific to
+ * sensor readings.
  */
 @Getter
 @Setter
