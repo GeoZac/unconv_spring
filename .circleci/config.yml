@@ -146,6 +146,9 @@ jobs:
       - run:
           name: Build API doc
           command: ./mvnw package
+      - run:
+          name: Build JavaDoc
+          command: ./mvnw javadoc:javadoc
       - store_artifacts:
           path: target/generated-docs/index.pdf
       - save_cache:
