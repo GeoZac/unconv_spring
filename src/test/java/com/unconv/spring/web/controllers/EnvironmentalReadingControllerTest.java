@@ -23,6 +23,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -43,7 +44,11 @@ import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -51,6 +56,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.instancio.Instancio;
+import org.instancio.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -61,10 +67,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -74,6 +82,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
+
+    @MockBean private SensorSystemService sensorSystemService;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
@@ -95,6 +105,25 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                     unconvUser,
                     new HumidityThreshold(UUID.randomUUID(), 75, 23),
                     new TemperatureThreshold(UUID.randomUUID(), 100, 0));
+
+    private static final Model<EnvironmentalReading> environemntalReadingModel =
+            Instancio.of(EnvironmentalReading.class)
+                    .supply(
+                            field(EnvironmentalReading::getTemperature),
+                            random ->
+                                    BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                            .setScale(3, RoundingMode.HALF_UP)
+                                            .doubleValue())
+                    .supply(
+                            field(EnvironmentalReading::getHumidity),
+                            random ->
+                                    BigDecimal.valueOf(random.doubleRange(0, 100))
+                                            .setScale(3, RoundingMode.HALF_UP)
+                                            .doubleValue())
+                    .generate(
+                            field(EnvironmentalReading::getTimestamp),
+                            gen -> gen.temporal().offsetDateTime().past())
+                    .toModel();
 
     @BeforeEach
     void setUp() {
@@ -136,6 +165,49 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .create();
+
+        int dataSize = environmentalReadingsOfSpecificSensor.size();
+
+        Page<EnvironmentalReading> page = new PageImpl<>(environmentalReadingsOfSpecificSensor);
+        PagedResult<EnvironmentalReading> environmentalReadingPagedResult = new PagedResult<>(page);
+
+        given(
+                        environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
+                                sensorSystem.getId(),
+                                0,
+                                10,
+                                DEFAULT_ER_SORT_BY,
+                                DEFAULT_ER_SORT_DIRECTION))
+                .willReturn(environmentalReadingPagedResult);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -228,6 +300,8 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
                         sensorSystem);
 
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
@@ -265,6 +339,76 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         jsonPath(
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())));
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, unconvUser);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .supply(field(EnvironmentalReadingDTO::getSensorSystem), () -> sensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse =
+                "Uploaded the file successfully: test.csv with "
+                        + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
+                        + " records";
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+
+        given(
+                        environmentalReadingService
+                                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                        any(SensorSystem.class), any(MultipartFile.class)))
+                .willReturn(ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse));
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", is(expectedResponse)));
     }
 
     @Test

@@ -5,7 +5,6 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
-import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 
 import com.unconv.spring.consts.SensorStatus;
@@ -103,13 +102,6 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
         Optional<SensorSystem> optionalSensorSystem =
                 sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
 
-        if (optionalSensorSystem.isEmpty()) {
-            MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
-                    new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_SENS);
-            return new ResponseEntity<>(
-                    environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
-        }
-
         SensorSystem sensorSystem = optionalSensorSystem.get();
         if (!sensorSystem.getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
@@ -168,19 +160,12 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
 
     @Override
     public ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-            UUID sensorSystemId, MultipartFile file) {
+            SensorSystem sensorSystem, MultipartFile file) {
         String message;
-        final Optional<SensorSystem> sensorSystem = sensorSystemRepository.findById(sensorSystemId);
-
-        if (sensorSystem.isEmpty()) {
-            message = ENVT_RECORD_REJ_SENS;
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
 
         if (CSVUtil.isOfCSVFormat(file)) {
             try {
-                int recordsProcessed =
-                        parseFromCSVAndSaveEnvironmentalReading(file, sensorSystem.get());
+                int recordsProcessed = parseFromCSVAndSaveEnvironmentalReading(file, sensorSystem);
 
                 message =
                         "Uploaded the file successfully: "
