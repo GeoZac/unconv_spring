@@ -1,0 +1,71 @@
+==== Searching for a SensorLocation
+
+*Searching by UUID* +
+_Search for a SensorLocation by its UUID_ +
+
+Request
+include::{snippets}/SensorLocation/shouldFindSensorLocationById/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorLocation/shouldFindSensorLocationById/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorLocation/shouldReturn404WhenFetchingNonExistingSensorLocation/http-response.adoc[]
+
+_Search for a SensorLocation by UnconvUser_ +
+
+Request
+include::{snippets}/SensorLocation/shouldFetchAllSensorLocationOfSpecificUnconvUser/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorLocation/shouldFetchAllSensorLocationOfSpecificUnconvUser/http-response.adoc[]
+
+==== Creating a SensorLocation
+*Creating a SensorLocation* +
+_Create a new SensorLocation_ +
+
+Request
+include::{snippets}/SensorLocation/shouldCreateNewSensorLocation/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorLocation/shouldCreateNewSensorLocation/http-response.adoc[]
+
+* 400 Response - _Invalid Request_
+include::{snippets}/SensorLocation/shouldReturn400WhenCreateNewSensorLocationWithoutText/http-response.adoc[]
+
+==== Updating a SensorLocation
+*Updating a SensorLocation* +
+_Updating an existing SensorLocation by its UUID_ +
+
+Request
+include::{snippets}/SensorLocation/shouldUpdateSensorLocation/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorLocation/shouldUpdateSensorLocation/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorLocation/shouldReturn404WhenUpdatingNonExistingSensorLocation/http-response.adoc[]
+
+==== Deleting a SensorLocation
+*Deleting a SensorLocation* +
+_Deleting an existing SensorLocation by its UUID_ +
+
+Request
+include::{snippets}/SensorLocation/shouldDeleteSensorLocation/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorLocation/shouldDeleteSensorLocation/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorLocation/shouldReturn404WhenDeletingNonExistingSensorLocation/http-response.adoc[]
+
