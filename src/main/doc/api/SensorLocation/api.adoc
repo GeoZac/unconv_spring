@@ -37,7 +37,7 @@ Response +
 include::{snippets}/SensorLocation/shouldCreateNewSensorLocation/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
-include::{snippets}/SensorLocation/shouldReturn400WhenCreateNewSensorLocationWithoutText/http-response.adoc[]
+include::{snippets}/SensorLocation/shouldReturn400WhenCreateNewSensorLocationWithNullValues/http-response.adoc[]
 
 ==== Updating a SensorLocation
 *Updating a SensorLocation* +

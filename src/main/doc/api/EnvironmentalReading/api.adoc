@@ -27,7 +27,7 @@ Response +
 include::{snippets}/EnvironmentalReading/shouldCreateNewEnvironmentalReading/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
-include::{snippets}/EnvironmentalReading/shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText/http-response.adoc[]
+include::{snippets}/EnvironmentalReading/shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues/http-response.adoc[]
 
 ==== Updating a EnvironmentalReading
 *Updating a EnvironmentalReading* +
