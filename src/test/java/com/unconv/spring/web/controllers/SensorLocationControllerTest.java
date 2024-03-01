@@ -201,7 +201,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorLocationWithoutText",
+                                "shouldReturn400WhenCreateNewSensorLocationWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
