@@ -413,7 +413,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorSystemWithoutText",
+                                "shouldReturn400WhenCreateNewSensorSystemWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())

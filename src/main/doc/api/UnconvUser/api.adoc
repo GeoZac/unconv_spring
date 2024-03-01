@@ -27,7 +27,7 @@ Response +
 include::{snippets}/UnconvUser/shouldCreateNewUnconvUser/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
-include::{snippets}/UnconvUser/shouldReturn400WhenCreateNewUnconvUserWithoutText/http-response.adoc[]
+include::{snippets}/UnconvUser/shouldReturn400WhenCreateNewUnconvUserWithNullValues/http-response.adoc[]
 
 ==== Updating a UnconvUser
 *Updating a UnconvUser* +

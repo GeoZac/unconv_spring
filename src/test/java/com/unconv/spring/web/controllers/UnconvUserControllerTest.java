@@ -209,7 +209,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andDo(
                         document(
-                                "shouldCreateNewUnconvUser",
+                                "shouldReturn400WhenCreateNewUnconvUserWithUsernameAlreadyInUse",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
@@ -232,7 +232,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(unconvUser)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewUnconvUserWithoutText",
+                                "shouldReturn400WhenCreateNewUnconvUserWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
