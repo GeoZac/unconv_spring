@@ -21,16 +21,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.DefaultUserRole;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.TemperatureThreshold;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.math.BigDecimal;
@@ -39,8 +42,12 @@ import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
@@ -63,6 +70,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
     @Autowired private UnconvUserService unconvUserService;
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
@@ -72,6 +81,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     private List<SensorSystem> sensorSystemList = null;
 
     private List<SensorLocation> sensorLocationList = null;
+
+    private List<UnconvUser> unconvUserList = null;
+
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
     private static final Model<EnvironmentalReading> environemntalReadingModel =
             Instancio.of(EnvironmentalReading.class)
@@ -105,6 +118,20 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         sensorSystemRepository.deleteAllInBatch();
 
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        unconvRoleSet.add(savedUnconvRole);
+
+        unconvUserList = new ArrayList<>();
+        this.unconvUserList =
+                Instancio.ofList(UnconvUser.class)
+                        .size(7)
+                        .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
+                        .ignore(field(UnconvUser::getId))
+                        .create();
+
+        unconvUserList = unconvUserRepository.saveAll(unconvUserList);
+
         Random randomUtil = new Random();
 
         sensorLocationList =
@@ -129,6 +156,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 })
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .supply(
+                                field(SensorSystem::getUnconvUser),
+                                () -> {
+                                    int randomIndex = randomUtil.nextInt(unconvUserList.size());
+                                    return unconvUserList.get(randomIndex);
+                                })
                         .create();
         totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
@@ -155,6 +188,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -222,6 +256,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInDescendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -349,6 +384,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .supply(
+                                field(SensorSystem::getUnconvUser),
+                                random -> random.oneOf(unconvUserList))
                         .create();
 
         List<SensorSystem> savedSensorSystems = sensorSystemRepository.saveAll(sensorSystems);
@@ -363,6 +401,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldFindSensorSystemsOfSpecificUnconvUserBySensorName() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -430,6 +469,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -470,6 +510,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystemWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -499,6 +540,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewSensorSystemEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -559,6 +601,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     void shouldReturn401WhenCreateNewSensorSystemForUnauthenticatedUser() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Some other user", "someonelse@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -717,8 +760,20 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        List<UnconvUser> unconvUsers = unconvUserRepository.findAll();
+        for (UnconvUser unconvUser : unconvUsers) {
+            Set<UnconvRole> unconvRoleSet = unconvUser.getUnconvRoles();
+            unconvUser.getUnconvRoles().removeAll(unconvRoleSet);
+            unconvUserRepository.save(unconvUser);
+        }
         environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
         unconvUserRepository.deleteAll();
     }
 }

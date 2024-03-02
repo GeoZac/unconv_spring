@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.security.filter.JWTUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,9 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
 
     @Test
     void testAuthorizedRequest() throws Exception {
+        UnconvUser unconvUser = new UnconvUser(null, "Test user", "testuser@email.com", "password");
         // Generate a valid JWT token
-        String token = jwtUtil.generateToken("Test User");
+        String token = jwtUtil.generateToken(unconvUser);
 
         // Send a request with the token in the Authorization header
         mockMvc.perform(get("/EnvironmentalReading").header("Authorization", "Bearer " + token))

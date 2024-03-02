@@ -41,6 +41,11 @@ public class UnconvRoleServiceImpl implements UnconvRoleService {
     }
 
     @Override
+    public UnconvRole findUnconvRoleByName(String name) {
+        return unconvRoleRepository.findByName(name);
+    }
+
+    @Override
     public UnconvRole saveUnconvRole(UnconvRole unconvRole) {
         return unconvRoleRepository.save(unconvRole);
     }

@@ -1,11 +1,15 @@
 package com.unconv.spring.service.impl;
 
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.UnconvRoleService;
 import com.unconv.spring.service.UnconvUserService;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private UnconvRoleService unconvRoleService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -72,6 +78,11 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Override
     public UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO) {
+        UnconvRole userUnconvRole = unconvRoleService.findUnconvRoleByName("ROLE_USER");
+        Set<UnconvRole> unconvRoleSet = new HashSet<>();
+        unconvRoleSet.add(userUnconvRole);
+        unconvUserDTO.setUnconvRoles(unconvRoleSet);
+
         UnconvUser savedUnconvUser =
                 saveUnconvUser(
                         modelMapper.map(unconvUserDTO, UnconvUser.class),
@@ -85,6 +96,7 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     public UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO) {
         unconvUserDTO.setId(unconvUser.getId());
         unconvUserDTO.setUsername(unconvUser.getUsername());
+        unconvUserDTO.setUnconvRoles(unconvUser.getUnconvRoles());
 
         UnconvUser updatedUnconvUser =
                 saveUnconvUser(
