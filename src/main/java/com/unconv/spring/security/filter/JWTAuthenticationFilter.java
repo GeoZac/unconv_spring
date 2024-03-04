@@ -1,5 +1,7 @@
 package com.unconv.spring.security.filter;
 
+import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
+
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.FilterChain;
@@ -19,11 +21,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
+    private final SensorAuthTokenUtil sensorAuthTokenUtil;
+
     @Value("${auth.skip-header:false}")
     private boolean skipAuthHeader;
 
-    public JWTAuthenticationFilter(JWTUtil jwtUtil) {
+    public JWTAuthenticationFilter(JWTUtil jwtUtil, SensorAuthTokenUtil sensorAuthTokenUtil) {
         this.jwtUtil = jwtUtil;
+        this.sensorAuthTokenUtil = sensorAuthTokenUtil;
     }
 
     @Override
@@ -32,20 +37,38 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
+        String contextUser;
+
+        if (isSensorPostingEnvironmentalReadingWithToken(request)) {
+            String accessToken = request.getParameter(ACCESS_TOKEN);
+
+            contextUser = sensorAuthTokenUtil.validateTokenAndRetrieveUser(accessToken);
+            if (contextUser == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid API token");
+                return;
+            }
+        } else if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
             filterChain.doFilter(request, response);
             return;
+        } else {
+            String token =
+                    header.startsWith(BEARER_PREFIX_STRING)
+                            ? header.replace(BEARER_PREFIX_STRING, "")
+                            : header;
+            contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
         }
-        String token =
-                header.startsWith(BEARER_PREFIX_STRING)
-                        ? header.replace(BEARER_PREFIX_STRING, "")
-                        : header;
-        String contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(contextUser, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
+    }
+
+    boolean isSensorPostingEnvironmentalReadingWithToken(HttpServletRequest request) {
+        return "/EnvironmentalReading".equals(request.getRequestURI())
+                && "POST".equals(request.getMethod())
+                && request.getParameter(ACCESS_TOKEN) != null;
     }
 }
