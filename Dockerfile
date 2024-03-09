@@ -1,14 +1,21 @@
-FROM eclipse-temurin:17-jre-focal AS builder
-WORKDIR application
-ARG JAR_FILE=target/spring-0.0.8.jar
-COPY ${JAR_FILE} application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+FROM openjdk:17-jdk-slim
 
-# the second stage of our build will copy the extracted layers
-FROM eclipse-temurin:17-jre-focal
-WORKDIR application
-COPY --from=builder application/dependencies/ ./
-COPY --from=builder application/spring-boot-loader/ ./
-COPY --from=builder application/snapshot-dependencies/ ./
-COPY --from=builder application/application/ ./
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+# Set the working directory
+WORKDIR /app
+
+# Copy the application code into the container
+COPY . /app/
+
+# Copy the application-render.properties file from the secrets file location
+RUN --mount=type=secret,id=application-render.properties dst=/app/src/main/resources/application-render.properties
+
+# Build the project with Maven Wrapper
+RUN chmod +x mvnw && \
+    ./mvnw clean package -Prender -DskipTests
+
+# Expose the port used by Spring Boot
+EXPOSE 8080
+
+# Run the Spring Boot application
+ENTRYPOINT ["java", "-jar", "./target/spring-0.0.8.jar", "--spring.profiles.active=render"]
+
