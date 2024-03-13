@@ -1,15 +1,14 @@
-# Stage 1
-FROM eclipse-temurin:17-jdk-focal AS builder
-WORKDIR /app
+FROM eclipse-temurin:17-jre-focal AS builder
+WORKDIR application
+ARG JAR_FILE=target/spring-0.0.7-SNAPSHOT.jar
+COPY ${JAR_FILE} application.jar
+RUN java -Djarmode=layertools -jar application.jar extract
 
-COPY . /app
-
-RUN ./mvnw package -DskipTests
-
-# Stage 2
+# the second stage of our build will copy the extracted layers
 FROM eclipse-temurin:17-jre-focal
-WORKDIR /app
-
-COPY --from=builder /app/target/spring-0.0.7-SNAPSHOT.jar application.jar
-
-ENTRYPOINT ["java", "-jar", "application.jar"]
+WORKDIR application
+COPY --from=builder application/dependencies/ ./
+COPY --from=builder application/spring-boot-loader/ ./
+COPY --from=builder application/snapshot-dependencies/ ./
+COPY --from=builder application/application/ ./
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
