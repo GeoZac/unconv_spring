@@ -151,7 +151,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("true"), String.class));
+                .andExpect(jsonPath("$.available", is("true"), String.class))
+                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
     }
 
     @Test
@@ -161,7 +162,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("false"), String.class));
+                .andExpect(jsonPath("$.available", is("false"), String.class))
+                .andExpect(jsonPath("$.username", is(existingUserName), String.class));
     }
 
     @Test
