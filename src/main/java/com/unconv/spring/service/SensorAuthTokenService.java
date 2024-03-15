@@ -19,5 +19,7 @@ public interface SensorAuthTokenService {
 
     SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj);
 
+    SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem);
+
     String generateUniqueSaltedSuffix();
 }

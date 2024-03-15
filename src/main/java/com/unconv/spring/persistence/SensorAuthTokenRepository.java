@@ -8,4 +8,6 @@ public interface SensorAuthTokenRepository extends JpaRepository<SensorAuthToken
     SensorAuthToken findByAuthToken(String authToken);
 
     SensorAuthToken findByTokenHashAllIgnoreCase(String tokenHash);
+
+    SensorAuthToken findBySensorSystemId(UUID id);
 }
