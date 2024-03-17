@@ -1,6 +1,8 @@
 package com.unconv.spring.security.filter;
 
 import com.unconv.spring.domain.SensorAuthToken;
+import com.unconv.spring.exception.MalformedAuthTokenException;
+import com.unconv.spring.exception.UnknownAuthTokenException;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +28,13 @@ public class SensorAuthTokenUtil {
 
         if (sensorAuthToken == null) {
             log.error("Request with unknown API token");
-            return null;
+            throw new UnknownAuthTokenException("Unknown API token: " + accessToken);
         }
 
         // Actually match the token
         if (!bCryptPasswordEncoder().matches(accessToken, sensorAuthToken.getAuthToken())) {
             log.error("Request with mismatched token");
-            return null;
+            throw new MalformedAuthTokenException("Mismatched token: " + accessToken);
         }
 
         return sensorAuthToken.getSensorSystem().getUnconvUser().getUsername();
