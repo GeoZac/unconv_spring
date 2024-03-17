@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
@@ -29,6 +28,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
