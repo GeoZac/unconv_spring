@@ -23,4 +23,7 @@ public final class AppConstants {
     // Sensor System
     public static final String DEFAULT_SS_SORT_BY = "sensorName";
     public static final String DEFAULT_SS_SORT_DIRECTION = DEFAULT_SORT_DIRECTION;
+
+    // SensorAuthToken
+    public static final String ACCESS_TOKEN = "access_token";
 }
