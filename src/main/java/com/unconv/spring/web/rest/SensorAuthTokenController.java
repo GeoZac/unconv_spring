@@ -89,6 +89,12 @@ public class SensorAuthTokenController {
                         sensorSystemObj -> {
                             SensorAuthTokenDTO sensorAuthToken =
                                     sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystemObj);
+                            if (sensorAuthToken == null) {
+                                SensorAuthTokenDTO sensorAuthTokenDTO = new SensorAuthTokenDTO();
+                                sensorAuthTokenDTO.setSensorSystem(sensorSystemObj);
+                                return new ResponseEntity<>(
+                                        sensorAuthTokenDTO, HttpStatus.NO_CONTENT);
+                            }
                             return new ResponseEntity<>(sensorAuthToken, HttpStatus.OK);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());

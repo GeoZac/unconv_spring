@@ -92,6 +92,9 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     public SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem) {
         SensorAuthToken sensorAuthToken =
                 sensorAuthTokenRepository.findBySensorSystemId(sensorSystem.getId());
+        if (sensorAuthToken == null) {
+            return null;
+        }
         String maskedAuthToken =
                 TOKEN_PREFIX + "*".repeat(TOKEN_LENGTH) + sensorAuthToken.getTokenHash();
         SensorAuthTokenDTO sensorAuthTokenDTO =
