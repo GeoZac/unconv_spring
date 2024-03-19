@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -320,6 +321,46 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.id", nullValue()))
+                .andExpect(jsonPath("$.authToken", nullValue()))
+                .andExpect(jsonPath("$.expiry", nullValue()))
+                .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
+                                        sensorSystemId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
                 .andReturn();
     }
 
