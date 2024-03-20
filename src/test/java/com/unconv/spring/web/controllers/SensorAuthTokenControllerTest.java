@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
+import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
@@ -419,6 +420,43 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
+
+        SensorAuthTokenDTO sensorAuthTokenDTO =
+                new SensorAuthTokenDTO(
+                        UUID.randomUUID(),
+                        generateAccessToken() + generateSaltedSuffix(),
+                        OffsetDateTime.now().plusDays(60),
+                        sensorSystem);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+        given(sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystem))
+                .willReturn(sensorAuthTokenDTO);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
+                .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
     }
 }
