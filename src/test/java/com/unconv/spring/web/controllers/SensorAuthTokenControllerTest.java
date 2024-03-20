@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorLocation;
@@ -37,6 +36,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
+import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorAuthTokenService;
