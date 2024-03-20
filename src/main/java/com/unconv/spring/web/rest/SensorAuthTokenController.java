@@ -80,6 +80,26 @@ public class SensorAuthTokenController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/TokenInfo/SensorSystem/{sensorSystemId}")
+    public ResponseEntity<SensorAuthTokenDTO> getSensorAuthTokenInfo(
+            @PathVariable @Validated UUID sensorSystemId) {
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystemObj -> {
+                            SensorAuthTokenDTO sensorAuthToken =
+                                    sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystemObj);
+                            if (sensorAuthToken == null) {
+                                SensorAuthTokenDTO sensorAuthTokenDTO = new SensorAuthTokenDTO();
+                                sensorAuthTokenDTO.setSensorSystem(sensorSystemObj);
+                                return new ResponseEntity<>(
+                                        sensorAuthTokenDTO, HttpStatus.NO_CONTENT);
+                            }
+                            return new ResponseEntity<>(sensorAuthToken, HttpStatus.OK);
+                        })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SensorAuthTokenDTO createSensorAuthToken(

@@ -1,5 +1,7 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.utils.AccessTokenGenerator.TOKEN_LENGTH;
+import static com.unconv.spring.utils.AccessTokenGenerator.TOKEN_PREFIX;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 
 import com.unconv.spring.domain.SensorAuthToken;
@@ -84,6 +86,21 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
                 modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
         savedSensorAuthTokenDTO.setAuthToken(generatedString + generatedSaltedSuffix);
         return savedSensorAuthTokenDTO;
+    }
+
+    @Override
+    public SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem) {
+        SensorAuthToken sensorAuthToken =
+                sensorAuthTokenRepository.findBySensorSystemId(sensorSystem.getId());
+        if (sensorAuthToken == null) {
+            return null;
+        }
+        String maskedAuthToken =
+                TOKEN_PREFIX + "*".repeat(TOKEN_LENGTH) + sensorAuthToken.getTokenHash();
+        SensorAuthTokenDTO sensorAuthTokenDTO =
+                modelMapper.map(sensorAuthToken, SensorAuthTokenDTO.class);
+        sensorAuthTokenDTO.setAuthToken(maskedAuthToken);
+        return sensorAuthTokenDTO;
     }
 
     @Override
