@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -27,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -409,7 +409,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 // Send the request with bogus token
                                 .param(ACCESS_TOKEN, bogusSensorAccessToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string("Invalid API token"))
+                .andExpect(jsonPath("$.message", is("Malformed API token")))
+                .andExpect(jsonPath("$.token", is(bogusSensorAccessToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
                 .andReturn();
     }
 
@@ -441,7 +447,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading))
                                 .param(ACCESS_TOKEN, invalidSensorAuthToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string("Invalid API token"))
+                .andExpect(jsonPath("$.message", is("Unknown API token")))
+                .andExpect(jsonPath("$.token", is(invalidSensorAuthToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
                 .andReturn();
     }
 
