@@ -28,13 +28,13 @@ public class SensorAuthTokenUtil {
 
         if (sensorAuthToken == null) {
             log.error("Request with unknown API token");
-            throw new UnknownAuthTokenException("Unknown API token: " + accessToken);
+            throw new UnknownAuthTokenException(accessToken);
         }
 
         // Actually match the token
         if (!bCryptPasswordEncoder().matches(accessToken, sensorAuthToken.getAuthToken())) {
             log.error("Request with mismatched token");
-            throw new MalformedAuthTokenException("Mismatched token: " + accessToken);
+            throw new MalformedAuthTokenException(accessToken);
         }
 
         return sensorAuthToken.getSensorSystem().getUnconvUser().getUsername();
