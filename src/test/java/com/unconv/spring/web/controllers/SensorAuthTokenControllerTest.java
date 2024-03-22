@@ -395,6 +395,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
@@ -420,6 +424,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenRequestingTokenForANonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }
@@ -451,6 +459,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
@@ -480,6 +492,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.id", nullValue()))
                 .andExpect(jsonPath("$.authToken", nullValue()))
@@ -502,6 +518,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }
