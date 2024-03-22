@@ -52,7 +52,6 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -73,8 +72,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @MockBean private SensorAuthTokenService sensorAuthTokenService;
 
     @MockBean private SensorSystemService sensorSystemService;
-
-    @MockBean private ModelMapper modelMapper;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
