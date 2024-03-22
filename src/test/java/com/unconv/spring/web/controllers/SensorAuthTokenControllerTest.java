@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -223,7 +222,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldCreateNewSensorAuthToken",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.authToken", hasLength(25)))
@@ -325,7 +323,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenUpdatingNonExistingSensorAuthToken",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -399,7 +396,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         document(
                                 "shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem",
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
