@@ -12,6 +12,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * This class represents a specific type of threshold for temperature values, extending the general
+ * Threshold class. "T" denotes temperature
+ */
 @Entity
 @Getter
 @Setter

@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -39,7 +40,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Offer")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -85,8 +86,8 @@ class OfferControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
-        Offer offer = new Offer(null, null, null);
+    void shouldReturn400WhenCreateNewOfferWithNullValues() throws Exception {
+        Offer offer = new Offer();
 
         this.mockMvc
                 .perform(

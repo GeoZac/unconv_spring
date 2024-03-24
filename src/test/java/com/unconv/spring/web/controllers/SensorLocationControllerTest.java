@@ -1,13 +1,18 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -19,7 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
@@ -33,31 +39,23 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
-class SensorLocationControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
-
+@AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
+class SensorLocationControllerTest extends AbstractControllerTest {
     @MockBean private SensorLocationService sensorLocationService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<SensorLocation> sensorLocationList;
 
@@ -67,7 +65,8 @@ class SensorLocationControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorLocation")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -99,6 +98,7 @@ class SensorLocationControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation"))
+                .andDo(document("shouldFetchAllSensorLocations", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -114,17 +114,32 @@ class SensorLocationControllerTest {
     void shouldFindSensorLocationById() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
         SensorLocation sensorLocation =
-                new SensorLocation(null, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
+                new SensorLocation(
+                        sensorLocationId, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.of(sensorLocation));
 
-        this.mockMvc
-                .perform(get("/SensorLocation/{id}", sensorLocationId))
-                .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath(
-                                "$.sensorLocationText",
-                                is(sensorLocation.getSensorLocationText())));
+        String responseJson =
+                this.mockMvc
+                        .perform(get("/SensorLocation/{id}", sensorLocationId))
+                        .andDo(
+                                document(
+                                        "shouldFindSensorLocationById",
+                                        preprocessResponse(prettyPrint)))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id", is(sensorLocationId.toString())))
+                        .andExpect(
+                                jsonPath(
+                                        "$.sensorLocationText",
+                                        is(sensorLocation.getSensorLocationText())))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        List<Object> fieldValues = JsonPath.read(responseJson, "$..*");
+        for (Object fieldValue : fieldValues) {
+            assertNotNull(fieldValue, "Field value should not be null");
+        }
     }
 
     @Test
@@ -135,6 +150,10 @@ class SensorLocationControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingSensorLocation",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -150,17 +169,18 @@ class SensorLocationControllerTest {
 
         SensorLocation sensorLocation =
                 new SensorLocation(
-                        UUID.randomUUID(),
-                        "Moai Statues",
-                        -27.1212,
-                        -109.3667,
-                        SensorLocationType.OUTDOOR);
+                        null, "Moai Statues", -27.1212, -109.3667, SensorLocationType.OUTDOOR);
         this.mockMvc
                 .perform(
                         post("/SensorLocation")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldCreateNewSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(
@@ -170,8 +190,8 @@ class SensorLocationControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewSensorLocationWithoutText() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, null, null, null, null);
+    void shouldReturn400WhenCreateNewSensorLocationWithNullValues() throws Exception {
+        SensorLocation sensorLocation = new SensorLocation();
 
         this.mockMvc
                 .perform(
@@ -179,6 +199,11 @@ class SensorLocationControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewSensorLocationWithNullValues",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -213,6 +238,11 @@ class SensorLocationControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldUpdateSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
@@ -239,6 +269,11 @@ class SensorLocationControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorLocation)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingSensorLocation",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -258,6 +293,7 @@ class SensorLocationControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))
+                .andDo(document("shouldDeleteSensorLocation", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath(
@@ -273,6 +309,10 @@ class SensorLocationControllerTest {
 
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocationId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingSensorLocation",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -301,6 +341,10 @@ class SensorLocationControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUser.getId()))
+                .andDo(
+                        document(
+                                "shouldFetchAllSensorLocationOfSpecificUnconvUser",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
     }

@@ -1,10 +1,10 @@
 package com.unconv.spring.web.rest;
 
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.Route;
 import com.unconv.spring.dto.RouteDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.RouteService;
-import com.unconv.spring.utils.AppConstants;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;

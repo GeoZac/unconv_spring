@@ -23,4 +23,8 @@ public final class MessageConstants {
     // Unconv user
     public static final String USER_NAME_IN_USE = "Username already taken";
     public static final String USER_CREATE_SUCCESS = "User created successfully";
+
+    public static final String USER_UPDATE_SUCCESS = "Updated Unconvuser info";
+    public static final String USER_WRONG_PASSWORD = "Wrong password";
+    public static final String USER_PROVIDE_PASSWORD = "Provide current password";
 }

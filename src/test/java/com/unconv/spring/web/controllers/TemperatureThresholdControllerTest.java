@@ -1,8 +1,10 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -15,10 +17,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.TemperatureThresholdService;
@@ -30,30 +33,21 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = TemperatureThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
-class TemperatureThresholdControllerTest {
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
-
+class TemperatureThresholdControllerTest extends AbstractControllerTest {
     @MockBean private TemperatureThresholdService temperatureThresholdService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<TemperatureThreshold> temperatureThresholdList;
 
@@ -63,7 +57,7 @@ class TemperatureThresholdControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/TemperatureThreshold")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -101,14 +95,18 @@ class TemperatureThresholdControllerTest {
     @Test
     void shouldFindTemperatureThresholdById() throws Exception {
         UUID temperatureThresholdId = UUID.randomUUID();
-        TemperatureThreshold temperatureThreshold = new TemperatureThreshold();
+        TemperatureThreshold temperatureThreshold =
+                new TemperatureThreshold(temperatureThresholdId, 100, -100);
         given(temperatureThresholdService.findTemperatureThresholdById(temperatureThresholdId))
                 .willReturn(Optional.of(temperatureThreshold));
 
         this.mockMvc
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.id", is(temperatureThresholdId.toString())))
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
@@ -132,8 +130,7 @@ class TemperatureThresholdControllerTest {
                             return temperatureThreshold;
                         });
 
-        TemperatureThreshold temperatureThreshold =
-                new TemperatureThreshold(UUID.randomUUID(), 100, 0);
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 100, 0);
         this.mockMvc
                 .perform(
                         post("/TemperatureThreshold")
@@ -143,7 +140,37 @@ class TemperatureThresholdControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithNullValues() throws Exception {
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold();
+
+        this.mockMvc
+                .perform(
+                        post("/TemperatureThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Min. value must be less than Max. value")))
+                .andReturn();
     }
 
     @Test
@@ -163,7 +190,9 @@ class TemperatureThresholdControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test
@@ -199,7 +228,9 @@ class TemperatureThresholdControllerTest {
                         delete("/TemperatureThreshold/{id}", temperatureThreshold.getId())
                                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())));
+                .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
+                .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
+                .andReturn();
     }
 
     @Test

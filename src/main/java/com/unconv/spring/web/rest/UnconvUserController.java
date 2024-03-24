@@ -1,16 +1,23 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
+import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
+import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
+
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
-import com.unconv.spring.utils.AppConstants;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,24 +80,45 @@ public class UnconvUserController {
     @PostMapping
     public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
+        if (!unconvUserService.isUsernameUnique(unconvUserDTO.getUsername())) {
+            unconvUserDTO.setPassword(null);
+            return new ResponseEntity<>(
+                    new MessageResponse<>(unconvUserDTO, USER_NAME_IN_USE), HttpStatus.BAD_REQUEST);
+        }
         unconvUserDTO.setId(null);
-        return unconvUserService.checkUsernameUniquenessAndSaveUnconvUser(
-                modelMapper.map(unconvUserDTO, UnconvUser.class), unconvUserDTO.getPassword());
+        UnconvUserDTO savedUnconvUserDTO = unconvUserService.createUnconvUser(unconvUserDTO);
+        return new ResponseEntity<>(
+                new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UnconvUser> updateUnconvUser(
+    public ResponseEntity<MessageResponse<UnconvUserDTO>> updateUnconvUser(
             @PathVariable UUID id, @RequestBody @Valid UnconvUserDTO unconvUserDTO) {
 
         return unconvUserService
                 .findUnconvUserById(id)
                 .map(
                         unconvUserObj -> {
-                            unconvUserDTO.setId(id);
-                            return ResponseEntity.ok(
-                                    unconvUserService.saveUnconvUser(
-                                            modelMapper.map(unconvUserDTO, UnconvUser.class),
-                                            unconvUserDTO.getPassword()));
+                            if (unconvUserDTO.getCurrentPassword() == null) {
+                                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                        .body(
+                                                new MessageResponse<>(
+                                                        unconvUserDTO, USER_PROVIDE_PASSWORD));
+                            }
+                            if (unconvUserService.checkPasswordMatch(
+                                    unconvUserObj.getId(), unconvUserDTO.getCurrentPassword())) {
+                                UnconvUserDTO updatedUnconvUserDTO =
+                                        unconvUserService.updateUnconvUser(
+                                                unconvUserObj, unconvUserDTO);
+                                return ResponseEntity.ok(
+                                        new MessageResponse<>(
+                                                updatedUnconvUserDTO, USER_UPDATE_SUCCESS));
+                            } else {
+                                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                        .body(
+                                                new MessageResponse<>(
+                                                        unconvUserDTO, USER_WRONG_PASSWORD));
+                            }
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

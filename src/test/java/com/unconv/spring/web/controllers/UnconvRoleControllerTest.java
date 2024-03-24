@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvRoleService;
@@ -29,31 +30,21 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = UnconvRoleController.class)
 @ActiveProfiles(PROFILE_TEST)
-class UnconvRoleControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
-
+class UnconvRoleControllerTest extends AbstractControllerTest {
     @MockBean private UnconvRoleService unconvRoleService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<UnconvRole> unconvRoleList;
 
@@ -63,14 +54,14 @@ class UnconvRoleControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/UnconvRole")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
         this.unconvRoleList = new ArrayList<>();
-        this.unconvRoleList.add(new UnconvRole(null, "text 1"));
-        this.unconvRoleList.add(new UnconvRole(null, "text 2"));
-        this.unconvRoleList.add(new UnconvRole(null, "text 3"));
+        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_A"));
+        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_B"));
+        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_C"));
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -99,7 +90,7 @@ class UnconvRoleControllerTest {
     @Test
     void shouldFindUnconvRoleById() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "text 1");
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "ROLE_X");
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
 
@@ -129,7 +120,7 @@ class UnconvRoleControllerTest {
                             return unconvRole;
                         });
 
-        UnconvRole unconvRole = new UnconvRole(UUID.randomUUID(), "some text");
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_NEW");
         this.mockMvc
                 .perform(
                         post("/UnconvRole")
@@ -142,8 +133,8 @@ class UnconvRoleControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewUnconvRoleWithoutText() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, null);
+    void shouldReturn400WhenCreateNewUnconvRoleWithNullValues() throws Exception {
+        UnconvRole unconvRole = new UnconvRole();
 
         this.mockMvc
                 .perform(
@@ -168,7 +159,7 @@ class UnconvRoleControllerTest {
     @Test
     void shouldUpdateUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated text");
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated ROLE name");
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
@@ -202,7 +193,7 @@ class UnconvRoleControllerTest {
     @Test
     void shouldDeleteUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Some text");
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "ROLE_KING");
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         doNothing().when(unconvRoleService).deleteUnconvRoleById(unconvRole.getId());

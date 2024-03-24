@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -40,7 +41,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Route")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -109,8 +110,8 @@ class RouteControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewRouteWithoutText() throws Exception {
-        Route route = new Route(null, null);
+    void shouldReturn400WhenCreateNewRouteWithNullValues() throws Exception {
+        Route route = new Route();
 
         this.mockMvc
                 .perform(

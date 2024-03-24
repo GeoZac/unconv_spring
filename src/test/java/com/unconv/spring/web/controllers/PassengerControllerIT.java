@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -49,7 +50,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Passenger")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -129,8 +130,8 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
+    void shouldReturn400WhenCreateNewPassengerWithNullValues() throws Exception {
+        Passenger passenger = new Passenger();
 
         this.mockMvc
                 .perform(

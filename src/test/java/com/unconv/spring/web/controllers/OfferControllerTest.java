@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.utils.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.Offer;
 import com.unconv.spring.service.OfferService;
 import com.unconv.spring.web.rest.OfferController;
@@ -27,29 +28,20 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = OfferController.class)
 @ActiveProfiles(PROFILE_TEST)
-class OfferControllerTest {
-
-    @Autowired private WebApplicationContext webApplicationContext;
-
-    @Autowired private MockMvc mockMvc;
+class OfferControllerTest extends AbstractControllerTest {
 
     @MockBean private OfferService offerService;
-
-    @Autowired private ObjectMapper objectMapper;
 
     private List<Offer> offerList;
 
@@ -59,7 +51,7 @@ class OfferControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Offer")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -91,6 +83,7 @@ class OfferControllerTest {
         this.mockMvc
                 .perform(get("/Offer/{id}", offerId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(offerId), Long.class))
                 .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
@@ -112,7 +105,7 @@ class OfferControllerTest {
                             return offer;
                         });
 
-        Offer offer = new Offer(1L, "0xff000000", "25% OFF");
+        Offer offer = new Offer(null, "0xff000000", "25% OFF");
         this.mockMvc
                 .perform(
                         post("/Offer")
@@ -125,8 +118,8 @@ class OfferControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
-        Offer offer = new Offer(null, null, null);
+    void shouldReturn400WhenCreateNewOfferWithNullValues() throws Exception {
+        Offer offer = new Offer();
 
         this.mockMvc
                 .perform(

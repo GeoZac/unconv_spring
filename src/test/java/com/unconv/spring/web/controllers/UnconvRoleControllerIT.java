@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -15,11 +16,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.DefaultUserRole;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,17 +39,19 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
 
     private List<UnconvRole> unconvRoleList = null;
 
+    private static final int defaultUserRoleCount = DefaultUserRole.values().length;
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/UnconvRole")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
-        unconvRoleRepository.deleteAllInBatch();
+        assert unconvRoleRepository.findAll().size() == defaultUserRoleCount;
 
         unconvRoleList = new ArrayList<>();
         unconvRoleList.add(new UnconvRole(null, "First UnconvRole"));
@@ -59,8 +65,12 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/UnconvRole").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvRoleList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(
+                        jsonPath("$.data.size()", is(unconvRoleList.size() + defaultUserRoleCount)))
+                .andExpect(
+                        jsonPath(
+                                "$.totalElements",
+                                is(unconvRoleList.size() + defaultUserRoleCount)))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -74,8 +84,12 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/UnconvRole").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvRoleList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(
+                        jsonPath("$.data.size()", is(unconvRoleList.size() + defaultUserRoleCount)))
+                .andExpect(
+                        jsonPath(
+                                "$.totalElements",
+                                is(unconvRoleList.size() + defaultUserRoleCount)))
                 .andExpect(jsonPath("$.pageNumber", is(1)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
@@ -111,8 +125,8 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewUnconvRoleWithoutText() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, null);
+    void shouldReturn400WhenCreateNewUnconvRoleWithNullValues() throws Exception {
+        UnconvRole unconvRole = new UnconvRole();
 
         this.mockMvc
                 .perform(
@@ -189,5 +203,15 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/UnconvRole/{id}", unconvRoleId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @AfterEach
+    void tearDown() {
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
     }
 }

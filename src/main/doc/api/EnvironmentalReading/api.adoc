@@ -1,0 +1,61 @@
+==== Searching for a EnvironmentalReading
+
+*Searching by UUID* +
+_Search for a EnvironmentalReading by its UUID_ +
+
+Request
+include::{snippets}/EnvironmentalReading/shouldFindEnvironmentalReadingById/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/EnvironmentalReading/shouldFindEnvironmentalReadingById/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/EnvironmentalReading/shouldReturn404WhenFetchingNonExistingEnvironmentalReading/http-response.adoc[]
+
+==== Creating a EnvironmentalReading
+*Creating a EnvironmentalReading* +
+_Create a new EnvironmentalReading_ +
+
+Request
+include::{snippets}/EnvironmentalReading/shouldCreateNewEnvironmentalReading/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/EnvironmentalReading/shouldCreateNewEnvironmentalReading/http-response.adoc[]
+
+* 400 Response - _Invalid Request_
+include::{snippets}/EnvironmentalReading/shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues/http-response.adoc[]
+
+==== Updating a EnvironmentalReading
+*Updating a EnvironmentalReading* +
+_Updating an existing EnvironmentalReading by its UUID_ +
+
+Request
+include::{snippets}/EnvironmentalReading/shouldUpdateEnvironmentalReading/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/EnvironmentalReading/shouldUpdateEnvironmentalReading/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/EnvironmentalReading/shouldReturn404WhenUpdatingNonExistingEnvironmentalReading/http-response.adoc[]
+
+==== Deleting a EnvironmentalReading
+*Deleting a EnvironmentalReading* +
+_Deleting an existing EnvironmentalReading by its UUID_ +
+
+Request
+include::{snippets}/EnvironmentalReading/shouldDeleteEnvironmentalReading/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/EnvironmentalReading/shouldDeleteEnvironmentalReading/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/EnvironmentalReading/shouldReturn404WhenDeletingNonExistingEnvironmentalReading/http-response.adoc[]
+

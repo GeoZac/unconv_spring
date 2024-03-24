@@ -5,9 +5,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -35,18 +33,6 @@ public interface EnvironmentalReadingService {
 
     void deleteEnvironmentalReadingById(UUID id);
 
-    Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(UUID sensorSystemId);
-
-    Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(List<EnvironmentalReading> data);
-
-    Map<OffsetDateTime, Double> getAverageTempsForHourly(UUID sensorSystemId);
-
-    Map<OffsetDateTime, Double> getAverageTempsForHourly(List<EnvironmentalReading> data);
-
-    Map<OffsetDateTime, Double> getAverageTempsForDaily(UUID sensorSystemId);
-
-    Map<OffsetDateTime, Double> getAverageTempsForDaily(List<EnvironmentalReading> data);
-
     ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-            UUID sensorSystemId, MultipartFile file);
+            SensorSystem sensorSystem, MultipartFile file);
 }

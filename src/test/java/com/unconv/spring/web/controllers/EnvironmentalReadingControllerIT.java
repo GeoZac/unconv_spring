@@ -1,5 +1,8 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
@@ -7,7 +10,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
-import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -24,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,24 +41,22 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.utils.AccessTokenGenerator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
@@ -74,6 +76,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
+
+    @Autowired private SensorAuthTokenService sensorAuthTokenService;
+
+    @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
@@ -113,7 +119,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("UnconvUser").roles("USER")))
+                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -328,7 +334,115 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
                 .andExpect(
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
-                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWithSensorAuthToken() throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String sensorAccessToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getAuthToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, sensorAccessToken))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreateNewEnvironmentalReadingWithMatchingSensorAuthHash() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String sensorAccessToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getAuthToken();
+
+        // Create a bogus token by retaining the hash as suffix, but keeping the pattern
+        String bogusSensorAccessToken =
+                AccessTokenGenerator.generateAccessToken()
+                        + sensorAccessToken.substring(sensorAccessToken.length() - 24);
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                // Send the request with bogus token
+                                .param(ACCESS_TOKEN, bogusSensorAccessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid API token"))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreatingNewEnvironmentalReadingWithInvalidSensorAuthToken()
+            throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String invalidSensorAuthToken = AccessTokenGenerator.generateAccessToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, invalidSensorAuthToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Invalid API token"))
+                .andReturn();
     }
 
     @Test
@@ -364,7 +478,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.entity.sensorSystem.id",
                                 is(savedSensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andReturn();
     }
 
     @Test
@@ -393,7 +508,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         "$.entity.temperature",
                                         is(environmentalReadingDTO.getTemperature())))
                         .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                        .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()));
 
         // Get the response body
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -707,10 +823,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(
-                        UUID.randomUUID(), 0L, 0L, OffsetDateTime.now().plusDays(1), null);
+    void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
+        EnvironmentalReading environmentalReading = new EnvironmentalReading();
 
         this.mockMvc
                 .perform(
@@ -726,14 +840,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
-                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
-                .andExpect(
-                        jsonPath(
-                                "$.violations[1].message",
-                                is("Readings has to be in past or present")))
                 .andReturn();
     }
 
@@ -762,7 +871,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -791,7 +902,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+        ;
     }
 
     @Test
@@ -822,7 +936,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -854,7 +970,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -870,7 +988,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -883,7 +1003,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -916,148 +1038,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser =
-                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
-        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-        Map<OffsetDateTime, Double> averageTemperatures =
-                setupTestDataForQuarterHourly(savedSensorSystem);
-        assert !averageTemperatures.isEmpty();
-        this.mockMvc
-                .perform(
-                        get(
-                                        "/EnvironmentalReading/QuarterHourly/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> setupTestDataForQuarterHourly(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 25; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(3)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 180)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForQuarterHourly(sensorSystem.getId());
-    }
-
-    @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser =
-                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
-        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForHourly(savedSensorSystem);
-        assert !averageTemperatures.isEmpty();
-        this.mockMvc
-                .perform(
-                        get(
-                                        "/EnvironmentalReading/Hourly/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> setupTestDataForHourly(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 75; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusHours(24)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 1440)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForHourly(sensorSystem.getId());
-    }
-
-    @Test
-    void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
-        UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
-        UnconvUser savedUnconvUser =
-                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
-        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-        Map<OffsetDateTime, Double> averageTemperatures = setupTestDataForDaily(savedSensorSystem);
-        assert !averageTemperatures.isEmpty();
-        this.mockMvc
-                .perform(
-                        get(
-                                        "/EnvironmentalReading/Daily/SensorSystem/{sensorSystemId}",
-                                        savedSensorSystem.getId())
-                                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", instanceOf(JSONArray.class)));
-    }
-
-    private Map<OffsetDateTime, Double> setupTestDataForDaily(SensorSystem sensorSystem) {
-        List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
-            EnvironmentalReading environmentalReading =
-                    Instancio.of(environemntalReadingModel)
-                            .supply(
-                                    field(EnvironmentalReading::getSensorSystem),
-                                    () -> sensorSystem)
-                            .supply(
-                                    field(EnvironmentalReading::getTimestamp),
-                                    random ->
-                                            ZonedDateTime.of(
-                                                            LocalDateTime.now()
-                                                                    .minusDays(7)
-                                                                    .plusMinutes(
-                                                                            random.intRange(
-                                                                                    0, 10080)),
-                                                            ZoneId.systemDefault())
-                                                    .toOffsetDateTime())
-                            .create();
-            environmentalReadings.add(environmentalReading);
-        }
-        environmentalReadingRepository.saveAll(environmentalReadings);
-        return environmentalReadingService.getAverageTempsForDaily(sensorSystem.getId());
-    }
-
     @AfterEach
     void tearDown() {
         environmentalReadingRepository.deleteAll();
+        sensorAuthTokenRepository.deleteAll();
         sensorSystemRepository.deleteAll();
         unconvUserRepository.deleteAll();
     }

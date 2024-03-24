@@ -15,6 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * This class represents a general threshold entity with a discriminator column specifying the
+ * threshold type.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

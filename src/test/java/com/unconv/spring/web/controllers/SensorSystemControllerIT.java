@@ -1,9 +1,11 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
-import static com.unconv.spring.utils.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -97,7 +99,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorSystem")
-                                        .with(user("UnconvUser").roles("USER")))
+                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -277,6 +279,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.latestReading", is(nullValue())))
                 .andExpect(jsonPath("$.readingCount", is(0)))
+                .andExpect(jsonPath("$.unconvUser", validUnconvUser()))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
     }
 
@@ -457,6 +460,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
                 .andExpect(jsonPath("$.entity.humidityThreshold", notNullValue()))
                 .andExpect(jsonPath("$.entity.temperatureThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
                 .andExpect(
                         jsonPath(
                                 "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
@@ -486,6 +490,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
                 .andExpect(
                         jsonPath("$.entity.unconvUser.id", is(savedUnconvUser.getId().toString())));
     }
@@ -523,8 +528,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewSensorSystemWithoutText() throws Exception {
-        SensorSystem sensorSystem = new SensorSystem(null, null, null, null);
+    void shouldReturn400WhenCreateNewSensorSystemWithNullValues() throws Exception {
+        SensorSystem sensorSystem = new SensorSystem();
 
         this.mockMvc
                 .perform(
@@ -540,9 +545,13 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorName")))
                 .andExpect(jsonPath("$.violations[0].message", is("Sensor name cannot be empty")))
+                .andExpect(jsonPath("$.violations[1].field", is("sensorStatus")))
+                .andExpect(jsonPath("$.violations[1].message", is("Sensor status cannot be null")))
+                .andExpect(jsonPath("$.violations[2].field", is("unconvUser")))
+                .andExpect(jsonPath("$.violations[2].message", is("UnconvUser cannot be empty")))
                 .andReturn();
     }
 
@@ -565,6 +574,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
                 .andExpect(
                         jsonPath(
                                 "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
@@ -588,6 +598,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message", is(SENS_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystemDTO.getSensorName())))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
                 .andExpect(jsonPath("$.entity.unconvUser.username", is(unconvUser.getUsername())));
     }
 
@@ -604,7 +615,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())));
+                .andExpect(jsonPath("$.unconvUser", validUnconvUser()))
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andReturn();
     }
 
     @Test
@@ -626,8 +639,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.unconvUser", validUnconvUser()))
                 .andExpect(jsonPath("$.humidityThreshold", notNullValue()))
-                .andExpect(jsonPath("$.temperatureThreshold", notNullValue()));
+                .andExpect(jsonPath("$.temperatureThreshold", notNullValue()))
+                .andReturn();
     }
 
     @Test
@@ -639,7 +654,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystem.getId().toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
-                .andExpect(jsonPath("$.deleted", is(true)));
+                .andExpect(jsonPath("$.unconvUser", validUnconvUser()))
+                .andExpect(jsonPath("$.deleted", is(true)))
+                .andReturn();
     }
 
     @Test
@@ -663,7 +680,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
                 .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
-                .andExpect(jsonPath("$.deleted", is(true)));
+                .andExpect(jsonPath("$.unconvUser", validUnconvUser()))
+                .andExpect(jsonPath("$.deleted", is(true)))
+                .andReturn();
     }
 
     @Test

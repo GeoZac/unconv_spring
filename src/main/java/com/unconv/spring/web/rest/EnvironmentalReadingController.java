@@ -1,19 +1,21 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
+
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
-import com.unconv.spring.utils.AppConstants;
-import java.time.OffsetDateTime;
+import com.unconv.spring.service.SensorSystemService;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -33,9 +35,21 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class EnvironmentalReadingController {
 
-    @Autowired private EnvironmentalReadingService environmentalReadingService;
+    private final EnvironmentalReadingService environmentalReadingService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final SensorSystemService sensorSystemService;
+
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public EnvironmentalReadingController(
+            EnvironmentalReadingService environmentalReadingService,
+            SensorSystemService sensorSystemService,
+            ModelMapper modelMapper) {
+        this.environmentalReadingService = environmentalReadingService;
+        this.sensorSystemService = sensorSystemService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadings(
@@ -110,17 +124,38 @@ public class EnvironmentalReadingController {
             @RequestBody @Validated EnvironmentalReadingDTO environmentalReadingDTO,
             Authentication authentication) {
         environmentalReadingDTO.setId(null);
-        return environmentalReadingService
-                .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
-                        environmentalReadingDTO, authentication);
+        return sensorSystemService
+                .findSensorSystemById(environmentalReadingDTO.getSensorSystem().getId())
+                .map(
+                        (sensorSystem ->
+                                environmentalReadingService
+                                        .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                                                environmentalReadingDTO, authentication)))
+                .orElseGet(
+                        () -> {
+                            MessageResponse<EnvironmentalReadingDTO>
+                                    environmentalReadingDTOMessageResponse =
+                                            new MessageResponse<>(
+                                                    environmentalReadingDTO, ENVT_RECORD_REJ_SENS);
+                            return new ResponseEntity<>(
+                                    environmentalReadingDTOMessageResponse, HttpStatus.NOT_FOUND);
+                        });
     }
 
     @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
     public ResponseEntity<String> uploadFile(
             @PathVariable UUID sensorSystemId, @RequestParam("file") MultipartFile file) {
-        return environmentalReadingService
-                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-                        sensorSystemId, file);
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        (sensorSystem ->
+                                environmentalReadingService
+                                        .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                                sensorSystem, file)))
+                .orElseGet(
+                        () ->
+                                ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                        .body(ENVT_RECORD_REJ_SENS));
     }
 
     @PutMapping("/{id}")
@@ -151,29 +186,5 @@ public class EnvironmentalReadingController {
                             return ResponseEntity.ok(environmentalReading);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/QuarterHourly/SensorSystem/{sensorSystemId}")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getQuarterHourlyTemperature(
-            @PathVariable UUID sensorSystemId) {
-        Map<OffsetDateTime, Double> tenMinuteTemperatures =
-                environmentalReadingService.getAverageTempsForQuarterHourly(sensorSystemId);
-        return ResponseEntity.ok(tenMinuteTemperatures);
-    }
-
-    @GetMapping("/Hourly/SensorSystem/{sensorSystemId}")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getHourlyTemperature(
-            @PathVariable UUID sensorSystemId) {
-        Map<OffsetDateTime, Double> hourlyTemperatures =
-                environmentalReadingService.getAverageTempsForHourly(sensorSystemId);
-        return ResponseEntity.ok(hourlyTemperatures);
-    }
-
-    @GetMapping("/Daily/SensorSystem/{sensorSystemId}")
-    public ResponseEntity<Map<OffsetDateTime, Double>> getDailyTemperature(
-            @PathVariable UUID sensorSystemId) {
-        Map<OffsetDateTime, Double> hourlyTemperatures =
-                environmentalReadingService.getAverageTempsForDaily(sensorSystemId);
-        return ResponseEntity.ok(hourlyTemperatures);
     }
 }
