@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,6 +146,33 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        int length = 10;
+        boolean useLetters = true;
+        boolean useNumbers = false;
+        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+
+        given(unconvUserService.checkUsernameAvailability(randomGeneratedString)).willReturn(true);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is("true"), String.class));
+    }
+
+    @Test
+    void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        String existingUserName = unconvUserList.get(0).getUsername();
+
+        given(unconvUserService.checkUsernameAvailability(existingUserName)).willReturn(false);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is("false"), String.class));
     }
 
     /* TODO: Fix ID generation */
