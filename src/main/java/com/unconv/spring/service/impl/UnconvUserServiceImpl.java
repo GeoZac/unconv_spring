@@ -63,12 +63,6 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     }
 
     @Override
-    public boolean checkUsernameAvailability(String username) {
-        UnconvUser unconvUser = unconvUserRepository.findByUsername(username);
-        return unconvUser == null;
-    }
-
-    @Override
     public boolean checkPasswordMatch(UUID unconvUserId, String currentPassword) {
         UnconvUser unconvUser = unconvUserRepository.findUnconvUserById(unconvUserId);
 

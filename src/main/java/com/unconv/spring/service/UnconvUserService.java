@@ -18,8 +18,6 @@ public interface UnconvUserService {
 
     UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword);
 
-    boolean checkUsernameAvailability(String username);
-
     boolean checkPasswordMatch(UUID unconvUserId, String currentPassword);
 
     UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO);

@@ -76,7 +76,7 @@ public class UnconvUserController {
 
     @GetMapping("/Username/Available/{username}")
     public Map<String, String> checkUsernameAvailability(@PathVariable String username) {
-        boolean isAvailable = unconvUserService.checkUsernameAvailability(username);
+        boolean isAvailable = unconvUserService.isUsernameUnique(username);
         Map<String, String> response = new HashMap<>();
         response.put("username", username);
         response.put("available", String.valueOf(isAvailable));

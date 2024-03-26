@@ -155,7 +155,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         boolean useNumbers = false;
         String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
 
-        given(unconvUserService.checkUsernameAvailability(randomGeneratedString)).willReturn(true);
+        given(unconvUserService.isUsernameUnique(randomGeneratedString)).willReturn(true);
 
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
@@ -172,7 +172,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
         String existingUserName = unconvUserList.get(0).getUsername();
 
-        given(unconvUserService.checkUsernameAvailability(existingUserName)).willReturn(false);
+        given(unconvUserService.isUsernameUnique(existingUserName)).willReturn(false);
 
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
