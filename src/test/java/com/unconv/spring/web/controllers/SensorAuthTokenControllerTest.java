@@ -238,7 +238,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorAuthTokenWithoutText",
+                                "shouldReturn400WhenCreateNewSensorAuthTokenWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
@@ -365,7 +365,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     void shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem() throws Exception {
 
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
 
         SensorSystem sensorSystem =
                 new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
