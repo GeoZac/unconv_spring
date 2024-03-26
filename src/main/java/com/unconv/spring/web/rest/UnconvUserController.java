@@ -12,6 +12,8 @@ import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +72,15 @@ public class UnconvUserController {
                 .findUnconvUserById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/Username/Available/{username}")
+    public Map<String, String> checkUsernameAvailability(@PathVariable String username) {
+        boolean isAvailable = unconvUserService.isUsernameUnique(username);
+        Map<String, String> response = new HashMap<>();
+        response.put("username", username);
+        response.put("available", String.valueOf(isAvailable));
+        return response;
     }
 
     @PostMapping
