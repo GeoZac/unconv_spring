@@ -48,8 +48,7 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Override
     public boolean isUsernameUnique(String username) {
-        UnconvUser existingUnconvUser = unconvUserRepository.findByUsername(username);
-        return existingUnconvUser == null;
+        return !unconvUserRepository.existsByUsername(username);
     }
 
     @Override
