@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/UnconvUser/Username/Available/**")
+                .permitAll()
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
                 .antMatchers("/public/**")
