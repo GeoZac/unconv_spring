@@ -159,6 +159,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
+                .andDo(
+                        document(
+                                "shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is("true"), String.class))
                 .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
@@ -172,6 +176,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
+                .andDo(
+                        document(
+                                "shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is("false"), String.class))
                 .andExpect(jsonPath("$.username", is(existingUserName), String.class));
