@@ -264,7 +264,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         savedSensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -286,7 +286,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))

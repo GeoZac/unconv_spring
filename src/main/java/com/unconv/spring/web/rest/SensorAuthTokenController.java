@@ -108,7 +108,7 @@ public class SensorAuthTokenController {
         return sensorAuthTokenService.generateSensorAuthToken(sensorAuthTokenDTO.getSensorSystem());
     }
 
-    @GetMapping("/GenerateToken/SensorSystem{sensorSystemId}")
+    @GetMapping("/GenerateToken/SensorSystem/{sensorSystemId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<MessageResponse<SensorAuthTokenDTO>> generateSensorAuthToken(
             @PathVariable @Validated UUID sensorSystemId) {
