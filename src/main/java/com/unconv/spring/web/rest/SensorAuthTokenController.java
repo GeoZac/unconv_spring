@@ -80,7 +80,7 @@ public class SensorAuthTokenController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/TokenInfo/SensorSystem/{sensorSystemId}")
+    @GetMapping("/SensorSystem/{sensorSystemId}")
     public ResponseEntity<SensorAuthTokenDTO> getSensorAuthTokenInfo(
             @PathVariable @Validated UUID sensorSystemId) {
         return sensorSystemService

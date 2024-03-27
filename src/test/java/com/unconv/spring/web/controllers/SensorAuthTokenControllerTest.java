@@ -447,9 +447,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        get(
-                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
-                                        sensorSystem.getId())
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(
@@ -480,9 +478,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        get(
-                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
-                                        sensorSystem.getId())
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(
@@ -506,9 +502,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        get(
-                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
-                                        sensorSystemId)
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(
