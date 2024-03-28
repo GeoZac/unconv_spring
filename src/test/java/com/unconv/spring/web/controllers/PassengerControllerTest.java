@@ -19,8 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
+import com.unconv.spring.enums.Gender;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.web.rest.PassengerController;

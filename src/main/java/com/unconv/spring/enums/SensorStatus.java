@@ -1,4 +1,4 @@
-package com.unconv.spring.consts;
+package com.unconv.spring.enums;
 
 public enum SensorStatus {
     ACTIVE,

@@ -70,7 +70,7 @@ class BookingControllerTest extends AbstractControllerTest {
                         null,
                         "Langdon",
                         java.time.LocalDate.of(1972, 8, 13),
-                        com.unconv.spring.consts.Gender.MALE,
+                        com.unconv.spring.enums.Gender.MALE,
                         null));
         passengerList.add(
                 new Passenger(
@@ -79,7 +79,7 @@ class BookingControllerTest extends AbstractControllerTest {
                         null,
                         "Brewster",
                         java.time.LocalDate.of(1988, 5, 9),
-                        com.unconv.spring.consts.Gender.FEMALE,
+                        com.unconv.spring.enums.Gender.FEMALE,
                         null));
         passengerList.add(
                 new Passenger(
@@ -88,7 +88,7 @@ class BookingControllerTest extends AbstractControllerTest {
                         "Marvelo",
                         "Riddle",
                         java.time.LocalDate.of(1872, 12, 1),
-                        com.unconv.spring.consts.Gender.OTHER,
+                        com.unconv.spring.enums.Gender.OTHER,
                         null));
         this.bookingList = new ArrayList<>();
         this.bookingList.add(new Booking(1L, "text 1", passengerList));
