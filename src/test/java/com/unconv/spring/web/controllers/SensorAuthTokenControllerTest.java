@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +52,6 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -74,8 +72,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @MockBean private SensorAuthTokenService sensorAuthTokenService;
 
     @MockBean private SensorSystemService sensorSystemService;
-
-    @MockBean private ModelMapper modelMapper;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
@@ -223,7 +219,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldCreateNewSensorAuthToken",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.authToken", hasLength(25)))
@@ -243,7 +238,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorAuthTokenWithoutText",
+                                "shouldReturn400WhenCreateNewSensorAuthTokenWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
@@ -325,7 +320,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenUpdatingNonExistingSensorAuthToken",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -371,7 +365,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     void shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem() throws Exception {
 
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
 
         SensorSystem sensorSystem =
                 new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
@@ -391,11 +385,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+                .andDo(
+                        document(
+                                "shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
@@ -416,10 +413,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenRequestingTokenForANonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }
@@ -446,11 +447,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        get(
-                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
-                                        sensorSystem.getId())
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
@@ -475,11 +478,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        get(
-                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
-                                        sensorSystem.getId())
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.id", nullValue()))
                 .andExpect(jsonPath("$.authToken", nullValue()))
@@ -497,11 +502,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        get(
-                                        "/SensorAuthToken/TokenInfo/SensorSystem/{sensorSystemId}",
-                                        sensorSystemId)
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }
