@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@3.3.0
+  docker: circleci/docker@2.6.0
 jobs:
   setup:
     machine:
@@ -173,3 +174,6 @@ workflows:
                 - master
             tags:
                 only: /^v.*/
+      - docker/publish:
+          deploy: false
+          image: spring-test
