@@ -1,5 +1,8 @@
-FROM eclipse-temurin:17-jre-focal AS builder
+FROM eclipse-temurin:17-jdk-focal AS builder
 WORKDIR /application
+COPY . .
+RUN ls
+RUN ./mvnw -DskipTests install
 ARG JAR_FILE=target/spring-0.0.7-SNAPSHOT.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
