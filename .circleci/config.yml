@@ -175,5 +175,6 @@ workflows:
             tags:
                 only: /^v.*/
       - docker/publish:
+          extra_build_args: --build-arg progress=plain --build-arg no-cache
           deploy: false
           image: spring-test
