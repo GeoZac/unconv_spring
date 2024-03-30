@@ -45,7 +45,7 @@ public class SensorAuthToken {
     private String tokenHash;
 
     @OneToOne
-    @JoinColumn(name = "sensor_system_id")
+    @JoinColumn(name = "sensor_system_id", referencedColumnName = "id", unique = true)
     @NotNull(message = "Sensor system cannot be empty")
     private SensorSystem sensorSystem;
 
