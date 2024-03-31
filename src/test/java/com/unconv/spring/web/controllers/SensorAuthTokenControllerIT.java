@@ -150,6 +150,14 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
