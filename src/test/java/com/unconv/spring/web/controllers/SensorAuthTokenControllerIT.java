@@ -29,6 +29,7 @@ import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.utils.AccessTokenGenerator;
+import com.unconv.spring.utils.SaltedSuffixGenerator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,22 +79,28 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
-        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
-        savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        List<SensorSystem> sensorSystemList =
+                Instancio.ofList(SensorSystem.class)
+                        .size(7)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .set(field(SensorSystem::getUnconvUser), savedUnconvUser)
+                        .create();
+
+        sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
 
         sensorAuthTokenList = new ArrayList<>();
-        sensorAuthTokenList =
-                Instancio.ofList(SensorAuthToken.class)
-                        .size(7)
-                        .ignore(field(SensorAuthToken::getId))
-                        .supply(
-                                field(SensorAuthToken::getAuthToken),
-                                AccessTokenGenerator::generateAccessToken)
-                        .supply(
-                                field(SensorAuthToken::getExpiry),
-                                () -> OffsetDateTime.now().plusDays(10))
-                        .supply(field(SensorAuthToken::getSensorSystem), () -> savedSensorSystem)
-                        .create();
+        for (SensorSystem sensorSystem : sensorSystemList) {
+            SensorAuthToken sensorAuthToken =
+                    new SensorAuthToken(
+                            null,
+                            AccessTokenGenerator.generateAccessToken(),
+                            OffsetDateTime.now().plusDays(10),
+                            SaltedSuffixGenerator.generateSaltedSuffix(),
+                            sensorSystem);
+            sensorAuthTokenList.add(sensorAuthToken);
+        }
         sensorAuthTokenList = sensorAuthTokenRepository.saveAll(sensorAuthTokenList);
     }
 
