@@ -12,6 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The base class for representing environmental readings, encapsulating common attributes such as
+ * temperature, humidity, and timestamp. This class provides a foundation for specialized
+ * environmental reading classes.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

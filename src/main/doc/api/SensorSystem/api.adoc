@@ -27,7 +27,7 @@ Response +
 include::{snippets}/SensorSystem/shouldCreateNewSensorSystem/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
-include::{snippets}/SensorSystem/shouldReturn400WhenCreateNewSensorSystemWithoutText/http-response.adoc[]
+include::{snippets}/SensorSystem/shouldReturn400WhenCreateNewSensorSystemWithNullValues/http-response.adoc[]
 
 ==== Updating a SensorSystem
 *Updating a SensorSystem* +

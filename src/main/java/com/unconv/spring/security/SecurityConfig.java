@@ -5,6 +5,7 @@ import com.unconv.spring.security.filter.CustomAuthenticationManager;
 import com.unconv.spring.security.filter.ExceptionHandlerFilter;
 import com.unconv.spring.security.filter.JWTAuthenticationFilter;
 import com.unconv.spring.security.filter.JWTUtil;
+import com.unconv.spring.security.filter.SensorAuthTokenUtil;
 import com.unconv.spring.service.UnconvUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
+
+    private final SensorAuthTokenUtil sensorAuthTokenUtil;
 
     private final CustomAuthenticationManager customAuthenticationManager;
 
@@ -35,6 +38,8 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/UnconvUser/Username/Available/**")
+                .permitAll()
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
                 .antMatchers("/public/**")
@@ -44,7 +49,9 @@ public class SecurityConfig {
                 .and()
                 .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
                 .addFilter(authenticationFilter)
-                .addFilterAfter(new JWTAuthenticationFilter(jwtUtil), AuthenticationFilter.class)
+                .addFilterAfter(
+                        new JWTAuthenticationFilter(jwtUtil, sensorAuthTokenUtil),
+                        AuthenticationFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         return http.build();

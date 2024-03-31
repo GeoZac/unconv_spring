@@ -413,7 +413,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorSystemWithoutText",
+                                "shouldReturn400WhenCreateNewSensorSystemWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
@@ -536,7 +536,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andDo(
                         document(
-                                "shouldDeleteSensorSystem",
+                                "shouldDeleteSensorSystemWithReadingsPresent",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())

@@ -142,6 +142,31 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        int length = 10;
+        boolean useLetters = true;
+        boolean useNumbers = false;
+        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available", is("true"), String.class))
+                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
+    }
+
+    @Test
+    void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        String existingUserName = unconvUserList.get(0).getUsername();
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available", is("false"), String.class))
+                .andExpect(jsonPath("$.username", is(existingUserName), String.class));
+    }
+
+    @Test
     void shouldCreateNewUnconvUser() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "NewUnconvUser", "newuser@email.com", "1StrongPas$word");

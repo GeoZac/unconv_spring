@@ -423,7 +423,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText",
+                                "shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())

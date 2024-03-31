@@ -1,0 +1,12 @@
+===== Fields
+
+- `id` (UUID): Unique identifier for the sensor location.
+
+- `sensorLocationText` (String): Textual description of the sensor location.
+
+- `latitude` (Double): Latitude of the sensor location (valid range: -90.0 to 90.0).
+
+- `longitude` (Double): Longitude of the sensor location (valid range: -180.0 to 180.0).
+
+- `sensorLocationType` (SensorLocationType): Enum representing the type of sensor location (indoor or outdoor).
+
