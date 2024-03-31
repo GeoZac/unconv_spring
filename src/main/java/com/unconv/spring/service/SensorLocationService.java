@@ -1,16 +1,17 @@
 package com.unconv.spring.service;
 
 import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Service interface for managing SensorLocations. */
+/** Service interface for managing {@link SensorLocation}s. */
 public interface SensorLocationService {
 
     /**
-     * Retrieves a paginated list of all SensorLocations.
+     * Retrieves a paginated list of all {@link SensorLocation}s.
      *
      * @param pageNo The page number.
      * @param pageSize The size of each page.
@@ -22,33 +23,33 @@ public interface SensorLocationService {
             int pageNo, int pageSize, String sortBy, String sortDir);
 
     /**
-     * Retrieves a list of SensorLocations by UnconvUserId.
+     * Retrieves a list of {@link SensorLocation}s by UnconvUserId.
      *
-     * @param unconvUserId The ID of the UnconvUser.
-     * @return A list of SensorLocations associated with the UnconvUser.
+     * @param unconvUserId The ID of the {@link UnconvUser}.
+     * @return A list of {@link SensorLocation}s associated with the {@link UnconvUser}.
      */
     List<SensorLocation> findAllSensorLocationsByUnconvUserId(UUID unconvUserId);
 
     /**
-     * Retrieves a SensorLocation by its ID.
+     * Retrieves a {@link SensorLocation} by its ID.
      *
-     * @param id The ID of the SensorLocation.
-     * @return An Optional containing the SensorLocation, or empty if not found.
+     * @param id The ID of the {@link SensorLocation}.
+     * @return An {@link Optional} containing the {@link SensorLocation}, or empty if not found.
      */
     Optional<SensorLocation> findSensorLocationById(UUID id);
 
     /**
-     * Saves a new SensorLocation.
+     * Saves a new {@link SensorLocation}.
      *
-     * @param sensorLocation The SensorLocation to save.
-     * @return The saved SensorLocation.
+     * @param sensorLocation The {@link SensorLocation} to save.
+     * @return The saved {@link SensorLocation}.
      */
     SensorLocation saveSensorLocation(SensorLocation sensorLocation);
 
     /**
-     * Deletes a SensorLocation by its ID.
+     * Deletes a {@link SensorLocation} by its ID.
      *
-     * @param id The ID of the SensorLocation to delete.
+     * @param id The ID of the {@link SensorLocation} to delete.
      */
     void deleteSensorLocationById(UUID id);
 }
