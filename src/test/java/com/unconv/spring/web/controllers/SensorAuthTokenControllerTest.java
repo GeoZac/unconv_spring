@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -191,7 +192,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldCreateNewSensorAuthToken() throws Exception {
-        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class), isNull()))
                 .willAnswer(
                         (invocation) ->
                                 new SensorAuthTokenDTO(
@@ -270,7 +271,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
-        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+        given(
+                        sensorAuthTokenService.generateSensorAuthToken(
+                                any(SensorSystem.class), any(UUID.class)))
                 .willAnswer(
                         (invocation) ->
                                 new SensorAuthTokenDTO(
@@ -379,7 +382,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
                 .willReturn(Optional.of(sensorSystem));
-        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem))
+        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null))
                 .willReturn(sensorAuthTokenDTO);
 
         this.mockMvc

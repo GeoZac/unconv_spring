@@ -209,6 +209,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     void shouldUpdateSensorAuthToken() throws Exception {
         SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
         sensorAuthToken.setAuthToken("Updated SensorAuthToken");
+        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(100));
 
         this.mockMvc
                 .perform(
@@ -320,7 +321,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         UUID sensorAuthTokenUUID =
-                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getId();
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null).getId();
 
         this.mockMvc
                 .perform(
