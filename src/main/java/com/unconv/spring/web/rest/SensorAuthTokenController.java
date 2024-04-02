@@ -105,7 +105,8 @@ public class SensorAuthTokenController {
     public SensorAuthTokenDTO createSensorAuthToken(
             @RequestBody @Validated SensorAuthTokenDTO sensorAuthTokenDTO) {
         sensorAuthTokenDTO.setId(null);
-        return sensorAuthTokenService.generateSensorAuthToken(sensorAuthTokenDTO.getSensorSystem());
+        return sensorAuthTokenService.generateSensorAuthToken(
+                sensorAuthTokenDTO.getSensorSystem(), null);
     }
 
     @GetMapping("/GenerateToken/SensorSystem/{sensorSystemId}")
@@ -117,7 +118,8 @@ public class SensorAuthTokenController {
                 .map(
                         sensorSystemObj -> {
                             SensorAuthTokenDTO sensorAuthToken =
-                                    sensorAuthTokenService.generateSensorAuthToken(sensorSystemObj);
+                                    sensorAuthTokenService.generateSensorAuthToken(
+                                            sensorSystemObj, null);
                             return new ResponseEntity<>(
                                     new MessageResponse<>(
                                             sensorAuthToken, "Generated New Sensor Auth Token"),
@@ -135,8 +137,7 @@ public class SensorAuthTokenController {
                         sensorAuthTokenObj -> {
                             SensorAuthTokenDTO updatedSensorAuthTokenDTO =
                                     sensorAuthTokenService.generateSensorAuthToken(
-                                            sensorAuthTokenDTO.getSensorSystem());
-                            updatedSensorAuthTokenDTO.setId(id);
+                                            sensorAuthTokenDTO.getSensorSystem(), id);
                             return ResponseEntity.ok(updatedSensorAuthTokenDTO);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
