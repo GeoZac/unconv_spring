@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -23,6 +24,7 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
@@ -293,6 +295,43 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
+    }
+
+    @Test
+    void shouldGenerateAndReturnNewSensorTokenForAValidSensorSystemWithGeneratedAuthToken()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorAuthTokenDTO sensorAuthToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(sensorAuthToken.getId().toString())))
+                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
+                .andExpect(
+                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(
+                        jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+
+        SensorAuthToken persistedSensorAuthToken =
+                sensorAuthTokenRepository.findBySensorSystemId(savedSensorSystem.getId());
+        assert persistedSensorAuthToken.getId() != sensorAuthToken.getId();
     }
 
     @Test
