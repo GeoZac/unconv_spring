@@ -350,7 +350,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         String sensorAccessToken =
-                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getAuthToken();
+                sensorAuthTokenService
+                        .generateSensorAuthToken(savedSensorSystem, null)
+                        .getAuthToken();
 
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
@@ -386,7 +388,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         String sensorAccessToken =
-                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem).getAuthToken();
+                sensorAuthTokenService
+                        .generateSensorAuthToken(savedSensorSystem, null)
+                        .getAuthToken();
 
         // Create a bogus token by retaining the hash as suffix, but keeping the pattern
         String bogusSensorAccessToken =
