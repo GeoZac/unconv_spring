@@ -1,6 +1,7 @@
 package com.unconv.spring.security.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.unconv.spring.exception.ExpiredAuthTokenException;
 import com.unconv.spring.exception.MalformedAuthTokenException;
 import com.unconv.spring.exception.UnknownAuthTokenException;
 import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
@@ -32,6 +33,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             sensorAuthTokenExceptionHandler.handleUnknownAuthToken(response, e);
         } catch (MalformedAuthTokenException e) {
             sensorAuthTokenExceptionHandler.handleMalformedAuthToken(response, e);
+        } catch (ExpiredAuthTokenException e) {
+            sensorAuthTokenExceptionHandler.handleExpiredAuthToken(response, e);
         } catch (RuntimeException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }

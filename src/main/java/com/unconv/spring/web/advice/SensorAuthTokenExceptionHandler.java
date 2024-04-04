@@ -1,6 +1,7 @@
 package com.unconv.spring.web.advice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.exception.ExpiredAuthTokenException;
 import com.unconv.spring.exception.MalformedAuthTokenException;
 import com.unconv.spring.exception.UnknownAuthTokenException;
 import java.io.IOException;
@@ -30,6 +31,18 @@ public class SensorAuthTokenExceptionHandler {
             HttpServletResponse response, MalformedAuthTokenException exception)
             throws IOException {
 
+        Map<String, String> map = new HashMap<>();
+        map.put("message", exception.getMessage());
+        map.put("token", exception.getToken());
+        map.put("timestamp", OffsetDateTime.now().toString());
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(map));
+    }
+
+    public void handleExpiredAuthToken(
+            HttpServletResponse response, ExpiredAuthTokenException exception) throws IOException {
         Map<String, String> map = new HashMap<>();
         map.put("message", exception.getMessage());
         map.put("token", exception.getToken());
