@@ -74,8 +74,24 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     }
 
     @Override
-    public SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystem) {
+    public void deleteAnyExistingSensorSystem(UUID sensorSystemId) {
+        SensorAuthToken sensorAuthToken =
+                sensorAuthTokenRepository.findBySensorSystemId(sensorSystemId);
+        if (sensorAuthToken == null) {
+            return;
+        }
+        deleteSensorAuthTokenById(sensorAuthToken.getId());
+    }
+
+    @Override
+    public SensorAuthTokenDTO generateSensorAuthToken(
+            SensorSystem sensorSystem, UUID sensorAuthTokenId) {
         SensorAuthToken sensorAuthToken = new SensorAuthToken();
+        if (sensorAuthTokenId != null) {
+            sensorAuthToken.setId(sensorAuthTokenId);
+        } else {
+            deleteAnyExistingSensorSystem(sensorSystem.getId());
+        }
         String generatedString = AccessTokenGenerator.generateAccessToken();
         String generatedSaltedSuffix = generateUniqueSaltedSuffix();
         sensorAuthToken.setSensorSystem(sensorSystem);

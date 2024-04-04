@@ -17,7 +17,9 @@ public interface SensorAuthTokenService {
 
     void deleteSensorAuthTokenById(UUID id);
 
-    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj);
+    void deleteAnyExistingSensorSystem(UUID sensorSystemId);
+
+    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj, UUID id);
 
     SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem);
 
