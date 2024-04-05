@@ -28,11 +28,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UnconvUserServiceImpl implements UnconvUserService {
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private final UnconvUserRepository unconvUserRepository;
 
-    @Autowired private UnconvRoleService unconvRoleService;
+    private final UnconvRoleService unconvRoleService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public UnconvUserServiceImpl(
+            UnconvUserRepository unconvUserRepository,
+            UnconvRoleService unconvRoleService,
+            ModelMapper modelMapper) {
+        this.unconvUserRepository = unconvUserRepository;
+        this.unconvRoleService = unconvRoleService;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public PagedResult<UnconvUser> findAllUnconvUsers(
