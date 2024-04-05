@@ -1,5 +1,7 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
@@ -64,7 +66,8 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Override
     public UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword) {
-        unconvUser.setPassword(bCryptPasswordEncoder().encode(rawPassword));
+        UnconvUser unconvUserWithRole = setRoleIfNotDefined(unconvUser);
+        unconvUserWithRole.setPassword(bCryptPasswordEncoder().encode(rawPassword));
         return unconvUserRepository.save(unconvUser);
     }
 
@@ -110,6 +113,16 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     @Override
     public void deleteUnconvUserById(UUID id) {
         unconvUserRepository.deleteById(id);
+    }
+
+    private UnconvUser setRoleIfNotDefined(UnconvUser unconvUser) {
+        if (unconvUser.getUnconvRoles().isEmpty()) {
+            UnconvRole userUnconvRole = unconvRoleService.findUnconvRoleByName(UNCONV_USER.name());
+            Set<UnconvRole> unconvRoleSet = new HashSet<>();
+            unconvRoleSet.add(userUnconvRole);
+            unconvUser.setUnconvRoles(unconvRoleSet);
+        }
+        return unconvUser;
     }
 
     @Bean
