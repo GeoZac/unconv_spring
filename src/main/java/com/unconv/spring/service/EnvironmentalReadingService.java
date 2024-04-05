@@ -34,5 +34,5 @@ public interface EnvironmentalReadingService {
     void deleteEnvironmentalReadingById(UUID id);
 
     ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
-            UUID sensorSystemId, MultipartFile file);
+            SensorSystem sensorSystem, MultipartFile file);
 }

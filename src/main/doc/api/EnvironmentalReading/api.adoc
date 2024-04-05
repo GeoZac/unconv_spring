@@ -1,4 +1,4 @@
-===== Searching for a EnvironmentalReading
+==== Searching for a EnvironmentalReading
 
 *Searching by UUID* +
 _Search for a EnvironmentalReading by its UUID_ +
@@ -14,7 +14,7 @@ include::{snippets}/EnvironmentalReading/shouldFindEnvironmentalReadingById/http
 * 404 Response - _Non-existent entity_
 include::{snippets}/EnvironmentalReading/shouldReturn404WhenFetchingNonExistingEnvironmentalReading/http-response.adoc[]
 
-===== Creating a EnvironmentalReading
+==== Creating a EnvironmentalReading
 *Creating a EnvironmentalReading* +
 _Create a new EnvironmentalReading_ +
 
@@ -27,9 +27,9 @@ Response +
 include::{snippets}/EnvironmentalReading/shouldCreateNewEnvironmentalReading/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
-include::{snippets}/EnvironmentalReading/shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText/http-response.adoc[]
+include::{snippets}/EnvironmentalReading/shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues/http-response.adoc[]
 
-===== Updating a EnvironmentalReading
+==== Updating a EnvironmentalReading
 *Updating a EnvironmentalReading* +
 _Updating an existing EnvironmentalReading by its UUID_ +
 
@@ -44,7 +44,7 @@ include::{snippets}/EnvironmentalReading/shouldUpdateEnvironmentalReading/http-r
 * 404 Response - _Non-existent entity_
 include::{snippets}/EnvironmentalReading/shouldReturn404WhenUpdatingNonExistingEnvironmentalReading/http-response.adoc[]
 
-===== Deleting a EnvironmentalReading
+==== Deleting a EnvironmentalReading
 *Deleting a EnvironmentalReading* +
 _Deleting an existing EnvironmentalReading by its UUID_ +
 

@@ -76,7 +76,7 @@ public class EnvironmentalReadingStatsUtils {
 
     public static List<EnvironmentalReading> generateMockDataForQuarterHourlyStats(
             SensorSystem sensorSystem, int listLength) {
-        return generateMockDataForStats(sensorSystem, listLength, Duration.ofHours(24));
+        return generateMockDataForStats(sensorSystem, listLength, Duration.ofHours(3));
     }
 
     public static Map<OffsetDateTime, Double> calculateAverageTempsForQuarterHourly(

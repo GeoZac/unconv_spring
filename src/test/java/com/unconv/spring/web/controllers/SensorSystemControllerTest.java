@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -52,6 +53,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -145,6 +147,59 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        UUID.randomUUID(),
+                        "Specific UnconvUser",
+                        "unconvuser@email.com",
+                        "password");
+
+        List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
+                Instancio.ofList(SensorSystem.class)
+                        .size(5)
+                        .supply(field(SensorSystem::isDeleted), () -> false)
+                        .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        Page<SensorSystemDTO> page =
+                new PageImpl<>(
+                        sensorSystemsOfSpecificUnconvUser.stream()
+                                .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
+                                .collect(Collectors.toList()));
+        PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);
+        given(
+                        sensorSystemService.findAllSensorSystemsByUnconvUserId(
+                                unconvUser.getId(),
+                                0,
+                                10,
+                                DEFAULT_SS_SORT_BY,
+                                DEFAULT_SS_SORT_DIRECTION))
+                .willReturn(sensorSystemPagedResult);
+
+        int dataSize = sensorSystemsOfSpecificUnconvUser.size();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorSystem/UnconvUser/{unconvUserId}", unconvUser.getId())
+                                .param("sortDir", "asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
+                .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(true)))
+                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
@@ -216,6 +271,64 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.8", is(23)))
                 .andExpect(jsonPath("$.24", is(40)))
                 .andExpect(jsonPath("$.168", is(64)));
+    }
+
+    @Test
+    void shouldFindSensorSystemBySensorName() throws Exception {
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(4)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        given(sensorSystemService.findAllSensorSystemsBySensorName(any(String.class)))
+                .willReturn(sensorSystems);
+
+        this.mockMvc
+                .perform(get("/SensorSystem/SensorName/{sensorName}", "Sensor"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(4)));
+    }
+
+    @Test
+    void shouldFindSensorSystemOfSpecificUnconvUserBySensorName() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        UUID.randomUUID(),
+                        "Specific UnconvUser",
+                        "unconvuser@email.com",
+                        "password");
+
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(4)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen -> gen.ints().range(0, 10).as(num -> "Sensor" + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        given(
+                        sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
+                                any(String.class), any(UUID.class)))
+                .willReturn(sensorSystems);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/SensorSystem/SensorName/{sensorName}/UnconvUser/{unconvUserId}",
+                                "Sensor",
+                                unconvUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(4)));
     }
 
     @Test
@@ -300,7 +413,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorSystemWithoutText",
+                                "shouldReturn400WhenCreateNewSensorSystemWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
@@ -393,6 +506,37 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .andDo(
                         document(
                                 "shouldDeleteSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.deleted", is(true)))
+                .andReturn();
+    }
+
+    @Test
+    void shouldDeleteSensorSystemWithReadingsPresent() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+        SensorSystem sensorSystem =
+                new SensorSystem(
+                        sensorSystemId,
+                        "Existing sensor system",
+                        "Sensor system with readings associated",
+                        true,
+                        SensorStatus.ACTIVE,
+                        sensorLocation,
+                        unconvUser,
+                        null,
+                        null);
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.of(sensorSystem));
+        given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(false);
+
+        this.mockMvc
+                .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldDeleteSensorSystemWithReadingsPresent",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())

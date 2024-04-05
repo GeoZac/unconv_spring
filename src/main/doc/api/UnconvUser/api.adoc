@@ -1,4 +1,4 @@
-===== Searching for a UnconvUser
+==== Searching for a UnconvUser
 
 *Searching by UUID* +
 _Search for a UnconvUser by its UUID_ +
@@ -14,7 +14,7 @@ include::{snippets}/UnconvUser/shouldFindUnconvUserById/http-response.adoc[]
 * 404 Response - _Non-existent entity_
 include::{snippets}/UnconvUser/shouldReturn404WhenFetchingNonExistingUnconvUser/http-response.adoc[]
 
-===== Creating a UnconvUser
+==== Creating a UnconvUser
 *Creating a UnconvUser* +
 _Create a new UnconvUser_ +
 
@@ -27,9 +27,9 @@ Response +
 include::{snippets}/UnconvUser/shouldCreateNewUnconvUser/http-response.adoc[]
 
 * 400 Response - _Invalid Request_
-include::{snippets}/UnconvUser/shouldReturn400WhenCreateNewUnconvUserWithoutText/http-response.adoc[]
+include::{snippets}/UnconvUser/shouldReturn400WhenCreateNewUnconvUserWithNullValues/http-response.adoc[]
 
-===== Updating a UnconvUser
+==== Updating a UnconvUser
 *Updating a UnconvUser* +
 _Updating an existing UnconvUser by its UUID_ +
 
@@ -44,7 +44,7 @@ include::{snippets}/UnconvUser/shouldUpdateUnconvUser/http-response.adoc[]
 * 404 Response - _Non-existent entity_
 include::{snippets}/UnconvUser/shouldReturn404WhenUpdatingNonExistingUnconvUser/http-response.adoc[]
 
-===== Deleting a UnconvUser
+==== Deleting a UnconvUser
 *Deleting a UnconvUser* +
 _Deleting an existing UnconvUser by its UUID_ +
 

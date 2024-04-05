@@ -4,6 +4,7 @@ import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
+import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -146,6 +148,43 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        int length = 10;
+        boolean useLetters = true;
+        boolean useNumbers = false;
+        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+
+        given(unconvUserService.isUsernameUnique(randomGeneratedString)).willReturn(true);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
+                .andDo(
+                        document(
+                                "shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available", is("true"), String.class))
+                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
+    }
+
+    @Test
+    void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        String existingUserName = unconvUserList.get(0).getUsername();
+
+        given(unconvUserService.isUsernameUnique(existingUserName)).willReturn(false);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
+                .andDo(
+                        document(
+                                "shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available", is("false"), String.class))
+                .andExpect(jsonPath("$.username", is(existingUserName), String.class));
+    }
+
     /* TODO: Fix ID generation */
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
@@ -184,6 +223,42 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenCreateNewUnconvUserWithUsernameAlreadyInUse() throws Exception {
+
+        UnconvUserDTO unconvUserDTO =
+                new UnconvUserDTO(
+                        UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
+
+        UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
+        unconvUser.setPassword(null);
+        UnconvUserDTO unconvUserDTOWithPasswordObscured =
+                modelMapper.map(unconvUser, UnconvUserDTO.class);
+
+        given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(false);
+
+        given(unconvUserService.createUnconvUser(any(UnconvUserDTO.class)))
+                .willReturn(unconvUserDTOWithPasswordObscured);
+
+        this.mockMvc
+                .perform(
+                        post("/UnconvUser")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewUnconvUserWithUsernameAlreadyInUse",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(USER_NAME_IN_USE)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.password").doesNotExist())
+                .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn400WhenCreateNewUnconvUserWithNullValues() throws Exception {
         UnconvUser unconvUser = new UnconvUser();
 
@@ -195,7 +270,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(unconvUser)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewUnconvUserWithoutText",
+                                "shouldReturn400WhenCreateNewUnconvUserWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())

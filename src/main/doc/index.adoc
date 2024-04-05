@@ -53,6 +53,16 @@ Unconventional Spring Project tries to adhere as closely as possible to standard
 | The requested resource did not exist
 |===
 
+== Constants
+
+=== SensorStatus
+
+include::consts/sensorStatus.adoc[]
+
+=== SensorLocationType
+
+include::consts/sensorLocationType.adoc[]
+
 == Entities
 
 Following are the entities associated with this project
@@ -69,18 +79,27 @@ include::entity/environmentalReading.adoc[]
 
 include::entity/sensorSystem.adoc[]
 
+=== Sensor Location
+
+    The SensorLocation class represents a sensor's location with associated details like the latitude and longitude of the location of sensor, whether the sensor system is situated indoors or outdoors
+
+include::entity/sensorLocation.adoc[]
+
 === Unconvuser
 
     The UnconvUser class represents user information, including a unique identifier, username, email, and password.
 
 include::entity/unconvUser.adoc[]
 
-=== API Documentation
-==== Environmental Reading
+== API Documentation
+=== Environmental Reading
 include::api/EnvironmentalReading/api.adoc/[]
 
-==== SensorSystem
+=== SensorSystem
 include::api/SensorSystem/api.adoc[]
 
-==== UnconvUser
+=== SensorLocation
+include::api/SensorLocation/api.adoc[]
+
+=== UnconvUser
 include::api/UnconvUser/api.adoc[]
