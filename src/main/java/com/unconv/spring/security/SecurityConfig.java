@@ -48,6 +48,8 @@ public class SecurityConfig {
                 .permitAll()
                 .antMatchers("/public/**")
                 .permitAll()
+                .antMatchers("/favicon.ico")
+                .permitAll()
 
                 // Require authentication for any other request
                 .anyRequest()
