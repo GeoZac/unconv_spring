@@ -37,9 +37,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -449,6 +451,54 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", is("Unknown API token")))
                 .andExpect(jsonPath("$.token", is(invalidSensorAuthToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreatingNewEnvironmentalReadingWithExpiredSensorAuthToken()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String tokenHash = sensorAuthTokenService.generateUniqueSaltedSuffix();
+        SensorAuthToken sensorAuthToken =
+                new SensorAuthToken(
+                        null,
+                        AccessTokenGenerator.generateAccessToken() + tokenHash,
+                        OffsetDateTime.now().minusDays(20),
+                        tokenHash,
+                        savedSensorSystem);
+        SensorAuthTokenDTO savedSensorAuthToken =
+                sensorAuthTokenService.saveSensorAuthTokenDTO(sensorAuthToken);
+
+        String expiredSensorAuthToken = savedSensorAuthToken.getAuthToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, expiredSensorAuthToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Expired API token")))
+                .andExpect(jsonPath("$.token", is(expiredSensorAuthToken)))
                 .andExpect(
                         jsonPath(
                                 "$.timestamp",
