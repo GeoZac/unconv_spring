@@ -30,7 +30,7 @@ class SensorAuthTokenExceptionHandlerTest {
 
         UnknownAuthTokenException exception = new UnknownAuthTokenException("Unknown token");
 
-        handler.handleUnknownAuthToken(response, exception);
+        handler.handleSensorAuthException(response, exception);
 
         String actualJson = stringWriter.toString();
 
@@ -53,7 +53,7 @@ class SensorAuthTokenExceptionHandlerTest {
 
         MalformedAuthTokenException exception = new MalformedAuthTokenException("Malformed token");
 
-        handler.handleMalformedAuthToken(response, exception);
+        handler.handleSensorAuthException(response, exception);
 
         String actualJson = stringWriter.toString();
 
