@@ -62,8 +62,17 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
         sensorAuthToken.setAuthToken(
                 bCryptPasswordEncoder().encode(sensorAuthToken.getAuthToken()));
-        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         return sensorAuthTokenRepository.saveAndFlush(sensorAuthToken);
+    }
+
+    @Override
+    public SensorAuthTokenDTO saveSensorAuthTokenDTO(SensorAuthToken sensorAuthToken) {
+        String authToken = sensorAuthToken.getAuthToken();
+        SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
+        SensorAuthTokenDTO savedSensorAuthTokenDTO =
+                modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
+        savedSensorAuthTokenDTO.setAuthToken(authToken);
+        return savedSensorAuthTokenDTO;
     }
 
     @Override
@@ -79,6 +88,7 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         sensorAuthToken.setSensorSystem(sensorSystem);
         sensorAuthToken.setAuthToken(generatedString + generatedSaltedSuffix);
         sensorAuthToken.setTokenHash(generatedSaltedSuffix);
+        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
         SensorAuthTokenDTO savedSensorAuthTokenDTO =
                 modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
