@@ -1,9 +1,7 @@
 package com.unconv.spring.security.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.unconv.spring.exception.ExpiredAuthTokenException;
-import com.unconv.spring.exception.MalformedAuthTokenException;
-import com.unconv.spring.exception.UnknownAuthTokenException;
+import com.unconv.spring.exception.SensorAuthTokenException;
 import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -29,12 +27,8 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         } catch (JWTVerificationException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized");
-        } catch (UnknownAuthTokenException e) {
-            sensorAuthTokenExceptionHandler.handleUnknownAuthToken(response, e);
-        } catch (MalformedAuthTokenException e) {
-            sensorAuthTokenExceptionHandler.handleMalformedAuthToken(response, e);
-        } catch (ExpiredAuthTokenException e) {
-            sensorAuthTokenExceptionHandler.handleExpiredAuthToken(response, e);
+        } catch (SensorAuthTokenException e) {
+            sensorAuthTokenExceptionHandler.handleSensorAuthException(response, e);
         } catch (RuntimeException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
