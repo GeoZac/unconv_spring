@@ -536,7 +536,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
                 .andDo(
                         document(
-                                "shouldDeleteSensorSystem",
+                                "shouldDeleteSensorSystemWithReadingsPresent",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())

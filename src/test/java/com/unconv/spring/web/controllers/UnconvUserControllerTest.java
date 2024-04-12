@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,6 +146,43 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        int length = 10;
+        boolean useLetters = true;
+        boolean useNumbers = false;
+        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+
+        given(unconvUserService.isUsernameUnique(randomGeneratedString)).willReturn(true);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
+                .andDo(
+                        document(
+                                "shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available", is("true"), String.class))
+                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
+    }
+
+    @Test
+    void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
+        String existingUserName = unconvUserList.get(0).getUsername();
+
+        given(unconvUserService.isUsernameUnique(existingUserName)).willReturn(false);
+
+        this.mockMvc
+                .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
+                .andDo(
+                        document(
+                                "shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available", is("false"), String.class))
+                .andExpect(jsonPath("$.username", is(existingUserName), String.class));
     }
 
     /* TODO: Fix ID generation */

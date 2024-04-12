@@ -15,9 +15,15 @@ public interface SensorAuthTokenService {
 
     SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken);
 
+    SensorAuthTokenDTO saveSensorAuthTokenDTO(SensorAuthToken sensorAuthToken);
+
     void deleteSensorAuthTokenById(UUID id);
 
-    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj);
+    void deleteAnyExistingSensorSystem(UUID sensorSystemId);
+
+    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj, UUID id);
+
+    SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem);
 
     String generateUniqueSaltedSuffix();
 }

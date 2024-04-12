@@ -3,7 +3,9 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
+import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -11,6 +13,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -22,7 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +53,6 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -72,8 +73,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @MockBean private SensorAuthTokenService sensorAuthTokenService;
 
     @MockBean private SensorSystemService sensorSystemService;
-
-    @MockBean private ModelMapper modelMapper;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
@@ -193,7 +192,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldCreateNewSensorAuthToken() throws Exception {
-        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class), isNull()))
                 .willAnswer(
                         (invocation) ->
                                 new SensorAuthTokenDTO(
@@ -221,7 +220,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldCreateNewSensorAuthToken",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.authToken", hasLength(25)))
@@ -241,7 +239,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andDo(
                         document(
-                                "shouldReturn400WhenCreateNewSensorAuthTokenWithoutText",
+                                "shouldReturn400WhenCreateNewSensorAuthTokenWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
@@ -273,7 +271,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
-        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+        given(
+                        sensorAuthTokenService.generateSensorAuthToken(
+                                any(SensorSystem.class), any(UUID.class)))
                 .willAnswer(
                         (invocation) ->
                                 new SensorAuthTokenDTO(
@@ -323,7 +323,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenUpdatingNonExistingSensorAuthToken",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -369,7 +368,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     void shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem() throws Exception {
 
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
 
         SensorSystem sensorSystem =
                 new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
@@ -383,17 +382,20 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
                 .willReturn(Optional.of(sensorSystem));
-        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem))
+        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null))
                 .willReturn(sensorAuthTokenDTO);
 
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         sensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+                .andDo(
+                        document(
+                                "shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
@@ -414,10 +416,102 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenRequestingTokenForANonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
+
+        SensorAuthTokenDTO sensorAuthTokenDTO =
+                new SensorAuthTokenDTO(
+                        UUID.randomUUID(),
+                        generateAccessToken() + generateSaltedSuffix(),
+                        OffsetDateTime.now().plusDays(60),
+                        sensorSystem);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+        given(sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystem))
+                .willReturn(sensorAuthTokenDTO);
+
+        this.mockMvc
+                .perform(
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
+                .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+        given(sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystem)).willReturn(null);
+
+        this.mockMvc
+                .perform(
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.id", nullValue()))
+                .andExpect(jsonPath("$.authToken", nullValue()))
+                .andExpect(jsonPath("$.expiry", nullValue()))
+                .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        given(sensorSystemService.findSensorSystemById(sensorSystemId))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystemId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }

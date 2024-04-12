@@ -2,10 +2,12 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -22,11 +24,14 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.utils.AccessTokenGenerator;
+import com.unconv.spring.utils.SaltedSuffixGenerator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +51,8 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private UnconvUserService unconvUserService;
+
+    @Autowired private SensorAuthTokenService sensorAuthTokenService;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
@@ -74,22 +81,28 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
-        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
-        savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+        List<SensorSystem> sensorSystemList =
+                Instancio.ofList(SensorSystem.class)
+                        .size(7)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .set(field(SensorSystem::getUnconvUser), savedUnconvUser)
+                        .create();
+
+        sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
 
         sensorAuthTokenList = new ArrayList<>();
-        sensorAuthTokenList =
-                Instancio.ofList(SensorAuthToken.class)
-                        .size(7)
-                        .ignore(field(SensorAuthToken::getId))
-                        .supply(
-                                field(SensorAuthToken::getAuthToken),
-                                AccessTokenGenerator::generateAccessToken)
-                        .supply(
-                                field(SensorAuthToken::getExpiry),
-                                () -> OffsetDateTime.now().plusDays(10))
-                        .supply(field(SensorAuthToken::getSensorSystem), () -> savedSensorSystem)
-                        .create();
+        for (SensorSystem sensorSystem : sensorSystemList) {
+            SensorAuthToken sensorAuthToken =
+                    new SensorAuthToken(
+                            null,
+                            AccessTokenGenerator.generateAccessToken(),
+                            OffsetDateTime.now().plusDays(10),
+                            SaltedSuffixGenerator.generateSaltedSuffix(),
+                            sensorSystem);
+            sensorAuthTokenList.add(sensorAuthToken);
+        }
         sensorAuthTokenList = sensorAuthTokenRepository.saveAll(sensorAuthTokenList);
     }
 
@@ -139,6 +152,14 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
@@ -190,6 +211,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     void shouldUpdateSensorAuthToken() throws Exception {
         SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
         sensorAuthToken.setAuthToken("Updated SensorAuthToken");
+        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(100));
 
         this.mockMvc
                 .perform(
@@ -260,7 +282,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         savedSensorSystem.getId())
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -276,14 +298,119 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldGenerateAndReturnNewSensorTokenForAValidSensorSystemWithGeneratedAuthToken()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorAuthTokenDTO sensorAuthToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(sensorAuthToken.getId().toString())))
+                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
+                .andExpect(
+                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(
+                        jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+
+        SensorAuthToken persistedSensorAuthToken =
+                sensorAuthTokenRepository.findBySensorSystemId(savedSensorSystem.getId());
+        assert persistedSensorAuthToken.getId() != sensorAuthToken.getId();
+    }
+
+    @Test
     void shouldReturn404WhenRequestingTokenForANonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
 
         this.mockMvc
                 .perform(
                         get(
-                                        "/SensorAuthToken/GenerateToken/SensorSystem{sensorSystemId}",
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
                                         sensorSystemId)
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        UUID sensorAuthTokenUUID =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null).getId();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.id", is(sensorAuthTokenUUID.toString())))
+                .andExpect(jsonPath("$.authToken", hasLength(49)))
+                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
+                .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.id", nullValue()))
+                .andExpect(jsonPath("$.authToken", nullValue()))
+                .andExpect(jsonPath("$.expiry", nullValue()))
+                .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem() throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get("/SensorAuthToken/SensorSystem/{sensorSystemId}", sensorSystemId)
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())

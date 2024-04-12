@@ -1,5 +1,7 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.utils.AccessTokenGenerator.TOKEN_LENGTH;
+import static com.unconv.spring.utils.AccessTokenGenerator.TOKEN_PREFIX;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 
 import com.unconv.spring.domain.SensorAuthToken;
@@ -62,8 +64,17 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
         sensorAuthToken.setAuthToken(
                 bCryptPasswordEncoder().encode(sensorAuthToken.getAuthToken()));
-        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         return sensorAuthTokenRepository.saveAndFlush(sensorAuthToken);
+    }
+
+    @Override
+    public SensorAuthTokenDTO saveSensorAuthTokenDTO(SensorAuthToken sensorAuthToken) {
+        String authToken = sensorAuthToken.getAuthToken();
+        SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
+        SensorAuthTokenDTO savedSensorAuthTokenDTO =
+                modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
+        savedSensorAuthTokenDTO.setAuthToken(authToken);
+        return savedSensorAuthTokenDTO;
     }
 
     @Override
@@ -72,18 +83,50 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     }
 
     @Override
-    public SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystem) {
+    public void deleteAnyExistingSensorSystem(UUID sensorSystemId) {
+        SensorAuthToken sensorAuthToken =
+                sensorAuthTokenRepository.findBySensorSystemId(sensorSystemId);
+        if (sensorAuthToken == null) {
+            return;
+        }
+        deleteSensorAuthTokenById(sensorAuthToken.getId());
+    }
+
+    @Override
+    public SensorAuthTokenDTO generateSensorAuthToken(
+            SensorSystem sensorSystem, UUID sensorAuthTokenId) {
         SensorAuthToken sensorAuthToken = new SensorAuthToken();
+        if (sensorAuthTokenId != null) {
+            sensorAuthToken.setId(sensorAuthTokenId);
+        } else {
+            deleteAnyExistingSensorSystem(sensorSystem.getId());
+        }
         String generatedString = AccessTokenGenerator.generateAccessToken();
         String generatedSaltedSuffix = generateUniqueSaltedSuffix();
         sensorAuthToken.setSensorSystem(sensorSystem);
         sensorAuthToken.setAuthToken(generatedString + generatedSaltedSuffix);
         sensorAuthToken.setTokenHash(generatedSaltedSuffix);
+        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
         SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
         SensorAuthTokenDTO savedSensorAuthTokenDTO =
                 modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
         savedSensorAuthTokenDTO.setAuthToken(generatedString + generatedSaltedSuffix);
         return savedSensorAuthTokenDTO;
+    }
+
+    @Override
+    public SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem) {
+        SensorAuthToken sensorAuthToken =
+                sensorAuthTokenRepository.findBySensorSystemId(sensorSystem.getId());
+        if (sensorAuthToken == null) {
+            return null;
+        }
+        String maskedAuthToken =
+                TOKEN_PREFIX + "*".repeat(TOKEN_LENGTH) + sensorAuthToken.getTokenHash();
+        SensorAuthTokenDTO sensorAuthTokenDTO =
+                modelMapper.map(sensorAuthToken, SensorAuthTokenDTO.class);
+        sensorAuthTokenDTO.setAuthToken(maskedAuthToken);
+        return sensorAuthTokenDTO;
     }
 
     @Override
