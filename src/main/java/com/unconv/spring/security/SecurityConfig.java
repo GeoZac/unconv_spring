@@ -7,6 +7,7 @@ import com.unconv.spring.security.filter.JWTAuthenticationFilter;
 import com.unconv.spring.security.filter.JWTUtil;
 import com.unconv.spring.security.filter.SensorAuthTokenUtil;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,8 @@ public class SecurityConfig {
     private final CustomAuthenticationManager customAuthenticationManager;
 
     private final UnconvUserService unconvUserService;
+
+    private final SensorAuthTokenExceptionHandler sensorAuthTokenExceptionHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,7 +60,9 @@ public class SecurityConfig {
 
                 // Configure additional filters
                 .and()
-                .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+                .addFilterBefore(
+                        new ExceptionHandlerFilter(sensorAuthTokenExceptionHandler),
+                        AuthenticationFilter.class)
 
                 // Apply authentication filter only to specific URLs
                 .addFilter(authenticationFilter)
