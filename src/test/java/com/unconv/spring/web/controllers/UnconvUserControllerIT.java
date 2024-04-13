@@ -24,15 +24,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
+import com.unconv.spring.consts.DefaultUserRole;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -47,12 +54,16 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
     @Autowired private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
 
     private List<UnconvUser> unconvUserList = null;
     private List<UnconvUserDTO> unconvUserDTOList = null;
+
+    Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
     private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
@@ -68,13 +79,16 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                         .apply(springSecurity())
                         .build();
 
-        unconvUserRepository.deleteAllInBatch();
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        unconvRoleSet.add(savedUnconvRole);
 
         unconvUserList = new ArrayList<>();
         unconvUserDTOList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
                         .size(7)
+                        .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
                         .ignore(field(UnconvUser::getId))
                         .supply(field(UnconvUser::getUsername), random -> random.alphanumeric(10))
                         .supply(
@@ -93,6 +107,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                     unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
             unconvUserDTO.setId(savedUnconvUser.getId());
+            unconvUserDTO.setUnconvRoles(unconvRoleSet);
             unconvUserDTOList.add(unconvUserDTO);
         }
         totalPages = (int) Math.ceil((double) unconvUserList.size() / defaultPageSize);
@@ -179,9 +194,19 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is("User created successfully")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
-                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andExpect(jsonPath("$.entity.unconvRoles").doesNotExist())
+                .andExpect(jsonPath("$.entity.authorities", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0]", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0].authority", is("ROLE_USER")))
+                .andExpect(jsonPath("$.entity.enabled", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
+                .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)))
+                .andReturn();
     }
 
     @Test
@@ -212,6 +237,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldReturn400WhenAlreadyRegisterAsUser() throws Exception {
         String rawPassword = "new_password";
         UnconvUser unconvUser = new UnconvUser(null, "New_User", "newuser@gmail.com", rawPassword);
+        unconvUser.setUnconvRoles(unconvRoleSet);
         unconvUserService.saveUnconvUser(unconvUser, rawPassword);
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
@@ -236,6 +262,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldLoginAsAuthenticatedUserAndReceiveJWToken() throws Exception {
         String rawPassword = "password";
         UnconvUser unconvUser = new UnconvUser(null, "new_user", "testuser@gmail.com", rawPassword);
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser = unconvUserService.saveUnconvUser(unconvUser, rawPassword);
         assert savedUnconvUser.getId().version() == 4;
 
@@ -431,5 +458,22 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
                 .andExpect(status().isNotFound());
+    }
+
+    @AfterEach
+    void tearDown() {
+        List<UnconvUser> unconvUsers = unconvUserRepository.findAll();
+        for (UnconvUser unconvUser : unconvUsers) {
+            Set<UnconvRole> unconvRoleSet = unconvUser.getUnconvRoles();
+            unconvUser.getUnconvRoles().removeAll(unconvRoleSet);
+            unconvUserRepository.save(unconvUser);
+        }
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
+        unconvUserRepository.deleteAllInBatch();
     }
 }
