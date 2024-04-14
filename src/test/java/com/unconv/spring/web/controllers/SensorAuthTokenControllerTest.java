@@ -1,7 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 import static org.hamcrest.CoreMatchers.is;

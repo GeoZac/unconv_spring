@@ -1,6 +1,6 @@
 package com.unconv.spring.service.impl;
 
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
