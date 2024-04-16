@@ -27,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling HTTP requests related to sensor systems. It provides
+ * endpoints for managing sensor systems.
+ */
 @RestController
 @RequestMapping("/SensorSystem")
 @Slf4j
@@ -36,6 +40,15 @@ public class SensorSystemController {
 
     @Autowired private ModelMapper modelMapper;
 
+    /**
+     * Retrieves a paginated list of sensor systems.
+     *
+     * @param pageNo The page number to retrieve (default is 0).
+     * @param pageSize The size of each page (default is 10).
+     * @param sortBy The field to sort by (default is "sensorName").
+     * @param sortDir The direction of sorting (default is "asc" for ascending).
+     * @return A {@link PagedResult} containing the paginated list of {@link SensorSystemDTO}s.
+     */
     @GetMapping
     public PagedResult<SensorSystemDTO> getAllSensorSystems(
             @RequestParam(
@@ -61,6 +74,16 @@ public class SensorSystemController {
         return sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
     }
 
+    /**
+     * Retrieves a paginated list of sensor systems associated with a specific Unconv user.
+     *
+     * @param unconvUserId The UUID of the unconventional user.
+     * @param pageNo The page number to retrieve (default is 0).
+     * @param pageSize The size of each page (default is 10).
+     * @param sortBy The field to sort by (default is "sensorName").
+     * @param sortDir The direction of sorting (default is "asc" for ascending).
+     * @return A {@link PagedResult} containing the paginated list of {@link SensorSystemDTO}s.
+     */
     @GetMapping("UnconvUser/{unconvUserId}")
     public PagedResult<SensorSystemDTO> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId,
