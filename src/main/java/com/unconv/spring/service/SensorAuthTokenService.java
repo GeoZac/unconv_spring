@@ -39,6 +39,14 @@ public interface SensorAuthTokenService {
     SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken);
 
     /**
+     * Saves a SensorAuthToken.
+     *
+     * @param sensorAuthToken The SensorAuthToken to save.
+     * @return The saved SensorAuthTokenDTO.
+     */
+    SensorAuthTokenDTO saveSensorAuthTokenDTO(SensorAuthToken sensorAuthToken);
+
+    /**
      * Deletes a SensorAuthToken by its ID.
      *
      * @param id The ID of the SensorAuthToken to delete.
@@ -46,12 +54,19 @@ public interface SensorAuthTokenService {
     void deleteSensorAuthTokenById(UUID id);
 
     /**
+     * Deletes any SensorAuthToken by the SensoorSystem id.
+     *
+     * @param id The ID of the SensorSystem to delete SensorAuthtokens of.
+     */
+    void deleteAnyExistingSensorSystem(UUID sensorSystemId);
+    /**
      * Generates an authentication token for the given SensorSystem.
      *
      * @param sensorSystemObj The SensorSystem for which the token is generated.
+     * @param id The SensorAuthToken, in case the request is for updating
      * @return The generated SensorAuthTokenDTO.
      */
-    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj);
+    SensorAuthTokenDTO generateSensorAuthToken(SensorSystem sensorSystemObj, UUID id);
 
     /**
      * Retrieves information about the authentication token for the given SensorSystem.
