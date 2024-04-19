@@ -32,6 +32,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling HTTP requests related to UnconvUsers. It provides
+ * endpoints for managing user entities.
+ */
 @RestController
 @RequestMapping("/UnconvUser")
 @Slf4j
@@ -41,6 +45,15 @@ public class UnconvUserController {
 
     @Autowired private ModelMapper modelMapper;
 
+    /**
+     * Retrieves a paginated list of UnconvUsers.
+     *
+     * @param pageNo The page number to retrieve (default is 0).
+     * @param pageSize The size of each page (default is 10).
+     * @param sortBy The field to sort by (default is "sensorName").
+     * @param sortDir The direction of sorting (default is "asc" for ascending).
+     * @return A {@link PagedResult} containing the paginated list of {@link UnconvUser}s.
+     */
     @GetMapping
     public PagedResult<UnconvUser> getAllUnconvUsers(
             @RequestParam(
@@ -66,6 +79,13 @@ public class UnconvUserController {
         return unconvUserService.findAllUnconvUsers(pageNo, pageSize, sortBy, sortDir);
     }
 
+    /**
+     * Handles GET requests to retrieve a specific UnconvUser by ID.
+     *
+     * @param id The UUID of the UnconvUser to retrieve.
+     * @return {@link ResponseEntity} containing the {@link UnconvUser} if found, or a 404 Not Found
+     *     response if the {@link UnconvUser} with the given ID does not exist.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<UnconvUser> getUnconvUserById(@PathVariable UUID id) {
         return unconvUserService
@@ -74,6 +94,12 @@ public class UnconvUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Handles GET requests to check the availability of a username.
+     *
+     * @param username The username to check for availability.
+     * @return A map indicating whether the username is available or not.
+     */
     @GetMapping("/Username/Available/{username}")
     public Map<String, String> checkUsernameAvailability(@PathVariable String username) {
         boolean isAvailable = unconvUserService.isUsernameUnique(username);
@@ -83,6 +109,16 @@ public class UnconvUserController {
         return response;
     }
 
+    /**
+     * Handles POST requests to create a new UnconvUser.
+     *
+     * @param unconvUserDTO The {@link UnconvUserDTO} containing information about the new {@link
+     *     UnconvUser} to be created.
+     * @return {@link ResponseEntity} containing a {@link MessageResponse} with information about
+     *     the outcome of the creation process. If the username is already in use, returns a 400 Bad
+     *     Request response. Otherwise, returns a 201 Created response with information about the
+     *     newly created {@link UnconvUser}.
+     */
     @PostMapping
     public ResponseEntity<MessageResponse<UnconvUserDTO>> createUnconvUser(
             @RequestBody @Validated UnconvUserDTO unconvUserDTO) {
@@ -97,6 +133,21 @@ public class UnconvUserController {
                 new MessageResponse<>(savedUnconvUserDTO, USER_CREATE_SUCCESS), HttpStatus.CREATED);
     }
 
+    /**
+     * Handles PUT requests to update an existing UnconvUser.
+     *
+     * @param id The {@link UUID} of the UnconvUser to update.
+     * @param unconvUserDTO The {@link UnconvUserDTO} containing updated information for the {@link
+     *     UnconvUser}.
+     * @return {@link ResponseEntity} containing a {@link MessageResponse} with information about
+     *     the outcome of the update process. If the provided current password is null, returns a
+     *     400 Bad Request response indicating that the current password must be provided. If the
+     *     current password provided does not match the user's actual password, returns a 401
+     *     Unauthorized response indicating that the password is incorrect. If the {@link
+     *     UnconvUser} with the given ID is found and updated successfully, returns a 200 OK
+     *     response with information about the updated {@link UnconvUser}. If no {@link UnconvUser}
+     *     with the given ID is found, returns a 404 Not Found response.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse<UnconvUserDTO>> updateUnconvUser(
             @PathVariable UUID id, @RequestBody @Valid UnconvUserDTO unconvUserDTO) {
@@ -129,6 +180,14 @@ public class UnconvUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Handles DELETE requests to delete an existing UnconvUser.
+     *
+     * @param id The {@link UUID} of the UnconvUser to delete.
+     * @return {@link ResponseEntity} containing the deleted {@link UnconvUser} if found and deleted
+     *     successfully, or a 404 Not Found response if no {@link UnconvUser} with the given ID is
+     *     found.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<UnconvUser> deleteUnconvUser(@PathVariable UUID id) {
         return unconvUserService
