@@ -9,6 +9,9 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_EXPIRED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_MALFORMED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_UNKNOWN;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
@@ -433,7 +436,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 // Send the request with bogus token
                                 .param(ACCESS_TOKEN, bogusSensorAccessToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Malformed API token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_MALFORMED)))
                 .andExpect(jsonPath("$.token", is(bogusSensorAccessToken)))
                 .andExpect(
                         jsonPath(
@@ -471,7 +474,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading))
                                 .param(ACCESS_TOKEN, invalidSensorAuthToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Unknown API token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_UNKNOWN)))
                 .andExpect(jsonPath("$.token", is(invalidSensorAuthToken)))
                 .andExpect(
                         jsonPath(
@@ -519,7 +522,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading))
                                 .param(ACCESS_TOKEN, expiredSensorAuthToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Expired API token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_EXPIRED)))
                 .andExpect(jsonPath("$.token", is(expiredSensorAuthToken)))
                 .andExpect(
                         jsonPath(
