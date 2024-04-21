@@ -359,8 +359,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(
-                        delete("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId)
-                                .with(csrf()))
+                        get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId).with(csrf()))
                 .andDo(
                         document(
                                 "shouldReturn404WhenDeletingNonExistingSensorLocation",
