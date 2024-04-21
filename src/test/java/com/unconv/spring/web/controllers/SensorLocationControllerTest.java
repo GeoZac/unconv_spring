@@ -339,6 +339,9 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 random -> random.doubleRange(-180, 180))
                         .create();
 
+        given(unconvUserService.findUnconvUserById(unconvUser.getId()))
+                .willReturn(Optional.of(unconvUser));
+
         given(sensorLocationService.findAllSensorLocationsByUnconvUserId(unconvUser.getId()))
                 .willReturn(sensorLocations);
 
