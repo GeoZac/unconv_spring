@@ -31,6 +31,7 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
+import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorLocationController;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
 class SensorLocationControllerTest extends AbstractControllerTest {
     @MockBean private SensorLocationService sensorLocationService;
+
+    @MockBean private UnconvUserService unconvUserService;
 
     private List<SensorLocation> sensorLocationList;
 
@@ -336,6 +339,9 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 random -> random.doubleRange(-180, 180))
                         .create();
 
+        given(unconvUserService.findUnconvUserById(unconvUser.getId()))
+                .willReturn(Optional.of(unconvUser));
+
         given(sensorLocationService.findAllSensorLocationsByUnconvUserId(unconvUser.getId()))
                 .willReturn(sensorLocations);
 
@@ -347,5 +353,20 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingSensorLocationOfNonExistingUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingSensorLocation",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound());
     }
 }

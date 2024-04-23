@@ -391,6 +391,17 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.size()", is(savedSensorLocations.size())));
     }
 
+    @Test
+    void shouldReturn404FetchAllSensorLocationsAssociatedWithAnNonExistentUnconvUser()
+            throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId.toString()))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
     @AfterEach
     void tearDown() {
         sensorSystemRepository.deleteAll();
