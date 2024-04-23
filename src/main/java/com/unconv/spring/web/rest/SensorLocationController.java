@@ -31,11 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class SensorLocationController {
 
-    @Autowired private SensorLocationService sensorLocationService;
+    private final SensorLocationService sensorLocationService;
 
-    @Autowired private UnconvUserService unconvUserService;
+    private final UnconvUserService unconvUserService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public SensorLocationController(
+            SensorLocationService sensorLocationService,
+            UnconvUserService unconvUserService,
+            ModelMapper modelMapper) {
+        this.sensorLocationService = sensorLocationService;
+        this.unconvUserService = unconvUserService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
     public PagedResult<SensorLocation> getAllSensorLocations(
