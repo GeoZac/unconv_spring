@@ -21,12 +21,16 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +51,11 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
     private List<SensorLocation> sensorLocationList = null;
+
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
     @BeforeEach
     void setUp() {
@@ -60,6 +68,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                         .build();
 
         sensorLocationRepository.deleteAllInBatch();
+
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        unconvRoleSet.add(savedUnconvRole);
 
         sensorLocationList = new ArrayList<>();
         sensorLocationList.add(
@@ -337,6 +349,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -376,6 +389,17 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 savedUnconvUser.getId().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(savedSensorLocations.size())));
+    }
+
+    @Test
+    void shouldReturn404FetchAllSensorLocationsAssociatedWithAnNonExistentUnconvUser()
+            throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId.toString()))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @AfterEach
