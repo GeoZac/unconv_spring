@@ -1,6 +1,6 @@
 package com.unconv.spring.dto;
 
-import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.enums.SensorLocationType;
 import java.util.UUID;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;

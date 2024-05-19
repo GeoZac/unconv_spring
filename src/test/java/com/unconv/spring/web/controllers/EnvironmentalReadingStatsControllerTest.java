@@ -1,7 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.calculateAverageTempsForDaily;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.calculateAverageTempsForHourly;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.calculateAverageTempsForQuarterHourly;
@@ -15,9 +15,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.service.EnvironmentalReadingStatsService;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingStatsController;

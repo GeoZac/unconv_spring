@@ -1,5 +1,7 @@
 package com.unconv.spring.exception;
 
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_EXPIRED;
+
 import lombok.Getter;
 
 /**
@@ -15,6 +17,6 @@ public class ExpiredAuthTokenException extends SensorAuthTokenException {
      * @param token The expired authentication token.
      */
     public ExpiredAuthTokenException(String token) {
-        super("Expired API token", token);
+        super(SENS_AUTH_EXPIRED, token);
     }
 }

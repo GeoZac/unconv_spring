@@ -1,6 +1,6 @@
 package com.unconv.spring.domain;
 
-import com.unconv.spring.consts.SensorStatus;
+import com.unconv.spring.enums.SensorStatus;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
