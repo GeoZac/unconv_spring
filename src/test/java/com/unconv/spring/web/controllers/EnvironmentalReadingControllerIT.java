@@ -2,7 +2,6 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
@@ -10,6 +9,10 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_EXPIRED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_MALFORMED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_UNKNOWN;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -35,8 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.DefaultUserRole;
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
@@ -44,6 +45,8 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
+import com.unconv.spring.enums.DefaultUserRole;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -433,7 +436,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 // Send the request with bogus token
                                 .param(ACCESS_TOKEN, bogusSensorAccessToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Malformed API token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_MALFORMED)))
                 .andExpect(jsonPath("$.token", is(bogusSensorAccessToken)))
                 .andExpect(
                         jsonPath(
@@ -471,7 +474,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading))
                                 .param(ACCESS_TOKEN, invalidSensorAuthToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Unknown API token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_UNKNOWN)))
                 .andExpect(jsonPath("$.token", is(invalidSensorAuthToken)))
                 .andExpect(
                         jsonPath(
@@ -519,7 +522,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading))
                                 .param(ACCESS_TOKEN, expiredSensorAuthToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Expired API token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_EXPIRED)))
                 .andExpect(jsonPath("$.token", is(expiredSensorAuthToken)))
                 .andExpect(
                         jsonPath(
