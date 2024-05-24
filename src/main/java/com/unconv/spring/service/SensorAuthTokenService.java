@@ -56,7 +56,7 @@ public interface SensorAuthTokenService {
     /**
      * Deletes any SensorAuthToken by the SensoorSystem id.
      *
-     * @param id The ID of the SensorSystem to delete SensorAuthtokens of.
+     * @param sensorSystemId The ID of the SensorSystem to delete SensorAuthTokens of.
      */
     void deleteAnyExistingSensorSystem(UUID sensorSystemId);
     /**
