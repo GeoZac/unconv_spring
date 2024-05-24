@@ -151,6 +151,14 @@ public class EnvironmentalReadingController {
                         });
     }
 
+    /**
+     * Handles the file upload for environmental readings.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @param file the multipart file containing the environmental readings data
+     * @return ResponseEntity with a status and message indicating the result of the upload
+     *     operation
+     */
     @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
     public ResponseEntity<String> uploadFile(
             @PathVariable UUID sensorSystemId, @RequestParam("file") MultipartFile file) {
@@ -167,6 +175,13 @@ public class EnvironmentalReadingController {
                                         .body(ENVT_RECORD_REJ_SENS));
     }
 
+    /**
+     * Updates an environmental reading.
+     *
+     * @param id the ID of the environmental reading to update
+     * @param environmentalReadingDTO the DTO containing the updated environmental reading data
+     * @return ResponseEntity containing the updated environmental reading object
+     */
     @PutMapping("/{id}")
     public ResponseEntity<EnvironmentalReading> updateEnvironmentalReading(
             @PathVariable UUID id,
