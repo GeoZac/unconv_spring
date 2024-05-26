@@ -29,6 +29,7 @@ public final class MessageConstants {
     public static final String USER_PROVIDE_PASSWORD = "Provide current password";
 
     // SensorAuthException message
+    public static final String SENS_AUTH_SHORT = "Invalid token length";
     public static final String SENS_AUTH_EXPIRED = "Expired API token";
     public static final String SENS_AUTH_UNKNOWN = "Unknown API token";
     public static final String SENS_AUTH_MALFORMED = "Malformed API token";
