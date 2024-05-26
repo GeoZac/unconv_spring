@@ -11,6 +11,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_EXPIRED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_MALFORMED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_SHORT;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_UNKNOWN;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
@@ -550,7 +551,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         assertNotEquals(savedSensorSystem.getId(), savedInactiveSensorSystem.getId());
 
-        String sensorAccessToken = RandomStringUtils.random(20);
+        String sensorAccessToken = RandomStringUtils.randomAlphanumeric(20);
 
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
@@ -567,6 +568,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading))
                                 .param(ACCESS_TOKEN, sensorAccessToken))
                 .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_SHORT)))
+                .andExpect(jsonPath("$.token", is(sensorAccessToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
                 .andReturn();
     }
 
