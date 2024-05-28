@@ -11,6 +11,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_EXPIRED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_MALFORMED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_SHORT;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_UNKNOWN;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
@@ -23,6 +24,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -68,6 +70,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
@@ -524,6 +527,49 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", is(SENS_AUTH_EXPIRED)))
                 .andExpect(jsonPath("$.token", is(expiredSensorAuthToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401WhenCreatingNewReadingWithSensorAuthTokenOfInsufficientTokenLength()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorSystem inActiveSensorSystem =
+                new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedInactiveSensorSystem = sensorSystemRepository.save(inActiveSensorSystem);
+
+        assertNotEquals(savedSensorSystem.getId(), savedInactiveSensorSystem.getId());
+
+        String sensorAccessToken = RandomStringUtils.randomAlphanumeric(20);
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, sensorAccessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_SHORT)))
+                .andExpect(jsonPath("$.token", is(sensorAccessToken)))
                 .andExpect(
                         jsonPath(
                                 "$.timestamp",
