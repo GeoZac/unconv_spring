@@ -1,7 +1,7 @@
 package com.unconv.spring.utils;
 
-import com.unconv.spring.consts.DefaultUserRole;
 import com.unconv.spring.domain.UnconvRole;
+import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
 import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;

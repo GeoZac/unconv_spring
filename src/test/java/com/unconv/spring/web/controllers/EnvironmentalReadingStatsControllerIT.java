@@ -1,6 +1,6 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForDailyStats;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForHourlyStats;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForQuarterHourlyStats;
@@ -16,17 +16,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingStatsService;
 import com.unconv.spring.service.UnconvUserService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
@@ -51,6 +55,10 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     @Autowired private UnconvUserService unconvUserService;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
+
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
     private static final Model<EnvironmentalReading> environemntalReadingModel =
             Instancio.of(EnvironmentalReading.class)
@@ -84,8 +92,13 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingRepository.deleteAllInBatch();
 
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        unconvRoleSet.add(savedUnconvRole);
+
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(
+                        null, "UnconvUser", "unconvuser@email.com", "password", unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -106,7 +119,8 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForQuarterHourly() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(
+                        null, "UnconvUser", "unconvuser@email.com", "password", unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
@@ -149,7 +163,8 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForHourly() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(
+                        null, "UnconvUser", "unconvuser@email.com", "password", unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);
@@ -176,7 +191,8 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn200AndAverageTemperaturesAsMapForDaily() throws Exception {
         UnconvUser unconvUser =
-                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+                new UnconvUser(
+                        null, "UnconvUser", "unconvuser@email.com", "password", unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor System", null, savedUnconvUser);

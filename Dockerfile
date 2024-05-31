@@ -3,7 +3,7 @@ WORKDIR /application
 COPY . .
 RUN ls
 RUN ./mvnw -DskipTests install
-ARG JAR_FILE=target/spring-0.0.7-SNAPSHOT.jar
+ARG JAR_FILE=target/spring-0.0.7-HOTFIX.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 

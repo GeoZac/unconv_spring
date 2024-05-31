@@ -1,7 +1,7 @@
 package com.unconv.spring.dto;
 
-import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Booking;
+import com.unconv.spring.enums.Gender;
 import java.time.LocalDate;
 import java.time.Period;
 import javax.persistence.EnumType;

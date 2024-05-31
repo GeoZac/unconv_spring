@@ -7,10 +7,10 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;

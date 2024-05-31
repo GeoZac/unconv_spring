@@ -11,6 +11,8 @@ public interface UnconvRoleService {
 
     Optional<UnconvRole> findUnconvRoleById(UUID id);
 
+    UnconvRole findUnconvRoleByName(String name);
+
     UnconvRole saveUnconvRole(UnconvRole unconvRole);
 
     void deleteUnconvRoleById(UUID id);

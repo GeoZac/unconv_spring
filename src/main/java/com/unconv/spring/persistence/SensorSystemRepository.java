@@ -30,9 +30,27 @@ public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID
             "SELECT DISTINCT s.sensorLocation FROM SensorSystem s WHERE s.unconvUser.id = :unconvUserId")
     List<SensorLocation> findDistinctByUnconvUserId(@Param("unconvUserId") UUID unconvUserId);
 
+    /**
+     * Finds distinct sensor systems whose sensor names contain the specified string ignoring case,
+     * and orders the result by sensor name in ascending order.
+     *
+     * @param sensorName The string to search for in sensor names, case-insensitive.
+     * @return A list of {@code SensorSystem} objects matching the search criteria, with duplicate
+     *     sensor names removed and sorted by name in ascending order.
+     */
     List<SensorSystem> findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(
             String sensorName);
 
+    /**
+     * Finds distinct sensor systems whose sensor names contain the specified string ignoring case
+     * and belong to the specified unconverted user, and orders the result by sensor name in
+     * ascending order.
+     *
+     * @param sensorName The string to search for in sensor names, case-insensitive.
+     * @param unconvUserId The ID of the unconverted user to whom the sensor systems belong.
+     * @return A list of {@code SensorSystem} objects matching the search criteria, with duplicate
+     *     sensor names removed and sorted by name in ascending order.
+     */
     List<SensorSystem>
             findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
                     String sensorName, UUID unconvUserId);

@@ -1,7 +1,7 @@
 package com.unconv.spring.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.unconv.spring.consts.Gender;
+import com.unconv.spring.enums.Gender;
 import java.time.LocalDate;
 import java.time.Period;
 import javax.persistence.CascadeType;

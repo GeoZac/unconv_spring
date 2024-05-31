@@ -1,7 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -19,8 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
+import com.unconv.spring.enums.Gender;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.web.rest.PassengerController;

@@ -1,6 +1,6 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -60,7 +60,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         null,
                         "Langdon",
                         java.time.LocalDate.of(1972, 8, 13),
-                        com.unconv.spring.consts.Gender.MALE,
+                        com.unconv.spring.enums.Gender.MALE,
                         null));
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
@@ -69,7 +69,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         null,
                         "Brewster",
                         java.time.LocalDate.of(1988, 5, 9),
-                        com.unconv.spring.consts.Gender.FEMALE,
+                        com.unconv.spring.enums.Gender.FEMALE,
                         null));
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
@@ -78,7 +78,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         "Marvelo",
                         "Riddle",
                         java.time.LocalDate.of(1872, 12, 1),
-                        com.unconv.spring.consts.Gender.OTHER,
+                        com.unconv.spring.enums.Gender.OTHER,
                         null));
         passengerList = passengerRepository.saveAll(passengerList);
 
