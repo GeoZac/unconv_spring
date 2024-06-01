@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk-focal AS builder
 WORKDIR /application
-COPY target/ .
+COPY target .
 RUN ls
 # Create a temporary directory
 RUN mkdir /tmp/cache_bust
@@ -9,12 +9,17 @@ RUN mkdir /tmp/cache_bust
 COPY dummy_file.txt /tmp/cache_bust/
 
 # Run chmod and mvnw
-RUN chmod +x mvnw && \
+RUN echo $(date) && \
+    chmod +x mvnw && \
     ./mvnw clean package -Prender -DskipTests
 
 # Remove the temporary directory
 RUN rm -rf /tmp/cache_bust
 ARG JAR_FILE=target/spring-0.0.7-HOTFIX.jar
+# Create a dummy file with changing content
+RUN echo "cache bust $(date)" > dummy.txt
+
+# Copy your JAR file along with the dummy file
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
