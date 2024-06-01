@@ -2,7 +2,8 @@ FROM eclipse-temurin:17-jdk-focal AS builder
 WORKDIR /application
 COPY . .
 RUN ls
-RUN ./mvnw -DskipTests install
+RUN chmod +x mvnw && \
+    ./mvnw clean package -Prender -DskipTests
 ARG JAR_FILE=target/spring-0.0.7-HOTFIX.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
