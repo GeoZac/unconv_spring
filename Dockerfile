@@ -1,9 +1,19 @@
 FROM eclipse-temurin:17-jdk-focal AS builder
 WORKDIR /application
-COPY . .
+COPY target/ .
 RUN ls
+# Create a temporary directory
+RUN mkdir /tmp/cache_bust
+
+# Copy a dummy file to the temporary directory (change the dummy_file.txt to a file in your project)
+COPY dummy_file.txt /tmp/cache_bust/
+
+# Run chmod and mvnw
 RUN chmod +x mvnw && \
     ./mvnw clean package -Prender -DskipTests
+
+# Remove the temporary directory
+RUN rm -rf /tmp/cache_bust
 ARG JAR_FILE=target/spring-0.0.7-HOTFIX.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
