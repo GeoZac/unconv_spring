@@ -14,7 +14,7 @@ import lombok.Setter;
 
 /**
  * This class represents a specific type of threshold for humidity values, extending the general
- * Threshold class. "H" denotes Humidity
+ * {@link Threshold} class. "H" denotes Humidity
  */
 @Entity
 @Getter
