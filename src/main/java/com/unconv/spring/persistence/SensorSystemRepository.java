@@ -12,6 +12,13 @@ import org.springframework.data.repository.query.Param;
 
 public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID> {
 
+    /**
+     * Retrieves the sensor system associated with the specified UUID.
+     *
+     * @param id The UUID identifying the sensor system to be retrieved.
+     * @return The {@link SensorSystem} associated with the specified UUID, or {@code null} if no
+     *     sensor system is found.
+     */
     SensorSystem findSensorSystemById(UUID id);
 
     /**
@@ -75,5 +82,15 @@ public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID
     @Deprecated(forRemoval = true)
     Page<SensorSystem> findAllByUnconvUserId(UUID unconvUserId, Pageable pageable);
 
+    /**
+     * Retrieves a paginated list of active sensor systems associated with a specific UnconvUser
+     * identified by the provided UUID.
+     *
+     * @param unconvUserId The UUID identifying the UnconvUser whose associated active sensor
+     *     systems are to be retrieved.
+     * @param pageable The pagination information for the result set.
+     * @return A {@link Page} containing the active sensor systems associated with the specified
+     *     UnconvUser.
+     */
     Page<SensorSystem> findByUnconvUserIdAndDeletedFalse(UUID unconvUserId, Pageable pageable);
 }
