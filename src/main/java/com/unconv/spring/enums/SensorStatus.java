@@ -1,4 +1,4 @@
-package com.unconv.spring.consts;
+package com.unconv.spring.enums;
 
 /** Enumeration representing the status of a sensor. */
 public enum SensorStatus {

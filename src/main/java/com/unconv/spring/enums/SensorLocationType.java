@@ -1,4 +1,4 @@
-package com.unconv.spring.consts;
+package com.unconv.spring.enums;
 
 /** Enumeration representing the location type of sensor. */
 public enum SensorLocationType {

@@ -1,11 +1,11 @@
 package com.unconv.spring.utils;
 
+import static com.unconv.spring.consts.SensorAuthConstants.SALT_LENGTH;
+
 import java.security.SecureRandom;
 import java.util.Base64;
 
 public class SaltedSuffixGenerator {
-
-    private static final int SALT_LENGTH = 16;
 
     private SaltedSuffixGenerator() {}
 

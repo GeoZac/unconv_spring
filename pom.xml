@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.16</version>
+        <version>2.7.18</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.unconv.spring</groupId>
@@ -28,15 +28,15 @@
 
         <testcontainers.version>1.19.8</testcontainers.version>
         <awaitility.version>4.2.1</awaitility.version>
-        <instancio.version>4.6.0</instancio.version>
+        <instancio.version>4.7.0</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
         <spotless.version>2.43.0</spotless.version>
         <googleJavaFormat.version>1.15.0</googleJavaFormat.version>
-        <dependency-check-maven.version>9.1.0</dependency-check-maven.version>
+        <dependency-check-maven.version>9.2.0</dependency-check-maven.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
-        <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jacoco.minimum.coverage>0.80</jacoco.minimum.coverage>
         <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
@@ -493,7 +493,7 @@
                     <dependency>
                         <groupId>org.asciidoctor</groupId>
                         <artifactId>asciidoctorj</artifactId>
-                        <version>2.5.12</version>
+                        <version>2.5.13</version>
                     </dependency>
                     <dependency>
                         <groupId>org.asciidoctor</groupId>
@@ -501,6 +501,16 @@
                         <version>2.3.15</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                  </configuration>
             </plugin>
         </plugins>
     </build>

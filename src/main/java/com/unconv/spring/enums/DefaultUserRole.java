@@ -1,4 +1,4 @@
-package com.unconv.spring.consts;
+package com.unconv.spring.enums;
 
 /** Enumeration representing default user roles in the system. */
 public enum DefaultUserRole {
