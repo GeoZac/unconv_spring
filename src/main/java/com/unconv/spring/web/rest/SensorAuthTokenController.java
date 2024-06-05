@@ -26,7 +26,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Controller class for managing sensor authentication tokens. */
+/**
+ * Controller class responsible for handling HTTP requests related to {@link SensorAuthToken}. It
+ * provides endpoints for managing sensor systems.
+ */
 @RestController
 @RequestMapping("/SensorAuthToken")
 @Slf4j

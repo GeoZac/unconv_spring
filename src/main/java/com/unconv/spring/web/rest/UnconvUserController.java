@@ -33,8 +33,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller class responsible for handling HTTP requests related to UnconvUsers. It provides
- * endpoints for managing user entities.
+ * Controller class responsible for handling HTTP requests related to {@link UnconvUser}. It
+ * provides endpoints for managing user entities.
  */
 @RestController
 @RequestMapping("/UnconvUser")

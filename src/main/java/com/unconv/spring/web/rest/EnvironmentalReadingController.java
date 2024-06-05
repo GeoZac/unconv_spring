@@ -30,6 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Controller class responsible for handling HTTP requests related to {@link EnvironmentalReading}.
+ * It provides endpoints for managing sensor systems.
+ */
 @RestController
 @RequestMapping("/EnvironmentalReading")
 @Slf4j

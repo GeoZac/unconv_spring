@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller class responsible for handling HTTP requests related to sensor systems. It provides
- * endpoints for managing sensor systems.
+ * Controller class responsible for handling HTTP requests related to {@link SensorSystem}. It
+ * provides endpoints for managing sensor systems.
  */
 @RestController
 @RequestMapping("/SensorSystem")
