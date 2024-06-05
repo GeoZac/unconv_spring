@@ -10,6 +10,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+/**
+ * Repository interface for managing {@link SensorSystem} entities. Extends {@link JpaRepository} to
+ * inherit basic CRUD functionality.
+ */
 public interface SensorSystemRepository extends JpaRepository<SensorSystem, UUID> {
 
     /**

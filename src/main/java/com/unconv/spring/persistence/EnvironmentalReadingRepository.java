@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.Nullable;
 
-/** Repository interface for accessing EnvironmentalReading entities in the database. */
+/** Repository interface for accessing {@link EnvironmentalReading} entities in the database. */
 public interface EnvironmentalReadingRepository extends JpaRepository<EnvironmentalReading, UUID> {
 
     /**
