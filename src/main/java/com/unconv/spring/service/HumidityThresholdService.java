@@ -5,6 +5,7 @@ import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
 
+/** Service interface for managing {@link HumidityThreshold}s. */
 public interface HumidityThresholdService {
     PagedResult<HumidityThreshold> findAllHumidityThresholds(
             int pageNo, int pageSize, String sortBy, String sortDir);

@@ -7,7 +7,7 @@ import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Service interface for managing SensorAuthTokens. */
+/** Service interface for managing {@link SensorAuthToken}s. */
 public interface SensorAuthTokenService {
 
     /**

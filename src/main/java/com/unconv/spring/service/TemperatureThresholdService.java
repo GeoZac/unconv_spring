@@ -5,7 +5,7 @@ import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Service interface for managing temperature thresholds. */
+/** Service interface for managing {@link TemperatureThreshold}s. */
 public interface TemperatureThresholdService {
 
     /**

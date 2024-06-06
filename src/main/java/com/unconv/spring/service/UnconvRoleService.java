@@ -5,7 +5,7 @@ import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Service interface for managing UnconvRole entities. */
+/** Service interface for managing {@link UnconvRole}s. */
 public interface UnconvRoleService {
 
     /**

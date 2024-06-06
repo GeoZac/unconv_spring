@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
-/** Service interface for managing SensorSystems. */
+/** Service interface for managing {@link SensorSystem}s. */
 public interface SensorSystemService {
 
     /**
