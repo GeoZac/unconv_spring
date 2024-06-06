@@ -2,6 +2,7 @@ package com.unconv.spring.web.rest;
 
 import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorLocation;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorLocationDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
@@ -26,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling HTTP requests related to {@link SensorLocation}. It
+ * provides endpoints for managing sensor systems.
+ */
 @RestController
 @RequestMapping("/SensorLocation")
 @Slf4j
@@ -47,6 +52,15 @@ public class SensorLocationController {
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Retrieves a paginated list of sensor locations.
+     *
+     * @param pageNo The page number to retrieve (default is 0).
+     * @param pageSize The size of each page (default is 10).
+     * @param sortBy The field to sort by (default is "sensorName").
+     * @param sortDir The direction of sorting (default is "asc" for ascending).
+     * @return A {@link PagedResult} containing the paginated list of {@link SensorLocation}s.
+     */
     @GetMapping
     public PagedResult<SensorLocation> getAllSensorLocations(
             @RequestParam(
@@ -72,6 +86,12 @@ public class SensorLocationController {
         return sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
     }
 
+    /**
+     * Retrieves a paginated list of sensor systems associated with a specific {@link UnconvUser}.
+     *
+     * @param unconvUserId The UUID of the unconventional user.
+     * @return A {@link PagedResult} containing the paginated list of {@link SensorLocation}s.
+     */
     @GetMapping("/UnconvUser/{unconvUserId}")
     public ResponseEntity<List<SensorLocation>> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId) {
