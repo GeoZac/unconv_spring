@@ -49,6 +49,15 @@ public class SensorSystemServiceImpl implements SensorSystemService {
 
     @Autowired private ModelMapper modelMapper;
 
+    /**
+     * Retrieves a paginated list of all SensorSystems.
+     *
+     * @param pageNo The page number.
+     * @param pageSize The size of each page.
+     * @param sortBy The field to sort by.
+     * @param sortDir The sort direction (ASC or DESC).
+     * @return A paginated list of SensorSystemDTOs.
+     */
     @Override
     public PagedResult<SensorSystemDTO> findAllSensorSystems(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -67,6 +76,16 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         return new PagedResult<>(sensorSystemDTOPage);
     }
 
+    /**
+     * Retrieves a paginated list of SensorSystems by UnconvUserId.
+     *
+     * @param unconvUserId The ID of the UnconvUser.
+     * @param pageNo The page number.
+     * @param pageSize The size of each page.
+     * @param sortBy The field to sort by.
+     * @param sortDir The sort direction (ASC or DESC).
+     * @return A paginated list of SensorSystemDTOs.
+     */
     @Override
     public PagedResult<SensorSystemDTO> findAllSensorSystemsByUnconvUserId(
             UUID unconvUserId, int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -85,11 +104,23 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         return new PagedResult<>(sensorSystemDTOPage);
     }
 
+    /**
+     * Retrieves a SensorSystem by its ID.
+     *
+     * @param id The ID of the SensorSystem.
+     * @return An Optional containing the SensorSystem, or empty if not found.
+     */
     @Override
     public Optional<SensorSystem> findSensorSystemById(UUID id) {
         return sensorSystemRepository.findById(id);
     }
 
+    /**
+     * Retrieves a SensorSystemDTO by its ID.
+     *
+     * @param id The ID of the SensorSystem.
+     * @return An Optional containing the SensorSystemDTO, or empty if not found.
+     */
     @Override
     public Optional<SensorSystemDTO> findSensorSystemDTOById(UUID id) {
         Optional<SensorSystem> sensorSystem = sensorSystemRepository.findById(id);
@@ -111,11 +142,24 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         }
     }
 
+    /**
+     * Saves a new SensorSystem.
+     *
+     * @param sensorSystem The SensorSystem to save.
+     * @return The saved SensorSystem.
+     */
     @Override
     public SensorSystem saveSensorSystem(SensorSystem sensorSystem) {
         return sensorSystemRepository.save(sensorSystem);
     }
 
+    /**
+     * Validates the UnconvUser and saves a new SensorSystem.
+     *
+     * @param sensorSystemDTO The SensorSystemDTO to save.
+     * @param authentication The authentication object.
+     * @return ResponseEntity containing a MessageResponse with the saved SensorSystemDTO.
+     */
     @Override
     public ResponseEntity<MessageResponse<SensorSystemDTO>> validateUnconvUserAndSaveSensorSystem(
             SensorSystemDTO sensorSystemDTO, Authentication authentication) {
@@ -147,6 +191,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.CREATED);
     }
 
+    /**
+     * Deletes a SensorSystem by its ID.
+     *
+     * @param id The ID of the SensorSystem to delete.
+     * @return true if the deletion was successful, false otherwise.
+     */
     @Override
     public boolean deleteSensorSystemById(UUID id) {
         if (environmentalReadingRepository.countBySensorSystemId(id) != 0) {
@@ -160,12 +210,24 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         }
     }
 
+    /**
+     * Retrieves a list of SensorSystems by sensor name.
+     *
+     * @param sensorName The name of the sensor.
+     * @return A list of SensorSystems with the specified sensor name.
+     */
     @Override
     public List<SensorSystem> findAllSensorSystemsBySensorName(String sensorName) {
         return sensorSystemRepository
                 .findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(sensorName);
     }
 
+    /**
+     * Finds recent statistics by SensorSystem ID.
+     *
+     * @param sensorSystemId The ID of the SensorSystem.
+     * @return A map containing recent statistics for the SensorSystem.
+     */
     @Override
     public Map<Integer, Long> findRecentStatsBySensorSystemId(UUID sensorSystemId) {
         List<Integer> timePeriods = Arrays.asList(1, 3, 8, 24, 168);
@@ -182,6 +244,13 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         return recentReadingCounts;
     }
 
+    /**
+     * Retrieves a list of SensorSystems by sensor name and UnconvUserId.
+     *
+     * @param sensorName The name of the sensor.
+     * @param unconvUserId The ID of the UnconvUser.
+     * @return A list of SensorSystems with the specified sensor name and UnconvUserId.
+     */
     @Override
     public List<SensorSystem> findAllBySensorSystemsBySensorNameAndUnconvUserId(
             String sensorName, UUID unconvUserId) {
