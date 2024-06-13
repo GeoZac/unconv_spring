@@ -144,10 +144,10 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                     EnvironmentalReadingDTO environmentalReadingDTO,
                     Authentication authentication) {
 
-        Optional<SensorSystem> optionalSensorSystem =
-                sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
+        SensorSystem sensorSystem =
+                sensorSystemRepository.findSensorSystemById(
+                        environmentalReadingDTO.getSensorSystem().getId());
 
-        SensorSystem sensorSystem = optionalSensorSystem.get();
         if (!sensorSystem.getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                     new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_USER);
