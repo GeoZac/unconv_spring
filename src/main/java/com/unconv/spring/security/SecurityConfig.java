@@ -16,6 +16,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * SecurityConfig is a configuration class responsible for configuring security settings in the
+ * application. It is annotated with @Configuration to indicate that it contains bean definitions.
+ */
 @AllArgsConstructor
 @Configuration
 public class SecurityConfig {
@@ -30,6 +34,13 @@ public class SecurityConfig {
 
     private final SensorAuthTokenExceptionHandler sensorAuthTokenExceptionHandler;
 
+    /**
+     * Configures the security filter chain for the application.
+     *
+     * @param http the HttpSecurity object for configuring security
+     * @return the SecurityFilterChain for the application
+     * @throws Exception if an error occurs during configuration
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationFilter authenticationFilter =
