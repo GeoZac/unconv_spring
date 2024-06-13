@@ -30,6 +30,13 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
         this.environmentalReadingRepository = environmentalReadingRepository;
     }
 
+    /**
+     * Calculates the average temperatures for each quarter-hourly interval for a specified sensor
+     * system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return a map containing the average temperatures for each quarter-hourly interval
+     */
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(UUID sensorSystemId) {
 
@@ -42,6 +49,13 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
         return new TreeMap<>(getAverageTempsForQuarterHourly(data));
     }
 
+    /**
+     * Calculates the average temperatures for each quarter-hourly interval based on the provided
+     * environmental readings.
+     *
+     * @param data a list of environmental readings
+     * @return a map containing the average temperatures for each quarter-hourly interval
+     */
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForQuarterHourly(
             List<EnvironmentalReading> data) {
@@ -62,6 +76,12 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
                                 Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
     }
 
+    /**
+     * Calculates the average temperatures for each hourly interval for a specified sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return a map containing the average temperatures for each hourly interval
+     */
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForHourly(UUID sensorSystemId) {
 
@@ -74,6 +94,13 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
         return new TreeMap<>(getAverageTempsForHourly(data));
     }
 
+    /**
+     * Calculates the average temperatures for each hourly interval based on the provided
+     * environmental readings.
+     *
+     * @param data a list of environmental readings
+     * @return a map containing the average temperatures for each hourly interval
+     */
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForHourly(List<EnvironmentalReading> data) {
         OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
@@ -93,6 +120,12 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
                                 Map.Entry::getKey, e -> calculateAverageTemp(e.getValue())));
     }
 
+    /**
+     * Calculates the average temperatures for each daily interval for a specified sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return a map containing the average temperatures for each daily interval
+     */
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForDaily(UUID sensorSystemId) {
 
@@ -105,6 +138,13 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
         return new TreeMap<>(getAverageTempsForDaily(data));
     }
 
+    /**
+     * Calculates the average temperatures for each daily interval based on the provided
+     * environmental readings.
+     *
+     * @param data a list of environmental readings
+     * @return a map containing the average temperatures for each daily interval
+     */
     @Override
     public Map<OffsetDateTime, Double> getAverageTempsForDaily(List<EnvironmentalReading> data) {
         OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
