@@ -111,6 +111,13 @@ public class SensorSystemController {
                 unconvUserId, pageNo, pageSize, sortBy, sortDir);
     }
 
+    /**
+     * Retrieves a SensorSystemDTO by its ID.
+     *
+     * @param id The ID of the SensorSystem to retrieve.
+     * @return ResponseEntity with status 200 (OK) and the retrieved SensorSystemDTO if found, or
+     *     ResponseEntity with status 404 (Not Found) if no SensorSystem with the given ID exists.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<SensorSystemDTO> getSensorSystemById(@PathVariable UUID id) {
         return sensorSystemService
@@ -119,17 +126,38 @@ public class SensorSystemController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Retrieves a list of SensorSystems that match the given sensor name.
+     *
+     * @param sensorName The name of the sensor to filter SensorSystems.
+     * @return A list of SensorSystems matching the provided sensor name.
+     */
     @GetMapping("/SensorName/{sensorName}")
     public List<SensorSystem> findAllSensorSystemsBySensorName(@PathVariable String sensorName) {
         return sensorSystemService.findAllSensorSystemsBySensorName(sensorName);
     }
 
+    /**
+     * Retrieves the count of recent readings grouped by their status code for a SensorSystem
+     * identified by its ID.
+     *
+     * @param sensorSystemId The ID of the SensorSystem to retrieve recent readings count.
+     * @return A map where keys represent status codes and values represent counts of recent
+     *     readings for the specified SensorSystem.
+     */
     @GetMapping("/ReadingsCount/{sensorSystemId}")
     public Map<Integer, Long> findRecentReadingsCountBySensorSystem(
             @PathVariable UUID sensorSystemId) {
         return sensorSystemService.findRecentStatsBySensorSystemId(sensorSystemId);
     }
 
+    /**
+     * Retrieves a list of SensorSystems that match the given sensor name and unconverted user ID.
+     *
+     * @param sensorName The name of the sensor to filter SensorSystems.
+     * @param unconvUserId The ID of the unconverted user to filter SensorSystems.
+     * @return A list of SensorSystems matching the provided sensor name and unconverted user ID.
+     */
     @GetMapping("/SensorName/{sensorName}/UnconvUser/{unconvUserId}")
     public List<SensorSystem> findAllSensorSystemsBySensorNameAndUnconvUserId(
             @PathVariable String sensorName, @PathVariable UUID unconvUserId) {
@@ -137,6 +165,14 @@ public class SensorSystemController {
                 sensorName, unconvUserId);
     }
 
+    /**
+     * Creates a new SensorSystem based on the provided SensorSystemDTO.
+     *
+     * @param sensorSystemDTO The SensorSystemDTO containing the data for the new SensorSystem.
+     * @param authentication Represents the authenticated user making the request.
+     * @return ResponseEntity containing a MessageResponse with the created SensorSystemDTO if
+     *     successful, or a ResponseEntity with an appropriate error status if validation fails.
+     */
     @PostMapping
     public ResponseEntity<MessageResponse<SensorSystemDTO>> createSensorSystem(
             @RequestBody @Validated SensorSystemDTO sensorSystemDTO,
@@ -146,6 +182,16 @@ public class SensorSystemController {
                 sensorSystemDTO, authentication);
     }
 
+    /**
+     * Updates an existing SensorSystem identified by the given ID with the data from the provided
+     * SensorSystemDTO.
+     *
+     * @param id The ID of the SensorSystem to update.
+     * @param sensorSystemDTO The updated data for the SensorSystem.
+     * @return ResponseEntity with status 200 (OK) and the updated SensorSystem if found and updated
+     *     successfully, or ResponseEntity with status 404 (Not Found) if no SensorSystem with the
+     *     given ID exists.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<SensorSystem> updateSensorSystem(
             @PathVariable UUID id, @RequestBody @Valid SensorSystemDTO sensorSystemDTO) {
@@ -162,6 +208,14 @@ public class SensorSystemController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Deletes a SensorSystem identified by the given ID.
+     *
+     * @param id The ID of the SensorSystem to delete.
+     * @return ResponseEntity with status 200 (OK) and the deleted SensorSystem if found and deleted
+     *     successfully, or ResponseEntity with status 404 (Not Found) if no SensorSystem with the
+     *     given ID exists.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<SensorSystem> deleteSensorSystem(@PathVariable UUID id) {
         return sensorSystemService
