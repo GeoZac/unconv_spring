@@ -107,6 +107,13 @@ public class SensorLocationController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Retrieves a SensorLocation by its ID.
+     *
+     * @param id The ID of the SensorLocation to retrieve.
+     * @return ResponseEntity with status 200 (OK) and the retrieved SensorLocation if found, or
+     *     ResponseEntity with status 404 (Not Found) if no SensorLocation with the given ID exists.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<SensorLocation> getSensorLocationById(@PathVariable UUID id) {
         return sensorLocationService
@@ -115,6 +122,13 @@ public class SensorLocationController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Creates a new SensorLocation based on the provided SensorLocationDTO.
+     *
+     * @param sensorLocationDTO The SensorLocationDTO containing the data for the new
+     *     SensorLocation.
+     * @return The created SensorLocation entity with HTTP status 201 (Created).
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SensorLocation createSensorLocation(
@@ -124,6 +138,16 @@ public class SensorLocationController {
                 modelMapper.map(sensorLocationDTO, SensorLocation.class));
     }
 
+    /**
+     * Updates an existing SensorLocation identified by the given ID with the data from the provided
+     * SensorLocationDTO.
+     *
+     * @param id The ID of the SensorLocation to update.
+     * @param sensorLocationDTO The updated data for the SensorLocation.
+     * @return ResponseEntity with status 200 (OK) and the updated SensorLocation if found and
+     *     updated successfully, or ResponseEntity with status 404 (Not Found) if no SensorLocation
+     *     with the given ID exists.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<SensorLocation> updateSensorLocation(
             @PathVariable UUID id, @RequestBody @Valid SensorLocationDTO sensorLocationDTO) {
@@ -140,6 +164,14 @@ public class SensorLocationController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Deletes a SensorLocation identified by the given ID.
+     *
+     * @param id The ID of the SensorLocation to delete.
+     * @return ResponseEntity with status 200 (OK) and the deleted SensorLocation if found and
+     *     deleted successfully, or ResponseEntity with status 404 (Not Found) if no SensorLocation
+     *     with the given ID exists.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<SensorLocation> deleteSensorLocation(@PathVariable UUID id) {
         return sensorLocationService
