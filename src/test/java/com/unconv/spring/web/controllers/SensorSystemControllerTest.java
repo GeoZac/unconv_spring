@@ -319,6 +319,9 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
+        given(unconvUserService.findUnconvUserById(any(UUID.class)))
+                .willReturn(Optional.of(unconvUser));
+
         given(
                         sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
                                 any(String.class), any(UUID.class)))
