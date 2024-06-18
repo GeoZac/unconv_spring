@@ -42,6 +42,7 @@ import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
+import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorSystemController;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -78,6 +79,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
 class SensorSystemControllerTest extends AbstractControllerTest {
     @MockBean private SensorSystemService sensorSystemService;
+
+    @MockBean private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -315,6 +318,9 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
+
+        given(unconvUserService.findUnconvUserById(any(UUID.class)))
+                .willReturn(Optional.of(unconvUser));
 
         given(
                         sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
