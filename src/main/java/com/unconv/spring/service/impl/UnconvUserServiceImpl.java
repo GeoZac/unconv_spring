@@ -24,6 +24,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of the {@link UnconvUserService} interface providing functionality related to
+ * unconventional user operations. This service class manages transactions for user-related
+ * operations.
+ */
 @Service
 @Transactional
 public class UnconvUserServiceImpl implements UnconvUserService {
