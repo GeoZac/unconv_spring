@@ -30,8 +30,6 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
-import com.unconv.spring.utils.AccessTokenGenerator;
-import com.unconv.spring.utils.SaltedSuffixGenerator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +60,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     private SensorSystem savedSensorSystem;
 
-    private List<SensorAuthToken> sensorAuthTokenList = null;
+    private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
     @BeforeEach
     void setUp() {
@@ -94,16 +92,10 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
         sensorAuthTokenList = new ArrayList<>();
         for (SensorSystem sensorSystem : sensorSystemList) {
-            SensorAuthToken sensorAuthToken =
-                    new SensorAuthToken(
-                            null,
-                            AccessTokenGenerator.generateAccessToken(),
-                            OffsetDateTime.now().plusDays(10),
-                            SaltedSuffixGenerator.generateSaltedSuffix(),
-                            sensorSystem);
-            sensorAuthTokenList.add(sensorAuthToken);
+            SensorAuthTokenDTO sensorAuthTokenDTO =
+                    sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null);
+            sensorAuthTokenList.add(sensorAuthTokenDTO);
         }
-        sensorAuthTokenList = sensorAuthTokenRepository.saveAll(sensorAuthTokenList);
     }
 
     @Test
@@ -138,7 +130,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorAuthTokenById() throws Exception {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
         UUID sensorAuthTokenId = sensorAuthToken.getId();
 
         this.mockMvc
@@ -209,7 +201,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateSensorAuthToken() throws Exception {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
         sensorAuthToken.setAuthToken("Updated SensorAuthToken");
         sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(100));
 
@@ -228,7 +220,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteSensorAuthToken() throws Exception {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
 
         this.mockMvc
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
@@ -250,7 +242,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingSensorAuthToken() throws Exception {
         UUID sensorAuthTokenId = UUID.randomUUID();
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(1);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(1);
 
         this.mockMvc
                 .perform(
