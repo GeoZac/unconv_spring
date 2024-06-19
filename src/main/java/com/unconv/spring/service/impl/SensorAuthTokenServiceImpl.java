@@ -61,6 +61,21 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     }
 
     @Override
+    public Optional<SensorAuthTokenDTO> findSensorAuthTokenDTOById(UUID id) {
+        Optional<SensorAuthToken> optionalSensorAuthToken = sensorAuthTokenRepository.findById(id);
+        if (optionalSensorAuthToken.isPresent()) {
+            SensorAuthToken sensorAuthToken = optionalSensorAuthToken.get();
+            String maskedAuthToken =
+                    TOKEN_PREFIX + "*".repeat(TOKEN_LENGTH) + sensorAuthToken.getTokenHash();
+            SensorAuthTokenDTO sensorAuthTokenDTO =
+                    modelMapper.map(sensorAuthToken, SensorAuthTokenDTO.class);
+            sensorAuthTokenDTO.setAuthToken(maskedAuthToken);
+            return Optional.of(sensorAuthTokenDTO);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
         sensorAuthToken.setAuthToken(
                 bCryptPasswordEncoder().encode(sensorAuthToken.getAuthToken()));

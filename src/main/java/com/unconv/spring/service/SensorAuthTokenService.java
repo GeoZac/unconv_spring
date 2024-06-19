@@ -13,6 +13,8 @@ public interface SensorAuthTokenService {
 
     Optional<SensorAuthToken> findSensorAuthTokenById(UUID id);
 
+    Optional<SensorAuthTokenDTO> findSensorAuthTokenDTOById(UUID id);
+
     SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken);
 
     SensorAuthTokenDTO saveSensorAuthTokenDTO(SensorAuthToken sensorAuthToken);
