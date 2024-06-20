@@ -3,6 +3,12 @@
     "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
     <module name="TreeWalker">
+        <module name="MissingJavadocMethod">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="MissingJavadocPackage">
+            <property name="severity" value="warning"/>
+        </module>
         <module name="JavadocMethod"/>
     </module>
 </module>
