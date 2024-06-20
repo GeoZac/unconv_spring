@@ -58,9 +58,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         String username = (String) authResult.getPrincipal();
 
-        String token = jwtUtil.generateToken(username);
-
         UnconvUser unconvUser = unconvUserService.findUnconvUserByUserName(username);
+
+        String token = jwtUtil.generateToken(unconvUser);
 
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();

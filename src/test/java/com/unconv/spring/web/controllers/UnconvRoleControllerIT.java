@@ -1,6 +1,6 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -16,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.DefaultUserRole;
 import com.unconv.spring.domain.UnconvRole;
+import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
 import java.util.ArrayList;
 import java.util.EnumSet;

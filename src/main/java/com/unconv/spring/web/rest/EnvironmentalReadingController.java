@@ -51,6 +51,15 @@ public class EnvironmentalReadingController {
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Retrieves a paginated list of environmental readings.
+     *
+     * @param pageNo The page number to retrieve (default is 0).
+     * @param pageSize The size of each page (default is 10).
+     * @param sortBy The field to sort by (default is "createdAt").
+     * @param sortDir The direction of sorting (default is "desc" for descending).
+     * @return A {@link PagedResult} containing the paginated list of {@link EnvironmentalReading}s.
+     */
     @GetMapping
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadings(
             @RequestParam(

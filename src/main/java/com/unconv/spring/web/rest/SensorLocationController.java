@@ -5,6 +5,7 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.dto.SensorLocationDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorLocationService;
+import com.unconv.spring.service.UnconvUserService;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -30,9 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class SensorLocationController {
 
-    @Autowired private SensorLocationService sensorLocationService;
+    private final SensorLocationService sensorLocationService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final UnconvUserService unconvUserService;
+
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public SensorLocationController(
+            SensorLocationService sensorLocationService,
+            UnconvUserService unconvUserService,
+            ModelMapper modelMapper) {
+        this.sensorLocationService = sensorLocationService;
+        this.unconvUserService = unconvUserService;
+        this.modelMapper = modelMapper;
+    }
 
     @GetMapping
     public PagedResult<SensorLocation> getAllSensorLocations(
@@ -60,8 +73,18 @@ public class SensorLocationController {
     }
 
     @GetMapping("/UnconvUser/{unconvUserId}")
-    public List<SensorLocation> getAllSensorSystemsByUnconvUserId(@PathVariable UUID unconvUserId) {
-        return sensorLocationService.findAllSensorLocationsByUnconvUserId(unconvUserId);
+    public ResponseEntity<List<SensorLocation>> getAllSensorSystemsByUnconvUserId(
+            @PathVariable UUID unconvUserId) {
+        return unconvUserService
+                .findUnconvUserById(unconvUserId)
+                .map(
+                        obj -> {
+                            List<SensorLocation> sensorLocations =
+                                    sensorLocationService.findAllSensorLocationsByUnconvUserId(
+                                            unconvUserId);
+                            return ResponseEntity.ok(sensorLocations);
+                        })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}")

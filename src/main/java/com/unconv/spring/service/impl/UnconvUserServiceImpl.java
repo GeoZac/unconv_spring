@@ -1,11 +1,17 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
+import com.unconv.spring.service.UnconvRoleService;
 import com.unconv.spring.service.UnconvUserService;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +28,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UnconvUserServiceImpl implements UnconvUserService {
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private final UnconvUserRepository unconvUserRepository;
 
-    @Autowired private ModelMapper modelMapper;
+    private final UnconvRoleService unconvRoleService;
+
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public UnconvUserServiceImpl(
+            UnconvUserRepository unconvUserRepository,
+            UnconvRoleService unconvRoleService,
+            ModelMapper modelMapper) {
+        this.unconvUserRepository = unconvUserRepository;
+        this.unconvRoleService = unconvRoleService;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public PagedResult<UnconvUser> findAllUnconvUsers(
@@ -58,7 +76,8 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Override
     public UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword) {
-        unconvUser.setPassword(bCryptPasswordEncoder().encode(rawPassword));
+        UnconvUser unconvUserWithRole = setRoleIfNotDefined(unconvUser);
+        unconvUserWithRole.setPassword(bCryptPasswordEncoder().encode(rawPassword));
         return unconvUserRepository.save(unconvUser);
     }
 
@@ -71,6 +90,11 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     @Override
     public UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO) {
+        UnconvRole userUnconvRole = unconvRoleService.findUnconvRoleByName("ROLE_USER");
+        Set<UnconvRole> unconvRoleSet = new HashSet<>();
+        unconvRoleSet.add(userUnconvRole);
+        unconvUserDTO.setUnconvRoles(unconvRoleSet);
+
         UnconvUser savedUnconvUser =
                 saveUnconvUser(
                         modelMapper.map(unconvUserDTO, UnconvUser.class),
@@ -84,6 +108,7 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     public UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO) {
         unconvUserDTO.setId(unconvUser.getId());
         unconvUserDTO.setUsername(unconvUser.getUsername());
+        unconvUserDTO.setUnconvRoles(unconvUser.getUnconvRoles());
 
         UnconvUser updatedUnconvUser =
                 saveUnconvUser(
@@ -98,6 +123,16 @@ public class UnconvUserServiceImpl implements UnconvUserService {
     @Override
     public void deleteUnconvUserById(UUID id) {
         unconvUserRepository.deleteById(id);
+    }
+
+    private UnconvUser setRoleIfNotDefined(UnconvUser unconvUser) {
+        if (unconvUser.getUnconvRoles().isEmpty()) {
+            UnconvRole userUnconvRole = unconvRoleService.findUnconvRoleByName(UNCONV_USER.name());
+            Set<UnconvRole> unconvRoleSet = new HashSet<>();
+            unconvRoleSet.add(userUnconvRole);
+            unconvUser.setUnconvRoles(unconvRoleSet);
+        }
+        return unconvUser;
     }
 
     @Bean

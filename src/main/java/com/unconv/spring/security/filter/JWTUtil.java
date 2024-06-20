@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.unconv.spring.domain.UnconvUser;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -23,14 +24,14 @@ public class JWTUtil {
     @Value("${jwt_expiry}")
     private Long jwtExpiry;
 
-    public String generateToken(String username)
+    public String generateToken(UnconvUser unconvUser)
             throws IllegalArgumentException, JWTCreationException {
 
         Instant expirationTime = Instant.now().plus(jwtExpiry, ChronoUnit.SECONDS);
 
         return JWT.create()
                 .withSubject("User Details")
-                .withClaim("username", username)
+                .withClaim("username", unconvUser.getUsername())
                 .withIssuedAt(new Date())
                 .withIssuer("unconv")
                 .withExpiresAt(expirationTime)

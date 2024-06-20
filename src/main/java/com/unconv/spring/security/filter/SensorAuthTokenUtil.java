@@ -1,7 +1,10 @@
 package com.unconv.spring.security.filter;
 
+import static com.unconv.spring.consts.SensorAuthConstants.HASH_STRING_LEN;
+
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.exception.ExpiredAuthTokenException;
+import com.unconv.spring.exception.InvalidTokenLengthException;
 import com.unconv.spring.exception.MalformedAuthTokenException;
 import com.unconv.spring.exception.UnknownAuthTokenException;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
@@ -24,7 +27,12 @@ public class SensorAuthTokenUtil {
     }
 
     String validateTokenAndRetrieveUser(String accessToken) {
-        String hashString = accessToken.substring(accessToken.length() - 24);
+        String hashString;
+        try {
+            hashString = accessToken.substring(accessToken.length() - HASH_STRING_LEN);
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new InvalidTokenLengthException(accessToken);
+        }
         SensorAuthToken sensorAuthToken =
                 sensorAuthTokenRepository.findByTokenHashAllIgnoreCase(hashString);
 

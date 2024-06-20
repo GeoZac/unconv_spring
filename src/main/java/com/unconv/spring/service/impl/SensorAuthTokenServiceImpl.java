@@ -1,7 +1,7 @@
 package com.unconv.spring.service.impl;
 
-import static com.unconv.spring.utils.AccessTokenGenerator.TOKEN_LENGTH;
-import static com.unconv.spring.utils.AccessTokenGenerator.TOKEN_PREFIX;
+import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_LENGTH;
+import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_PREFIX;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 
 import com.unconv.spring.domain.SensorAuthToken;

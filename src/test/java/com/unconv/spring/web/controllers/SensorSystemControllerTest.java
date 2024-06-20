@@ -3,8 +3,8 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SS_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SS_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -29,8 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.SensorLocationType;
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
@@ -39,9 +37,12 @@ import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import com.unconv.spring.enums.SensorLocationType;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
+import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorSystemController;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -78,6 +79,8 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
 class SensorSystemControllerTest extends AbstractControllerTest {
     @MockBean private SensorSystemService sensorSystemService;
+
+    @MockBean private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -315,6 +318,9 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
+
+        given(unconvUserService.findUnconvUserById(any(UUID.class)))
+                .willReturn(Optional.of(unconvUser));
 
         given(
                         sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
