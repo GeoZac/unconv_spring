@@ -143,14 +143,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindSensorAuthTokenById() throws Exception {
         UUID sensorAuthTokenId = UUID.randomUUID();
-        SensorAuthToken sensorAuthToken =
-                new SensorAuthToken(
+        SensorAuthTokenDTO sensorAuthToken =
+                new SensorAuthTokenDTO(
                         sensorAuthTokenId,
                         generateAccessToken() + RandomStringUtils.random(24),
                         OffsetDateTime.now().plusDays(30),
-                        RandomStringUtils.random(24),
                         sensorSystem);
-        given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
+        given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
 
         String responseJson =
@@ -329,14 +328,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @Test
     void shouldDeleteSensorAuthToken() throws Exception {
         UUID sensorAuthTokenId = UUID.randomUUID();
-        SensorAuthToken sensorAuthToken =
-                new SensorAuthToken(
+        SensorAuthTokenDTO sensorAuthToken =
+                new SensorAuthTokenDTO(
                         sensorAuthTokenId,
                         generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
-        given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
-                .willReturn(Optional.of(sensorAuthToken));
+        given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
+                .willReturn((Optional.of(sensorAuthToken)));
         //
         // doNothing().when(sensorAuthTokenService).deleteSensorAuthTokenById(sensorAuthToken.getId());
         //
