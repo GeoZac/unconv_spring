@@ -30,6 +30,12 @@ public interface SensorAuthTokenService {
      */
     Optional<SensorAuthToken> findSensorAuthTokenById(UUID id);
 
+    /**
+     * Retrieves a SensorAuthTokenDTO by its ID.
+     *
+     * @param id The ID of the SensorAuthToken.
+     * @return An Optional containing the SensorAuthTokenDTO, or empty if not found.
+     */
     Optional<SensorAuthTokenDTO> findSensorAuthTokenDTOById(UUID id);
 
     /**
