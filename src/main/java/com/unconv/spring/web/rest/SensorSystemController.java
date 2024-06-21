@@ -6,6 +6,7 @@ import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorSystemService;
+import com.unconv.spring.service.UnconvUserService;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class SensorSystemController {
 
     @Autowired private SensorSystemService sensorSystemService;
+
+    @Autowired private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
 
@@ -159,10 +162,19 @@ public class SensorSystemController {
      * @return A list of SensorSystems matching the provided sensor name and unconverted user ID.
      */
     @GetMapping("/SensorName/{sensorName}/UnconvUser/{unconvUserId}")
-    public List<SensorSystem> findAllSensorSystemsBySensorNameAndUnconvUserId(
+    public ResponseEntity<List<SensorSystem>> findAllSensorSystemsBySensorNameAndUnconvUserId(
             @PathVariable String sensorName, @PathVariable UUID unconvUserId) {
-        return sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
-                sensorName, unconvUserId);
+        return unconvUserService
+                .findUnconvUserById(unconvUserId)
+                .map(
+                        obj -> {
+                            List<SensorSystem> sensorSystems =
+                                    sensorSystemService
+                                            .findAllBySensorSystemsBySensorNameAndUnconvUserId(
+                                                    sensorName, unconvUserId);
+                            return ResponseEntity.ok(sensorSystems);
+                        })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
