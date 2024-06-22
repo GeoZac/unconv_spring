@@ -32,6 +32,16 @@ public class TemperatureThreshold extends Threshold {
     @DecimalMax(value = "9999", message = "Min value must be less than or equal to 9999")
     private double minValue;
 
+    /**
+     * Constructs a new {@code TemperatureThreshold} with the specified ID, maximum value, and
+     * minimum value.
+     *
+     * @param id the unique identifier for this threshold
+     * @param maxValue the maximum allowable value for the humidity threshold, must be between -9999
+     *     and 9999
+     * @param minValue the minimum allowable value for the humidity threshold, must be between -9999
+     *     and 9999
+     */
     public TemperatureThreshold(UUID id, double maxValue, double minValue) {
         super(id);
         this.maxValue = maxValue;

@@ -32,6 +32,16 @@ public class HumidityThreshold extends Threshold {
     @DecimalMax(value = "100", message = "Min value must be less than or equal to 100")
     private double minValue;
 
+    /**
+     * Constructs a new {@code HumidityThreshold} with the specified ID, maximum value, and minimum
+     * value.
+     *
+     * @param id the unique identifier for this threshold
+     * @param maxValue the maximum allowable value for the humidity threshold, must be between 0 and
+     *     100
+     * @param minValue the minimum allowable value for the humidity threshold, must be between 0 and
+     *     100
+     */
     public HumidityThreshold(UUID id, double maxValue, double minValue) {
         super(id);
         this.maxValue = maxValue;
