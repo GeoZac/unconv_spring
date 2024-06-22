@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Base class representing Sensor Authentication Token. */
 @Entity
 @Table(name = "sensor_auth_tokens")
 @Getter
@@ -48,6 +49,15 @@ public class SensorAuthToken {
     private SensorSystem sensorSystem;
 
     // TODO Remove this once code is tested
+    /**
+     * Constructs a new {@code SensorAuthToken} with the specified id, authentication token, expiry
+     * date and time, and associated sensor system.
+     *
+     * @param id the unique identifier for this authentication token
+     * @param authToken the authentication token string
+     * @param expiry the date and time when this authentication token expires
+     * @param sensorSystem the {@link SensorSystem} associated with this authentication token
+     */
     public SensorAuthToken(
             UUID id, String authToken, OffsetDateTime expiry, SensorSystem sensorSystem) {
         this.id = id;
