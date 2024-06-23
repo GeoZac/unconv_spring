@@ -31,6 +31,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UnconvUserDTO extends BaseUser {
 
+    /**
+     * Constructs an {@link UnconvUserDTO} with the specified parameters.
+     *
+     * @param id the unique identifier for the user
+     * @param username the username of the user
+     * @param email the email address of the user
+     * @param password the password of the user
+     */
     public UnconvUserDTO(UUID id, String username, String email, String password) {
         this.id = id;
         this.username = username;
