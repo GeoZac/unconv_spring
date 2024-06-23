@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling HTTP requests related to {@link TemperatureThreshold}.
+ * It provides endpoints for managing temperature thresholds
+ */
 @RestController
 @RequestMapping("/TemperatureThreshold")
 @Slf4j
@@ -32,6 +36,12 @@ public class TemperatureThresholdController {
 
     @Autowired private ModelMapper modelMapper;
 
+    /**
+     * Constructs a {@link TemperatureThresholdController} with the specified {@link
+     * TemperatureThresholdService}.
+     *
+     * @param temperatureThresholdService the service to manage temperature thresholds
+     */
     @Autowired
     public TemperatureThresholdController(TemperatureThresholdService temperatureThresholdService) {
         this.temperatureThresholdService = temperatureThresholdService;

@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling HTTP requests related to {@link HumidityThreshold}. It
+ * provides endpoints for managing humidity thresholds
+ */
 @RestController
 @RequestMapping("/HumidityThreshold")
 @Slf4j
@@ -32,6 +36,12 @@ public class HumidityThresholdController {
 
     @Autowired private ModelMapper modelMapper;
 
+    /**
+     * Constructs a {@link HumidityThresholdController} with the specified {@link
+     * HumidityThresholdService}.
+     *
+     * @param humidityThresholdService the service to manage humidity thresholds
+     */
     @Autowired
     public HumidityThresholdController(HumidityThresholdService humidityThresholdService) {
         this.humidityThresholdService = humidityThresholdService;
