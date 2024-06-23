@@ -37,6 +37,17 @@ public class HumidityThresholdController {
         this.humidityThresholdService = humidityThresholdService;
     }
 
+    /**
+     * Retrieves a paginated list of humidity thresholds.
+     *
+     * @param pageNo the page number to retrieve (default is {@link
+     *     AppConstants#DEFAULT_PAGE_NUMBER})
+     * @param pageSize the number of items per page (default is {@link
+     *     AppConstants#DEFAULT_PAGE_SIZE})
+     * @param sortBy the field to sort by (default is {@link AppConstants#DEFAULT_SORT_BY})
+     * @param sortDir the direction to sort (default is {@link AppConstants#DEFAULT_SORT_DIRECTION})
+     * @return a {@link PagedResult} containing a list of {@link HumidityThreshold}
+     */
     @GetMapping
     public PagedResult<HumidityThreshold> getAllHumidityThreshold(
             @RequestParam(
@@ -63,6 +74,13 @@ public class HumidityThresholdController {
                 pageNo, pageSize, sortBy, sortDir);
     }
 
+    /**
+     * Retrieves a humidity threshold by its ID.
+     *
+     * @param id the UUID of the humidity threshold to retrieve
+     * @return a {@link ResponseEntity} containing the {@link HumidityThreshold} if found, or {@link
+     *     ResponseEntity#notFound()} if not found
+     */
     @GetMapping("/{id}")
     public ResponseEntity<HumidityThreshold> getHumidityThresholdById(@PathVariable UUID id) {
         return humidityThresholdService
@@ -71,6 +89,13 @@ public class HumidityThresholdController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Creates a new humidity threshold.
+     *
+     * @param humidityThresholdDTO the DTO containing the details of the humidity threshold to
+     *     create
+     * @return the created {@link HumidityThreshold}
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public HumidityThreshold createHumidityThreshold(
@@ -80,6 +105,14 @@ public class HumidityThresholdController {
                 modelMapper.map(humidityThresholdDTO, HumidityThreshold.class));
     }
 
+    /**
+     * Updates an existing humidity threshold.
+     *
+     * @param id the UUID of the humidity threshold to update
+     * @param humidityThresholdDTO the DTO containing the updated details of the humidity threshold
+     * @return a {@link ResponseEntity} containing the updated {@link HumidityThreshold} if found,
+     *     or {@link ResponseEntity#notFound()} if not found
+     */
     @PutMapping("/{id}")
     public ResponseEntity<HumidityThreshold> updateHumidityThreshold(
             @PathVariable UUID id, @RequestBody HumidityThresholdDTO humidityThresholdDTO) {
@@ -97,6 +130,13 @@ public class HumidityThresholdController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Deletes a humidity threshold by its ID.
+     *
+     * @param id the UUID of the humidity threshold to delete
+     * @return a {@link ResponseEntity} containing the deleted {@link HumidityThreshold} if found,
+     *     or {@link ResponseEntity#notFound()} if not found
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<HumidityThreshold> deleteHumidityThreshold(@PathVariable UUID id) {
         return humidityThresholdService
