@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Data Transfer Object for SensorLocation entity */
 @Getter
 @Setter
 @NoArgsConstructor
