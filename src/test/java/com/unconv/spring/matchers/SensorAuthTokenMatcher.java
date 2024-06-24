@@ -13,7 +13,8 @@ public class SensorAuthTokenMatcher {
             protected boolean matchesSafely(Object object) {
                 String sensorAuthTokenString = (String) object;
                 String maskedSensorAuthTokenPattern = "UNCONV[A-Za-z0-9*]{19}.*";
-                return sensorAuthTokenString.matches(maskedSensorAuthTokenPattern);
+                return sensorAuthTokenString.matches(maskedSensorAuthTokenPattern)
+                        && sensorAuthTokenString.length() == 49;
             }
 
             @Override
