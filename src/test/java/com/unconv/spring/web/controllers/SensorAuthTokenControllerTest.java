@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 import static org.hamcrest.CoreMatchers.is;
@@ -222,7 +223,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andReturn();
     }
 
@@ -294,7 +295,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andReturn();
     }
 
@@ -344,7 +345,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andDo(document("shouldDeleteSensorAuthToken", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andReturn();
     }
 
@@ -399,8 +400,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
-                .andExpect(
-                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken()))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
@@ -461,7 +461,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
