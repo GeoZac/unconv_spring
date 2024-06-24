@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasLength;
@@ -138,7 +139,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andReturn();
     }
 
@@ -227,7 +228,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andReturn();
     }
 
@@ -365,7 +366,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenUUID.toString())))
                 .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken()))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
