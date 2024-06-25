@@ -222,7 +222,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
@@ -294,7 +293,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
@@ -344,7 +342,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
                 .andDo(document("shouldDeleteSensorAuthToken", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
@@ -399,7 +396,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(true)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
@@ -460,7 +456,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))

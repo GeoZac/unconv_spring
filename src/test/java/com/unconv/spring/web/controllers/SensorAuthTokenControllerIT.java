@@ -138,7 +138,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .perform(get("/SensorAuthToken/{id}", sensorAuthTokenId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
@@ -227,7 +226,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
@@ -365,7 +363,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenUUID.toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
