@@ -6,7 +6,7 @@ import org.hamcrest.TypeSafeMatcher;
 
 public class SensorAuthTokenMatcher {
 
-    public static Matcher<Object> validSensorAuthToken() {
+    public static Matcher<Object> validSensorAuthToken(boolean isMaskedSensorAuthToken) {
         return new TypeSafeMatcher<>() {
 
             @Override
