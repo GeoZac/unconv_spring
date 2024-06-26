@@ -197,6 +197,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return sensorAuthTokenString;
     }
 
+    /**
+     * Bean definition for creating a {@link BCryptPasswordEncoder} instance.
+     *
+     * @return a new instance of {@link BCryptPasswordEncoder} for encoding passwords using BCrypt
+     *     hashing
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
