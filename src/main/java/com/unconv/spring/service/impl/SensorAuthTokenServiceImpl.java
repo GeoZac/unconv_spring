@@ -33,6 +33,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs an instance of {@link SensorAuthTokenServiceImpl} with the specified dependencies.
+     *
+     * @param sensorAuthTokenRepository the repository for managing sensor authentication tokens
+     * @param modelMapper the mapper for converting between DTOs and entities
+     */
     @Autowired
     public SensorAuthTokenServiceImpl(
             SensorAuthTokenRepository sensorAuthTokenRepository, ModelMapper modelMapper) {

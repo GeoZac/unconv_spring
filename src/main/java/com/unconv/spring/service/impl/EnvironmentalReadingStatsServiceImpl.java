@@ -24,6 +24,12 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
 
     private final EnvironmentalReadingRepository environmentalReadingRepository;
 
+    /**
+     * Constructs an instance of {@link EnvironmentalReadingStatsServiceImpl} with the specified
+     * repository.
+     *
+     * @param environmentalReadingRepository the repository for accessing environmental reading data
+     */
     @Autowired
     public EnvironmentalReadingStatsServiceImpl(
             EnvironmentalReadingRepository environmentalReadingRepository) {

@@ -39,6 +39,13 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs an instance of {@link UnconvUserServiceImpl} with the specified dependencies.
+     *
+     * @param unconvUserRepository the repository for managing UnconvUser entities
+     * @param unconvRoleService the service for managing UnconvRole entities
+     * @param modelMapper the mapper for converting between DTOs and entities
+     */
     @Autowired
     public UnconvUserServiceImpl(
             UnconvUserRepository unconvUserRepository,
