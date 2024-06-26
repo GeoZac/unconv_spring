@@ -45,6 +45,14 @@ public class EnvironmentalReadingController {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs an {@link EnvironmentalReadingController} with the specified services and model
+     * mapper.
+     *
+     * @param environmentalReadingService the service to manage environmental readings
+     * @param sensorSystemService the service to manage sensor systems
+     * @param modelMapper the mapper to convert between DTOs and entities
+     */
     @Autowired
     public EnvironmentalReadingController(
             EnvironmentalReadingService environmentalReadingService,

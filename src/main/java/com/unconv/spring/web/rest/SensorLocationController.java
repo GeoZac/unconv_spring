@@ -42,6 +42,13 @@ public class SensorLocationController {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs a {@link SensorLocationController} with the specified services and model mapper.
+     *
+     * @param sensorLocationService the service to manage sensor locations
+     * @param unconvUserService the service to manage users
+     * @param modelMapper the mapper to convert between DTOs and entities
+     */
     @Autowired
     public SensorLocationController(
             SensorLocationService sensorLocationService,
