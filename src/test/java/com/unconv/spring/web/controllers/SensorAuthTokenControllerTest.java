@@ -9,7 +9,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -163,8 +162,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id", is(sensorAuthTokenId.toString())))
                         .andExpect(jsonPath("$.authToken", hasLength(49)))
-                        .andExpect(
-                                jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                        .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
@@ -222,7 +220,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
 
@@ -293,7 +291,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
 
@@ -396,7 +394,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(true)))
+                .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
