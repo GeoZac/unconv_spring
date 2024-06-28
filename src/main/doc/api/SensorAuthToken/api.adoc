@@ -29,20 +29,6 @@ include::{snippets}/SensorAuthToken/shouldCreateNewSensorAuthToken/http-response
 * 400 Response - _Invalid Request_
 include::{snippets}/SensorAuthToken/shouldReturn400WhenCreateNewSensorAuthTokenWithNullValues/http-response.adoc[]
 
-*Creating a SensorAuthToken for a Specific SensorSystem +
-_Creating a SensorAuthToken for a Specific SensorSystem_ +
-
-Request
-include::{snippets}/SensorAuthToken/shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem/http-request.adoc[]
-
-Response +
-
-* 200 Response - _Successful execution_
-include::{snippets}/SensorAuthToken/shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem/http-response.adoc[]
-
-* 404 Response - _Non-existent SensorSystem_
-include::{snippets}/SensorAuthToken/shouldReturn404WhenRequestingTokenForANonExistingSensorSystem/http-response.adoc[]
-
 ==== Updating a SensorAuthToken
 *Updating a SensorAuthToken* +
 _Updating an existing SensorAuthToken by its UUID_ +
