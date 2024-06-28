@@ -59,3 +59,18 @@ include::{snippets}/SensorAuthToken/shouldDeleteSensorAuthToken/http-response.ad
 * 404 Response - _Non-existent entity_
 include::{snippets}/SensorAuthToken/shouldReturn404WhenDeletingNonExistingSensorAuthToken/http-response.adoc[]
 
+==== Generating a SensorAuthToken for a Sensor System
+*Generating a SensorAuthToken for a Sensor System* +
+_Generating a SensorAuthToken for a Sensor System by its UUID_ +
+
+Request
+include::{snippets}/SensorAuthToken/shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorAuthToken/shouldGenerateAndReturnNewSensorAuthTokenForASensorSystem/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorAuthToken/shouldReturn404WhenRequestingTokenForANonExistingSensorSystem/http-response.adoc[]
+
