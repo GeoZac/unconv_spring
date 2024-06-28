@@ -74,3 +74,21 @@ include::{snippets}/SensorAuthToken/shouldGenerateAndReturnNewSensorAuthTokenFor
 * 404 Response - _Non-existent entity_
 include::{snippets}/SensorAuthToken/shouldReturn404WhenRequestingTokenForANonExistingSensorSystem/http-response.adoc[]
 
+==== Fetching SensorAuthToken info for a Sensor System
+*Fetching SensorAuthToken info for a Sensor System* +
+_Fetching SensorAuthToken info for a Sensor System by its UUID_ +
+
+Request
+include::{snippets}/SensorAuthToken/shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorAuthToken/shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken/http-response.adoc[]
+
+* 204 Response - _No content_
+include::{snippets}/SensorAuthToken/shouldReturnSensorTokenInfoForAValidSensorSystemWithoutSensorAuthToken/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorAuthToken/shouldReturn404WhenRequestingTokenInfoForANonExistingSensorSystem/http-response.adoc[]
+
