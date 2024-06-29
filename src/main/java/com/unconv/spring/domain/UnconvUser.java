@@ -77,6 +77,14 @@ public class UnconvUser extends BaseUser {
         return authorities;
     }
 
+    /**
+     * Constructs a new instance of {@link UnconvUser} with the specified attributes.
+     *
+     * @param id the unique identifier for the user
+     * @param username the username of the user
+     * @param email the email address of the user
+     * @param password the password of the user
+     */
     public UnconvUser(UUID id, String username, String email, String password) {
 
         this.id = id;
