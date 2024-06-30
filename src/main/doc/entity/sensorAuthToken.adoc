@@ -1,0 +1,9 @@
+===== Fields
+
+- `id` (UUID): Unique identifier for the sensor authentication token.
+
+- `authToken` (String): The authentication token string.
+
+- `expiry` (DateTime): The expiry date and time of the authentication token.
+
+- `sensorSystem` (SensorSystem): The sensor system associated with the authentication token.
