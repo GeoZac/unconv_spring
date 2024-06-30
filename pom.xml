@@ -436,6 +436,7 @@
                 <version>${dependency-check-maven.version}</version>
                 <configuration>
                     <failOnError>false</failOnError>
+                    <nvdApiKey>${NVD_API_KEY}</nvdApiKey>
                 </configuration>
             </plugin>
             <plugin>
