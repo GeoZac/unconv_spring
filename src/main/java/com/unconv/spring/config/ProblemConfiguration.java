@@ -8,9 +8,15 @@ import org.springframework.context.annotation.Configuration;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
+/** Configuration class for customizing ObjectMapper with specific modules and features */
 @Configuration
 public class ProblemConfiguration {
 
+    /**
+     * Provides a customized ObjectMapper bean with required modules and features disabled.
+     *
+     * @return The configured ObjectMapper instance.
+     */
     @Bean
     public ObjectMapper objectMapper() {
 

@@ -15,17 +15,32 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/** Utility class for validating sensor access tokens and retrieving associated user information. */
 @Slf4j
 @Component
 public class SensorAuthTokenUtil {
 
     private final SensorAuthTokenRepository sensorAuthTokenRepository;
 
+    /**
+     * Constructs a new SensorAuthTokenUtil instance.
+     *
+     * @param sensorAuthTokenRepository the repository for sensor auth tokens
+     */
     @Autowired
     public SensorAuthTokenUtil(SensorAuthTokenRepository sensorAuthTokenRepository) {
         this.sensorAuthTokenRepository = sensorAuthTokenRepository;
     }
 
+    /**
+     * Validates the access token and retrieves the associated user's username.
+     *
+     * @param accessToken the access token to validate
+     * @return the username associated with the access token
+     * @throws UnknownAuthTokenException if the token is unknown
+     * @throws MalformedAuthTokenException if the token is malformed
+     * @throws ExpiredAuthTokenException if the token is expired
+     */
     String validateTokenAndRetrieveUser(String accessToken) {
         String hashString;
         try {
@@ -59,6 +74,11 @@ public class SensorAuthTokenUtil {
         return currentDateTime.isAfter(expiryDateTime);
     }
 
+    /**
+     * Creates and returns a BCryptPasswordEncoder bean.
+     *
+     * @return a BCryptPasswordEncoder bean
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

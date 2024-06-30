@@ -20,6 +20,15 @@ public class UnconvRoleServiceImpl implements UnconvRoleService {
 
     @Autowired private UnconvRoleRepository unconvRoleRepository;
 
+    /**
+     * Retrieves a paginated list of all UnconvRole entities.
+     *
+     * @param pageNo the page number
+     * @param pageSize the size of each page
+     * @param sortBy the field to sort by
+     * @param sortDir the direction of sorting
+     * @return a {@link PagedResult} containing the UnconvRole entities
+     */
     @Override
     public PagedResult<UnconvRole> findAllUnconvRoles(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -35,21 +44,44 @@ public class UnconvRoleServiceImpl implements UnconvRoleService {
         return new PagedResult<>(unconvRolesPage);
     }
 
+    /**
+     * Retrieves the UnconvRole entity with the specified ID.
+     *
+     * @param id the ID of the UnconvRole entity to retrieve
+     * @return an {@link Optional} containing the UnconvRole entity, or empty if not found
+     */
     @Override
     public Optional<UnconvRole> findUnconvRoleById(UUID id) {
         return unconvRoleRepository.findById(id);
     }
 
+    /**
+     * Retrieves the UnconvRole entity with the specified name.
+     *
+     * @param name the name of the UnconvRole entity to retrieve
+     * @return the UnconvRole entity with the specified name
+     */
     @Override
     public UnconvRole findUnconvRoleByName(String name) {
         return unconvRoleRepository.findByName(name);
     }
 
+    /**
+     * Saves a UnconvRole entity.
+     *
+     * @param unconvRole the UnconvRole entity to save
+     * @return the saved UnconvRole entity
+     */
     @Override
     public UnconvRole saveUnconvRole(UnconvRole unconvRole) {
         return unconvRoleRepository.save(unconvRole);
     }
 
+    /**
+     * Deletes the UnconvRole entity with the specified ID.
+     *
+     * @param id the ID of the UnconvRole entity to delete
+     */
     @Override
     public void deleteUnconvRoleById(UUID id) {
         unconvRoleRepository.deleteById(id);

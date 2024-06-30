@@ -27,6 +27,14 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SensorSystemDTO {
 
+    /**
+     * Constructs a {@link SensorSystemDTO} with the specified parameters.
+     *
+     * @param uuid the unique identifier for the sensor system
+     * @param sensorName the name of the sensor
+     * @param sensorLocation the location of the sensor
+     * @param unconvUser the user associated with the sensor
+     */
     public SensorSystemDTO(
             UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
         this.id = uuid;

@@ -12,12 +12,23 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * CustomAuthenticationManager is a responsible for authenticating users. It implements the
+ * AuthenticationManager interface.
+ */
 @Component
 @AllArgsConstructor
 public class CustomAuthenticationManager implements AuthenticationManager {
 
     private UnconvUserService unconvUserService;
 
+    /**
+     * Authenticates a user based on the provided authentication object.
+     *
+     * @param authentication the authentication object containing user credentials
+     * @return an authenticated Authentication object
+     * @throws AuthenticationException if authentication fails
+     */
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {
@@ -32,6 +43,11 @@ public class CustomAuthenticationManager implements AuthenticationManager {
                 authentication.getPrincipal(), unconvUser.getPassword());
     }
 
+    /**
+     * Creates a BCryptPasswordEncoder bean instance.
+     *
+     * @return a BCryptPasswordEncoder bean
+     */
     @Bean
     BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

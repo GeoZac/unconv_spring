@@ -24,6 +24,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of the {@link UnconvUserService} interface providing functionality related to
+ * unconventional user operations. This service class manages transactions for user-related
+ * operations.
+ */
 @Service
 @Transactional
 public class UnconvUserServiceImpl implements UnconvUserService {
@@ -34,6 +39,13 @@ public class UnconvUserServiceImpl implements UnconvUserService {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs an instance of {@link UnconvUserServiceImpl} with the specified dependencies.
+     *
+     * @param unconvUserRepository the repository for managing UnconvUser entities
+     * @param unconvRoleService the service for managing UnconvRole entities
+     * @param modelMapper the mapper for converting between DTOs and entities
+     */
     @Autowired
     public UnconvUserServiceImpl(
             UnconvUserRepository unconvUserRepository,
@@ -44,6 +56,15 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Retrieves a paginated list of {@link UnconvUser}s.
+     *
+     * @param pageNo The page number.
+     * @param pageSize The size of each page.
+     * @param sortBy The field to sort by.
+     * @param sortDir The sort direction (ASC or DESC).
+     * @return A paginated list of UnconvUsers.
+     */
     @Override
     public PagedResult<UnconvUser> findAllUnconvUsers(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -59,21 +80,46 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         return new PagedResult<>(unconvUsersPage);
     }
 
+    /**
+     * Retrieves an {@link UnconvUser} by its ID.
+     *
+     * @param id The ID of the UnconvUser.
+     * @return An {@link Optional} containing the {@link UnconvUser}, or empty if not found.
+     */
     @Override
     public Optional<UnconvUser> findUnconvUserById(UUID id) {
         return unconvUserRepository.findById(id);
     }
 
+    /**
+     * Checks if a username is unique.
+     *
+     * @param username The username to check.
+     * @return true if the username is unique, false otherwise.
+     */
     @Override
     public boolean isUsernameUnique(String username) {
         return !unconvUserRepository.existsByUsername(username);
     }
 
+    /**
+     * Retrieves an {@link UnconvUser} by username.
+     *
+     * @param username The username of the {@link UnconvUser}.
+     * @return The {@link UnconvUser} with the given username.
+     */
     @Override
     public UnconvUser findUnconvUserByUserName(String username) {
         return unconvUserRepository.findByUsername(username);
     }
 
+    /**
+     * Saves a new {@link UnconvUser}.
+     *
+     * @param unconvUser The UnconvUser to save.
+     * @param rawPassword The raw password for the UnconvUser.
+     * @return The saved UnconvUser.
+     */
     @Override
     public UnconvUser saveUnconvUser(UnconvUser unconvUser, String rawPassword) {
         UnconvUser unconvUserWithRole = setRoleIfNotDefined(unconvUser);
@@ -81,6 +127,13 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         return unconvUserRepository.save(unconvUser);
     }
 
+    /**
+     * Checks if the provided password matches the one stored for the given {@link UnconvUser}.
+     *
+     * @param unconvUserId The ID of the UnconvUser.
+     * @param currentPassword The password to check.
+     * @return true if the passwords match, false otherwise.
+     */
     @Override
     public boolean checkPasswordMatch(UUID unconvUserId, String currentPassword) {
         UnconvUser unconvUser = unconvUserRepository.findUnconvUserById(unconvUserId);
@@ -88,6 +141,12 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         return bCryptPasswordEncoder().matches(currentPassword, unconvUser.getPassword());
     }
 
+    /**
+     * Creates a new {@link UnconvUser} from the provided DTO.
+     *
+     * @param unconvUserDTO The DTO containing UnconvUser information.
+     * @return The created UnconvUserDTO.
+     */
     @Override
     public UnconvUserDTO createUnconvUser(UnconvUserDTO unconvUserDTO) {
         UnconvRole userUnconvRole = unconvRoleService.findUnconvRoleByName("ROLE_USER");
@@ -104,6 +163,13 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         return savedUnconvUserDTO;
     }
 
+    /**
+     * Updates an existing {@link UnconvUser} with information from the provided DTO.
+     *
+     * @param unconvUser The existing UnconvUser to update.
+     * @param unconvUserDTO The DTO containing updated information.
+     * @return The updated UnconvUserDTO.
+     */
     @Override
     public UnconvUserDTO updateUnconvUser(UnconvUser unconvUser, UnconvUserDTO unconvUserDTO) {
         unconvUserDTO.setId(unconvUser.getId());
@@ -120,6 +186,11 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         return updatedUnconvUserDTO;
     }
 
+    /**
+     * Deletes an {@link UnconvUser} by its ID.
+     *
+     * @param id The ID of the UnconvUser to delete.
+     */
     @Override
     public void deleteUnconvUserById(UUID id) {
         unconvUserRepository.deleteById(id);
@@ -135,6 +206,12 @@ public class UnconvUserServiceImpl implements UnconvUserService {
         return unconvUser;
     }
 
+    /**
+     * Bean definition for creating a {@link BCryptPasswordEncoder} instance.
+     *
+     * @return a new instance of {@link BCryptPasswordEncoder} for encoding passwords using BCrypt
+     *     hashing
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

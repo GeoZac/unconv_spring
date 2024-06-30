@@ -27,6 +27,15 @@ public class EnvironmentalReadingDTO extends BaseEnvironmentalReadingDTO {
     @NotNull(message = ENVT_VALID_SENSOR_SYSTEM)
     private SensorSystem sensorSystem;
 
+    /**
+     * Constructs an {@link EnvironmentalReadingDTO} with the specified parameters.
+     *
+     * @param uuid the unique identifier for the environmental reading
+     * @param temperature the temperature value of the reading
+     * @param humidity the humidity value of the reading
+     * @param timeStamp the timestamp of the reading
+     * @param sensorSystem the sensor system associated with the reading
+     */
     public EnvironmentalReadingDTO(
             UUID uuid,
             long temperature,

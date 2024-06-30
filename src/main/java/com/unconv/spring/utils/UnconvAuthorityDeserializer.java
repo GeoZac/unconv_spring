@@ -13,9 +13,22 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+/**
+ * Custom JSON deserializer for converting JSON representations of authorities into a collection of
+ * GrantedAuthority objects.
+ */
 public class UnconvAuthorityDeserializer
         extends JsonDeserializer<Collection<? extends GrantedAuthority>> {
 
+    /**
+     * Deserializes JSON representation of authorities into a collection of GrantedAuthority
+     * objects.
+     *
+     * @param jsonParser the JSON parser
+     * @param deserializationContext the deserialization context
+     * @return a collection of GrantedAuthority objects
+     * @throws IOException if an I/O error occurs while reading the JSON content
+     */
     @Override
     public Collection<? extends GrantedAuthority> deserialize(
             JsonParser jsonParser, DeserializationContext deserializationContext)

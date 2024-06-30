@@ -33,6 +33,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs an instance of {@link SensorAuthTokenServiceImpl} with the specified dependencies.
+     *
+     * @param sensorAuthTokenRepository the repository for managing sensor authentication tokens
+     * @param modelMapper the mapper for converting between DTOs and entities
+     */
     @Autowired
     public SensorAuthTokenServiceImpl(
             SensorAuthTokenRepository sensorAuthTokenRepository, ModelMapper modelMapper) {
@@ -40,6 +46,15 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Retrieves a paginated list of SensorAuthTokens.
+     *
+     * @param pageNo The page number.
+     * @param pageSize The size of each page.
+     * @param sortBy The field to sort by.
+     * @param sortDir The sort direction (ASC or DESC).
+     * @return A paginated list of SensorAuthTokens.
+     */
     @Override
     public PagedResult<SensorAuthToken> findAllSensorAuthTokens(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -55,11 +70,23 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return new PagedResult<>(sensorAuthTokensPage);
     }
 
+    /**
+     * Retrieves a SensorAuthToken by its ID.
+     *
+     * @param id The ID of the SensorAuthToken.
+     * @return An Optional containing the SensorAuthToken, or empty if not found.
+     */
     @Override
     public Optional<SensorAuthToken> findSensorAuthTokenById(UUID id) {
         return sensorAuthTokenRepository.findById(id);
     }
 
+    /**
+     * Saves a SensorAuthToken.
+     *
+     * @param sensorAuthToken The SensorAuthToken to save.
+     * @return The saved SensorAuthToken.
+     */
     @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
         sensorAuthToken.setAuthToken(
@@ -67,6 +94,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return sensorAuthTokenRepository.saveAndFlush(sensorAuthToken);
     }
 
+    /**
+     * Saves a SensorAuthToken.
+     *
+     * @param sensorAuthToken The SensorAuthToken to save.
+     * @return The saved SensorAuthTokenDTO.
+     */
     @Override
     public SensorAuthTokenDTO saveSensorAuthTokenDTO(SensorAuthToken sensorAuthToken) {
         String authToken = sensorAuthToken.getAuthToken();
@@ -77,11 +110,21 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return savedSensorAuthTokenDTO;
     }
 
+    /**
+     * Deletes a SensorAuthToken by its ID.
+     *
+     * @param id The ID of the SensorAuthToken to delete.
+     */
     @Override
     public void deleteSensorAuthTokenById(UUID id) {
         sensorAuthTokenRepository.deleteById(id);
     }
 
+    /**
+     * Deletes any SensorAuthToken by the SensoorSystem id.
+     *
+     * @param sensorSystemId The ID of the SensorSystem to delete SensorAuthTokens of.
+     */
     @Override
     public void deleteAnyExistingSensorSystem(UUID sensorSystemId) {
         SensorAuthToken sensorAuthToken =
@@ -92,6 +135,13 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         deleteSensorAuthTokenById(sensorAuthToken.getId());
     }
 
+    /**
+     * Generates an authentication token for the given SensorSystem.
+     *
+     * @param sensorSystem The SensorSystem for which the token is generated.
+     * @param sensorAuthTokenId The SensorAuthToken, in case the request is for updating
+     * @return The generated SensorAuthTokenDTO.
+     */
     @Override
     public SensorAuthTokenDTO generateSensorAuthToken(
             SensorSystem sensorSystem, UUID sensorAuthTokenId) {
@@ -114,6 +164,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return savedSensorAuthTokenDTO;
     }
 
+    /**
+     * Retrieves information about the authentication token for the given SensorSystem.
+     *
+     * @param sensorSystem The SensorSystem for which to retrieve token information.
+     * @return The SensorAuthTokenDTO containing token information.
+     */
     @Override
     public SensorAuthTokenDTO getSensorAuthTokenInfo(SensorSystem sensorSystem) {
         SensorAuthToken sensorAuthToken =
@@ -129,6 +185,11 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return sensorAuthTokenDTO;
     }
 
+    /**
+     * Generates a unique salted suffix for authentication tokens.
+     *
+     * @return A unique salted suffix.
+     */
     @Override
     public String generateUniqueSaltedSuffix() {
         boolean uniqueSensorAuthToken = false;
@@ -142,6 +203,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return sensorAuthTokenString;
     }
 
+    /**
+     * Bean definition for creating a {@link BCryptPasswordEncoder} instance.
+     *
+     * @return a new instance of {@link BCryptPasswordEncoder} for encoding passwords using BCrypt
+     *     hashing
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();

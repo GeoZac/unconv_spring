@@ -20,6 +20,15 @@ public class HumidityThresholdServiceImpl implements HumidityThresholdService {
 
     @Autowired private HumidityThresholdRepository humidityThresholdRepository;
 
+    /**
+     * Retrieves a paginated list of all humidity thresholds.
+     *
+     * @param pageNo the page number
+     * @param pageSize the size of each page
+     * @param sortBy the field to sort by
+     * @param sortDir the direction of sorting
+     * @return a {@link PagedResult} containing the humidity thresholds
+     */
     @Override
     public PagedResult<HumidityThreshold> findAllHumidityThresholds(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -36,16 +45,33 @@ public class HumidityThresholdServiceImpl implements HumidityThresholdService {
         return new PagedResult<>(humidityThresholdPage);
     }
 
+    /**
+     * Retrieves the humidity threshold with the specified ID.
+     *
+     * @param id the ID of the humidity threshold to retrieve
+     * @return an {@link Optional} containing the humidity threshold, or empty if not found
+     */
     @Override
     public Optional<HumidityThreshold> findHumidityThresholdById(UUID id) {
         return humidityThresholdRepository.findById(id);
     }
 
+    /**
+     * Saves a humidity threshold.
+     *
+     * @param humidityThreshold the humidity threshold to save
+     * @return the saved humidity threshold
+     */
     @Override
     public HumidityThreshold saveHumidityThreshold(HumidityThreshold humidityThreshold) {
         return humidityThresholdRepository.save(humidityThreshold);
     }
 
+    /**
+     * Deletes the humidity threshold with the specified ID.
+     *
+     * @param id the ID of the humidity threshold to delete
+     */
     @Override
     public void deleteHumidityThresholdById(UUID id) {
         humidityThresholdRepository.deleteById(id);
