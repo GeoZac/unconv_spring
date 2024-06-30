@@ -1,11 +1,10 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
@@ -30,8 +29,6 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
-import com.unconv.spring.utils.AccessTokenGenerator;
-import com.unconv.spring.utils.SaltedSuffixGenerator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +59,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     private SensorSystem savedSensorSystem;
 
-    private List<SensorAuthToken> sensorAuthTokenList = null;
+    private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
     @BeforeEach
     void setUp() {
@@ -94,16 +91,10 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
         sensorAuthTokenList = new ArrayList<>();
         for (SensorSystem sensorSystem : sensorSystemList) {
-            SensorAuthToken sensorAuthToken =
-                    new SensorAuthToken(
-                            null,
-                            AccessTokenGenerator.generateAccessToken(),
-                            OffsetDateTime.now().plusDays(10),
-                            SaltedSuffixGenerator.generateSaltedSuffix(),
-                            sensorSystem);
-            sensorAuthTokenList.add(sensorAuthToken);
+            SensorAuthTokenDTO sensorAuthTokenDTO =
+                    sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null);
+            sensorAuthTokenList.add(sensorAuthTokenDTO);
         }
-        sensorAuthTokenList = sensorAuthTokenRepository.saveAll(sensorAuthTokenList);
     }
 
     @Test
@@ -138,15 +129,14 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorAuthTokenById() throws Exception {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
         UUID sensorAuthTokenId = sensorAuthToken.getId();
 
         this.mockMvc
                 .perform(get("/SensorAuthToken/{id}", sensorAuthTokenId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
 
@@ -174,8 +164,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
 
@@ -209,7 +198,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateSensorAuthToken() throws Exception {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
         sensorAuthToken.setAuthToken("Updated SensorAuthToken");
         sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(100));
 
@@ -221,21 +210,19 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
 
     @Test
     void shouldDeleteSensorAuthToken() throws Exception {
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
 
         this.mockMvc
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
 
@@ -250,7 +237,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingSensorAuthToken() throws Exception {
         UUID sensorAuthTokenId = UUID.randomUUID();
-        SensorAuthToken sensorAuthToken = sensorAuthTokenList.get(1);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(1);
 
         this.mockMvc
                 .perform(
@@ -289,9 +276,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
-                .andExpect(
-                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
@@ -322,9 +307,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.id", not(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
-                .andExpect(
-                        jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
@@ -372,8 +355,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenUUID.toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();

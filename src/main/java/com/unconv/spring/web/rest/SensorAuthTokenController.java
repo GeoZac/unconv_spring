@@ -100,9 +100,9 @@ public class SensorAuthTokenController {
      *     not exists
      */
     @GetMapping("/{id}")
-    public ResponseEntity<SensorAuthToken> getSensorAuthTokenById(@PathVariable UUID id) {
+    public ResponseEntity<SensorAuthTokenDTO> getSensorAuthTokenById(@PathVariable UUID id) {
         return sensorAuthTokenService
-                .findSensorAuthTokenById(id)
+                .findSensorAuthTokenDTOById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -207,9 +207,9 @@ public class SensorAuthTokenController {
      *     the token does not exist
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<SensorAuthToken> deleteSensorAuthToken(@PathVariable UUID id) {
+    public ResponseEntity<SensorAuthTokenDTO> deleteSensorAuthToken(@PathVariable UUID id) {
         return sensorAuthTokenService
-                .findSensorAuthTokenById(id)
+                .findSensorAuthTokenDTOById(id)
                 .map(
                         sensorAuthToken -> {
                             sensorAuthTokenService.deleteSensorAuthTokenById(id);
