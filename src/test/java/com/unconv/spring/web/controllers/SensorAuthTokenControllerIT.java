@@ -4,7 +4,6 @@ import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -165,7 +164,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
@@ -212,7 +210,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(sensorAuthToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
@@ -279,7 +276,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
@@ -311,7 +307,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.id", not(sensorAuthToken.getId().toString())))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(49)))
                 .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))

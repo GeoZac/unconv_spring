@@ -7,7 +7,6 @@ import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
@@ -161,7 +160,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         preprocessResponse(prettyPrint)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id", is(sensorAuthTokenId.toString())))
-                        .andExpect(jsonPath("$.authToken", hasLength(49)))
                         .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                         .andReturn()
                         .getResponse()
