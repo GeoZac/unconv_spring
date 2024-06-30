@@ -164,6 +164,7 @@ workflows:
     jobs:
       - setup
       - owasp/maven_owasp_dependency_check:
+          no_output_timeout: 30m
           filters:
             branches:
                 only:
