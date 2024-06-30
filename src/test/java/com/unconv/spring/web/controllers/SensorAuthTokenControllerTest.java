@@ -146,7 +146,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthToken =
                 new SensorAuthTokenDTO(
                         sensorAuthTokenId,
-                        generateAccessToken() + generateSaltedSuffix(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
@@ -202,7 +202,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
-                        generateAccessToken() + generateSaltedSuffix(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
 
@@ -328,7 +328,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthToken =
                 new SensorAuthTokenDTO(
                         sensorAuthTokenId,
-                        generateAccessToken() + generateSaltedSuffix(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
@@ -433,7 +433,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthTokenDTO =
                 new SensorAuthTokenDTO(
                         UUID.randomUUID(),
-                        generateAccessToken() + generateSaltedSuffix(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(60),
                         sensorSystem);
 
