@@ -12,8 +12,9 @@ public class SensorAuthTokenMatcher {
             @Override
             protected boolean matchesSafely(Object object) {
                 String sensorAuthTokenString = (String) object;
-                String maskedSensorAuthTokenPattern = "UNCONV[*]{19}[A-Za-z0-9+/]{22}==";
-                String unmaskedSensorAuthTokenPattern = "UNCONV[A-Za-z0-9]{19}[A-Za-z0-9+/]{22}==";
+                String maskedSensorAuthTokenPattern = "^UNCONV[*]{19}[A-Za-z0-9+/]{22}==$";
+                String unmaskedSensorAuthTokenPattern =
+                        "^UNCONV[A-Za-z0-9]{19}[A-Za-z0-9+/]{22}==$";
 
                 String selectedPattern =
                         isMaskedSensorAuthToken
