@@ -10,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Future;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Base class representing Sensor Authentication Token. */
 @Entity
 @Table(name = "sensor_auth_tokens")
 @Getter
@@ -36,7 +36,6 @@ public class SensorAuthToken {
     private String authToken;
 
     @Column(nullable = false)
-    @Future(message = "Expiry has to be in future")
     @NotNull(message = "Expiry cannot be empty")
     private OffsetDateTime expiry;
 
@@ -45,11 +44,20 @@ public class SensorAuthToken {
     private String tokenHash;
 
     @OneToOne
-    @JoinColumn(name = "sensor_system_id")
+    @JoinColumn(name = "sensor_system_id", referencedColumnName = "id", unique = true)
     @NotNull(message = "Sensor system cannot be empty")
     private SensorSystem sensorSystem;
 
     // TODO Remove this once code is tested
+    /**
+     * Constructs a new {@code SensorAuthToken} with the specified id, authentication token, expiry
+     * date and time, and associated sensor system.
+     *
+     * @param id the unique identifier for this authentication token
+     * @param authToken the authentication token string
+     * @param expiry the date and time when this authentication token expires
+     * @param sensorSystem the {@link SensorSystem} associated with this authentication token
+     */
     public SensorAuthToken(
             UUID id, String authToken, OffsetDateTime expiry, SensorSystem sensorSystem) {
         this.id = id;

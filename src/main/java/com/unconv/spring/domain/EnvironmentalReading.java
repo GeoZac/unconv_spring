@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Represents an environmental reading entity in the database. */
 @Entity
 @Table(name = "environmental_readings")
 @Getter

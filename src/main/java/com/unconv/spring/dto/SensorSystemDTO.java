@@ -1,11 +1,11 @@
 package com.unconv.spring.dto;
 
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import com.unconv.spring.enums.SensorStatus;
 import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -27,6 +27,14 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SensorSystemDTO {
 
+    /**
+     * Constructs a {@link SensorSystemDTO} with the specified parameters.
+     *
+     * @param uuid the unique identifier for the sensor system
+     * @param sensorName the name of the sensor
+     * @param sensorLocation the location of the sensor
+     * @param unconvUser the user associated with the sensor
+     */
     public SensorSystemDTO(
             UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
         this.id = uuid;

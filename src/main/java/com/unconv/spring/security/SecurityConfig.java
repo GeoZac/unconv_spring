@@ -7,6 +7,7 @@ import com.unconv.spring.security.filter.JWTAuthenticationFilter;
 import com.unconv.spring.security.filter.JWTUtil;
 import com.unconv.spring.security.filter.SensorAuthTokenUtil;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * SecurityConfig is a configuration class responsible for configuring security settings in the
+ * application. It is annotated with @Configuration to indicate that it contains bean definitions.
+ */
 @AllArgsConstructor
 @Configuration
 public class SecurityConfig {
@@ -27,6 +32,15 @@ public class SecurityConfig {
 
     private final UnconvUserService unconvUserService;
 
+    private final SensorAuthTokenExceptionHandler sensorAuthTokenExceptionHandler;
+
+    /**
+     * Configures the security filter chain for the application.
+     *
+     * @param http the HttpSecurity object for configuring security
+     * @return the SecurityFilterChain for the application
+     * @throws Exception if an error occurs during configuration
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationFilter authenticationFilter =
@@ -34,26 +48,43 @@ public class SecurityConfig {
         authenticationFilter.setFilterProcessesUrl("/auth/login");
 
         http
-                // disable this if you want to use it in postman
+                // Disable CSRF protection if using it in Postman
                 .csrf()
                 .disable()
+
+                // Configure request authorization
                 .authorizeRequests()
+
+                // Allow specific URLs without authentication
                 .antMatchers(HttpMethod.GET, "/UnconvUser/Username/Available/**")
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/UnconvUser")
                 .permitAll()
                 .antMatchers("/public/**")
                 .permitAll()
+                .antMatchers("/favicon.ico")
+                .permitAll()
+
+                // Require authentication for any other request
                 .anyRequest()
                 .authenticated()
+
+                // Configure additional filters
                 .and()
-                .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+                .addFilterBefore(
+                        new ExceptionHandlerFilter(sensorAuthTokenExceptionHandler),
+                        AuthenticationFilter.class)
+
+                // Apply authentication filter only to specific URLs
                 .addFilter(authenticationFilter)
                 .addFilterAfter(
                         new JWTAuthenticationFilter(jwtUtil, sensorAuthTokenUtil),
                         AuthenticationFilter.class)
+
+                // Configure session management
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         return http.build();
     }
 }

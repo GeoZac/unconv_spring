@@ -23,6 +23,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final UnconvUserService unconvUserService;
 
+    /**
+     * Constructs an {@link AuthenticationFilter} with the specified authentication manager, JWT
+     * utility, and user service.
+     *
+     * @param customAuthenticationManager the custom authentication manager to authenticate requests
+     * @param jwtUtil the JWT utility for token handling and validation
+     * @param unconvUserService the user service to retrieve user details
+     */
     public AuthenticationFilter(
             CustomAuthenticationManager customAuthenticationManager,
             JWTUtil jwtUtil,
@@ -58,9 +66,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         String username = (String) authResult.getPrincipal();
 
-        String token = jwtUtil.generateToken(username);
-
         UnconvUser unconvUser = unconvUserService.findUnconvUserByUserName(username);
+
+        String token = jwtUtil.generateToken(unconvUser);
 
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();

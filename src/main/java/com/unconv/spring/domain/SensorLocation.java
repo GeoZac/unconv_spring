@@ -1,6 +1,6 @@
 package com.unconv.spring.domain;
 
-import com.unconv.spring.consts.SensorLocationType;
+import com.unconv.spring.enums.SensorLocationType;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;

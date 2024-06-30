@@ -7,10 +7,10 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
@@ -44,6 +44,15 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
 
     @Autowired private ModelMapper modelMapper;
 
+    /**
+     * Retrieves a paginated list of all EnvironmentalReadings.
+     *
+     * @param pageNo The page number.
+     * @param pageSize The size of each page.
+     * @param sortBy The field to sort by.
+     * @param sortDir The sort direction (ASC or DESC).
+     * @return A paginated list of EnvironmentalReadings.
+     */
     @Override
     public PagedResult<EnvironmentalReading> findAllEnvironmentalReadings(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -60,6 +69,16 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
         return new PagedResult<>(environmentalReadingsPage);
     }
 
+    /**
+     * Retrieves a paginated list of EnvironmentalReadings by SensorSystem ID.
+     *
+     * @param sensorSystemId The ID of the SensorSystem.
+     * @param pageNo The page number.
+     * @param pageSize The size of each page.
+     * @param sortBy The field to sort by.
+     * @param sortDir The sort direction (ASC or DESC).
+     * @return A paginated list of EnvironmentalReadings.
+     */
     @Override
     public PagedResult<EnvironmentalReading> findAllEnvironmentalReadingsBySensorSystemId(
             UUID sensorSystemId, int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -76,33 +95,59 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
         return new PagedResult<>(environmentalReadingsPage);
     }
 
+    /**
+     * Retrieves an EnvironmentalReading by its ID.
+     *
+     * @param id The ID of the EnvironmentalReading.
+     * @return An Optional containing the EnvironmentalReading, or empty if not found.
+     */
     @Override
     public Optional<EnvironmentalReading> findEnvironmentalReadingById(UUID id) {
         return environmentalReadingRepository.findById(id);
     }
 
+    /**
+     * Retrieves the latest EnvironmentalReadings for a given UnconvUser.
+     *
+     * @param id The ID of the UnconvUser.
+     * @return A list of latest EnvironmentalReadings.
+     */
     @Override
     public List<EnvironmentalReading> findLatestEnvironmentalReadingsByUnconvUserId(UUID id) {
         return environmentalReadingRepository
                 .findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(id);
     }
 
+    /**
+     * Saves a new EnvironmentalReading.
+     *
+     * @param environmentalReading The EnvironmentalReading to save.
+     * @return The saved EnvironmentalReading.
+     */
     @Override
     public EnvironmentalReading saveEnvironmentalReading(
             EnvironmentalReading environmentalReading) {
         return environmentalReadingRepository.save(environmentalReading);
     }
 
+    /**
+     * Validates the UnconvUser, generates timestamp if required, and saves a new
+     * EnvironmentalReading.
+     *
+     * @param environmentalReadingDTO The EnvironmentalReadingDTO to save.
+     * @param authentication The authentication object.
+     * @return ResponseEntity containing a MessageResponse with the saved EnvironmentalReadingDTO.
+     */
     @Override
     public ResponseEntity<MessageResponse<EnvironmentalReadingDTO>>
             generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
                     EnvironmentalReadingDTO environmentalReadingDTO,
                     Authentication authentication) {
 
-        Optional<SensorSystem> optionalSensorSystem =
-                sensorSystemRepository.findById(environmentalReadingDTO.getSensorSystem().getId());
+        SensorSystem sensorSystem =
+                sensorSystemRepository.findSensorSystemById(
+                        environmentalReadingDTO.getSensorSystem().getId());
 
-        SensorSystem sensorSystem = optionalSensorSystem.get();
         if (!sensorSystem.getUnconvUser().getUsername().equals(authentication.getName())) {
             MessageResponse<EnvironmentalReadingDTO> environmentalReadingDTOMessageResponse =
                     new MessageResponse<>(environmentalReadingDTO, ENVT_RECORD_REJ_USER);
@@ -139,6 +184,13 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
         return new ResponseEntity<>(environmentalReadingDTOMessageResponse, HttpStatus.CREATED);
     }
 
+    /**
+     * Parses EnvironmentalReadings from a CSV file and saves them for the given SensorSystem.
+     *
+     * @param file The CSV file containing EnvironmentalReadings.
+     * @param sensorSystem The SensorSystem to associate with the readings.
+     * @return The number of readings successfully parsed and saved.
+     */
     @Override
     public int parseFromCSVAndSaveEnvironmentalReading(
             MultipartFile file, SensorSystem sensorSystem) {
@@ -153,11 +205,24 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
         }
     }
 
+    /**
+     * Deletes an EnvironmentalReading by its ID.
+     *
+     * @param id The ID of the EnvironmentalReading to delete.
+     */
     @Override
     public void deleteEnvironmentalReadingById(UUID id) {
         environmentalReadingRepository.deleteById(id);
     }
 
+    /**
+     * Verifies the CSV file, validates the SensorSystem, and parses EnvironmentalReadings.
+     *
+     * @param sensorSystem The SensorSystem to validate and associate with the readings.
+     * @param file The CSV file containing EnvironmentalReadings.
+     * @return ResponseEntity containing a message indicating the success or failure of the
+     *     operation.
+     */
     @Override
     public ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
             SensorSystem sensorSystem, MultipartFile file) {

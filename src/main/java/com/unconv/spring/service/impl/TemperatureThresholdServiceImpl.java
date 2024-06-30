@@ -20,6 +20,15 @@ public class TemperatureThresholdServiceImpl implements TemperatureThresholdServ
 
     @Autowired private TemperatureThresholdRepository temperatureThresholdRepository;
 
+    /**
+     * Retrieves a paginated list of all temperature thresholds.
+     *
+     * @param pageNo the page number
+     * @param pageSize the size of each page
+     * @param sortBy the field to sort by
+     * @param sortDir the direction of sorting
+     * @return a {@link PagedResult} containing the temperature thresholds
+     */
     @Override
     public PagedResult<TemperatureThreshold> findAllTemperatureThresholds(
             int pageNo, int pageSize, String sortBy, String sortDir) {
@@ -36,17 +45,34 @@ public class TemperatureThresholdServiceImpl implements TemperatureThresholdServ
         return new PagedResult<>(temperatureThresholdPage);
     }
 
+    /**
+     * Retrieves the temperature threshold with the specified ID.
+     *
+     * @param id the ID of the temperature threshold to retrieve
+     * @return an {@link Optional} containing the temperature threshold, or empty if not found
+     */
     @Override
     public Optional<TemperatureThreshold> findTemperatureThresholdById(UUID id) {
         return temperatureThresholdRepository.findById(id);
     }
 
+    /**
+     * Saves a temperature threshold.
+     *
+     * @param temperatureThreshold the temperature threshold to save
+     * @return the saved temperature threshold
+     */
     @Override
     public TemperatureThreshold saveTemperatureThreshold(
             TemperatureThreshold temperatureThreshold) {
         return temperatureThresholdRepository.save(temperatureThreshold);
     }
 
+    /**
+     * Deletes the temperature threshold with the specified ID.
+     *
+     * @param id the ID of the temperature threshold to delete
+     */
     @Override
     public void deleteTemperatureThresholdById(UUID id) {
         temperatureThresholdRepository.deleteById(id);

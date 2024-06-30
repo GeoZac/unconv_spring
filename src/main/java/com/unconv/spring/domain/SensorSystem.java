@@ -1,6 +1,6 @@
 package com.unconv.spring.domain;
 
-import com.unconv.spring.consts.SensorStatus;
+import com.unconv.spring.enums.SensorStatus;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Represents a sensor system entity in the database. */
 @Entity
 @Table(name = "sensor_systems")
 @Getter
@@ -30,6 +31,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SensorSystem {
 
+    /**
+     * Constructs a new SensorSystem with the specified parameters. Sets default values for backward
+     * compatibility.
+     *
+     * @param uuid the unique identifier of the sensor system
+     * @param sensorName the name of the sensor
+     * @param sensorLocation the location of the sensor
+     * @param unconvUser the user associated with the sensor
+     */
     public SensorSystem(
             UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
         this.id = uuid;

@@ -36,10 +36,20 @@ public class BaseEnvironmentalReadingDTO {
     @PastOrPresent(message = "Readings has to be in past or present")
     private OffsetDateTime timestamp;
 
+    /**
+     * Sets the timestamp of the environmental reading to the current UTC time. Uses {@link
+     * OffsetDateTime} to ensure the timestamp includes timezone offset information.
+     */
     public void setTimestamp() {
         this.timestamp = OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
     }
 
+    /**
+     * Converts the environmental reading data to a CSV-formatted string.
+     *
+     * @return a string representing the environmental reading in CSV format:
+     *     temperature,humidity,timestamp
+     */
     public String toCSVString() {
         return this.temperature + "," + this.humidity + "," + this.timestamp;
     }

@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@3.3.0
+  codecov: codecov/codecov@4.1.0
+  owasp: entur/owasp@0.0.19
 jobs:
   setup:
     machine:
@@ -20,6 +21,9 @@ jobs:
       - run:
           name: Download dependecies
           command: ./mvnw dependency:resolve
+      - run:
+            name: Display dependency tree
+            command: ./mvnw dependency:tree
       - save_cache:
           paths:
             - ~/.m2
@@ -106,6 +110,9 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
+          name: Run CheckStyle
+          command: ./mvnw checkstyle:checkstyle
+      - run:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - codecov/upload:
@@ -142,6 +149,9 @@ jobs:
       - run:
           name: Build API doc
           command: ./mvnw package
+      - run:
+          name: Build JavaDoc
+          command: ./mvnw javadoc:javadoc
       - store_artifacts:
           path: target/generated-docs/index.pdf
       - save_cache:
@@ -153,6 +163,13 @@ workflows:
   build-and-test:
     jobs:
       - setup
+      - owasp/maven_owasp_dependency_check:
+          filters:
+            branches:
+                only:
+                - master
+                - /dependabot\/.*/
+                - /chore\/.*/
       - build:
           requires:
             - setup

@@ -1,18 +1,18 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.consts.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.hasLength;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -30,8 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.SensorLocationType;
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorLocation;
@@ -39,6 +37,8 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
+import com.unconv.spring.enums.SensorLocationType;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.SensorSystemService;
@@ -142,14 +142,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindSensorAuthTokenById() throws Exception {
         UUID sensorAuthTokenId = UUID.randomUUID();
-        SensorAuthToken sensorAuthToken =
-                new SensorAuthToken(
+        SensorAuthTokenDTO sensorAuthToken =
+                new SensorAuthTokenDTO(
                         sensorAuthTokenId,
-                        generateAccessToken() + RandomStringUtils.random(24),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
-                        RandomStringUtils.random(24),
                         sensorSystem);
-        given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
+        given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
 
         String responseJson =
@@ -161,9 +160,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                         preprocessResponse(prettyPrint)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id", is(sensorAuthTokenId.toString())))
-                        .andExpect(jsonPath("$.authToken", hasLength(49)))
-                        .andExpect(
-                                jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]{19}.*")))
+                        .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
@@ -191,19 +188,19 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldCreateNewSensorAuthToken() throws Exception {
-        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class), isNull()))
                 .willAnswer(
                         (invocation) ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
-                                        generateAccessToken(),
+                                        generateAccessToken() + generateSaltedSuffix(),
                                         OffsetDateTime.now().plusDays(10),
                                         invocation.getArgument(0)));
 
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
-                        generateAccessToken(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
 
@@ -221,8 +218,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
 
@@ -270,12 +266,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
-        given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class)))
+        given(
+                        sensorAuthTokenService.generateSensorAuthToken(
+                                any(SensorSystem.class), any(UUID.class)))
                 .willAnswer(
                         (invocation) ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
-                                        generateAccessToken(),
+                                        generateAccessToken() + generateSaltedSuffix(),
                                         OffsetDateTime.now().plusDays(10),
                                         invocation.getArgument(0)));
 
@@ -291,8 +289,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(false)))
                 .andReturn();
     }
 
@@ -326,14 +323,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     @Test
     void shouldDeleteSensorAuthToken() throws Exception {
         UUID sensorAuthTokenId = UUID.randomUUID();
-        SensorAuthToken sensorAuthToken =
-                new SensorAuthToken(
+        SensorAuthTokenDTO sensorAuthToken =
+                new SensorAuthTokenDTO(
                         sensorAuthTokenId,
-                        generateAccessToken(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         sensorSystem);
-        given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
-                .willReturn(Optional.of(sensorAuthToken));
+        given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
+                .willReturn((Optional.of(sensorAuthToken)));
         //
         // doNothing().when(sensorAuthTokenService).deleteSensorAuthTokenById(sensorAuthToken.getId());
         //
@@ -341,8 +338,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
                 .andDo(document("shouldDeleteSensorAuthToken", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andReturn();
     }
 
@@ -373,13 +369,13 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthTokenDTO =
                 new SensorAuthTokenDTO(
                         UUID.randomUUID(),
-                        generateAccessToken(),
+                        generateAccessToken() + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(60),
                         sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
                 .willReturn(Optional.of(sensorSystem));
-        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem))
+        given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null))
                 .willReturn(sensorAuthTokenDTO);
 
         this.mockMvc
@@ -396,8 +392,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
-                .andExpect(jsonPath("$.entity.authToken", hasLength(25)))
-                .andExpect(jsonPath("$.entity.authToken", matchesPattern("UNCONV[A-Za-z0-9]+")))
+                .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
                         jsonPath("$.entity.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
@@ -436,7 +431,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthTokenDTO =
                 new SensorAuthTokenDTO(
                         UUID.randomUUID(),
-                        generateAccessToken() + generateSaltedSuffix(),
+                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(60),
                         sensorSystem);
 
@@ -457,8 +452,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.id", is(sensorAuthTokenDTO.getId().toString())))
-                .andExpect(jsonPath("$.authToken", hasLength(49)))
-                .andExpect(jsonPath("$.authToken", matchesPattern("UNCONV[A-Za-z0-9*]{19}.*")))
+                .andExpect(jsonPath("$.authToken", validSensorAuthToken(true)))
                 .andExpect(jsonPath("$.expiry", notNullValue(OffsetDateTime.class)))
                 .andExpect(jsonPath("$.sensorSystem.id", is(sensorSystem.getId().toString())))
                 .andReturn();
