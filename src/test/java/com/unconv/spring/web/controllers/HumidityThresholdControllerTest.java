@@ -9,6 +9,9 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -32,6 +35,7 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -45,6 +49,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = HumidityThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureRestDocs(outputDir = "target/snippets/HumidityThreshold")
 class HumidityThresholdControllerTest extends AbstractControllerTest {
 
     @MockBean private HumidityThresholdService humidityThresholdService;
@@ -58,6 +63,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/HumidityThreshold")
                                         .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -81,6 +87,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/HumidityThreshold"))
+                .andDo(
+                        document(
+                                "shouldFetchAllHumidityThresholds",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
                 .andExpect(jsonPath("$.totalElements", is(5)))
@@ -101,6 +111,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
+                .andDo(document("shouldFindHumidityThresholdById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(humidityThresholdId.toString())))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
@@ -116,6 +127,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingHumidityThreshold",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -136,6 +151,11 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andDo(
+                        document(
+                                "shouldCreateNewHumidityThreshold",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
@@ -153,6 +173,11 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewHumidityThresholdWithNullValues",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -185,6 +210,11 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andDo(
+                        document(
+                                "shouldUpdateHumidityThreshold",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
                 .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
@@ -205,6 +235,11 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(humidityThreshold)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingHumidityThreshold",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -220,6 +255,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/HumidityThreshold/{id}", humidityThreshold.getId()).with(csrf()))
+                .andDo(document("shouldDeleteHumidityThreshold", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
                 .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
@@ -235,6 +271,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/HumidityThreshold/{id}", humidityThresholdId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingHumidityThreshold",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }
