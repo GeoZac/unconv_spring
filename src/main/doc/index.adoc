@@ -79,6 +79,18 @@ include::entity/environmentalReading.adoc[]
 
 include::entity/sensorSystem.adoc[]
 
+=== Humidity Threshold
+
+    The HumidityThreshold class represents a humidity threshold encapsulating information about theminimum and maximum values for humidity values.
+
+include::entity/humidityThreshold.adoc[]
+
+=== Temperature Threshold
+
+    The TemperatureThreshold class represents a humidity threshold encapsulating information about theminimum and maximum values for temperature values.
+
+include::entity/temperatureThreshold.adoc[]
+
 === Sensor Location
 
     The SensorLocation class represents a sensor's location with associated details like the latitude and longitude of the location of sensor, whether the sensor system is situated indoors or outdoors
