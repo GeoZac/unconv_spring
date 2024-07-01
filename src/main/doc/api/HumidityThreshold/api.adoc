@@ -1,0 +1,61 @@
+==== Searching for a HumidityThreshold
+
+*Searching by UUID* +
+_Search for a HumidityThreshold by its UUID_ +
+
+Request
+include::{snippets}/HumidityThreshold/shouldFindHumidityThresholdById/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/HumidityThreshold/shouldFindHumidityThresholdById/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/HumidityThreshold/shouldReturn404WhenFetchingNonExistingHumidityThreshold/http-response.adoc[]
+
+==== Creating a HumidityThreshold
+*Creating a HumidityThreshold* +
+_Create a new HumidityThreshold_ +
+
+Request
+include::{snippets}/HumidityThreshold/shouldCreateNewHumidityThreshold/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/HumidityThreshold/shouldCreateNewHumidityThreshold/http-response.adoc[]
+
+* 400 Response - _Invalid Request_
+include::{snippets}/HumidityThreshold/shouldReturn400WhenCreateNewHumidityThresholdWithNullValues/http-response.adoc[]
+
+==== Updating a HumidityThreshold
+*Updating a HumidityThreshold* +
+_Updating an existing HumidityThreshold by its UUID_ +
+
+Request
+include::{snippets}/HumidityThreshold/shouldUpdateHumidityThreshold/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/HumidityThreshold/shouldUpdateHumidityThreshold/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/HumidityThreshold/shouldReturn404WhenUpdatingNonExistingHumidityThreshold/http-response.adoc[]
+
+==== Deleting a HumidityThreshold
+*Deleting a HumidityThreshold* +
+_Deleting an existing HumidityThreshold by its UUID_ +
+
+Request
+include::{snippets}/HumidityThreshold/shouldDeleteHumidityThreshold/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/HumidityThreshold/shouldDeleteHumidityThreshold/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/HumidityThreshold/shouldReturn404WhenDeletingNonExistingHumidityThreshold/http-response.adoc[]
+
