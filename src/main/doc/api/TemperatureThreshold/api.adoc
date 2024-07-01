@@ -1,0 +1,61 @@
+==== Searching for a TemperatureThreshold
+
+*Searching by UUID* +
+_Search for a TemperatureThreshold by its UUID_ +
+
+Request
+include::{snippets}/TemperatureThreshold/shouldFindTemperatureThresholdById/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/TemperatureThreshold/shouldFindTemperatureThresholdById/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/TemperatureThreshold/shouldReturn404WhenFetchingNonExistingTemperatureThreshold/http-response.adoc[]
+
+==== Creating a TemperatureThreshold
+*Creating a TemperatureThreshold* +
+_Create a new TemperatureThreshold_ +
+
+Request
+include::{snippets}/TemperatureThreshold/shouldCreateNewTemperatureThreshold/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/TemperatureThreshold/shouldCreateNewTemperatureThreshold/http-response.adoc[]
+
+* 400 Response - _Invalid Request_
+include::{snippets}/TemperatureThreshold/shouldReturn400WhenCreateNewTemperatureThresholdWithNullValues/http-response.adoc[]
+
+==== Updating a TemperatureThreshold
+*Updating a TemperatureThreshold* +
+_Updating an existing TemperatureThreshold by its UUID_ +
+
+Request
+include::{snippets}/TemperatureThreshold/shouldUpdateTemperatureThreshold/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/TemperatureThreshold/shouldUpdateTemperatureThreshold/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/TemperatureThreshold/shouldReturn404WhenUpdatingNonExistingTemperatureThreshold/http-response.adoc[]
+
+==== Deleting a TemperatureThreshold
+*Deleting a TemperatureThreshold* +
+_Deleting an existing TemperatureThreshold by its UUID_ +
+
+Request
+include::{snippets}/TemperatureThreshold/shouldDeleteTemperatureThreshold/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/TemperatureThreshold/shouldDeleteTemperatureThreshold/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/TemperatureThreshold/shouldReturn404WhenDeletingNonExistingTemperatureThreshold/http-response.adoc[]
+
