@@ -81,13 +81,13 @@ include::entity/sensorSystem.adoc[]
 
 === Humidity Threshold
 
-    The HumidityThreshold class represents a humidity threshold encapsulating information about theminimum and maximum values for humidity values.
+    The HumidityThreshold class represents a humidity threshold encapsulating information about the minimum and maximum values for humidity values.
 
 include::entity/humidityThreshold.adoc[]
 
 === Temperature Threshold
 
-    The TemperatureThreshold class represents a humidity threshold encapsulating information about theminimum and maximum values for temperature values.
+    The TemperatureThreshold class represents a temperature threshold encapsulating information about the minimum and maximum values for temperature values.
 
 include::entity/temperatureThreshold.adoc[]
 

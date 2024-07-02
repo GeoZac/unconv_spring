@@ -1,6 +1,6 @@
 ===== Fields
 
-- `id` (UUID): Unique identifier for the sensor location.
+- `id` (UUID): Unique identifier for the temperature threshold.
 
 - `minValue` (Double): Minimum value for the threshold.
 
