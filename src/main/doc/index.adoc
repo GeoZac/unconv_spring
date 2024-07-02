@@ -103,6 +103,11 @@ include::entity/sensorLocation.adoc[]
 
 include::entity/unconvUser.adoc[]
 
+=== UnconvRole
+    The UnconvRole class represents the roles held by user entities.
+
+include::entity/unconvRole.adoc[]
+
 == API Documentation
 === Environmental Reading
 include::api/EnvironmentalReading/api.adoc/[]
@@ -121,3 +126,6 @@ include::api/SensorLocation/api.adoc[]
 
 === UnconvUser
 include::api/UnconvUser/api.adoc[]
+
+=== UnconvRole
+include::api/UnconvRole/api.adoc[]
