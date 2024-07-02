@@ -110,6 +110,12 @@ include::api/EnvironmentalReading/api.adoc/[]
 === SensorSystem
 include::api/SensorSystem/api.adoc[]
 
+=== Humidity Threshold
+include::api/HumidityThreshold/api.adoc[]
+
+=== Temperature Threshold
+include::api/TemperatureThreshold/api.adoc[]
+
 === SensorLocation
 include::api/SensorLocation/api.adoc[]
 
