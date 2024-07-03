@@ -365,7 +365,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                         get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId).with(csrf()))
                 .andDo(
                         document(
-                                "shouldReturn404WhenDeletingNonExistingSensorLocation",
+                                "shouldReturn404WhenFetchingSensorLocationOfNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
