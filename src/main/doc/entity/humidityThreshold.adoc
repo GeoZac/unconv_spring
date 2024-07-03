@@ -1,0 +1,8 @@
+===== Fields
+
+- `id` (UUID): Unique identifier for the humidity threshold.
+
+- `minValue` (Double): Minimum value for the threshold.
+
+- `maxValue` (Double): Maximum value for the threshold.
+

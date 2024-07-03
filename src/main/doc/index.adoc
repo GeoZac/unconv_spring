@@ -85,6 +85,18 @@ include::entity/sensorAuthToken.adoc[]
 
 include::entity/sensorSystem.adoc[]
 
+=== Humidity Threshold
+
+    The HumidityThreshold class represents a humidity threshold encapsulating information about the minimum and maximum values for humidity values.
+
+include::entity/humidityThreshold.adoc[]
+
+=== Temperature Threshold
+
+    The TemperatureThreshold class represents a temperature threshold encapsulating information about the minimum and maximum values for temperature values.
+
+include::entity/temperatureThreshold.adoc[]
+
 === Sensor Location
 
     The SensorLocation class represents a sensor's location with associated details like the latitude and longitude of the location of sensor, whether the sensor system is situated indoors or outdoors
@@ -97,6 +109,11 @@ include::entity/sensorLocation.adoc[]
 
 include::entity/unconvUser.adoc[]
 
+=== UnconvRole
+    The UnconvRole class represents the roles held by user entities.
+
+include::entity/unconvRole.adoc[]
+
 == API Documentation
 === Environmental Reading
 include::api/EnvironmentalReading/api.adoc/[]
@@ -107,8 +124,17 @@ include::api/SensorAuthToken/api.adoc[]
 === SensorSystem
 include::api/SensorSystem/api.adoc[]
 
+=== Humidity Threshold
+include::api/HumidityThreshold/api.adoc[]
+
+=== Temperature Threshold
+include::api/TemperatureThreshold/api.adoc[]
+
 === SensorLocation
 include::api/SensorLocation/api.adoc[]
 
 === UnconvUser
 include::api/UnconvUser/api.adoc[]
+
+=== UnconvRole
+include::api/UnconvRole/api.adoc[]

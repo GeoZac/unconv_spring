@@ -1,0 +1,61 @@
+==== Searching for a UnconvRole
+
+*Searching by UUID* +
+_Search for a UnconvRole by its UUID_ +
+
+Request
+include::{snippets}/UnconvRole/shouldFindUnconvRoleById/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/UnconvRole/shouldFindUnconvRoleById/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/UnconvRole/shouldReturn404WhenFetchingNonExistingUnconvRole/http-response.adoc[]
+
+==== Creating a UnconvRole
+*Creating a UnconvRole* +
+_Create a new UnconvRole_ +
+
+Request
+include::{snippets}/UnconvRole/shouldCreateNewUnconvRole/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/UnconvRole/shouldCreateNewUnconvRole/http-response.adoc[]
+
+* 400 Response - _Invalid Request_
+include::{snippets}/UnconvRole/shouldReturn400WhenCreateNewUnconvRoleWithNullValues/http-response.adoc[]
+
+==== Updating a UnconvRole
+*Updating a UnconvRole* +
+_Updating an existing UnconvRole by its UUID_ +
+
+Request
+include::{snippets}/UnconvRole/shouldUpdateUnconvRole/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/UnconvRole/shouldUpdateUnconvRole/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/UnconvRole/shouldReturn404WhenUpdatingNonExistingUnconvRole/http-response.adoc[]
+
+==== Deleting a UnconvRole
+*Deleting a UnconvRole* +
+_Deleting an existing UnconvRole by its UUID_ +
+
+Request
+include::{snippets}/UnconvRole/shouldDeleteUnconvRole/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/UnconvRole/shouldDeleteUnconvRole/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/UnconvRole/shouldReturn404WhenDeletingNonExistingUnconvRole/http-response.adoc[]
+

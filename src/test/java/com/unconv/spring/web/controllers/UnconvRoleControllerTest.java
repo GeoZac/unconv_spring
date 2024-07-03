@@ -8,6 +8,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -30,6 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -43,6 +47,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = UnconvRoleController.class)
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureRestDocs(outputDir = "target/snippets/UnconvRole")
 class UnconvRoleControllerTest extends AbstractControllerTest {
     @MockBean private UnconvRoleService unconvRoleService;
 
@@ -55,6 +60,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/UnconvRole")
                                         .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -76,6 +82,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvRole"))
+                .andDo(document("shouldFetchAllUnconvRoles", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvRoleList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
@@ -96,6 +103,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .andDo(document("shouldFindUnconvRoleById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
@@ -107,6 +115,10 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvRole",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -127,6 +139,11 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldCreateNewUnconvRole",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
@@ -142,6 +159,11 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewUnconvRoleWithNullValues",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -171,6 +193,11 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldUpdateUnconvRole",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
@@ -187,6 +214,11 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingUnconvRole",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -200,6 +232,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/UnconvRole/{id}", unconvRole.getId()).with(csrf()))
+                .andDo(document("shouldDeleteUnconvRole", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
@@ -211,6 +244,10 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/UnconvRole/{id}", unconvRoleId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingUnconvRole",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }

@@ -82,10 +82,10 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     }
 
     /**
-     * Saves a SensorAuthToken.
+     * Retrieves a SensorAuthTokenDTO by its ID.
      *
-     * @param sensorAuthToken The SensorAuthToken to save.
-     * @return The saved SensorAuthToken.
+     * @param id The ID of the SensorAuthToken.
+     * @return An Optional containing the SensorAuthTokenDTO, or empty if not found.
      */
     @Override
     public Optional<SensorAuthTokenDTO> findSensorAuthTokenDTOById(UUID id) {
@@ -102,6 +102,12 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return Optional.empty();
     }
 
+    /**
+     * Saves a SensorAuthToken.
+     *
+     * @param sensorAuthToken The SensorAuthToken to save.
+     * @return The saved SensorAuthToken.
+     */
     @Override
     public SensorAuthToken saveSensorAuthToken(SensorAuthToken sensorAuthToken) {
         sensorAuthToken.setAuthToken(

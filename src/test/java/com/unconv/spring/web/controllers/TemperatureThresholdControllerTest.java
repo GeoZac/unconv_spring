@@ -9,6 +9,9 @@ import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -33,6 +36,7 @@ import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -46,6 +50,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = TemperatureThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
+@AutoConfigureRestDocs(outputDir = "target/snippets/TemperatureThreshold")
 class TemperatureThresholdControllerTest extends AbstractControllerTest {
     @MockBean private TemperatureThresholdService temperatureThresholdService;
 
@@ -58,6 +63,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/TemperatureThreshold")
                                         .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
                         .apply(springSecurity())
                         .build();
 
@@ -81,6 +87,10 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/TemperatureThreshold"))
+                .andDo(
+                        document(
+                                "shouldFetchAllTemperatureThresholds",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.totalElements", is(5)))
@@ -102,6 +112,10 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldFindTemperatureThresholdById",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(temperatureThresholdId.toString())))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
@@ -117,6 +131,10 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingTemperatureThreshold",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -137,6 +155,11 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(
+                        document(
+                                "shouldCreateNewTemperatureThreshold",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
@@ -155,6 +178,11 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewTemperatureThresholdWithNullValues",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
@@ -189,6 +217,11 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(
+                        document(
+                                "shouldUpdateTemperatureThreshold",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
                 .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
@@ -209,6 +242,11 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUpdatingNonExistingTemperatureThreshold",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 
@@ -227,6 +265,10 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                 .perform(
                         delete("/TemperatureThreshold/{id}", temperatureThreshold.getId())
                                 .with(csrf()))
+                .andDo(
+                        document(
+                                "shouldDeleteTemperatureThreshold",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
                 .andExpect(jsonPath("$.minValue", is(temperatureThreshold.getMinValue())))
@@ -241,6 +283,10 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(delete("/TemperatureThreshold/{id}", temperatureThresholdId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenDeletingNonExistingTemperatureThreshold",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
     }
 }
