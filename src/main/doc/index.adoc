@@ -101,6 +101,9 @@ include::entity/unconvUser.adoc[]
 === Environmental Reading
 include::api/EnvironmentalReading/api.adoc/[]
 
+=== SensorAuthToken
+include::api/SensorAuthToken/api.adoc[]
+
 === SensorSystem
 include::api/SensorSystem/api.adoc[]
 
