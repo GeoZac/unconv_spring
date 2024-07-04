@@ -189,6 +189,10 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .perform(
                         get("/SensorSystem/UnconvUser/{unconvUserId}", unconvUser.getId())
                                 .param("sortDir", "asc"))
+                .andDo(
+                        document(
+                                "shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(dataSize)))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
@@ -294,6 +298,10 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/SensorSystem/SensorName/{sensorName}", "Sensor"))
+                .andDo(
+                        document(
+                                "shouldFindSensorSystemBySensorName",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(4)));
     }
@@ -333,6 +341,10 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 "/SensorSystem/SensorName/{sensorName}/UnconvUser/{unconvUserId}",
                                 "Sensor",
                                 unconvUser.getId()))
+                .andDo(
+                        document(
+                                "shouldFindSensorSystemOfSpecificUnconvUserBySensorName",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(4)));
     }
