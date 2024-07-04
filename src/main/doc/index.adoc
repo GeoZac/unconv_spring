@@ -73,6 +73,12 @@ Following are the entities associated with this project
 
 include::entity/environmentalReading.adoc[]
 
+=== SensorAuthToken
+
+    This class represents an authentication token for a sensor system. It contains details about the token, its expiry date, and the associated sensor system.
+
+include::entity/sensorAuthToken.adoc[]
+
 === Sensor System
 
     The SensorSystem class represents a sensor system information, including its unique identifier, sensor name, location, user information, and additional thresholds and readings.
@@ -111,6 +117,9 @@ include::entity/unconvRole.adoc[]
 == API Documentation
 === Environmental Reading
 include::api/EnvironmentalReading/api.adoc/[]
+
+=== SensorAuthToken
+include::api/SensorAuthToken/api.adoc[]
 
 === SensorSystem
 include::api/SensorSystem/api.adoc[]
