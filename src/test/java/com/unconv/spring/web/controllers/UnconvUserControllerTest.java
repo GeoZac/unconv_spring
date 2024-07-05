@@ -29,15 +29,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.utils.UnconvAuthorityDeserializer;
 import com.unconv.spring.web.rest.UnconvUserController;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -97,6 +100,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        SimpleModule authDeserializerModule = new SimpleModule();
+        authDeserializerModule.addDeserializer(Collection.class, new UnconvAuthorityDeserializer());
+        objectMapper.registerModule(authDeserializerModule);
     }
 
     @Test
