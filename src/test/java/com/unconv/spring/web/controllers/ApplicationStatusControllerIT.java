@@ -27,6 +27,6 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
                 .perform(get("/public/status/version"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("0.0.7-HOTFIX")));
+                .andExpect(jsonPath("$", is("0.0.8")));
     }
 }
