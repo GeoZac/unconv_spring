@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
@@ -37,8 +38,10 @@ import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.UnconvUserController;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
@@ -188,6 +191,9 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     /* TODO: Fix ID generation */
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
+        UnconvRole userUnconvRole = new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+        Set<UnconvRole> unconvRoleSet = new HashSet<>();
+        unconvRoleSet.add(userUnconvRole);
 
         UnconvUserDTO unconvUserDTO =
                 new UnconvUserDTO(
@@ -195,6 +201,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
         unconvUser.setPassword(null);
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUserDTO unconvUserDTOWithPasswordObscured =
                 modelMapper.map(unconvUser, UnconvUserDTO.class);
 
