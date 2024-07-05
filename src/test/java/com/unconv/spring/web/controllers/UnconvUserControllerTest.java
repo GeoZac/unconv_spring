@@ -219,6 +219,14 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andExpect(jsonPath("$.entity.unconvRoles").doesNotExist())
+                .andExpect(jsonPath("$.entity.authorities", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0]", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0].authority", is("ROLE_USER")))
+                .andExpect(jsonPath("$.entity.enabled", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
+                .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)))
                 .andReturn();
     }
 
