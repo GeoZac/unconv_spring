@@ -59,6 +59,12 @@ include::{snippets}/UnconvUser/shouldUpdateUnconvUser/http-response.adoc[]
 * 404 Response - _Non-existent entity_
 include::{snippets}/UnconvUser/shouldReturn404WhenUpdatingNonExistingUnconvUser/http-response.adoc[]
 
+* 401 Response - Current password do not match
+include::{snippets}/UnconvUser/shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch/http-response.adoc[]
+
+* 400 Response - Current password not provided
+include::{snippets}/UnconvUser/shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided/http-response.adoc[]
+
 ==== Deleting a UnconvUser
 *Deleting a UnconvUser* +
 _Deleting an existing UnconvUser by its UUID_ +
