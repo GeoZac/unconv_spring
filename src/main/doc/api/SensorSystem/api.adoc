@@ -14,6 +14,8 @@ include::{snippets}/SensorSystem/shouldFindSensorSystemById/http-response.adoc[]
 	* 404 Response - _Non-existent entity_
 include::{snippets}/SensorSystem/shouldReturn404WhenFetchingNonExistingSensorSystem/http-response.adoc[]
 
+==== Searching by SensorSystem name
+
 *Searching by SensorSystem name* +
 _Search for a SensorSystem by its name_ +
 

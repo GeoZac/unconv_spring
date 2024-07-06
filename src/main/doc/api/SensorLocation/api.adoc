@@ -27,6 +27,9 @@ Response +
 * 200 Response - _Successful execution_
 include::{snippets}/SensorLocation/shouldFetchAllSensorLocationOfSpecificUnconvUser/http-response.adoc[]
 
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorLocation/shouldReturn404WhenFetchingSensorLocationOfNonExistingUnconvUser/http-response.adoc[]
+
 ==== Creating a SensorLocation
 *Creating a SensorLocation* +
 _Create a new SensorLocation_ +
