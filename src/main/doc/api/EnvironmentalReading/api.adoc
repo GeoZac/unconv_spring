@@ -14,6 +14,19 @@ include::{snippets}/EnvironmentalReading/shouldFindEnvironmentalReadingById/http
 * 404 Response - _Non-existent entity_
 include::{snippets}/EnvironmentalReading/shouldReturn404WhenFetchingNonExistingEnvironmentalReading/http-response.adoc[]
 
+==== Searching for latest readings by UnconvUser
+
+*Searching for latest readings by UnconvUser* +
+_Searching for latest readings by UnconvUser UUID_ +
+
+Request
+include::{snippets}/EnvironmentalReading/shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/EnvironmentalReading/shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId/http-response.adoc[]
+
 ==== Creating a EnvironmentalReading
 *Creating a EnvironmentalReading* +
 _Create a new EnvironmentalReading_ +
