@@ -14,6 +14,21 @@ include::{snippets}/UnconvUser/shouldFindUnconvUserById/http-response.adoc[]
 * 404 Response - _Non-existent entity_
 include::{snippets}/UnconvUser/shouldReturn404WhenFetchingNonExistingUnconvUser/http-response.adoc[]
 
+==== Check if a username is available
+*Check if a username is available* +
+_Check if a username is available_ +
+
+Request
+include::{snippets}/UnconvUser/shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Username avaialbe_
+include::{snippets}/UnconvUser/shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable/http-response.adoc[]
+
+* 400 Response - _Username unavaialbe_
+include::{snippets}/UnconvUser/shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable/http-response.adoc[]
+
 ==== Creating a UnconvUser
 *Creating a UnconvUser* +
 _Create a new UnconvUser_ +
