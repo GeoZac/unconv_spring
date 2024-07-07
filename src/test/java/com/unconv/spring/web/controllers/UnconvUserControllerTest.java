@@ -124,7 +124,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.hasPrevious", is(false)))
+                .andReturn();
     }
 
     @Test
@@ -141,7 +142,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andDo(document("shouldFindUnconvUserById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -155,7 +157,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         document(
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -175,7 +178,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is("true"), String.class))
-                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
+                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class))
+                .andReturn();
     }
 
     @Test
@@ -192,7 +196,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is("false"), String.class))
-                .andExpect(jsonPath("$.username", is(existingUserName), String.class));
+                .andExpect(jsonPath("$.username", is(existingUserName), String.class))
+                .andReturn();
     }
 
     @Test
@@ -363,7 +368,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.entity.enabled", is(false)))
                 .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
                 .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
-                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)));
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)))
+                .andReturn();
     }
 
     @Test
@@ -446,7 +452,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenUpdatingNonExistingUnconvUser",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -463,7 +470,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andDo(document("shouldDeleteUnconvUser", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -477,6 +485,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         document(
                                 "shouldReturn404WhenDeletingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 }
