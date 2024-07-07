@@ -325,6 +325,13 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willAnswer(
                         (invocation) -> {
                             UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
+
+                            UnconvRole userUnconvRole =
+                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                            Set<UnconvRole> unconvRoleSet = new HashSet<>();
+                            unconvRoleSet.add(userUnconvRole);
+
+                            unconvUserDTO.setUnconvRoles(unconvRoleSet);
                             unconvUserDTO.setPassword(null);
                             return unconvUserDTO;
                         });
@@ -345,8 +352,17 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is(USER_UPDATE_SUCCESS)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
-                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andExpect(jsonPath("$.entity.unconvRoles").doesNotExist())
+                .andExpect(jsonPath("$.entity.authorities", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0]", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0].authority", is("ROLE_USER")))
+                .andExpect(jsonPath("$.entity.enabled", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
+                .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)));
     }
 
     @Test
