@@ -195,27 +195,28 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.username", is(existingUserName), String.class));
     }
 
-    /* TODO: Fix ID generation */
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
-        UnconvRole userUnconvRole = new UnconvRole(UUID.randomUUID(), "ROLE_USER");
-        Set<UnconvRole> unconvRoleSet = new HashSet<>();
-        unconvRoleSet.add(userUnconvRole);
-
         UnconvUserDTO unconvUserDTO =
-                new UnconvUserDTO(
-                        UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
-
-        UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
-        unconvUser.setPassword(null);
-        unconvUser.setUnconvRoles(unconvRoleSet);
-        UnconvUserDTO unconvUserDTOWithPasswordObscured =
-                modelMapper.map(unconvUser, UnconvUserDTO.class);
+                new UnconvUserDTO(null, "SomeUserName", "email@provider.com", "$ecreT123");
 
         given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(true);
 
         given(unconvUserService.createUnconvUser(any(UnconvUserDTO.class)))
-                .willReturn(unconvUserDTOWithPasswordObscured);
+                .willAnswer(
+                        (invocation -> {
+                            UnconvUserDTO unconvUserDTOArg = invocation.getArgument(0);
+
+                            UnconvRole userUnconvRole =
+                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                            Set<UnconvRole> unconvRoleSet = new HashSet<>();
+                            unconvRoleSet.add(userUnconvRole);
+
+                            unconvUserDTOArg.setId(UUID.randomUUID());
+                            unconvUserDTOArg.setUnconvRoles(unconvRoleSet);
+                            unconvUserDTOArg.setPassword(null);
+                            return unconvUserDTOArg;
+                        }));
 
         this.mockMvc
                 .perform(
