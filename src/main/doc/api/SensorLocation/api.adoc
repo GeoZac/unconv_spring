@@ -14,7 +14,10 @@ include::{snippets}/SensorLocation/shouldFindSensorLocationById/http-response.ad
 * 404 Response - _Non-existent entity_
 include::{snippets}/SensorLocation/shouldReturn404WhenFetchingNonExistingSensorLocation/http-response.adoc[]
 
-_Search for a SensorLocation by UnconvUser_ +
+==== Searching for SensorLocations by UnconvUser
+
+*Searching for SensorLocations by UnconvUser* +
+_Search for SensorLocations by UnconvUser_ +
 
 Request
 include::{snippets}/SensorLocation/shouldFetchAllSensorLocationOfSpecificUnconvUser/http-request.adoc[]
@@ -23,6 +26,9 @@ Response +
 
 * 200 Response - _Successful execution_
 include::{snippets}/SensorLocation/shouldFetchAllSensorLocationOfSpecificUnconvUser/http-response.adoc[]
+
+* 404 Response - _Non-existent entity_
+include::{snippets}/SensorLocation/shouldReturn404WhenFetchingSensorLocationOfNonExistingUnconvUser/http-response.adoc[]
 
 ==== Creating a SensorLocation
 *Creating a SensorLocation* +

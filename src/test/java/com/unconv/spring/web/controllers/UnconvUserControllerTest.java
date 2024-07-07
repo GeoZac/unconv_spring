@@ -350,6 +350,11 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(Charset.defaultCharset())
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", is(USER_WRONG_PASSWORD)))
                 .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
@@ -381,6 +386,11 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(Charset.defaultCharset())
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is(USER_PROVIDE_PASSWORD)))
                 .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))

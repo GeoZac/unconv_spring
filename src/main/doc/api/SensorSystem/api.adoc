@@ -14,6 +14,32 @@ include::{snippets}/SensorSystem/shouldFindSensorSystemById/http-response.adoc[]
 	* 404 Response - _Non-existent entity_
 include::{snippets}/SensorSystem/shouldReturn404WhenFetchingNonExistingSensorSystem/http-response.adoc[]
 
+==== Searching by SensorSystem name
+
+*Searching by SensorSystem name* +
+_Search for a SensorSystem by its name_ +
+
+Request
+include::{snippets}/SensorSystem/shouldFindSensorSystemBySensorName/http-request.adoc[]
+
+Response +
+
+    * 200 Response - _Successful execution_
+include::{snippets}/SensorSystem/shouldFindSensorSystemBySensorName/http-response.adoc[]
+
+==== Searching by SensorSystem name for Specific UnconvUser
+
+*Searching by SensorSystem name for Specific UnconvUser* +
+_Searching by SensorSystem name for Specific UnconvUser_ +
+
+Request
+include::{snippets}/SensorSystem/shouldFindSensorSystemOfSpecificUnconvUserBySensorName/http-request.adoc[]
+
+Response +
+
+    * 200 Response - _Successful execution_
+include::{snippets}/SensorSystem/shouldFindSensorSystemOfSpecificUnconvUserBySensorName/http-response.adoc[]
+
 ==== Creating a SensorSystem
 *Creating a SensorSystem* +
 _Create a new SensorSystem_ +
@@ -58,4 +84,16 @@ include::{snippets}/SensorSystem/shouldDeleteSensorSystem/http-response.adoc[]
 
 * 404 Response - _Non-existent entity_
 include::{snippets}/SensorSystem/shouldReturn404WhenDeletingNonExistingSensorSystem/http-response.adoc[]
+
+==== Fetching Recent readings of a SensorSystem
+*Fetch recent readings of a sesnor system* +
+_Fetch recent readings of a sesnor system_ +
+
+Request
+include::{snippets}/SensorSystem/shouldFetchRecentSensorReadingCountsWithReadingsPresent/http-request.adoc[]
+
+Response +
+
+* 200 Response - _Successful execution_
+include::{snippets}/SensorSystem/shouldFetchRecentSensorReadingCountsWithReadingsPresent/http-response.adoc[]
 
