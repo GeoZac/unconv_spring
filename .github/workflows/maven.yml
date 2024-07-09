@@ -6,6 +6,16 @@ on:
       - "**"
 
 jobs:
+  event_file:
+    name: "Event File (for test results)"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -42,10 +52,12 @@ jobs:
           ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.DOCKER_USERNAME }}/spring
           docker push ${{ secrets.DOCKER_USERNAME }}/spring
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2.16.1
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          files: "target/test-results/**/*.xml"
+          name: Unit Test Results
+          path: "target/test-results/**/*.xml"
                     
       - name: jacoco-badge-generator
         uses: cicirello/jacoco-badge-generator@v2.11.0

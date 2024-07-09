@@ -205,6 +205,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         get(
                                 "/EnvironmentalReading/SensorSystem/{sensorSystemId}",
                                 sensorSystem.getId()))
+                .andDo(
+                        document(
+                                "shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(dataSize)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
@@ -407,6 +411,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                         sensorSystem.getId())
                                 .file(csvFile)
                                 .with(csrf()))
+                .andDo(
+                        document(
+                                "shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$", is(expectedResponse)));
     }
@@ -452,6 +460,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenCreateNewEnvironmentalReadingWithTimestampInFuture",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(

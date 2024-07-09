@@ -29,16 +29,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.utils.UnconvAuthorityDeserializer;
 import com.unconv.spring.web.rest.UnconvUserController;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
@@ -94,6 +100,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        SimpleModule authDeserializerModule = new SimpleModule();
+        authDeserializerModule.addDeserializer(Collection.class, new UnconvAuthorityDeserializer());
+        objectMapper.registerModule(authDeserializerModule);
     }
 
     @Test
@@ -114,7 +124,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.hasPrevious", is(false)))
+                .andReturn();
     }
 
     @Test
@@ -131,7 +142,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andDo(document("shouldFindUnconvUserById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -145,7 +157,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         document(
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -165,7 +178,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is("true"), String.class))
-                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class));
+                .andExpect(jsonPath("$.username", is(randomGeneratedString), String.class))
+                .andReturn();
     }
 
     @Test
@@ -182,26 +196,32 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available", is("false"), String.class))
-                .andExpect(jsonPath("$.username", is(existingUserName), String.class));
+                .andExpect(jsonPath("$.username", is(existingUserName), String.class))
+                .andReturn();
     }
 
-    /* TODO: Fix ID generation */
     @Test
     void shouldCreateNewUnconvUser() throws Exception {
-
         UnconvUserDTO unconvUserDTO =
-                new UnconvUserDTO(
-                        UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
-
-        UnconvUser unconvUser = modelMapper.map(unconvUserDTO, UnconvUser.class);
-        unconvUser.setPassword(null);
-        UnconvUserDTO unconvUserDTOWithPasswordObscured =
-                modelMapper.map(unconvUser, UnconvUserDTO.class);
+                new UnconvUserDTO(null, "SomeUserName", "email@provider.com", "$ecreT123");
 
         given(unconvUserService.isUsernameUnique(any(String.class))).willReturn(true);
 
         given(unconvUserService.createUnconvUser(any(UnconvUserDTO.class)))
-                .willReturn(unconvUserDTOWithPasswordObscured);
+                .willAnswer(
+                        (invocation -> {
+                            UnconvUserDTO unconvUserDTOArg = invocation.getArgument(0);
+
+                            UnconvRole userUnconvRole =
+                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                            Set<UnconvRole> unconvRoleSet = new HashSet<>();
+                            unconvRoleSet.add(userUnconvRole);
+
+                            unconvUserDTOArg.setId(UUID.randomUUID());
+                            unconvUserDTOArg.setUnconvRoles(unconvRoleSet);
+                            unconvUserDTOArg.setPassword(null);
+                            return unconvUserDTOArg;
+                        }));
 
         this.mockMvc
                 .perform(
@@ -219,6 +239,14 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
                 .andExpect(jsonPath("$.entity.username", is(unconvUserDTO.getUsername())))
+                .andExpect(jsonPath("$.entity.unconvRoles").doesNotExist())
+                .andExpect(jsonPath("$.entity.authorities", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0]", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0].authority", is("ROLE_USER")))
+                .andExpect(jsonPath("$.entity.enabled", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
+                .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)))
                 .andReturn();
     }
 
@@ -303,6 +331,13 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willAnswer(
                         (invocation) -> {
                             UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
+
+                            UnconvRole userUnconvRole =
+                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                            Set<UnconvRole> unconvRoleSet = new HashSet<>();
+                            unconvRoleSet.add(userUnconvRole);
+
+                            unconvUserDTO.setUnconvRoles(unconvRoleSet);
                             unconvUserDTO.setPassword(null);
                             return unconvUserDTO;
                         });
@@ -323,8 +358,18 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is(USER_UPDATE_SUCCESS)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.password").doesNotExist())
-                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.entity.username", is(unconvUser.getUsername())))
+                .andExpect(jsonPath("$.entity.unconvRoles").doesNotExist())
+                .andExpect(jsonPath("$.entity.authorities", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0]", notNullValue()))
+                .andExpect(jsonPath("$.entity.authorities[0].authority", is("ROLE_USER")))
+                .andExpect(jsonPath("$.entity.enabled", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonLocked", is(false)))
+                .andExpect(jsonPath("$.entity.credentialsNonExpired", is(false)))
+                .andExpect(jsonPath("$.entity.accountNonExpired", is(false)))
+                .andReturn();
     }
 
     @Test
@@ -350,6 +395,11 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(Charset.defaultCharset())
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", is(USER_WRONG_PASSWORD)))
                 .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
@@ -381,6 +431,11 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(Charset.defaultCharset())
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is(USER_PROVIDE_PASSWORD)))
                 .andExpect(jsonPath("$.entity.password", is(unconvUser.getPassword())))
@@ -407,7 +462,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenUpdatingNonExistingUnconvUser",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -424,7 +480,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andDo(document("shouldDeleteUnconvUser", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
+                .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
     }
 
     @Test
@@ -438,6 +495,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         document(
                                 "shouldReturn404WhenDeletingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 }
