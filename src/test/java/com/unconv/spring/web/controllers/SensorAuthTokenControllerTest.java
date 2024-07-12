@@ -421,6 +421,35 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenRequestingTokenForAInactiveSensorSystem() throws Exception {
+
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
+        sensorSystem.setDeleted(true);
+        sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenRequestingTokenForAInactiveSensorSystem",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
     void shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
