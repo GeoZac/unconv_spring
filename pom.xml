@@ -535,4 +535,25 @@
             <url>https://repo.spring.io/milestone</url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>stage</id>
+            <properties>
+                <spring.profiles.active>stage</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 </project>
