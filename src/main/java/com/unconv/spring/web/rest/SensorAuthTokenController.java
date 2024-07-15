@@ -165,13 +165,20 @@ public class SensorAuthTokenController {
                 .findSensorSystemById(sensorSystemId)
                 .map(
                         sensorSystemObj -> {
-                            SensorAuthTokenDTO sensorAuthToken =
-                                    sensorAuthTokenService.generateSensorAuthToken(
-                                            sensorSystemObj, null);
+                            if (sensorSystemService.isActiveSensorSystem(sensorSystemObj)) {
+                                SensorAuthTokenDTO sensorAuthToken =
+                                        sensorAuthTokenService.generateSensorAuthToken(
+                                                sensorSystemObj, null);
+                                return new ResponseEntity<>(
+                                        new MessageResponse<>(
+                                                sensorAuthToken, "Generated New Sensor Auth Token"),
+                                        HttpStatus.CREATED);
+                            }
+
                             return new ResponseEntity<>(
-                                    new MessageResponse<>(
-                                            sensorAuthToken, "Generated New Sensor Auth Token"),
-                                    HttpStatus.CREATED);
+                                    new MessageResponse<SensorAuthTokenDTO>(
+                                            null, "Sensor Inactive or Deleted"),
+                                    HttpStatus.BAD_REQUEST);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
