@@ -9,6 +9,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
@@ -140,6 +141,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             }
             return Optional.of(sensorSystemDTO);
         }
+    }
+
+    @Override
+    public boolean isActiveSensorSystem(SensorSystem sensorSystem) {
+        return !sensorSystem.isDeleted() && sensorSystem.getSensorStatus() != SensorStatus.INACTIVE;
     }
 
     /**

@@ -55,6 +55,8 @@ public interface SensorSystemService {
      */
     Optional<SensorSystemDTO> findSensorSystemDTOById(UUID id);
 
+    boolean isActiveSensorSystem(SensorSystem sensorSystem);
+
     /**
      * Saves a new SensorSystem.
      *
