@@ -71,7 +71,7 @@ public class LoggingAspect {
      */
     @AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if (env.acceptsProfiles(Profiles.of(AppConstants.PROFILE_NOT_PROD))) {
+        if (env.acceptsProfiles(Profiles.of(AppConstants.PROFILE_NOT_REL))) {
             log.error(
                     "Exception in {}.{}() with cause = '{}' and exception = '{}'",
                     joinPoint.getSignature().getDeclaringTypeName(),

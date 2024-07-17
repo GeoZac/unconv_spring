@@ -2,12 +2,8 @@ package com.unconv.spring.consts;
 
 public final class AppConstants {
 
-    private AppConstants() {
-        // Private constructor to hide the implicit public one
-    }
-
-    public static final String PROFILE_PROD = "prod";
-    public static final String PROFILE_NOT_PROD = "!" + PROFILE_PROD;
+    public static final String PROFILE_REL = "release";
+    public static final String PROFILE_NOT_REL = "!" + PROFILE_REL;
     public static final String PROFILE_TEST = "test";
     public static final String PROFILE_NOT_TEST = "!" + PROFILE_TEST;
 
@@ -26,4 +22,8 @@ public final class AppConstants {
 
     // SensorAuthToken
     public static final String ACCESS_TOKEN = "access_token";
+
+    private AppConstants() {
+        // Private constructor to hide the implicit public one
+    }
 }
