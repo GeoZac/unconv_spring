@@ -375,6 +375,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
                 .willReturn(Optional.of(sensorSystem));
+        given(sensorSystemService.isActiveSensorSystem(sensorSystem)).willReturn(true);
         given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null))
                 .willReturn(sensorAuthTokenDTO);
 
