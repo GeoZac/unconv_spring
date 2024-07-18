@@ -24,6 +24,7 @@ import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
@@ -33,6 +34,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.hamcrest.CoreMatchers;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -329,6 +331,33 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenRequestingTokenForAnInActiveSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorAuthTokenDTO sensorAuthToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Sensor Inactive or Deleted")))
+                .andExpect(jsonPath("$.entity", CoreMatchers.nullValue()))
                 .andReturn();
     }
 
