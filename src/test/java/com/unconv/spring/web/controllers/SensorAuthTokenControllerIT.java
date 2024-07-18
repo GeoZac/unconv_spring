@@ -362,6 +362,33 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenRequestingTokenForADeletedSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
+        sensorSystem.setDeleted(true);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorAuthTokenDTO sensorAuthToken =
+                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Sensor Inactive or Deleted")))
+                .andExpect(jsonPath("$.entity", CoreMatchers.nullValue()))
+                .andReturn();
+    }
+
+    @Test
     void shouldReturnSensorTokenInfoForAValidSensorSystemWithSensorAuthToken() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
