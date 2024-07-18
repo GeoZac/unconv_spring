@@ -205,6 +205,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.bugsnag</groupId>
+            <version>3.7.1</version>
+            <artifactId>bugsnag-spring</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
