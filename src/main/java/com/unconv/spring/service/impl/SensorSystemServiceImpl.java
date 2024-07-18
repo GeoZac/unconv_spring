@@ -143,6 +143,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         }
     }
 
+    /**
+     * Checks if the given SensorSystem is active.
+     *
+     * @param sensorSystem The SensorSystem to check.
+     * @return {@code true} if the SensorSystem is active, {@code false} otherwise.
+     */
     @Override
     public boolean isActiveSensorSystem(SensorSystem sensorSystem) {
         return !sensorSystem.isDeleted() && sensorSystem.getSensorStatus() != SensorStatus.INACTIVE;
