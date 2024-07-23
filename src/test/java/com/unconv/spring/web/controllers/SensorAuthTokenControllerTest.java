@@ -447,6 +447,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldReturn400WhenRequestingTokenForAInactiveSensorSystem",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Sensor Inactive or Deleted")))
+                .andExpect(jsonPath("$.entity", nullValue()))
                 .andReturn();
     }
 
