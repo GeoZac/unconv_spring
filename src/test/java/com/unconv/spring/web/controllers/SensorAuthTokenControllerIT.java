@@ -59,8 +59,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
 
-    private SensorSystem savedSensorSystem;
-
     private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
     @BeforeEach
@@ -345,9 +343,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
-        SensorAuthTokenDTO sensorAuthToken =
-                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null);
-
         this.mockMvc
                 .perform(
                         get(
@@ -371,9 +366,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = new SensorSystem(null, "Test sensor", null, savedUnconvUser);
         sensorSystem.setDeleted(true);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
-
-        SensorAuthTokenDTO sensorAuthToken =
-                sensorAuthTokenService.generateSensorAuthToken(savedSensorSystem, null);
 
         this.mockMvc
                 .perform(
