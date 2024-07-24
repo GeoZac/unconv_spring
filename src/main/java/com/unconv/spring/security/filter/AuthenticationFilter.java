@@ -52,6 +52,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                             unconvUserDTO.getUsername(), unconvUserDTO.getPassword());
             return customAuthenticationManager.authenticate(authentication);
         } catch (IOException e) {
+            logger.error("attemptAuthentication", e);
             throw new AuthenticationException("Authentication failed") {};
         }
     }
@@ -90,6 +91,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletResponse response,
             AuthenticationException failed)
             throws IOException {
+        logger.warn("unsuccessfulAuthentication", failed);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write("User Not Authenticated");
     }
