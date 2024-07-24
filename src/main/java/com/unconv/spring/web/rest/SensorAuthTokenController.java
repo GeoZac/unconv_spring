@@ -176,8 +176,8 @@ public class SensorAuthTokenController {
                             }
 
                             return new ResponseEntity<>(
-                                    new MessageResponse<>(
-                                            new SensorAuthTokenDTO(), "Sensor Inactive or Deleted"),
+                                    new MessageResponse<SensorAuthTokenDTO>(
+                                            null, "Sensor Inactive or Deleted"),
                                     HttpStatus.BAD_REQUEST);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
