@@ -79,12 +79,12 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
             new SensorLocation(
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
-    private final UnconvUser unconvUser =
+    private final UnconvUser mUnconvUser =
             new UnconvUser(
                     UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
     private final UUID sensorSystemId = UUID.randomUUID();
-    private final SensorSystem sensorSystem =
+    private final SensorSystem mSensorSystem =
             new SensorSystem(
                     sensorSystemId,
                     "Workspace sensor system",
@@ -92,7 +92,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     false,
                     SensorStatus.ACTIVE,
                     sensorLocation,
-                    unconvUser,
+                    mUnconvUser,
                     new HumidityThreshold(UUID.randomUUID(), 75, 23),
                     new TemperatureThreshold(UUID.randomUUID(), 100, 0));
 
@@ -147,7 +147,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenId,
                         "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
-                        sensorSystem);
+                        mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
 
@@ -202,7 +202,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         null,
                         "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
-                        sensorSystem);
+                        mSensorSystem);
 
         this.mockMvc
                 .perform(
@@ -263,7 +263,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenId,
                         generateAccessToken(),
                         OffsetDateTime.now().plusDays(30),
-                        sensorSystem);
+                        mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
         given(
@@ -303,7 +303,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenId,
                         RandomStringUtils.random(25),
                         OffsetDateTime.now().plusDays(30),
-                        sensorSystem);
+                        mSensorSystem);
 
         this.mockMvc
                 .perform(
@@ -328,7 +328,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenId,
                         "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
-                        sensorSystem);
+                        mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
                 .willReturn((Optional.of(sensorAuthToken)));
         //
@@ -375,6 +375,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
                 .willReturn(Optional.of(sensorSystem));
+        given(sensorSystemService.isActiveSensorSystem(sensorSystem)).willReturn(true);
         given(sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null))
                 .willReturn(sensorAuthTokenDTO);
 
@@ -417,6 +418,37 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenRequestingTokenForANonExistingSensorSystem",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenRequestingTokenForAInactiveSensorSystem() throws Exception {
+
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Test sensor", null, unconvUser);
+        sensorSystem.setDeleted(true);
+        sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.of(sensorSystem));
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/SensorAuthToken/GenerateToken/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenRequestingTokenForAInactiveSensorSystem",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Sensor Inactive or Deleted")))
+                .andExpect(jsonPath("$.entity", nullValue()))
                 .andReturn();
     }
 

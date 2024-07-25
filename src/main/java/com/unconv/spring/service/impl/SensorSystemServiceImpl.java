@@ -9,6 +9,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
@@ -140,6 +141,17 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             }
             return Optional.of(sensorSystemDTO);
         }
+    }
+
+    /**
+     * Checks if the given SensorSystem is active.
+     *
+     * @param sensorSystem The SensorSystem to check.
+     * @return {@code true} if the SensorSystem is active, {@code false} otherwise.
+     */
+    @Override
+    public boolean isActiveSensorSystem(SensorSystem sensorSystem) {
+        return !sensorSystem.isDeleted() && sensorSystem.getSensorStatus() != SensorStatus.INACTIVE;
     }
 
     /**

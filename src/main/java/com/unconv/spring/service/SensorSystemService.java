@@ -56,6 +56,14 @@ public interface SensorSystemService {
     Optional<SensorSystemDTO> findSensorSystemDTOById(UUID id);
 
     /**
+     * Checks if the given SensorSystem is active.
+     *
+     * @param sensorSystem The SensorSystem to check.
+     * @return {@code true} if the SensorSystem is active, {@code false} otherwise.
+     */
+    boolean isActiveSensorSystem(SensorSystem sensorSystem);
+
+    /**
      * Saves a new SensorSystem.
      *
      * @param sensorSystem The SensorSystem to save.
