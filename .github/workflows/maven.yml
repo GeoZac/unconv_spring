@@ -41,6 +41,8 @@ jobs:
 
       - name: Push Checkstyle report
         uses: jwgmeligmeyling/checkstyle-github-action@v1.2
+        with:
+          path: '**/checkstyle-result.xml'
 
       - if: ${{ github.ref == 'refs/heads/main' }}
         name: SonarQube Scan
