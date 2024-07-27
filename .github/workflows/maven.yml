@@ -39,6 +39,14 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean install verify
 
+      - name: Run Checkstyle
+        run: ./mvnw checkstyle:checkstyle
+
+      - name: Push Checkstyle report
+        uses: jwgmeligmeyling/checkstyle-github-action@v1.2
+        with:
+          path: '**/checkstyle-result.xml'
+
       - if: ${{ github.ref == 'refs/heads/main' }}
         name: SonarQube Scan
         run: ./mvnw compile sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
