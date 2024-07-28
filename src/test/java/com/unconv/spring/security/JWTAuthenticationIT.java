@@ -30,6 +30,17 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void testAuthorizedRequestWithoutToeknPrefix() throws Exception {
+        UnconvUser unconvUser = new UnconvUser(null, "Test user", "testuser@email.com", "password");
+        // Generate a valid JWT token
+        String token = jwtUtil.generateToken(unconvUser);
+
+        // Send a request with the token in the Authorization header
+        mockMvc.perform(get("/EnvironmentalReading").header("Authorization", token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void testUnauthorizedRequest() throws Exception {
         // Generate an invalid JWT token
         String token = "RANDOM_STRING";
