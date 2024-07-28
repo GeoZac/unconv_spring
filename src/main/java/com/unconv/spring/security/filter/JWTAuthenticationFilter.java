@@ -67,7 +67,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 response.getWriter().write("Invalid API token");
                 return;
             }
-        } else if (header == null || !header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
+        } else if (header == null || header.startsWith(BEARER_PREFIX_STRING) || skipAuthHeader) {
             filterChain.doFilter(request, response);
             return;
         } else {
