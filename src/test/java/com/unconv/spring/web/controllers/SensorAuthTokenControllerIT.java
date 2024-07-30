@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
@@ -352,7 +353,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Sensor Inactive or Deleted")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_TOKEN_GEN_FAILED)))
                 .andExpect(jsonPath("$.entity", CoreMatchers.nullValue()))
                 .andReturn();
     }
@@ -376,7 +377,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", is("Sensor Inactive or Deleted")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_TOKEN_GEN_FAILED)))
                 .andExpect(jsonPath("$.entity", CoreMatchers.nullValue()))
                 .andReturn();
     }

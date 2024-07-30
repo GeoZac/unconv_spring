@@ -30,6 +30,7 @@ public final class MessageConstants {
 
     // SensorAuthToken
     public static final String SENS_AUTH_TOKEN_GEN_SUCCESS = "Generated New Sensor Auth Token";
+    public static final String SENS_AUTH_TOKEN_GEN_FAILED = "Sensor Inactive or Deleted";
 
     // SensorAuthException message
     public static final String SENS_AUTH_SHORT = "Invalid token length";
