@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static org.hamcrest.CoreMatchers.is;
@@ -274,7 +275,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_TOKEN_GEN_SUCCESS)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
                 .andExpect(
@@ -304,7 +305,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message", is("Generated New Sensor Auth Token")))
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_TOKEN_GEN_SUCCESS)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.id", not(sensorAuthToken.getId().toString())))
                 .andExpect(jsonPath("$.entity.authToken", validSensorAuthToken(false)))
