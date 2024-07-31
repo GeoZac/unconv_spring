@@ -2,10 +2,6 @@ package com.unconv.spring.consts;
 
 public final class MessageConstants {
 
-    private MessageConstants() {
-        // Placeholder constructor
-    }
-
     // EnvironmentalReading
     public static final String ENVT_RECORD_ACCEPTED = "Record added successfully";
     public static final String ENVT_RECORD_REJ_USER = "User validation failed on SensorSystem";
@@ -37,4 +33,8 @@ public final class MessageConstants {
     public static final String SENS_AUTH_EXPIRED = "Expired API token";
     public static final String SENS_AUTH_UNKNOWN = "Unknown API token";
     public static final String SENS_AUTH_MALFORMED = "Malformed API token";
+
+    private MessageConstants() {
+        // Placeholder constructor
+    }
 }
