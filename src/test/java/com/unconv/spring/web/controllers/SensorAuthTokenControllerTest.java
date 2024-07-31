@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
+import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_PREFIX;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
@@ -147,7 +148,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthToken =
                 new SensorAuthTokenDTO(
                         sensorAuthTokenId,
-                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
+                        TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
@@ -202,7 +203,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
-                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
+                        TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         mSensorSystem);
 
@@ -328,7 +329,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthToken =
                 new SensorAuthTokenDTO(
                         sensorAuthTokenId,
-                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
+                        TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(30),
                         mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
@@ -465,7 +466,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         SensorAuthTokenDTO sensorAuthTokenDTO =
                 new SensorAuthTokenDTO(
                         UUID.randomUUID(),
-                        "UNCONV" + "*".repeat(19) + generateSaltedSuffix(),
+                        TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
                         OffsetDateTime.now().plusDays(60),
                         sensorSystem);
 
