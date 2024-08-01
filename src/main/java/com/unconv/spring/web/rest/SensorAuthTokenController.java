@@ -1,5 +1,8 @@
 package com.unconv.spring.web.rest;
 
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
+
 import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
@@ -171,13 +174,13 @@ public class SensorAuthTokenController {
                                                 sensorSystemObj, null);
                                 return new ResponseEntity<>(
                                         new MessageResponse<>(
-                                                sensorAuthToken, "Generated New Sensor Auth Token"),
+                                                sensorAuthToken, SENS_AUTH_TOKEN_GEN_SUCCESS),
                                         HttpStatus.CREATED);
                             }
 
                             return new ResponseEntity<>(
                                     new MessageResponse<SensorAuthTokenDTO>(
-                                            null, "Sensor Inactive or Deleted"),
+                                            null, SENS_AUTH_TOKEN_GEN_FAILED),
                                     HttpStatus.BAD_REQUEST);
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
