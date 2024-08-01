@@ -10,7 +10,7 @@ public class ApplicationProperties {
 
     @Data
     public static class Cors {
-        private String pathPattern = "/api/**";
+        private String pathPattern = "/**";
         private String allowedMethods = "*";
         private String allowedHeaders = "*";
         private String allowedOriginPatterns = "*";
