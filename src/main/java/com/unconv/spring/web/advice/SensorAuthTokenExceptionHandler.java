@@ -7,11 +7,15 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /** Component class responsible for handling exceptions related to sensor authentication. */
 @Component
 public class SensorAuthTokenExceptionHandler {
+    private static final Logger logger =
+            LoggerFactory.getLogger(SensorAuthTokenExceptionHandler.class);
 
     /**
      * Handles exceptions thrown during sensor authentication and writes appropriate error response
@@ -25,6 +29,9 @@ public class SensorAuthTokenExceptionHandler {
      */
     public void handleSensorAuthException(
             HttpServletResponse response, SensorAuthTokenException exception) throws IOException {
+        // Log the exception message and token
+        logger.warn("Sensor authentication failed. Token: {}", exception.getToken(), exception);
+
         Map<String, String> map = new HashMap<>();
         map.put("message", exception.getMessage());
         map.put("token", exception.getToken());

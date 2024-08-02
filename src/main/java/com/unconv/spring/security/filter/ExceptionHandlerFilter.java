@@ -44,11 +44,13 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (JWTVerificationException e) {
+            logger.warn("JWTVerificationException occurred", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized");
         } catch (SensorAuthTokenException e) {
             sensorAuthTokenExceptionHandler.handleSensorAuthException(response, e);
         } catch (RuntimeException e) {
+            logger.error("RuntimeException occurred", e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }

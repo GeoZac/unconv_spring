@@ -38,6 +38,7 @@ build/
 
 ### Local properties ###
 src/main/resources/application-*.properties
+src/main/resources/logback-spring-*.xml
 
 ### Logs ###
 logs/
