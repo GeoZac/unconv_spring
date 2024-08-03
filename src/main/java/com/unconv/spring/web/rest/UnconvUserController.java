@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,6 +56,7 @@ public class UnconvUserController {
      * @return A {@link PagedResult} containing the paginated list of {@link UnconvUser}s.
      */
     @GetMapping
+    @Secured("ROLE_TENANT")
     public PagedResult<UnconvUser> getAllUnconvUsers(
             @RequestParam(
                             value = "pageNo",
@@ -87,6 +89,7 @@ public class UnconvUserController {
      *     response if the {@link UnconvUser} with the given ID does not exist.
      */
     @GetMapping("/{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<UnconvUser> getUnconvUserById(@PathVariable UUID id) {
         return unconvUserService
                 .findUnconvUserById(id)
