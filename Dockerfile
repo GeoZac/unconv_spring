@@ -8,6 +8,7 @@ COPY . /app/
 
 # Copy the application-render.properties file from the secrets file location
 RUN --mount=type=secret,id=application-render.properties dst=/app/src/main/resources/application-render.properties
+RUN --mount=type=secret,id=logback-spring-render.xml dst=/app/src/main/resources/logback-spring-render.xml
 
 # Build the project with Maven Wrapper
 RUN chmod +x mvnw && \
