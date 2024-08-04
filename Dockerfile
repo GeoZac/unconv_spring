@@ -8,14 +8,15 @@ COPY . /app/
 
 # Copy the application-render.properties file from the secrets file location
 RUN --mount=type=secret,id=application-render.properties dst=/app/src/main/resources/application-render.properties
+RUN --mount=type=secret,id=logback-spring-render.xml dst=/app/src/main/resources/logback-spring-render.xml
 
 # Build the project with Maven Wrapper
 RUN chmod +x mvnw && \
-    ./mvnw clean package -Prender -DskipTests
+    ./mvnw clean compile
 
 # Expose the port used by Spring Boot
 EXPOSE 8080
 
 # Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "./target/spring-0.0.8.jar", "--spring.profiles.active=render"]
+ENTRYPOINT ./mvnw spring-boot:run -Dspring-boot.run.profiles=render
 
