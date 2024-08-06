@@ -518,6 +518,8 @@
                         <link>https://javadoc.io/doc/org.zalando/problem-violations/${problem-spring-web.version}/</link>
                         
                         <link>https://javadoc.io/doc/com.auth0/java-jwt/4.4.0/</link>
+
+                        <link>https://javadoc.io/doc/org.modelmapper/modelmapper/3.2.0/</link>
                     </links>
                   </configuration>
             </plugin>
