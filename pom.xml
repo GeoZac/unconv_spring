@@ -516,6 +516,8 @@
                         <link>https://javadoc.io/doc/org.zalando/problem-spring-web/${problem-spring-web.version}/</link>
                         <link>https://javadoc.io/doc/org.zalando/problem-spring-common/${problem-spring-web.version}/</link>
                         <link>https://javadoc.io/doc/org.zalando/problem-violations/${problem-spring-web.version}/</link>
+                        
+                        <link>https://javadoc.io/doc/com.auth0/java-jwt/4.4.0/</link>
                     </links>
                   </configuration>
             </plugin>
