@@ -511,6 +511,12 @@
                 <configuration>
                     <show>private</show>
                     <nohelp>true</nohelp>
+                    <links>
+                        <link>https://javadoc.io/doc/org.zalando/problem/${problem-spring-web.version}/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-web/${problem-spring-web.version}/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-common/${problem-spring-web.version}/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-violations/${problem-spring-web.version}/</link>
+                    </links>
                   </configuration>
             </plugin>
 
