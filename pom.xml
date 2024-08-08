@@ -533,6 +533,10 @@
                         <link>https://javadoc.io/doc/org.springframework.security/spring-security-web/5.7.1/</link>
                         <link>https://javadoc.io/doc/org.springframework/spring-web/5.3.3/</link>
                         <link>https://javadoc.io/doc/org.springframework/spring-webmvc/5.3.3/</link>                        
+                        
+                        <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.17.2/</link>
+
+                        <link>https://javadoc.io/doc/org.slf4j/slf4j-api/1.7.36/</link>
                     </links>
                   </configuration>
             </plugin>
