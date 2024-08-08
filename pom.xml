@@ -521,8 +521,10 @@
 
                         <link>https://javadoc.io/doc/org.modelmapper/modelmapper/3.2.0/</link>
 
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-config/5.7.1</link>
                         <link>https://javadoc.io/doc/org.springframework.security/spring-security-core/5.7.1/</link>
                         <link>https://javadoc.io/doc/org.springframework.security/spring-security-crypto/5.7.1/</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-web/5.7.1/</link>
                     </links>
                   </configuration>
             </plugin>
