@@ -11,10 +11,13 @@ import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 /**
  * SecurityConfig is a configuration class responsible for configuring security settings in the
@@ -22,6 +25,8 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @AllArgsConstructor
 @Configuration
+@EnableWebSecurity
+@Import(SecurityProblemSupport.class)
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
@@ -33,6 +38,8 @@ public class SecurityConfig {
     private final UnconvUserService unconvUserService;
 
     private final SensorAuthTokenExceptionHandler sensorAuthTokenExceptionHandler;
+
+    private final SecurityProblemSupport problemSupport;
 
     /**
      * Configures the security filter chain for the application.
@@ -84,6 +91,12 @@ public class SecurityConfig {
                 // Configure session management
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.exceptionHandling(
+                exceptionHandling ->
+                        exceptionHandling
+                                .authenticationEntryPoint(problemSupport)
+                                .accessDeniedHandler(problemSupport));
 
         return http.build();
     }
