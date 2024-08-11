@@ -2,11 +2,13 @@ package com.unconv.spring.security.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.unconv.spring.domain.UnconvUser;
 import java.util.Date;
@@ -41,5 +43,25 @@ public class JWTUtilTest {
         assertEquals("unconv", decodedJWT.getIssuer());
         assertEquals("User Details", decodedJWT.getSubject());
         assertTrue(decodedJWT.getExpiresAt().after(new Date()));
+    }
+
+    @Test
+    public void testValidateTokenAndRetrieveSubject() {
+        UnconvUser mockUser = mock(UnconvUser.class);
+        when(mockUser.getUsername()).thenReturn("testUser");
+
+        String token = jwtUtil.generateToken(mockUser);
+        String subject = jwtUtil.validateTokenAndRetrieveSubject(token);
+
+        assertEquals("testUser", subject);
+    }
+
+    @Test
+    public void testValidateTokenAndRetrieveSubjectThrowsJWTVerificationException() {
+        String invalidToken = "invalidToken";
+
+        assertThrows(
+                JWTVerificationException.class,
+                () -> jwtUtil.validateTokenAndRetrieveSubject(invalidToken));
     }
 }
