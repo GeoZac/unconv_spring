@@ -27,7 +27,7 @@
         <jackson.version>2.17.2</jackson.version>
 
         <testcontainers.version>1.20.1</testcontainers.version>
-        <awaitility.version>4.2.1</awaitility.version>
+        <awaitility.version>4.2.2</awaitility.version>
         <instancio.version>5.0.1</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
