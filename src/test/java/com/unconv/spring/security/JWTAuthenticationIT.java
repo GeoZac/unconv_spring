@@ -80,6 +80,7 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", notNullValue()))
                 .andExpect(jsonPath("$.roles", notNullValue()))
+                .andExpect(jsonPath("$.roles[0]", notNullValue()))
                 .andReturn();
     }
 }
