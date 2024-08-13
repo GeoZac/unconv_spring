@@ -10,10 +10,13 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 /** Utility class for generating and validating JSON Web Tokens (JWT). */
@@ -77,5 +80,18 @@ public class JWTUtil {
                 JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getSubject();
+    }
+
+    public List<SimpleGrantedAuthority> validateTokenAndRetrieveRoles(String token) {
+        JWTVerifier verifier =
+                JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
+        DecodedJWT jwt = verifier.verify(token);
+        List<String> roleStrings = jwt.getClaim("roles").asList(String.class);
+
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (String string : roleStrings) {
+            authorities.add(new SimpleGrantedAuthority(string));
+        }
+        return authorities;
     }
 }
