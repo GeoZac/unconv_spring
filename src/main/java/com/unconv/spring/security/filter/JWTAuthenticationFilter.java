@@ -75,7 +75,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     header.startsWith(BEARER_PREFIX_STRING)
                             ? header.replace(BEARER_PREFIX_STRING, "")
                             : header;
-            contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
+            contextUser = jwtUtil.validateTokenAndRetrieveUsername(token);
         }
 
         Authentication authentication =
