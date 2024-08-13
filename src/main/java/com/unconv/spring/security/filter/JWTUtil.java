@@ -6,10 +6,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -39,8 +41,13 @@ public class JWTUtil {
         Instant expirationTime = Instant.now().plus(jwtExpiry, ChronoUnit.SECONDS);
 
         return JWT.create()
-                .withSubject("User Details")
-                .withClaim("username", unconvUser.getUsername())
+                .withSubject(unconvUser.getUsername())
+                .withClaim(
+                        "roles",
+                        unconvUser.getUnconvRoles().stream()
+                                .map(UnconvRole::getName)
+                                .collect(Collectors.toList()))
+                .withClaim("userId", unconvUser.getId().toString())
                 .withIssuedAt(new Date())
                 .withIssuer("unconv")
                 .withExpiresAt(expirationTime)
@@ -54,6 +61,7 @@ public class JWTUtil {
      * @return the subject (username) extracted from the token
      * @throws JWTVerificationException if the token verification fails
      */
+    @Deprecated(forRemoval = true)
     public String validateTokenAndRetrieveSubject(String token) throws JWTVerificationException {
         JWTVerifier verifier =
                 JWT.require(Algorithm.HMAC256(jwtSecret))
@@ -62,5 +70,12 @@ public class JWTUtil {
                         .build();
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getClaim("username").asString();
+    }
+
+    public String validateTokenAndRetrieveUsername(String token) throws JWTVerificationException {
+        JWTVerifier verifier =
+                JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
+        DecodedJWT jwt = verifier.verify(token);
+        return jwt.getSubject();
     }
 }
