@@ -24,14 +24,14 @@ public class JWTUtilTest {
     private Long jwtExpiry = 3600L; // 1 hour in seconds
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         jwtUtil = new JWTUtil();
         ReflectionTestUtils.setField(jwtUtil, "jwtSecret", jwtSecret);
         ReflectionTestUtils.setField(jwtUtil, "jwtExpiry", jwtExpiry);
     }
 
     @Test
-    public void testGenerateToken() {
+    void testGenerateToken() {
         UUID mockUserId = UUID.randomUUID();
         UnconvUser mockUser = mock(UnconvUser.class);
         when(mockUser.getUsername()).thenReturn("testUser");
@@ -49,7 +49,7 @@ public class JWTUtilTest {
     }
 
     @Test
-    public void testValidateTokenAndRetrieveSubject() {
+    void testValidateTokenAndRetrieveSubject() {
         UUID mockUserId = UUID.randomUUID();
         UnconvUser mockUser = mock(UnconvUser.class);
         when(mockUser.getUsername()).thenReturn("testUser");
@@ -62,7 +62,7 @@ public class JWTUtilTest {
     }
 
     @Test
-    public void testValidateTokenAndRetrieveSubjectThrowsJWTVerificationException() {
+    void testValidateTokenAndRetrieveSubjectThrowsJWTVerificationException() {
         String invalidToken = "invalidToken";
 
         assertThrows(
