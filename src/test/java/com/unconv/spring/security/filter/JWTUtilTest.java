@@ -12,6 +12,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.unconv.spring.domain.UnconvUser;
 import java.util.Date;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -31,27 +32,31 @@ public class JWTUtilTest {
 
     @Test
     public void testGenerateToken() {
+        UUID mockUserId = UUID.randomUUID();
         UnconvUser mockUser = mock(UnconvUser.class);
         when(mockUser.getUsername()).thenReturn("testUser");
+        when(mockUser.getId()).thenReturn(mockUserId);
 
         String token = jwtUtil.generateToken(mockUser);
 
         assertNotNull(token);
 
         DecodedJWT decodedJWT = JWT.decode(token);
-        assertEquals("testUser", decodedJWT.getClaim("username").asString());
+        assertEquals("testUser", decodedJWT.getSubject());
         assertEquals("unconv", decodedJWT.getIssuer());
-        assertEquals("User Details", decodedJWT.getSubject());
+        assertEquals(mockUserId.toString(), decodedJWT.getClaim("userId").asString());
         assertTrue(decodedJWT.getExpiresAt().after(new Date()));
     }
 
     @Test
     public void testValidateTokenAndRetrieveSubject() {
+        UUID mockUserId = UUID.randomUUID();
         UnconvUser mockUser = mock(UnconvUser.class);
         when(mockUser.getUsername()).thenReturn("testUser");
+        when(mockUser.getId()).thenReturn(mockUserId);
 
         String token = jwtUtil.generateToken(mockUser);
-        String subject = jwtUtil.validateTokenAndRetrieveSubject(token);
+        String subject = jwtUtil.validateTokenAndRetrieveUsername(token);
 
         assertEquals("testUser", subject);
     }
@@ -62,6 +67,6 @@ public class JWTUtilTest {
 
         assertThrows(
                 JWTVerificationException.class,
-                () -> jwtUtil.validateTokenAndRetrieveSubject(invalidToken));
+                () -> jwtUtil.validateTokenAndRetrieveUsername(invalidToken));
     }
 }
