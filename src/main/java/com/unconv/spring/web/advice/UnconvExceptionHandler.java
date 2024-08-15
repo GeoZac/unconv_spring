@@ -1,6 +1,7 @@
 package com.unconv.spring.web.advice;
 
 import java.time.OffsetDateTime;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,6 +13,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 
 /** Global controller advice class responsible for handling unconverted exceptions. */
 @ControllerAdvice
+@Order(Integer.MIN_VALUE)
 public class UnconvExceptionHandler implements ProblemHandling {
 
     @ExceptionHandler(PropertyReferenceException.class)
