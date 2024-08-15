@@ -121,6 +121,14 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithIncorrectParameter() throws Exception {
+        this.mockMvc
+                .perform(get("/SensorLocation").param("sortBy", "sensorName"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
     void shouldFindSensorLocationById() throws Exception {
         SensorLocation sensorLocation = sensorLocationList.get(0);
         UUID sensorLocationId = sensorLocation.getId();
