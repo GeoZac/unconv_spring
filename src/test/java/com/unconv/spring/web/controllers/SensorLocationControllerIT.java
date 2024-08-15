@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -122,9 +123,24 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenFetchAllSensorLocationsWithIncorrectParameter() throws Exception {
+        String mismatchedParameter = "sensorName";
+        String requestPath = "/SensorLocation";
+
         this.mockMvc
-                .perform(get("/SensorLocation").param("sortBy", "sensorName"))
+                .perform(get(requestPath).param("sortBy", mismatchedParameter))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(
+                        jsonPath(
+                                "$.detail",
+                                is("Invalid property reference: " + mismatchedParameter)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")))
+                .andExpect(jsonPath("$.path", is(requestPath)))
                 .andReturn();
     }
 
