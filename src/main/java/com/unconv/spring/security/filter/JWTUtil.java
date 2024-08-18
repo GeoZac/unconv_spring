@@ -57,24 +57,6 @@ public class JWTUtil {
                 .sign(Algorithm.HMAC256(jwtSecret));
     }
 
-    /**
-     * Validates the provided JWT token and retrieves the subject (username).
-     *
-     * @param token the JWT token to validate
-     * @return the subject (username) extracted from the token
-     * @throws JWTVerificationException if the token verification fails
-     */
-    @Deprecated(forRemoval = true)
-    public String validateTokenAndRetrieveSubject(String token) throws JWTVerificationException {
-        JWTVerifier verifier =
-                JWT.require(Algorithm.HMAC256(jwtSecret))
-                        .withSubject("User Details")
-                        .withIssuer("unconv")
-                        .build();
-        DecodedJWT jwt = verifier.verify(token);
-        return jwt.getClaim("username").asString();
-    }
-
     public String validateTokenAndRetrieveUsername(String token) throws JWTVerificationException {
         JWTVerifier verifier =
                 JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
