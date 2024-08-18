@@ -13,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,6 +28,8 @@ public class JWTUtil {
     @Getter
     @Value("${jwt_expiry}")
     private Long jwtExpiry;
+
+    private static final String ISSUER = "unconv";
 
     /**
      * Generates a JWT token for the specified user.
@@ -47,12 +48,10 @@ public class JWTUtil {
                 .withSubject(unconvUser.getUsername())
                 .withClaim(
                         "roles",
-                        unconvUser.getUnconvRoles().stream()
-                                .map(UnconvRole::getName)
-                                .collect(Collectors.toList()))
+                        unconvUser.getUnconvRoles().stream().map(UnconvRole::getName).toList())
                 .withClaim("userId", unconvUser.getId().toString())
                 .withIssuedAt(new Date())
-                .withIssuer("unconv")
+                .withIssuer(ISSUER)
                 .withExpiresAt(expirationTime)
                 .sign(Algorithm.HMAC256(jwtSecret));
     }
@@ -66,8 +65,7 @@ public class JWTUtil {
      *     token expired).
      */
     public String validateTokenAndRetrieveUsername(String token) throws JWTVerificationException {
-        JWTVerifier verifier =
-                JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer(ISSUER).build();
         DecodedJWT jwt = verifier.verify(token);
         return jwt.getSubject();
     }
@@ -82,8 +80,7 @@ public class JWTUtil {
      *     token expired).
      */
     public List<SimpleGrantedAuthority> validateTokenAndRetrieveRoles(String token) {
-        JWTVerifier verifier =
-                JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer(ISSUER).build();
         DecodedJWT jwt = verifier.verify(token);
         List<String> roleStrings = jwt.getClaim("roles").asList(String.class);
 

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class JWTUtilTest {
+class JWTUtilTest {
 
     private JWTUtil jwtUtil;
     private String jwtSecret = "testSecret";
