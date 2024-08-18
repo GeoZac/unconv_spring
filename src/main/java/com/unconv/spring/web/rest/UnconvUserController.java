@@ -98,6 +98,15 @@ public class UnconvUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Endpoint to retrieve the currently authenticated user's details, including their username and
+     * roles.
+     *
+     * @param authentication the {@link Authentication} object provided by Spring Security,
+     *     containing the user's authentication information.
+     * @return a {@link Map} containing the authenticated user's username under the key "username"
+     *     and a list of their roles under the key "roles".
+     */
     @GetMapping("/whoAmI")
     public Map<String, Object> whoAmI(Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
