@@ -57,6 +57,14 @@ public class JWTUtil {
                 .sign(Algorithm.HMAC256(jwtSecret));
     }
 
+    /**
+     * Validates the given JWT token and retrieves the username (subject) contained in the token.
+     *
+     * @param token the JWT token to validate and decode.
+     * @return the username (subject) extracted from the token.
+     * @throws JWTVerificationException if the token verification fails (e.g., invalid signature,
+     *     token expired).
+     */
     public String validateTokenAndRetrieveUsername(String token) throws JWTVerificationException {
         JWTVerifier verifier =
                 JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
@@ -64,6 +72,15 @@ public class JWTUtil {
         return jwt.getSubject();
     }
 
+    /**
+     * Validates the given JWT token and retrieves the roles contained in the token.
+     *
+     * @param token the JWT token to validate and decode.
+     * @return a list of {@link SimpleGrantedAuthority} objects representing the roles extracted
+     *     from the token.
+     * @throws JWTVerificationException if the token verification fails (e.g., invalid signature,
+     *     token expired).
+     */
     public List<SimpleGrantedAuthority> validateTokenAndRetrieveRoles(String token) {
         JWTVerifier verifier =
                 JWT.require(Algorithm.HMAC256(jwtSecret)).withIssuer("unconv").build();
