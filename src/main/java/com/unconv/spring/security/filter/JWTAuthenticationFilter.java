@@ -3,7 +3,7 @@ package com.unconv.spring.security.filter;
 import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -57,6 +58,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         String contextUser;
+        Collection<? extends GrantedAuthority> contextCredential = null;
 
         if (isSensorPostingEnvironmentalReadingWithToken(request)) {
             String accessToken = request.getParameter(ACCESS_TOKEN);
@@ -75,11 +77,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     header.startsWith(BEARER_PREFIX_STRING)
                             ? header.replace(BEARER_PREFIX_STRING, "")
                             : header;
-            contextUser = jwtUtil.validateTokenAndRetrieveSubject(token);
+            contextUser = jwtUtil.validateTokenAndRetrieveUsername(token);
+            contextCredential = jwtUtil.validateTokenAndRetrieveRoles(token);
         }
 
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(contextUser, null, List.of());
+                new UsernamePasswordAuthenticationToken(contextUser, null, contextCredential);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
