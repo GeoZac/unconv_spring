@@ -13,6 +13,7 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -22,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,6 +98,29 @@ public class UnconvUserController {
                 .findUnconvUserById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Endpoint to retrieve the currently authenticated user's details, including their username and
+     * roles.
+     *
+     * @param authentication the {@link Authentication} object provided by Spring Security,
+     *     containing the user's authentication information.
+     * @return a {@link Map} containing the authenticated user's username under the key "username"
+     *     and a list of their roles under the key "roles".
+     */
+    @GetMapping("/whoAmI")
+    public Map<String, Object> whoAmI(Authentication authentication) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", authentication.getName());
+
+        List<String> roles =
+                authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList();
+
+        response.put("roles", roles);
+        return response;
     }
 
     /**

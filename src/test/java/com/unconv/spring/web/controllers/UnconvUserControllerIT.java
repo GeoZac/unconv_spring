@@ -313,6 +313,21 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFailLoginWithNullUnconvUserAndNotReceiveJWToken() throws Exception {
+
+        UnconvUserDTO unconvUserDTO = new UnconvUserDTO();
+
+        this.mockMvc
+                .perform(
+                        post("/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvUserDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$", is("User Not Authenticated")));
+    }
+
+    @Test
     void shouldReturn400WhenCreateNewUnconvUserWithNullValues() throws Exception {
         UnconvUser unconvUser = new UnconvUser();
 

@@ -51,7 +51,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                     new UsernamePasswordAuthenticationToken(
                             unconvUserDTO.getUsername(), unconvUserDTO.getPassword());
             return customAuthenticationManager.authenticate(authentication);
-        } catch (IOException e) {
+        } catch (NullPointerException | IOException e) {
             logger.error("attemptAuthentication", e);
             throw new AuthenticationException("Authentication failed") {};
         }
