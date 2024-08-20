@@ -442,12 +442,16 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
 
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvUser.getId().toString())))
                 .andExpect(jsonPath("$.password").doesNotExist())
@@ -480,11 +484,15 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
