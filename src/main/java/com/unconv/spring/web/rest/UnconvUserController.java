@@ -218,6 +218,7 @@ public class UnconvUserController {
      *     found.
      */
     @DeleteMapping("/{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<UnconvUser> deleteUnconvUser(@PathVariable UUID id) {
         return unconvUserService
                 .findUnconvUserById(id)
