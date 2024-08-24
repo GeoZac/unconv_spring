@@ -1,6 +1,7 @@
 package com.unconv.spring.web.advice;
 
 import java.time.OffsetDateTime;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -10,6 +11,7 @@ import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
 
 @ControllerAdvice
+@Order(Integer.MIN_VALUE)
 public class SecurityExceptionHandler implements SecurityAdviceTrait {
     @Override
     public ResponseEntity<Problem> handleAccessDenied(

@@ -16,7 +16,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 /** Global controller advice class responsible for handling unconverted exceptions. */
 @Slf4j
 @ControllerAdvice
-@Order(Integer.MIN_VALUE)
+@Order(Integer.MIN_VALUE + 1)
 public class UnconvExceptionHandler implements ProblemHandling {
     @ExceptionHandler
     public ResponseEntity<Problem> handleInsufficientAuthenticationException(
