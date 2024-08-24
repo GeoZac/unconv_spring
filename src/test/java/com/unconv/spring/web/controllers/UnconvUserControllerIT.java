@@ -113,7 +113,6 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         totalPages = (int) Math.ceil((double) unconvUserList.size() / defaultPageSize);
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvUsersInAscendingOrder() throws Exception {
         this.mockMvc
@@ -130,6 +129,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllUnconvUsersInAscendingOrderAsUser() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvUser").param("sortDir", "asc"))
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     // TODO Add test with USER access
