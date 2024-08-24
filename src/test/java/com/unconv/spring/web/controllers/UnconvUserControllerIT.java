@@ -113,10 +113,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         totalPages = (int) Math.ceil((double) unconvUserList.size() / defaultPageSize);
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvUsersInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/UnconvUser").param("sortDir", "asc"))
+                .perform(
+                        get("/UnconvUser")
+                                .param("sortDir", "asc")
+                                .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
@@ -128,10 +132,14 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvUsersInDescendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/UnconvUser").param("sortDir", "desc"))
+                .perform(
+                        get("/UnconvUser")
+                                .param("sortDir", "desc")
+                                .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
@@ -143,13 +151,16 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFindUnconvUserById() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
         UUID unconvUserId = unconvUser.getId();
 
         this.mockMvc
-                .perform(get("/UnconvUser/{id}", unconvUserId.toString()))
+                .perform(
+                        get("/UnconvUser/{id}", unconvUserId.toString())
+                                .with(user("username").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvUser.getId().toString())))
                 .andExpect(jsonPath("$.password").doesNotExist())
@@ -431,23 +442,29 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvUser() throws Exception {
         UnconvUser unconvUser = unconvUserList.get(0);
 
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvUser.getId().toString())))
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenFetchingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         this.mockMvc
-                .perform(get("/UnconvUser/{id}", unconvUserId))
+                .perform(
+                        get("/UnconvUser/{id}", unconvUserId).with(user("username").roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -467,11 +484,15 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 

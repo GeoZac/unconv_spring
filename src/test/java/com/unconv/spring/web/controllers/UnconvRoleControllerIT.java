@@ -60,10 +60,14 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
         unconvRoleList = unconvRoleRepository.saveAll(unconvRoleList);
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvRolesInAscendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/UnconvRole").param("sortDir", "asc"))
+                .perform(
+                        get("/UnconvRole")
+                                .param("sortDir", "asc")
+                                .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath("$.data.size()", is(unconvRoleList.size() + defaultUserRoleCount)))
@@ -79,10 +83,14 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvRolesInDescendingOrder() throws Exception {
         this.mockMvc
-                .perform(get("/UnconvRole").param("sortDir", "desc"))
+                .perform(
+                        get("/UnconvRole")
+                                .param("sortDir", "desc")
+                                .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath("$.data.size()", is(unconvRoleList.size() + defaultUserRoleCount)))
@@ -98,18 +106,22 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFindUnconvRoleById() throws Exception {
         UnconvRole unconvRole = unconvRoleList.get(0);
         UUID unconvRoleId = unconvRole.getId();
 
         this.mockMvc
-                .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .perform(
+                        get("/UnconvRole/{id}", unconvRoleId)
+                                .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvRole.getId().toString())))
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldCreateNewUnconvRole() throws Exception {
         UnconvRole unconvRole = new UnconvRole(null, "New UnconvRole");
@@ -117,6 +129,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .perform(
                         post("/UnconvRole")
                                 .with(csrf())
+                                .with(user("username").roles("MANAGER"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andExpect(status().isCreated())
@@ -148,6 +161,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldUpdateUnconvRole() throws Exception {
         UnconvRole unconvRole = unconvRoleList.get(0);
@@ -157,6 +171,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .perform(
                         put("/UnconvRole/{id}", unconvRole.getId())
                                 .with(csrf())
+                                .with(user("username").roles("MANAGER"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andExpect(status().isOk())
@@ -164,25 +179,33 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvRole() throws Exception {
         UnconvRole unconvRole = unconvRoleList.get(0);
 
         this.mockMvc
-                .perform(delete("/UnconvRole/{id}", unconvRole.getId()).with(csrf()))
+                .perform(
+                        delete("/UnconvRole/{id}", unconvRole.getId())
+                                .with(csrf())
+                                .with(user("username").roles("MANAGER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvRole.getId().toString())))
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenFetchingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
         this.mockMvc
-                .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .perform(
+                        get("/UnconvRole/{id}", unconvRoleId)
+                                .with(user("username").roles("TENANT")))
                 .andExpect(status().isNotFound());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenUpdatingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -192,16 +215,21 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .perform(
                         put("/UnconvRole/{id}", unconvRoleId)
                                 .with(csrf())
+                                .with(user("username").roles("MANAGER"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andExpect(status().isNotFound());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
         this.mockMvc
-                .perform(delete("/UnconvRole/{id}", unconvRoleId).with(csrf()))
+                .perform(
+                        delete("/UnconvRole/{id}", unconvRoleId)
+                                .with(csrf())
+                                .with(user("username").roles("MANAGER")))
                 .andExpect(status().isNotFound());
     }
 

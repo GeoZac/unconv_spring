@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,7 @@ public class UnconvRoleController {
      *     requested.
      */
     @GetMapping
+    @Secured("ROLE_TENANT")
     public PagedResult<UnconvRole> getAllUnconvRoles(
             @RequestParam(
                             value = "pageNo",
@@ -76,6 +78,7 @@ public class UnconvRoleController {
      *     ResponseEntity with status 404 (Not Found) if no UnconvRole with the given ID exists.
      */
     @GetMapping("/{id}")
+    @Secured("ROLE_TENANT")
     public ResponseEntity<UnconvRole> getUnconvRoleById(@PathVariable UUID id) {
         return unconvRoleService
                 .findUnconvRoleById(id)
@@ -91,6 +94,7 @@ public class UnconvRoleController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Secured("ROLE_MANAGER")
     public UnconvRole createUnconvRole(@RequestBody @Validated UnconvRoleDTO unconvRoleDTO) {
         unconvRoleDTO.setId(null);
         return unconvRoleService.saveUnconvRole(modelMapper.map(unconvRoleDTO, UnconvRole.class));
@@ -107,6 +111,7 @@ public class UnconvRoleController {
      *     given ID exists.
      */
     @PutMapping("/{id}")
+    @Secured("ROLE_MANAGER")
     public ResponseEntity<UnconvRole> updateUnconvRole(
             @PathVariable UUID id, @RequestBody @Valid UnconvRoleDTO unconvRoleDTO) {
         return unconvRoleService
@@ -130,6 +135,7 @@ public class UnconvRoleController {
      *     given ID exists.
      */
     @DeleteMapping("/{id}")
+    @Secured("ROLE_MANAGER")
     public ResponseEntity<UnconvRole> deleteUnconvRole(@PathVariable UUID id) {
         return unconvRoleService
                 .findUnconvRoleById(id)
