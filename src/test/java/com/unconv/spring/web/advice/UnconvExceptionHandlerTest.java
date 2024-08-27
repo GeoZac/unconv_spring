@@ -52,7 +52,7 @@ class UnconvExceptionHandlerTest {
                 .isEqualTo(HttpStatus.UNAUTHORIZED.value());
         assertThat(problem.getDetail())
                 .isEqualTo("Authentication required to access this endpoint");
-        assertThat(problem.getParameters().get("path")).isEqualTo(path);
+        assertThat(path).isEqualTo(problem.getParameters().get("path"));
         assertThat(problem.getParameters().get("timestamp")).isInstanceOf(OffsetDateTime.class);
     }
 
@@ -77,7 +77,7 @@ class UnconvExceptionHandlerTest {
         assertThat(Objects.requireNonNull(problem.getStatus()).getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(problem.getDetail()).isEqualTo("Invalid property reference: " + invalidProperty);
-        assertThat(problem.getParameters().get("path")).isEqualTo(path);
+        assertThat(path).isEqualTo(problem.getParameters().get("path"));
         assertThat(problem.getParameters().get("timestamp")).isInstanceOf(OffsetDateTime.class);
     }
 }

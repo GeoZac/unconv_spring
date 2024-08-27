@@ -18,6 +18,20 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 @ControllerAdvice
 @Order(Integer.MIN_VALUE + 1)
 public class UnconvExceptionHandler implements ProblemHandling {
+
+    /**
+     * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
+     * authentication is required to access a specific endpoint but is not provided.
+     *
+     * <p>This method logs the error message and the path where the exception occurred, and creates
+     * a {@link Problem} object containing details about the error, including the timestamp, title,
+     * status, detailed message, and the request path.
+     *
+     * @param ex the {@link InsufficientAuthenticationException} that was thrown
+     * @param request the {@link NativeWebRequest} containing the details of the web request
+     * @return a {@link ResponseEntity} containing a {@link Problem} object with details about the
+     *     insufficient authentication exception, along with an HTTP status of 401 (Unauthorized)
+     */
     @ExceptionHandler
     public ResponseEntity<Problem> handleInsufficientAuthenticationException(
             InsufficientAuthenticationException ex, NativeWebRequest request) {
@@ -35,6 +49,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
                         .build();
         return create(ex, problem, request);
     }
+
     /**
      * Handles {@link PropertyReferenceException} thrown when an invalid property is referenced in a
      * query or other operation.
