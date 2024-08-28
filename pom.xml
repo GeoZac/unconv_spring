@@ -536,8 +536,6 @@
                         <link>https://javadoc.io/doc/org.springframework.security/spring-security-core/5.7.1/</link>
                         <link>https://javadoc.io/doc/org.springframework.security/spring-security-crypto/5.7.1/</link>
                         <link>https://javadoc.io/doc/org.springframework.security/spring-security-web/5.7.1/</link>
-                        <link>https://javadoc.io/doc/org.springframework/spring-web/5.3.3/</link>
-                        <link>https://javadoc.io/doc/org.springframework/spring-webmvc/5.3.3/</link>
 
                         <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/${jackson.version}/</link>
                         <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/${jackson.version}/</link>
