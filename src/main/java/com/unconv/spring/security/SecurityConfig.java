@@ -58,7 +58,8 @@ public class SecurityConfig {
                 new AuthenticationFilter(customAuthenticationManager, jwtUtil, unconvUserService);
         authenticationFilter.setFilterProcessesUrl("/auth/login");
 
-        http
+        http.cors()
+                .and()
                 // Disable CSRF protection if using it in Postman
                 .csrf(AbstractHttpConfigurer::disable)
 
