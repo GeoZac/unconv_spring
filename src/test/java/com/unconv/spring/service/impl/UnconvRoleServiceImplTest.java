@@ -1,20 +1,27 @@
 package com.unconv.spring.service.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class UnconvRoleServiceImplTest {
-    @Test
-    void testDeleteUnconvRoleById() {}
+class UnconvRoleServiceImplTest {
+
+    @BeforeEach
+    void setUp() {}
 
     @Test
-    void testFindAllUnconvRoles() {}
+    void findAllUnconvRoles() {}
 
     @Test
-    void testFindUnconvRoleById() {}
+    void findUnconvRoleById() {}
 
     @Test
-    void testFindUnconvRoleByName() {}
+    void findUnconvRoleByName() {}
 
     @Test
-    void testSaveUnconvRole() {}
+    void saveUnconvRole() {}
+
+    @Test
+    void deleteUnconvRoleById() {}
 }

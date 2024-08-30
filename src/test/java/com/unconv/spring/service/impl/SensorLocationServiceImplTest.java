@@ -46,14 +46,7 @@ public class SensorLocationServiceImplTest {
     }
 
     @Test
-    void testDeleteSensorLocationById() {
-        sensorLocationService.deleteSensorLocationById(sensorLocationId);
-
-        verify(sensorLocationRepository, times(1)).deleteById(sensorLocationId);
-    }
-
-    @Test
-    void testFindAllSensorLocations() {
+    void findAllSensorLocations() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
@@ -72,7 +65,7 @@ public class SensorLocationServiceImplTest {
     }
 
     @Test
-    void testFindAllSensorLocationsByUnconvUserId() {
+    void findAllSensorLocationsByUnconvUserId() {
         UUID unconvUserId = UUID.randomUUID();
         List<SensorLocation> sensorLocationList = Collections.singletonList(sensorLocation);
 
@@ -87,7 +80,7 @@ public class SensorLocationServiceImplTest {
     }
 
     @Test
-    void testFindSensorLocationById() {
+    void findSensorLocationById() {
         when(sensorLocationRepository.findById(any(UUID.class)))
                 .thenReturn(Optional.of(sensorLocation));
 
@@ -98,11 +91,18 @@ public class SensorLocationServiceImplTest {
     }
 
     @Test
-    void testSaveSensorLocation() {
+    void saveSensorLocation() {
         when(sensorLocationRepository.save(any(SensorLocation.class))).thenReturn(sensorLocation);
 
         SensorLocation result = sensorLocationService.saveSensorLocation(sensorLocation);
 
         assertEquals(sensorLocation.getId(), result.getId());
+    }
+
+    @Test
+    void deleteSensorLocationById() {
+        sensorLocationService.deleteSensorLocationById(sensorLocationId);
+
+        verify(sensorLocationRepository, times(1)).deleteById(sensorLocationId);
     }
 }

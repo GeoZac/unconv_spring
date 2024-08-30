@@ -1,17 +1,24 @@
 package com.unconv.spring.service.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RouteServiceImplTest {
-    @Test
-    void testDeleteRouteById() {}
+class RouteServiceImplTest {
+
+    @BeforeEach
+    void setUp() {}
 
     @Test
-    void testFindAllRoutes() {}
+    void findAllRoutes() {}
 
     @Test
-    void testFindRouteById() {}
+    void findRouteById() {}
 
     @Test
-    void testSaveRoute() {}
+    void saveRoute() {}
+
+    @Test
+    void deleteRouteById() {}
 }

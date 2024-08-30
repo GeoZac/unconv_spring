@@ -1,17 +1,24 @@
 package com.unconv.spring.service.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FruitServiceImplTest {
-    @Test
-    void testDeleteFruitById() {}
+class FruitServiceImplTest {
+
+    @BeforeEach
+    void setUp() {}
 
     @Test
-    void testFindAllFruits() {}
+    void findAllFruits() {}
 
     @Test
-    void testFindFruitById() {}
+    void findFruitById() {}
 
     @Test
-    void testSaveFruit() {}
+    void saveFruit() {}
+
+    @Test
+    void deleteFruitById() {}
 }
