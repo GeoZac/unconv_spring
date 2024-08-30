@@ -1,24 +1,92 @@
 package com.unconv.spring.service.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+import com.unconv.spring.domain.TemperatureThreshold;
+import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.persistence.TemperatureThresholdRepository;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
+@ExtendWith(MockitoExtension.class)
 class TemperatureThresholdServiceImplTest {
 
+    @Mock private TemperatureThresholdRepository temperatureThresholdRepository;
+
+    @InjectMocks private TemperatureThresholdServiceImpl temperatureThresholdService;
+
+    private TemperatureThreshold temperatureThreshold;
+    private UUID temperatureThresholdId;
+
     @BeforeEach
-    void setUp() {}
+    void setUp() {
+        temperatureThresholdId = UUID.randomUUID();
+        temperatureThreshold = new TemperatureThreshold();
+        temperatureThreshold.setId(temperatureThresholdId);
+    }
 
     @Test
-    void findAllTemperatureThresholds() {}
+    void findAllTemperatureThresholdsInAscendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "ASC";
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+        List<TemperatureThreshold> temperatureThresholdList =
+                Collections.singletonList(temperatureThreshold);
+        Page<TemperatureThreshold> temperatureThresholdPage =
+                new PageImpl<>(temperatureThresholdList);
+
+        when(temperatureThresholdRepository.findAll(any(Pageable.class)))
+                .thenReturn(temperatureThresholdPage);
+
+        PagedResult<TemperatureThreshold> result =
+                temperatureThresholdService.findAllTemperatureThresholds(
+                        pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(temperatureThresholdList.size(), result.data().size());
+        assertEquals(temperatureThresholdList.get(0).getId(), result.data().get(0).getId());
+    }
 
     @Test
-    void findTemperatureThresholdById() {}
+    void findTemperatureThresholdById() {
+        when(temperatureThresholdRepository.findById(any(UUID.class)))
+                .thenReturn(Optional.of(temperatureThreshold));
+
+        Optional<TemperatureThreshold> result =
+                temperatureThresholdService.findTemperatureThresholdById(temperatureThresholdId);
+
+        assertEquals(temperatureThreshold.getId(), result.get().getId());
+    }
 
     @Test
-    void saveTemperatureThreshold() {}
+    void saveTemperatureThreshold() {
+        when(temperatureThresholdRepository.save(any(TemperatureThreshold.class)))
+                .thenReturn(temperatureThreshold);
+
+        TemperatureThreshold result =
+                temperatureThresholdService.saveTemperatureThreshold(temperatureThreshold);
+
+        assertEquals(temperatureThreshold.getId(), result.getId());
+    }
 
     @Test
-    void deleteTemperatureThresholdById() {}
+    void deleteTemperatureThresholdById() {
+        temperatureThresholdService.deleteTemperatureThresholdById(temperatureThresholdId);
+    }
 }

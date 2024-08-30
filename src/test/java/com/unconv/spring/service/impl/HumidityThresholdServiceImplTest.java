@@ -1,24 +1,91 @@
 package com.unconv.spring.service.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+import com.unconv.spring.domain.HumidityThreshold;
+import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.persistence.HumidityThresholdRepository;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
+@ExtendWith(MockitoExtension.class)
 class HumidityThresholdServiceImplTest {
 
+    @Mock private HumidityThresholdRepository humidityThresholdRepository;
+
+    @InjectMocks private HumidityThresholdServiceImpl humidityThresholdService;
+
+    private HumidityThreshold humidityThreshold;
+    private UUID humidityThresholdId;
+
     @BeforeEach
-    void setUp() {}
+    void setUp() {
+        humidityThresholdId = UUID.randomUUID();
+        humidityThreshold = new HumidityThreshold();
+        humidityThreshold.setId(humidityThresholdId);
+    }
 
     @Test
-    void findAllHumidityThresholds() {}
+    void findAllHumidityThresholds() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "ASC";
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+        List<HumidityThreshold> humidityThresholdList =
+                Collections.singletonList(humidityThreshold);
+        Page<HumidityThreshold> humidityThresholdPage = new PageImpl<>(humidityThresholdList);
+
+        when(humidityThresholdRepository.findAll(any(Pageable.class)))
+                .thenReturn(humidityThresholdPage);
+
+        PagedResult<HumidityThreshold> result =
+                humidityThresholdService.findAllHumidityThresholds(
+                        pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(humidityThresholdList.size(), result.data().size());
+        assertEquals(humidityThresholdList.get(0).getId(), result.data().get(0).getId());
+    }
 
     @Test
-    void findHumidityThresholdById() {}
+    void findHumidityThresholdById() {
+        when(humidityThresholdRepository.findById(any(UUID.class)))
+                .thenReturn(Optional.of(humidityThreshold));
+
+        Optional<HumidityThreshold> result =
+                humidityThresholdService.findHumidityThresholdById(humidityThresholdId);
+
+        assertEquals(humidityThreshold.getId(), result.get().getId());
+    }
 
     @Test
-    void saveHumidityThreshold() {}
+    void saveHumidityThreshold() {
+        when(humidityThresholdRepository.save(any(HumidityThreshold.class)))
+                .thenReturn(humidityThreshold);
+
+        HumidityThreshold result =
+                humidityThresholdService.saveHumidityThreshold(humidityThreshold);
+
+        assertEquals(humidityThreshold.getId(), result.getId());
+    }
 
     @Test
-    void deleteHumidityThresholdById() {}
+    void deleteHumidityThresholdById() {
+        humidityThresholdService.deleteHumidityThresholdById(humidityThresholdId);
+    }
 }
