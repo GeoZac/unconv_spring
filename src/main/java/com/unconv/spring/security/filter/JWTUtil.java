@@ -22,11 +22,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class JWTUtil {
 
-    @Value("${jwt_secret}")
+    @Value("${unconv.jwt_secret}")
     private String jwtSecret;
 
     @Getter
-    @Value("${jwt_expiry}")
+    @Value("${unconv.jwt_expiry}")
     private Long jwtExpiry;
 
     private static final String ISSUER = "unconv";

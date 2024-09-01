@@ -38,8 +38,8 @@ spring.jpa.properties.hibernate.connection.provider_disables_autocommit=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
 
 ################ Security #####################
-jwt_secret=NOT_A_SECRET
-jwt_expiry=3600
+unconv.jwt_secret=NOT_A_SECRET
+unconv.jwt_expiry=3600
 
 ################ Problem #####################
 spring.resources.add-mappings=false

@@ -1,5 +1,3 @@
-jwt_expiry: 3600
-jwt_secret: NOT_A_SECRET
 logging:
     file:
         name: logs/spring.log
@@ -64,3 +62,6 @@ spring:
         throw-exception-if-no-handler-found: true
     resources:
         add-mappings: false
+unconv:
+    jwt_expiry: 3600
+    jwt_secret: NOT_A_SECRET
