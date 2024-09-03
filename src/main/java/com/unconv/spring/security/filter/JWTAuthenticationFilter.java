@@ -28,7 +28,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final SensorAuthTokenUtil sensorAuthTokenUtil;
 
-    @Value("${auth.skip-header:false}")
+    @Value("${unconv.auth.skip-header:false}")
     private boolean skipAuthHeader;
 
     /**
