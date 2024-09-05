@@ -1,7 +1,10 @@
 package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.Offer;
@@ -52,6 +55,7 @@ class OfferServiceImplTest {
 
         Optional<Offer> result = offerService.findOfferById(offerId);
 
+        assertTrue(result.isPresent());
         assertEquals(offer.getId(), result.get().getId());
     }
 
@@ -67,5 +71,7 @@ class OfferServiceImplTest {
     @Test
     void deleteOfferById() {
         offerService.deleteOfferById(offerId);
+
+        verify(offerRepository, times(1)).deleteById(offerId);
     }
 }

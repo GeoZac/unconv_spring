@@ -1,6 +1,7 @@
 package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,9 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class UnconvRoleServiceImplTest {
@@ -48,7 +47,6 @@ class UnconvRoleServiceImplTest {
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<UnconvRole> unconvRoleList = Collections.singletonList(unconvRole);
         Page<UnconvRole> unconvRolePage = new PageImpl<>(unconvRoleList);
 
@@ -67,6 +65,7 @@ class UnconvRoleServiceImplTest {
 
         Optional<UnconvRole> result = unconvRoleService.findUnconvRoleById(unconvRoleId);
 
+        assertTrue(result.isPresent());
         assertEquals(unconvRole.getId(), result.get().getId());
     }
 

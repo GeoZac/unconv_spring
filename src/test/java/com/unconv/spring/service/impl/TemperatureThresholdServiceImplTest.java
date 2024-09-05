@@ -1,7 +1,10 @@
 package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.TemperatureThreshold;
@@ -19,9 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class TemperatureThresholdServiceImplTest {
@@ -46,7 +47,6 @@ class TemperatureThresholdServiceImplTest {
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<TemperatureThreshold> temperatureThresholdList =
                 Collections.singletonList(temperatureThreshold);
         Page<TemperatureThreshold> temperatureThresholdPage =
@@ -71,6 +71,7 @@ class TemperatureThresholdServiceImplTest {
         Optional<TemperatureThreshold> result =
                 temperatureThresholdService.findTemperatureThresholdById(temperatureThresholdId);
 
+        assertTrue(result.isPresent());
         assertEquals(temperatureThreshold.getId(), result.get().getId());
     }
 
@@ -88,5 +89,7 @@ class TemperatureThresholdServiceImplTest {
     @Test
     void deleteTemperatureThresholdById() {
         temperatureThresholdService.deleteTemperatureThresholdById(temperatureThresholdId);
+
+        verify(temperatureThresholdRepository, times(1)).deleteById(temperatureThresholdId);
     }
 }
