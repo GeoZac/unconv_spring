@@ -1,6 +1,7 @@
 package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,6 +55,7 @@ class HeaterServiceImplTest {
 
         Optional<Heater> result = heaterService.findHeaterById(heaterId);
 
+        assertTrue(result.isPresent());
         assertEquals(heater.getId(), result.get().getId());
     }
 
