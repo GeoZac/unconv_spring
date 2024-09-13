@@ -346,6 +346,36 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenCreatingEnvironmentalReadingWithNonExistingSensorSystem()
+            throws Exception {
+
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null,
+                        -3L,
+                        53L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
+                        sensorSystem);
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenCreatingEnvironmentalReadingWithNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
