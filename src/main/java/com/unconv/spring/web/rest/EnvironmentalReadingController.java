@@ -9,6 +9,7 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -136,6 +137,26 @@ public class EnvironmentalReadingController {
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
                 sensorSystemId, pageNo, pageSize, sortBy, sortDir);
+    }
+
+    @GetMapping("Interval/SensorSystem/{sensorSystemId}")
+    public List<EnvironmentalReading> getReadingsInLastInterval(
+            @RequestParam(required = false) Integer hours,
+            @RequestParam(required = false) Integer days,
+            @PathVariable UUID sensorSystemId) {
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime startTime;
+
+        if (hours != null) {
+            startTime = now.minusHours(hours);
+        } else if (days != null) {
+            startTime = now.minusDays(days);
+        } else {
+            startTime = now.minusDays(1);
+        }
+
+        return environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
+                sensorSystemId, startTime, now);
     }
 
     /**
