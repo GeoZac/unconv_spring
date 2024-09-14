@@ -5,6 +5,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +40,9 @@ public interface EnvironmentalReadingService {
      */
     PagedResult<EnvironmentalReading> findAllEnvironmentalReadingsBySensorSystemId(
             UUID sensorSystemId, int pageNo, int pageSize, String sortBy, String sortDir);
+
+    List<EnvironmentalReading> findBySensorSystemIdAndTimestampBetween(
+            UUID sensorSystemId, OffsetDateTime startTime, OffsetDateTime endTime);
 
     /**
      * Retrieves an EnvironmentalReading by its ID.
