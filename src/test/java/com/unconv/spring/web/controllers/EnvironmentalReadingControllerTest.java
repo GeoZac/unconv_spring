@@ -450,6 +450,80 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenUploadingAsBulkWithNonExistingSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, unconvUser);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .supply(field(EnvironmentalReadingDTO::getSensorSystem), () -> sensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse =
+                "Uploaded the file successfully: test.csv with "
+                        + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
+                        + " records";
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.empty());
+
+        given(
+                        environmentalReadingService
+                                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                        any(SensorSystem.class), any(MultipartFile.class)))
+                .willReturn(ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse));
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUploadingAsBulkWithNonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
         EnvironmentalReading environmentalReading = new EnvironmentalReading();
 
