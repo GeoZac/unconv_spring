@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,5 +51,21 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(document("shouldFetchAppVersion", preprocessResponse(prettyPrint)))
                 .andExpect(jsonPath("$", is("0.0.8")));
+    }
+
+    @Test
+    void shouldFetchAppVersionWithJSONResponse() throws Exception {
+
+        given(buildProperties.getVersion()).willReturn("0.0.8");
+
+        this.mockMvc
+                .perform(
+                        get("/public/status/v1/version")
+                                .characterEncoding(Charset.defaultCharset()))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", is("application/json")))
+                .andDo(document("shouldFetchAppVersion", preprocessResponse(prettyPrint)))
+                .andExpect(jsonPath("$.version", is("0.0.8")))
+                .andReturn();
     }
 }

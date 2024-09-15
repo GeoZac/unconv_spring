@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,5 +29,15 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", is("0.0.8")));
+    }
+
+    @Test
+    void shouldFetchAppVersionWithJSONResponse() throws Exception {
+        this.mockMvc
+                .perform(get("/public/status/v1/version"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", is("application/json")))
+                .andExpect(jsonPath("$.version", is("0.0.8")))
+                .andReturn();
     }
 }
