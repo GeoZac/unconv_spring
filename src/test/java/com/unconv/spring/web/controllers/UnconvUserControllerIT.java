@@ -316,7 +316,10 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$", is("User Not Authenticated")));
+                .andExpect(jsonPath("$.detail", is("User Not Authenticated")))
+                .andExpect(jsonPath("$.title", is("Unauthorized")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
     }
 
     @Test
@@ -331,7 +334,10 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvUserDTO)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$", is("User Not Authenticated")));
+                .andExpect(jsonPath("$.detail", is("User Not Authenticated")))
+                .andExpect(jsonPath("$.title", is("Unauthorized")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
     }
 
     @Test
