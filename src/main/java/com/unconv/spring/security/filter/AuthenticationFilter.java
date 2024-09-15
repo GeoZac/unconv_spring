@@ -5,6 +5,7 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.service.UnconvUserService;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.FilterChain;
@@ -92,7 +93,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             AuthenticationException failed)
             throws IOException {
         logger.warn("unsuccessfulAuthentication", failed);
+        response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("User Not Authenticated");
+        Map<String, String> errorDetailMap = new HashMap<>();
+        errorDetailMap.put("title", "Unauthorized");
+        errorDetailMap.put("detail", "User Not Authenticated");
+        errorDetailMap.put("timestamp", OffsetDateTime.now().toString());
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetailMap));
     }
 }
