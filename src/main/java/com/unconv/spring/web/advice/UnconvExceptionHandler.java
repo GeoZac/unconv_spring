@@ -81,4 +81,20 @@ public class UnconvExceptionHandler implements ProblemHandling {
                         .build();
         return create(ex, problem, request);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Problem> handleIllegalArgumentException(
+            IllegalArgumentException ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        log.error("{} occurred at path: {}", ex.getMessage(), path);
+
+        Problem problem =
+                Problem.builder()
+                        .with("timestamp", OffsetDateTime.now())
+                        .withTitle("Bad Request")
+                        .withStatus(Status.BAD_REQUEST)
+                        .with("path", path)
+                        .build();
+        return create(ex, problem, request);
+    }
 }
