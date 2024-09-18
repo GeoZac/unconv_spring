@@ -93,6 +93,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
                         .with("timestamp", OffsetDateTime.now())
                         .withTitle("Bad Request")
                         .withStatus(Status.BAD_REQUEST)
+                        .withDetail("Page index must not be less than zero")
                         .with("path", path)
                         .build();
         return create(ex, problem, request);
