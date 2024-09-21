@@ -60,7 +60,19 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             sensorAuthTokenExceptionHandler.handleSensorAuthException(response, e);
         } catch (RuntimeException e) {
             logger.error("RuntimeException occurred", e);
+
+            response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            Map<String, String> errorDetails =
+                    Map.of(
+                            "title", "Internal Server Error",
+                            "detail",
+                                    "An unexpected runtime error occurred. The issue has been logged.",
+                            "timestamp", OffsetDateTime.now().toString());
+
+            String jsonResponse = new ObjectMapper().writeValueAsString(errorDetails);
+            response.getWriter().write(jsonResponse);
         }
     }
 }
