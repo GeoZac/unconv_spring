@@ -1,9 +1,13 @@
 package com.unconv.spring.security.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.exception.SensorAuthTokenException;
 import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +49,13 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (JWTVerificationException e) {
             logger.warn("JWTVerificationException occurred", e);
+            response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized");
+            Map<String, String> errorDetailMap = new HashMap<>();
+            errorDetailMap.put("title", "Unauthorized");
+            errorDetailMap.put("detail", "Token not validated");
+            errorDetailMap.put("timestamp", OffsetDateTime.now().toString());
+            response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetailMap));
         } catch (SensorAuthTokenException e) {
             sensorAuthTokenExceptionHandler.handleSensorAuthException(response, e);
         } catch (RuntimeException e) {
