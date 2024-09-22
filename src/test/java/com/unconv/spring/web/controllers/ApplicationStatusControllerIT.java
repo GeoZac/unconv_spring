@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -28,7 +29,13 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
                 .perform(get("/public/status/version"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("0.0.8")));
+                .andExpect(header().string("Content-Type", not("application/json")))
+                .andExpect(
+                        jsonPath(
+                                "$",
+                                is(
+                                        "0.0.8\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
+                .andReturn();
     }
 
     @Test

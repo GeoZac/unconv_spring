@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -49,8 +50,14 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/public/status/version").characterEncoding(Charset.defaultCharset()))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", not("application/json")))
                 .andDo(document("shouldFetchAppVersion", preprocessResponse(prettyPrint)))
-                .andExpect(jsonPath("$", is("0.0.8")));
+                .andExpect(
+                        jsonPath(
+                                "$",
+                                is(
+                                        "0.0.8\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
+                .andReturn();
     }
 
     @Test
