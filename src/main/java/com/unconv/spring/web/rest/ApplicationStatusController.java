@@ -19,11 +19,18 @@ public class ApplicationStatusController {
     /**
      * Retrieves the application version.
      *
+     * <p><strong>Deprecated:</strong> This endpoint is deprecated as of version 0.0.9 and will be
+     * removed in future releases. Clients should use the new versioned endpoint {@code /v1/version}
+     * for future compatibility.
+     *
      * @return the application version
+     * @deprecated since 0.0.9, use {@link #getVersion()} at {@code /v1/version} instead.
      */
+    @Deprecated(since = "0.0.9")
     @GetMapping("version")
     public String getAppVersion() {
-        return buildProperties.getVersion();
+        return buildProperties.getVersion()
+                + "\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.";
     }
 
     /**
