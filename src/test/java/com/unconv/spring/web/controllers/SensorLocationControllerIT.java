@@ -160,6 +160,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
+        SensorLocation sensorLocation = sensorLocationList.get(0);
+        String sensorLocationId = sensorLocation.getId().toString().replace("-", "");
+
+        this.mockMvc
+                .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
+    }
+
+    @Test
     void shouldCreateNewSensorLocation() throws Exception {
         SensorLocation sensorLocation =
                 new SensorLocation(null, "Petra", 30.3285, 35.4414, SensorLocationType.OUTDOOR);
