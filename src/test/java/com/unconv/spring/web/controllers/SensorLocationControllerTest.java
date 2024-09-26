@@ -114,6 +114,27 @@ class SensorLocationControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        given(
+                        sensorLocationService.findAllSensorLocations(
+                                any(Integer.class),
+                                any(Integer.class),
+                                any(String.class),
+                                any(String.class)))
+                .willThrow(new IllegalArgumentException("Page index must not be less than zero"));
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageNo", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page index must not be less than zero")))
+                .andReturn();
+    }
+
+    @Test
     void shouldFindSensorLocationById() throws Exception {
         UUID sensorLocationId = UUID.randomUUID();
         SensorLocation sensorLocation =
