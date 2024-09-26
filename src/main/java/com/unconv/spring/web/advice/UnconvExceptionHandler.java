@@ -19,6 +19,8 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 @Order(Integer.MIN_VALUE + 1)
 public class UnconvExceptionHandler implements ProblemHandling {
 
+    private final String timestamp = "timestamp";
+
     /**
      * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
      * authentication is required to access a specific endpoint but is not provided.
@@ -37,11 +39,11 @@ public class UnconvExceptionHandler implements ProblemHandling {
             InsufficientAuthenticationException ex, NativeWebRequest request) {
 
         String path = request.getDescription(false).substring(4);
-        log.error("{} occurred at path: {}", ex.getMessage(), path);
+        logError(ex, request);
 
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
+                        .with(timestamp, OffsetDateTime.now())
                         .withTitle("Insufficient Authentication")
                         .withStatus(Status.UNAUTHORIZED)
                         .withDetail("Authentication required to access this endpoint")
@@ -69,11 +71,11 @@ public class UnconvExceptionHandler implements ProblemHandling {
     public ResponseEntity<Problem> handlePropertyReferenceException(
             PropertyReferenceException ex, NativeWebRequest request) {
         String path = request.getDescription(false).substring(4);
-        log.error("{} occurred at path: {}", ex.getMessage(), path);
+        logError(ex, request);
 
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
+                        .with(timestamp, OffsetDateTime.now())
                         .withTitle("Bad Request")
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
@@ -100,16 +102,27 @@ public class UnconvExceptionHandler implements ProblemHandling {
     public ResponseEntity<Problem> handleIllegalArgumentException(
             IllegalArgumentException ex, NativeWebRequest request) {
         String path = request.getDescription(false).substring(4);
-        log.error("{} occurred at path: {}", ex.getMessage(), path);
+        logError(ex, request);
 
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
+                        .with(timestamp, OffsetDateTime.now())
                         .withTitle("Bad Request")
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Page index must not be less than zero")
                         .with("path", path)
                         .build();
         return create(ex, problem, request);
+    }
+
+    /**
+     * Logs an error message for the given exception and request, and returns the request path.
+     *
+     * @param ex the exception to log.
+     * @param request the {@link NativeWebRequest} from which the request path is extracted.
+     */
+    private void logError(Exception ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        log.error("{} occurred at path: {}", ex.getClass().getSimpleName(), path);
     }
 }
