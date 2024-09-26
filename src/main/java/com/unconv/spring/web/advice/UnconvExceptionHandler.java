@@ -82,6 +82,20 @@ public class UnconvExceptionHandler implements ProblemHandling {
         return create(ex, problem, request);
     }
 
+    /**
+     * Handles {@link IllegalArgumentException} exceptions that occur in the application.
+     *
+     * <p>This method is responsible for logging the error and returning a structured problem
+     * response in accordance with RFC 7807 format (Problem Details for HTTP APIs).
+     *
+     * @param ex the exception thrown when an invalid argument is passed, typically indicating an
+     *     issue such as an invalid page index or other argument violations.
+     * @param request the {@link NativeWebRequest} object, which allows access to the details of the
+     *     web request that triggered the exception.
+     * @return a {@link ResponseEntity} containing a {@link Problem} object with a status of 400
+     *     (Bad Request), a descriptive title, the timestamp of the error, the detailed error
+     *     message, and the path where the error occurred.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Problem> handleIllegalArgumentException(
             IllegalArgumentException ex, NativeWebRequest request) {
