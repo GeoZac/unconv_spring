@@ -19,7 +19,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 @Order(Integer.MIN_VALUE + 1)
 public class UnconvExceptionHandler implements ProblemHandling {
 
-    private static final String timestamp = "timestamp";
+    private static final String TIMESTAMP = "timestamp";
 
     /**
      * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
@@ -43,7 +43,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(timestamp, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now())
                         .withTitle("Insufficient Authentication")
                         .withStatus(Status.UNAUTHORIZED)
                         .withDetail("Authentication required to access this endpoint")
@@ -75,7 +75,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(timestamp, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now())
                         .withTitle("Bad Request")
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
@@ -106,7 +106,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(timestamp, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now())
                         .withTitle("Bad Request")
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Page index must not be less than zero")
