@@ -19,7 +19,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 @Order(Integer.MIN_VALUE + 1)
 public class UnconvExceptionHandler implements ProblemHandling {
 
-    private final String timestamp = "timestamp";
+    private static final String timestamp = "timestamp";
 
     /**
      * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
