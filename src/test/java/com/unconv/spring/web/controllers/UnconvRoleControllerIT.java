@@ -75,7 +75,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.totalElements",
                                 is(unconvRoleList.size() + defaultUserRoleCount)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -98,7 +98,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.totalElements",
                                 is(unconvRoleList.size() + defaultUserRoleCount)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
