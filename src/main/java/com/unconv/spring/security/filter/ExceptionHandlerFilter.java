@@ -51,10 +51,12 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             logger.warn("JWTVerificationException occurred", e);
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
             Map<String, String> errorDetailMap = new HashMap<>();
             errorDetailMap.put("title", "Unauthorized");
-            errorDetailMap.put("detail", "Token not validated");
+            errorDetailMap.put("detail", "Token validation failed");
             errorDetailMap.put("timestamp", OffsetDateTime.now().toString());
+
             response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetailMap));
         } catch (SensorAuthTokenException e) {
             sensorAuthTokenExceptionHandler.handleSensorAuthException(response, e);
