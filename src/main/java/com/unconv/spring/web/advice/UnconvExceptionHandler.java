@@ -9,6 +9,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
@@ -78,6 +79,19 @@ public class UnconvExceptionHandler implements ProblemHandling {
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
                         .with("path", path)
+                        .build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Problem> handleInvalidUUID(
+            MethodArgumentTypeMismatchException ex, NativeWebRequest request) {
+        Problem problem =
+                Problem.builder()
+                        .with("timestamp", OffsetDateTime.now())
+                        .withTitle("Bad Request")
+                        .withStatus(Status.BAD_REQUEST)
+                        .withDetail("The provided string is not a valid UUID")
                         .build();
         return create(ex, problem, request);
     }
