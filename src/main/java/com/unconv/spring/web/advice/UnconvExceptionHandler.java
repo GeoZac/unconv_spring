@@ -98,12 +98,16 @@ public class UnconvExceptionHandler implements ProblemHandling {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Problem> handleInvalidUUID(
             MethodArgumentTypeMismatchException ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        logError(ex, request);
+
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now())
                         .withTitle("Bad Request")
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("The provided string is not a valid UUID")
+                        .with("path", path)
                         .build();
         return create(ex, problem, request);
     }
