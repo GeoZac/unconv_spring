@@ -21,6 +21,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 public class UnconvExceptionHandler implements ProblemHandling {
 
     private static final String TIMESTAMP = "timestamp";
+    private static final String BAD_REQ_TITLE = "Bad Request";
 
     /**
      * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
@@ -77,7 +78,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
         Problem problem =
                 Problem.builder()
                         .with(TIMESTAMP, OffsetDateTime.now())
-                        .withTitle("Bad Request")
+                        .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
                         .with("path", path)
@@ -104,7 +105,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
         Problem problem =
                 Problem.builder()
                         .with(TIMESTAMP, OffsetDateTime.now())
-                        .withTitle("Bad Request")
+                        .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("The provided string is not a valid UUID")
                         .with("path", path)
@@ -135,7 +136,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
         Problem problem =
                 Problem.builder()
                         .with(TIMESTAMP, OffsetDateTime.now())
-                        .withTitle("Bad Request")
+                        .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Page index must not be less than zero")
                         .with("path", path)
