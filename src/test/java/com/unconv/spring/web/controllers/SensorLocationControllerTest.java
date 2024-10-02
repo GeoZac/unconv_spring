@@ -105,12 +105,33 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
                 .andExpect(jsonPath("$.hasNext", is(false)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        given(
+                        sensorLocationService.findAllSensorLocations(
+                                any(Integer.class),
+                                any(Integer.class),
+                                any(String.class),
+                                any(String.class)))
+                .willThrow(new IllegalArgumentException("Page index must not be less than zero"));
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageNo", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page index must not be less than zero")))
+                .andReturn();
     }
 
     @Test

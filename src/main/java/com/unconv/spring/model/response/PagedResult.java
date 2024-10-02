@@ -59,7 +59,7 @@ public record PagedResult<T>(
         this(
                 page.getContent(),
                 page.getTotalElements(),
-                page.getNumber() + 1,
+                page.getNumber(),
                 page.getTotalPages(),
                 page.isFirst(),
                 page.isLast(),
