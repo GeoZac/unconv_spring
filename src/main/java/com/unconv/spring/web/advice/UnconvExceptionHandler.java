@@ -9,6 +9,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
@@ -20,6 +21,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 public class UnconvExceptionHandler implements ProblemHandling {
 
     private static final String TIMESTAMP = "timestamp";
+    private static final String BAD_REQ_TITLE = "Bad Request";
 
     /**
      * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
@@ -76,9 +78,36 @@ public class UnconvExceptionHandler implements ProblemHandling {
         Problem problem =
                 Problem.builder()
                         .with(TIMESTAMP, OffsetDateTime.now())
-                        .withTitle("Bad Request")
+                        .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
+                        .with("path", path)
+                        .build();
+        return create(ex, problem, request);
+    }
+
+    /**
+     * Handles {@link MethodArgumentTypeMismatchException} thrown when a method argument type does
+     * not match the expected type, specifically for UUID parameters. This exception typically
+     * occurs when a string representation of a UUID is invalid.
+     *
+     * @param ex the exception that was thrown, providing details about the type mismatch
+     * @param request the current web request, allowing access to request details
+     * @return a {@link ResponseEntity} containing a {@link Problem} object with details about the
+     *     error, including a timestamp, title, status, and detail message
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Problem> handleInvalidUUID(
+            MethodArgumentTypeMismatchException ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        logError(ex, request);
+
+        Problem problem =
+                Problem.builder()
+                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .withTitle(BAD_REQ_TITLE)
+                        .withStatus(Status.BAD_REQUEST)
+                        .withDetail("The provided string is not a valid UUID")
                         .with("path", path)
                         .build();
         return create(ex, problem, request);
@@ -107,7 +136,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
         Problem problem =
                 Problem.builder()
                         .with(TIMESTAMP, OffsetDateTime.now())
-                        .withTitle("Bad Request")
+                        .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Page index must not be less than zero")
                         .with("path", path)
