@@ -1,9 +1,9 @@
 package com.unconv.spring.security;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +14,7 @@ import com.unconv.spring.security.filter.JWTUtil;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,7 +58,10 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
         // Send a request with the token in the Authorization header
         mockMvc.perform(get("/EnvironmentalReading").header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string("Unauthorized")); // Assert the expected response
+                .andExpect(jsonPath("$.detail", is("Token validation failed")))
+                .andExpect(jsonPath("$.title", is("Unauthorized")))
+                .andExpect(jsonPath("$.timestamp", CoreMatchers.notNullValue()))
+                .andReturn();
     }
 
     @Test
