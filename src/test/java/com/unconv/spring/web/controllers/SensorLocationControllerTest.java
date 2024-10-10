@@ -182,6 +182,18 @@ class SensorLocationControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
+        String sensorLocationId = UUID.randomUUID().toString().replace("-", "");
+
+        this.mockMvc
+                .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
+    }
+
+    @Test
     void shouldCreateNewSensorLocation() throws Exception {
         given(sensorLocationService.saveSensorLocation(any(SensorLocation.class)))
                 .willAnswer(
