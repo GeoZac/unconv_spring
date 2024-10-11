@@ -35,6 +35,7 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.utils.UnconvAuthorityDeserializer;
 import com.unconv.spring.web.rest.UnconvUserController;
@@ -55,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -67,6 +69,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = UnconvUserController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/UnconvUser")
+@Import(MethodSecurityConfig.class)
 class UnconvUserControllerTest extends AbstractControllerTest {
     @MockBean private UnconvUserService unconvUserService;
 
