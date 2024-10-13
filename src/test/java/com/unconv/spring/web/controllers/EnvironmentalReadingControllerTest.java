@@ -87,22 +87,22 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     private List<EnvironmentalReading> environmentalReadingList;
 
-    private final UnconvUser unconvUser =
+    private final UnconvUser mUnconvUser =
             new UnconvUser(UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
 
-    private final SensorLocation sensorLocation =
+    private final SensorLocation mSensorLocation =
             new SensorLocation(
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
-    private final SensorSystem sensorSystem =
+    private final SensorSystem mSensorSystem =
             new SensorSystem(
                     UUID.randomUUID(),
                     "Workspace sensor system",
                     "Monitors temperature and humidity for personal workspace",
                     false,
                     SensorStatus.ACTIVE,
-                    sensorLocation,
-                    unconvUser,
+                    mSensorLocation,
+                    mUnconvUser,
                     new HumidityThreshold(UUID.randomUUID(), 75, 23),
                     new TemperatureThreshold(UUID.randomUUID(), 100, 0));
 
@@ -229,7 +229,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         13L,
                         75L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
 
@@ -302,10 +302,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         -3L,
                         53L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
 
-        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
-                .willReturn(Optional.of(sensorSystem));
+        given(sensorSystemService.findSensorSystemById(mSensorSystem.getId()))
+                .willReturn(Optional.of(mSensorSystem));
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
@@ -355,9 +355,9 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         -3L,
                         53L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
 
-        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+        given(sensorSystemService.findSensorSystemById(mSensorSystem.getId()))
                 .willReturn(Optional.empty());
 
         this.mockMvc
@@ -556,7 +556,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithTimestampInFuture() throws Exception {
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        null, -3L, 53L, OffsetDateTime.now().plusDays(2), sensorSystem);
+                        null, -3L, 53L, OffsetDateTime.now().plusDays(2), mSensorSystem);
 
         this.mockMvc
                 .perform(
@@ -595,7 +595,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         3L,
                         5L,
                         OffsetDateTime.of(LocalDateTime.of(2021, 12, 25, 1, 15), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
@@ -627,7 +627,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         13L,
                         75L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
 
         this.mockMvc
                 .perform(
@@ -652,7 +652,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         76L,
                         0L,
                         OffsetDateTime.of(LocalDateTime.of(2021, 11, 12, 13, 57), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         doNothing()
