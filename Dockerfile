@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jre-focal AS builder
 WORKDIR application
-ARG JAR_FILE=target/spring-0.0.8.jar
+ARG JAR_FILE=target/spring-0.0.9.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
