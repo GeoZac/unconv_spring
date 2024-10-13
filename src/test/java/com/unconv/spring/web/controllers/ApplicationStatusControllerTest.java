@@ -71,7 +71,10 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
                                 .characterEncoding(Charset.defaultCharset()))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", is("application/json")))
-                .andDo(document("shouldFetchAppVersion", preprocessResponse(prettyPrint)))
+                .andDo(
+                        document(
+                                "shouldFetchAppVersionWithJSONResponse",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(jsonPath("$.version", is("0.0.8")))
                 .andReturn();
     }

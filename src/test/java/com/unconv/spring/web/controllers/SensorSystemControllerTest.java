@@ -350,6 +350,24 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingNonExistingUnconvUser() throws Exception {
+        given(unconvUserService.findUnconvUserById(any(UUID.class))).willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/SensorSystem/SensorName/{sensorName}/UnconvUser/{unconvUserId}",
+                                "Sensor",
+                                UUID.randomUUID()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn404WhenFetchingNonExistingSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
