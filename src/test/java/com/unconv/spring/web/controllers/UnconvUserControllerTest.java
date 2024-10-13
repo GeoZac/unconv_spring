@@ -153,6 +153,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get("/UnconvUser/whoAmI"))
+                .andDo(
+                        document(
+                                "shouldReturn200AndFetchAuthorisationInfo",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", notNullValue()))
                 .andExpect(jsonPath("$.roles", notNullValue()))
