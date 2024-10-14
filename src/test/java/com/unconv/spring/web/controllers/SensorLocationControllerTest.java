@@ -127,6 +127,10 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         this.mockMvc
                 .perform(get(requestPath).param("pageNo", "-1"))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber",
+                                preprocessResponse(prettyPrint)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title", is("Bad Request")))
                 .andExpect(jsonPath("$.status", is(400)))
@@ -179,6 +183,22 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingNonExistingSensorLocation",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
+        String sensorLocationId = UUID.randomUUID().toString().replace("-", "");
+
+        this.mockMvc
+                .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenFetchingSensorLocationByMalformedId",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
     }
 
     @Test

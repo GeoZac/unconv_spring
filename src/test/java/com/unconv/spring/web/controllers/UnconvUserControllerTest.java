@@ -60,6 +60,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -146,6 +147,23 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
+    }
+
+    @Test
+    @WithMockUser(username = "Test User", roles = "USER")
+    void shouldReturn200AndFetchAuthorisationInfo() throws Exception {
+
+        this.mockMvc
+                .perform(get("/UnconvUser/whoAmI"))
+                .andDo(
+                        document(
+                                "shouldReturn200AndFetchAuthorisationInfo",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", notNullValue()))
+                .andExpect(jsonPath("$.roles", notNullValue()))
+                .andExpect(jsonPath("$.roles[0]", notNullValue()))
                 .andReturn();
     }
 

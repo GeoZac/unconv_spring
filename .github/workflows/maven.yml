@@ -39,6 +39,14 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean install verify
 
+      - name: 'Upload test results to Codecov'
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/test-results/**/TEST-*.xml
+
       - name: Run Checkstyle
         run: ./mvnw checkstyle:checkstyle
 
