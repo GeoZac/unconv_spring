@@ -76,6 +76,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvRoles() throws Exception {
         Page<UnconvRole> page = new PageImpl<>(unconvRoleList);
@@ -84,7 +85,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .willReturn(unconvRolePagedResult);
 
         this.mockMvc
-                .perform(get("/UnconvRole"))
+                .perform(get("/UnconvRole").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvRoles", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvRoleList.size())))
@@ -97,6 +98,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFindUnconvRoleById() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -105,19 +107,24 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .willReturn(Optional.of(unconvRole));
 
         this.mockMvc
-                .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .perform(
+                        get("/UnconvRole/{id}", unconvRoleId)
+                                .with(user("username").roles("TENANT")))
                 .andDo(document("shouldFindUnconvRoleById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenFetchingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
         given(unconvRoleService.findUnconvRoleById(unconvRoleId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .perform(
+                        get("/UnconvRole/{id}", unconvRoleId)
+                                .with(user("username").roles("TENANT")))
                 .andDo(
                         document(
                                 "shouldReturn404WhenFetchingNonExistingUnconvRole",
@@ -125,6 +132,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldCreateNewUnconvRole() throws Exception {
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
@@ -140,6 +148,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .perform(
                         post("/UnconvRole")
                                 .with(csrf())
+                                .with(user("username").roles("MANAGER"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andDo(
@@ -181,6 +190,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldUpdateUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -194,6 +204,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .perform(
                         put("/UnconvRole/{id}", unconvRole.getId())
                                 .with(csrf())
+                                .with(user("username").roles("MANAGER"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andDo(
@@ -205,6 +216,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenUpdatingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -215,6 +227,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .perform(
                         put("/UnconvRole/{id}", unconvRoleId)
                                 .with(csrf())
+                                .with(user("username").roles("MANAGER"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andDo(
@@ -225,6 +238,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -234,19 +248,26 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         doNothing().when(unconvRoleService).deleteUnconvRoleById(unconvRole.getId());
 
         this.mockMvc
-                .perform(delete("/UnconvRole/{id}", unconvRole.getId()).with(csrf()))
+                .perform(
+                        delete("/UnconvRole/{id}", unconvRole.getId())
+                                .with(csrf())
+                                .with(user("username").roles("MANAGER")))
                 .andDo(document("shouldDeleteUnconvRole", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
         given(unconvRoleService.findUnconvRoleById(unconvRoleId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/UnconvRole/{id}", unconvRoleId).with(csrf()))
+                .perform(
+                        delete("/UnconvRole/{id}", unconvRoleId)
+                                .with(csrf())
+                                .with(user("username").roles("MANAGER")))
                 .andDo(
                         document(
                                 "shouldReturn404WhenDeletingNonExistingUnconvRole",
