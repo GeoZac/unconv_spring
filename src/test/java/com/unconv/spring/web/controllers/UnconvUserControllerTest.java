@@ -110,6 +110,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(authDeserializerModule);
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvUsers() throws Exception {
         Page<UnconvUser> page = new PageImpl<>(unconvUserList);
@@ -118,7 +119,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willReturn(unconvUserPagedResult);
 
         this.mockMvc
-                .perform(get("/UnconvUser"))
+                .perform(get("/UnconvUser").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvUsers", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
@@ -132,6 +133,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldFindUnconvUserById() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
@@ -142,7 +144,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willReturn(Optional.of(unconvUser));
 
         this.mockMvc
-                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        get("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(document("shouldFindUnconvUserById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
@@ -167,13 +172,17 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenFetchingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        get("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(
                         document(
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
@@ -487,6 +496,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
@@ -497,7 +507,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         doNothing().when(unconvUserService).deleteUnconvUserById(unconvUser.getId());
 
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(document("shouldDeleteUnconvUser", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
@@ -505,13 +518,17 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
+    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(
                         document(
                                 "shouldReturn404WhenDeletingNonExistingUnconvUser",
