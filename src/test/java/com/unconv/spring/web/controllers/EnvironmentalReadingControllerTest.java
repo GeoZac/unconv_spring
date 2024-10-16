@@ -43,6 +43,7 @@ import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
@@ -62,6 +63,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -79,6 +81,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = EnvironmentalReadingController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/EnvironmentalReading")
+@Import(MethodSecurityConfig.class)
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
