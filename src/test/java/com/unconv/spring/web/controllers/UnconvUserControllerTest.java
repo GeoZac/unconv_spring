@@ -110,7 +110,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(authDeserializerModule);
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvUsers() throws Exception {
         Page<UnconvUser> page = new PageImpl<>(unconvUserList);
@@ -130,6 +129,30 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenFetchingAllUnconvUsersAsUnconvAdmin() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvUser").with(user("username").roles("ADMIN")))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFetchingAllUnconvUsersAsUnconvAdmin",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenFetchingAllUnconvUsersAsUnconvUser() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvUser"))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFetchingAllUnconvUsersAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 
