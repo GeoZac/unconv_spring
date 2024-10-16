@@ -238,7 +238,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -257,7 +256,20 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
-    // TODO Add test with USER access
+    @Test
+    void shouldReturn403WhenDeletingUnconvRoleAsUnconvUser() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(delete("/UnconvRole/{id}", unconvRoleId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenDeletingUnconvRoleAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -273,5 +285,20 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenDeletingNonExistingUnconvRole",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn403WhenDeletingNonExistingUnconvRoleAsUnconvUser() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+        given(unconvRoleService.findUnconvRoleById(unconvRoleId)).willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(delete("/UnconvRole/{id}", unconvRoleId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenDeletingNonExistingUnconvRoleAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 }
