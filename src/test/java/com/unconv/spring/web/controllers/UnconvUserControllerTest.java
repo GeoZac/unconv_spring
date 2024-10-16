@@ -133,7 +133,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldFindUnconvUserById() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
@@ -156,6 +155,20 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn403WhenFindingUnconvUserByIdAsUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFindingUnconvUserByIdAsUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
     @WithMockUser(username = "Test User", roles = "USER")
     void shouldReturn200AndFetchAuthorisationInfo() throws Exception {
 
@@ -172,7 +185,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenFetchingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
@@ -188,6 +200,20 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingUnconvUserAsUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvUserAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 
@@ -496,7 +522,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
@@ -518,7 +543,20 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
+    @Test
+    void shouldReturn403WhenDeletingUnconvUserAsUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenDeletingUnconvUserAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
     @Test
     void shouldReturn404WhenDeletingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
@@ -534,6 +572,20 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenDeletingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenDeletingNonExistingUnconvUserAsUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenDeletingNonExistingUnconvUserAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 }
