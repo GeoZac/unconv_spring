@@ -123,7 +123,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         ;
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldFindUnconvRoleById() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -138,6 +137,35 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andDo(document("shouldFindUnconvRoleById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
+    }
+
+    @Test
+    void shouldReturn403WhenFindingUnconvRoleByIdAsUnconvAdmin() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get("/UnconvRole/{id}", unconvRoleId).with(user("username").roles("ADMIN")))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFindingUnconvRoleByIdAsUnconvAdmin",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenFindingUnconvRoleByIdAsUnconvUser() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFindingUnconvRoleByIdAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     @Test
