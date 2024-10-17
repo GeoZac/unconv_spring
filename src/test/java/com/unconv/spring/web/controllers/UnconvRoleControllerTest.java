@@ -76,7 +76,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvRoles() throws Exception {
         Page<UnconvRole> page = new PageImpl<>(unconvRoleList);
@@ -98,6 +97,32 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
+    @Test
+    void shouldReturn403WhenFetchingAllUnconvRolesAsUnconvAdmin() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvRole").with(user("username").roles("ADMIN")))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFetchingAllUnconvRolesAsUnconvAdmin",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+        ;
+    }
+
+    @Test
+    void shouldReturn403WhenFetchingAllUnconvRolesAsUnconvUser() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvRole"))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFetchingAllUnconvRolesAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+        ;
+    }
+
     // TODO Add test with USER access
     @Test
     void shouldFindUnconvRoleById() throws Exception {
@@ -115,7 +140,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenFetchingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -130,6 +154,19 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingNonExistingUnconvRole",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn403WhenFetchingNonExistingUnconvRoleAsUnconvUser() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+        this.mockMvc
+                .perform(get("/UnconvRole/{id}", unconvRoleId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvRole",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     // TODO Add test with USER access
