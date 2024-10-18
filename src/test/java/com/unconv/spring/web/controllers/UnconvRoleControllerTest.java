@@ -191,7 +191,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .perform(get("/UnconvRole/{id}", unconvRoleId))
                 .andDo(
                         document(
-                                "shouldReturn404WhenFetchingNonExistingUnconvRole",
+                                "shouldReturn403WhenFetchingNonExistingUnconvRoleAsUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isForbidden())
                 .andReturn();
@@ -316,7 +316,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldReturn404WhenUpdatingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -333,6 +332,27 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andDo(
                         document(
                                 "shouldReturn404WhenUpdatingNonExistingUnconvRole",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn403WhenUpdatingNonExistingUnconvRoleAsUnconvUser() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+        given(unconvRoleService.findUnconvRoleById(unconvRoleId)).willReturn(Optional.empty());
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated text");
+
+        this.mockMvc
+                .perform(
+                        put("/UnconvRole/{id}", unconvRoleId)
+                                .with(csrf())
+                               
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenUpdatingNonExistingUnconvRoleAsUnconvUser",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
