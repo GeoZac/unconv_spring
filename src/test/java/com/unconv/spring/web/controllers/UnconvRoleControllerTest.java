@@ -332,7 +332,8 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenUpdatingNonExistingUnconvRole",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -352,7 +353,8 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 "shouldReturn403WhenUpdatingNonExistingUnconvRoleAsUnconvUser",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     @Test
