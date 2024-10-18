@@ -197,7 +197,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldCreateNewUnconvRole() throws Exception {
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
@@ -224,6 +223,24 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
+    }
+
+    @Test
+    void shouldReturn403WhenCreatingNewUnconvRoleAsUnconvUser() throws Exception {
+        UnconvRole unconvRole = new UnconvRole(null, "ROLE_NEW");
+        this.mockMvc
+                .perform(
+                        post("/UnconvRole")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenCreatingNewUnconvRoleAsUnconvUser",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     @Test
@@ -255,7 +272,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .andReturn();
     }
 
-    // TODO Add test with USER access
     @Test
     void shouldUpdateUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
@@ -279,6 +295,25 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(unconvRole.getName())));
+    }
+
+    @Test
+    void shouldReturn403WhenUpdatingUnconvRoleAsUnconvUser() throws Exception {
+        UUID unconvRoleId = UUID.randomUUID();
+        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated ROLE name");
+        this.mockMvc
+                .perform(
+                        put("/UnconvRole/{id}", unconvRole.getId())
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(unconvRole)))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenUpdatingUnconvRoleAsUnconvUser",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
     }
 
     // TODO Add test with USER access
