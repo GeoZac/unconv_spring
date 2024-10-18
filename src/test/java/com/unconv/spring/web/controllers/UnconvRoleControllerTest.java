@@ -107,7 +107,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isForbidden())
                 .andReturn();
-        ;
     }
 
     @Test
@@ -120,7 +119,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isForbidden())
                 .andReturn();
-        ;
     }
 
     @Test
@@ -347,7 +345,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .perform(
                         put("/UnconvRole/{id}", unconvRoleId)
                                 .with(csrf())
-                               
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andDo(
