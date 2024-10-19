@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.unconv.spring</groupId>
     <artifactId>spring</artifactId>
-    <version>0.0.8</version>
+    <version>0.0.9</version>
     <name>spring</name>
     <description>spring</description>
 
@@ -22,20 +22,20 @@
         <spring-cloud.version>2021.0.4</spring-cloud.version>
         <problem-spring-web.version>0.27.0</problem-spring-web.version>
         <springdoc-openapi.version>1.8.0</springdoc-openapi.version>
-        <commons-lang3.version>3.16.0</commons-lang3.version>
-        <commons-io.version>2.16.1</commons-io.version>
-        <jackson.version>2.17.2</jackson.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-io.version>2.17.0</commons-io.version>
+        <jackson.version>2.18.0</jackson.version>
 
-        <testcontainers.version>1.20.1</testcontainers.version>
+        <testcontainers.version>1.20.2</testcontainers.version>
         <awaitility.version>4.2.2</awaitility.version>
-        <instancio.version>5.0.1</instancio.version>
+        <instancio.version>5.0.2</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
         <spotless.version>2.43.0</spotless.version>
         <googleJavaFormat.version>1.15.0</googleJavaFormat.version>
-        <dependency-check-maven.version>10.0.3</dependency-check-maven.version>
+        <dependency-check-maven.version>10.0.4</dependency-check-maven.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
-        <maven-failsafe-plugin.version>3.4.0</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>3.5.1</maven-failsafe-plugin.version>
         <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jacoco.minimum.coverage>0.80</jacoco.minimum.coverage>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.11.0</version>
+            <version>1.12.0</version>
         </dependency>
 
         <dependency>
@@ -207,7 +207,7 @@
 
         <dependency>
             <groupId>com.bugsnag</groupId>
-            <version>3.7.1</version>
+            <version>3.7.2</version>
             <artifactId>bugsnag-spring</artifactId>
         </dependency>
 
@@ -512,10 +512,41 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.10.1</version>
                 <configuration>
                     <show>private</show>
                     <nohelp>true</nohelp>
+                    <links>
+                        <link>https://javadoc.io/doc/org.zalando/problem/${problem-spring-web.version}/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-web/${problem-spring-web.version}/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-common/${problem-spring-web.version}/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-violations/${problem-spring-web.version}/</link>
+                        
+                        <link>https://javadoc.io/doc/com.auth0/java-jwt/4.4.0/</link>
+
+                        <link>https://javadoc.io/doc/org.modelmapper/modelmapper/3.2.0/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework.boot/spring-boot/2.7.18/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework.data/spring-data-commons/2.7.18/</link>
+                        <link>https://javadoc.io/doc/org.springframework.data/spring-data-jpa/2.7.18/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework/spring-beans/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-context/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-core/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-web/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-webmvc/5.3.3/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-config/5.7.1</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-core/5.7.1/</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-crypto/5.7.1/</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-web/5.7.1/</link>
+
+                        <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/${jackson.version}/</link>
+                        <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/${jackson.version}/</link>
+
+                        <link>https://javadoc.io/doc/org.slf4j/slf4j-api/1.7.36/</link>
+                    </links>
                   </configuration>
             </plugin>
 

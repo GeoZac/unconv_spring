@@ -35,6 +35,7 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.utils.UnconvAuthorityDeserializer;
 import com.unconv.spring.web.rest.UnconvUserController;
@@ -55,9 +56,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -67,6 +70,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = UnconvUserController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/UnconvUser")
+@Import(MethodSecurityConfig.class)
 class UnconvUserControllerTest extends AbstractControllerTest {
     @MockBean private UnconvUserService unconvUserService;
 
@@ -114,17 +118,41 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willReturn(unconvUserPagedResult);
 
         this.mockMvc
-                .perform(get("/UnconvUser"))
+                .perform(get("/UnconvUser").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvUsers", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenFetchingAllUnconvUsersAsUnconvAdmin() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvUser").with(user("username").roles("ADMIN")))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFetchingAllUnconvUsersAsUnconvAdmin",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenFetchingAllUnconvUsersAsUnconvUser() throws Exception {
+        this.mockMvc
+                .perform(get("/UnconvUser"))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFetchingAllUnconvUsersAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 
@@ -138,11 +166,45 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .willReturn(Optional.of(unconvUser));
 
         this.mockMvc
-                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        get("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(document("shouldFindUnconvUserById", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenFindingUnconvUserByIdAsUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenFindingUnconvUserByIdAsUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
+    @WithMockUser(username = "Test User", roles = "USER")
+    void shouldReturn200AndFetchAuthorisationInfo() throws Exception {
+
+        this.mockMvc
+                .perform(get("/UnconvUser/whoAmI"))
+                .andDo(
+                        document(
+                                "shouldReturn200AndFetchAuthorisationInfo",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", notNullValue()))
+                .andExpect(jsonPath("$.roles", notNullValue()))
+                .andExpect(jsonPath("$.roles[0]", notNullValue()))
                 .andReturn();
     }
 
@@ -152,12 +214,29 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        get("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(
                         document(
                                 "shouldReturn404WhenFetchingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingUnconvUserAsUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvUserAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 
@@ -476,11 +555,28 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         doNothing().when(unconvUserService).deleteUnconvUserById(unconvUser.getId());
 
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUser.getId()).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUser.getId())
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(document("shouldDeleteUnconvUser", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username", is(unconvUser.getUsername())))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenDeletingUnconvUserAsUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenDeletingUnconvUserAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 
@@ -490,12 +586,29 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.findUnconvUserById(unconvUserId)).willReturn(Optional.empty());
 
         this.mockMvc
-                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .perform(
+                        delete("/UnconvUser/{id}", unconvUserId)
+                                .with(csrf())
+                                .with(user("username").roles("ADMIN")))
                 .andDo(
                         document(
                                 "shouldReturn404WhenDeletingNonExistingUnconvUser",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn403WhenDeletingNonExistingUnconvUserAsUnconvUser() throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(delete("/UnconvUser/{id}", unconvUserId).with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn403WhenDeletingNonExistingUnconvUserAsUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isForbidden())
                 .andReturn();
     }
 }

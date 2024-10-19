@@ -98,7 +98,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -113,7 +113,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -145,6 +145,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageNo", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page index must not be less than zero")))
+                .andReturn();
+    }
+
+    @Test
     void shouldFindSensorLocationById() throws Exception {
         SensorLocation sensorLocation = sensorLocationList.get(0);
         UUID sensorLocationId = sensorLocation.getId();
@@ -157,6 +170,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.sensorLocationText",
                                 is(sensorLocation.getSensorLocationText())));
+    }
+
+    @Test
+    void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
+        SensorLocation sensorLocation = sensorLocationList.get(0);
+        String sensorLocationId = sensorLocation.getId().toString().replace("-", "");
+
+        this.mockMvc
+                .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
     }
 
     @Test

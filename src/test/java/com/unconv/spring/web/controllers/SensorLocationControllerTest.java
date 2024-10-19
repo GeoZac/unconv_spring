@@ -30,6 +30,7 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorLocationController;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -55,6 +57,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
+@Import(MethodSecurityConfig.class)
 class SensorLocationControllerTest extends AbstractControllerTest {
     @MockBean private SensorLocationService sensorLocationService;
 
@@ -105,12 +108,37 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
                 .andExpect(jsonPath("$.hasNext", is(false)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        given(
+                        sensorLocationService.findAllSensorLocations(
+                                any(Integer.class),
+                                any(Integer.class),
+                                any(String.class),
+                                any(String.class)))
+                .willThrow(new IllegalArgumentException("Page index must not be less than zero"));
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageNo", "-1"))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page index must not be less than zero")))
+                .andReturn();
     }
 
     @Test
@@ -158,6 +186,22 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingNonExistingSensorLocation",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
+        String sensorLocationId = UUID.randomUUID().toString().replace("-", "");
+
+        this.mockMvc
+                .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andDo(
+                        document(
+                                "shouldReturn400WhenFetchingSensorLocationByMalformedId",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
     }
 
     @Test

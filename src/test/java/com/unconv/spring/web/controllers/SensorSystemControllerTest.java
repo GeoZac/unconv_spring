@@ -41,6 +41,7 @@ import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorSystemController;
@@ -62,6 +63,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -77,6 +79,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = SensorSystemController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
+@Import(MethodSecurityConfig.class)
 class SensorSystemControllerTest extends AbstractControllerTest {
     @MockBean private SensorSystemService sensorSystemService;
 
@@ -141,7 +144,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -198,7 +201,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -347,6 +350,24 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(4)));
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingNonExistingUnconvUser() throws Exception {
+        given(unconvUserService.findUnconvUserById(any(UUID.class))).willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/SensorSystem/SensorName/{sensorName}/UnconvUser/{unconvUserId}",
+                                "Sensor",
+                                UUID.randomUUID()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingNonExistingUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test

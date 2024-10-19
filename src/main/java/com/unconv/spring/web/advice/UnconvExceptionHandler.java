@@ -9,6 +9,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
@@ -18,6 +19,9 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 @ControllerAdvice
 @Order(Integer.MIN_VALUE + 1)
 public class UnconvExceptionHandler implements ProblemHandling {
+
+    private static final String TIMESTAMP = "timestamp";
+    private static final String BAD_REQ_TITLE = "Bad Request";
 
     /**
      * Handles exceptions of type {@link InsufficientAuthenticationException} that occur when
@@ -37,11 +41,11 @@ public class UnconvExceptionHandler implements ProblemHandling {
             InsufficientAuthenticationException ex, NativeWebRequest request) {
 
         String path = request.getDescription(false).substring(4);
-        log.error("{} occurred at path: {}", ex.getMessage(), path);
+        logError(ex, request);
 
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now())
                         .withTitle("Insufficient Authentication")
                         .withStatus(Status.UNAUTHORIZED)
                         .withDetail("Authentication required to access this endpoint")
@@ -69,16 +73,85 @@ public class UnconvExceptionHandler implements ProblemHandling {
     public ResponseEntity<Problem> handlePropertyReferenceException(
             PropertyReferenceException ex, NativeWebRequest request) {
         String path = request.getDescription(false).substring(4);
-        log.error("{} occurred at path: {}", ex.getMessage(), path);
+        logError(ex, request);
 
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
-                        .withTitle("Bad Request")
+                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
                         .with("path", path)
                         .build();
         return create(ex, problem, request);
+    }
+
+    /**
+     * Handles {@link MethodArgumentTypeMismatchException} thrown when a method argument type does
+     * not match the expected type, specifically for UUID parameters. This exception typically
+     * occurs when a string representation of a UUID is invalid.
+     *
+     * @param ex the exception that was thrown, providing details about the type mismatch
+     * @param request the current web request, allowing access to request details
+     * @return a {@link ResponseEntity} containing a {@link Problem} object with details about the
+     *     error, including a timestamp, title, status, and detail message
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Problem> handleInvalidUUID(
+            MethodArgumentTypeMismatchException ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        logError(ex, request);
+
+        Problem problem =
+                Problem.builder()
+                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .withTitle(BAD_REQ_TITLE)
+                        .withStatus(Status.BAD_REQUEST)
+                        .withDetail("The provided string is not a valid UUID")
+                        .with("path", path)
+                        .build();
+        return create(ex, problem, request);
+    }
+
+    /**
+     * Handles {@link IllegalArgumentException} exceptions that occur in the application.
+     *
+     * <p>This method is responsible for logging the error and returning a structured problem
+     * response in accordance with RFC 7807 format (Problem Details for HTTP APIs).
+     *
+     * @param ex the exception thrown when an invalid argument is passed, typically indicating an
+     *     issue such as an invalid page index or other argument violations.
+     * @param request the {@link NativeWebRequest} object, which allows access to the details of the
+     *     web request that triggered the exception.
+     * @return a {@link ResponseEntity} containing a {@link Problem} object with a status of 400
+     *     (Bad Request), a descriptive title, the timestamp of the error, the detailed error
+     *     message, and the path where the error occurred.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Problem> handleIllegalArgumentException(
+            IllegalArgumentException ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        logError(ex, request);
+
+        Problem problem =
+                Problem.builder()
+                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .withTitle(BAD_REQ_TITLE)
+                        .withStatus(Status.BAD_REQUEST)
+                        .withDetail("Page index must not be less than zero")
+                        .with("path", path)
+                        .build();
+        return create(ex, problem, request);
+    }
+
+    /**
+     * Logs an error message for the given exception and request, and returns the request path.
+     *
+     * @param ex the exception to log.
+     * @param request the {@link NativeWebRequest} from which the request path is extracted.
+     */
+    private void logError(Exception ex, NativeWebRequest request) {
+        String path = request.getDescription(false).substring(4);
+        log.error("{} occurred at path: {}", ex.getClass().getSimpleName(), path);
     }
 }

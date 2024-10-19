@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.unconv.spring.common.AbstractControllerTest;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.HumidityThresholdService;
 import com.unconv.spring.web.rest.HumidityThresholdController;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
@@ -50,6 +52,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = HumidityThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/HumidityThreshold")
+@Import(MethodSecurityConfig.class)
 class HumidityThresholdControllerTest extends AbstractControllerTest {
 
     @MockBean private HumidityThresholdService humidityThresholdService;
@@ -94,7 +97,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
                 .andExpect(jsonPath("$.totalElements", is(5)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))

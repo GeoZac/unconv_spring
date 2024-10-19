@@ -43,6 +43,7 @@ import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
@@ -62,6 +63,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -79,6 +81,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = EnvironmentalReadingController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/EnvironmentalReading")
+@Import(MethodSecurityConfig.class)
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @MockBean private EnvironmentalReadingService environmentalReadingService;
@@ -87,22 +90,22 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     private List<EnvironmentalReading> environmentalReadingList;
 
-    private final UnconvUser unconvUser =
+    private final UnconvUser mUnconvUser =
             new UnconvUser(UUID.randomUUID(), "SomeUserName", "email@provider.com", "$ecreT123");
 
-    private final SensorLocation sensorLocation =
+    private final SensorLocation mSensorLocation =
             new SensorLocation(
                     UUID.randomUUID(), "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
 
-    private final SensorSystem sensorSystem =
+    private final SensorSystem mSensorSystem =
             new SensorSystem(
                     UUID.randomUUID(),
                     "Workspace sensor system",
                     "Monitors temperature and humidity for personal workspace",
                     false,
                     SensorStatus.ACTIVE,
-                    sensorLocation,
-                    unconvUser,
+                    mSensorLocation,
+                    mUnconvUser,
                     new HumidityThreshold(UUID.randomUUID(), 75, 23),
                     new TemperatureThreshold(UUID.randomUUID(), 100, 0));
 
@@ -165,7 +168,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -212,7 +215,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(dataSize)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -229,7 +232,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         13L,
                         75L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
 
@@ -302,10 +305,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         -3L,
                         53L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
 
-        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
-                .willReturn(Optional.of(sensorSystem));
+        given(sensorSystemService.findSensorSystemById(mSensorSystem.getId()))
+                .willReturn(Optional.of(mSensorSystem));
         given(
                         environmentalReadingService
                                 .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
@@ -343,6 +346,36 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         jsonPath(
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())));
+    }
+
+    @Test
+    void shouldReturn404WhenCreatingEnvironmentalReadingWithNonExistingSensorSystem()
+            throws Exception {
+
+        EnvironmentalReadingDTO environmentalReadingDTO =
+                new EnvironmentalReadingDTO(
+                        null,
+                        -3L,
+                        53L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 7, 7, 56), ZoneOffset.UTC),
+                        mSensorSystem);
+
+        given(sensorSystemService.findSensorSystemById(mSensorSystem.getId()))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReadingDTO)))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenCreatingEnvironmentalReadingWithNonExistingSensorSystem",
+                                preprocessRequest(prettyPrint),
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -420,6 +453,80 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenUploadingAsBulkWithNonExistingSensorSystem() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Sensor system", null, unconvUser);
+
+        List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
+                Instancio.ofList(EnvironmentalReadingDTO.class)
+                        .size(5)
+                        .supply(
+                                field(EnvironmentalReadingDTO::getTemperature),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(-9999.000, 9999.000))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .supply(
+                                field(EnvironmentalReadingDTO::getHumidity),
+                                random ->
+                                        BigDecimal.valueOf(random.doubleRange(0, 100))
+                                                .setScale(3, RoundingMode.HALF_UP)
+                                                .doubleValue())
+                        .generate(
+                                field(EnvironmentalReadingDTO::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .supply(field(EnvironmentalReadingDTO::getSensorSystem), () -> sensorSystem)
+                        .ignore(field(EnvironmentalReadingDTO::getId))
+                        .create();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("temperature,humidity,timestamp\n");
+        for (EnvironmentalReadingDTO environmentalReadingDTO :
+                environmentalReadingDTOsOfSpecificSensorForBulkData) {
+
+            stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
+        }
+
+        String expectedResponse =
+                "Uploaded the file successfully: test.csv with "
+                        + environmentalReadingDTOsOfSpecificSensorForBulkData.size()
+                        + " records";
+
+        given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
+                .willReturn(Optional.empty());
+
+        given(
+                        environmentalReadingService
+                                .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                        any(SensorSystem.class), any(MultipartFile.class)))
+                .willReturn(ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse));
+
+        // Create a MockMultipartFile with the CSV content
+        MockMultipartFile csvFile =
+                new MockMultipartFile(
+                        "file",
+                        "test.csv",
+                        "text/csv",
+                        stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .file(csvFile)
+                                .with(csrf()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenUploadingAsBulkWithNonExistingSensorSystem",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
         EnvironmentalReading environmentalReading = new EnvironmentalReading();
 
@@ -452,7 +559,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithTimestampInFuture() throws Exception {
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        null, -3L, 53L, OffsetDateTime.now().plusDays(2), sensorSystem);
+                        null, -3L, 53L, OffsetDateTime.now().plusDays(2), mSensorSystem);
 
         this.mockMvc
                 .perform(
@@ -491,7 +598,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         3L,
                         5L,
                         OffsetDateTime.of(LocalDateTime.of(2021, 12, 25, 1, 15), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
@@ -523,7 +630,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         13L,
                         75L,
                         OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
 
         this.mockMvc
                 .perform(
@@ -548,7 +655,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         76L,
                         0L,
                         OffsetDateTime.of(LocalDateTime.of(2021, 11, 12, 13, 57), ZoneOffset.UTC),
-                        sensorSystem);
+                        mSensorSystem);
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         doNothing()
