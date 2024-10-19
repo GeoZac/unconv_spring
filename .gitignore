@@ -45,3 +45,7 @@ src/main/resources/logback-spring-*.xml
 logs/
 
 .devcontainer/
+
+### VS Code extensions ###
+test_suite_analysis/
+managed_context/
