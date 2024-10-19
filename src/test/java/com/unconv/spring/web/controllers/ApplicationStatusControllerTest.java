@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.security.MethodSecurityConfig;
 import java.nio.charset.Charset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.zalando.problem.jackson.ProblemModule;
@@ -27,6 +29,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @WebMvcTest(controllers = com.unconv.spring.web.rest.ApplicationStatusController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/ApplicationStatus")
+@Import(MethodSecurityConfig.class)
 class ApplicationStatusControllerTest extends AbstractControllerTest {
 
     @MockBean private BuildProperties buildProperties;
@@ -45,7 +48,7 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
     @Test
     void shouldFetchAppVersion() throws Exception {
 
-        given(buildProperties.getVersion()).willReturn("0.0.8");
+        given(buildProperties.getVersion()).willReturn("0.0.9");
 
         this.mockMvc
                 .perform(get("/public/status/version").characterEncoding(Charset.defaultCharset()))
@@ -56,14 +59,14 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
                         jsonPath(
                                 "$",
                                 is(
-                                        "0.0.8\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
+                                        "0.0.9\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
                 .andReturn();
     }
 
     @Test
     void shouldFetchAppVersionWithJSONResponse() throws Exception {
 
-        given(buildProperties.getVersion()).willReturn("0.0.8");
+        given(buildProperties.getVersion()).willReturn("0.0.9");
 
         this.mockMvc
                 .perform(
@@ -71,8 +74,11 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
                                 .characterEncoding(Charset.defaultCharset()))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", is("application/json")))
-                .andDo(document("shouldFetchAppVersion", preprocessResponse(prettyPrint)))
-                .andExpect(jsonPath("$.version", is("0.0.8")))
+                .andDo(
+                        document(
+                                "shouldFetchAppVersionWithJSONResponse",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(jsonPath("$.version", is("0.0.9")))
                 .andReturn();
     }
 }
