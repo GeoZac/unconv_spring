@@ -40,6 +40,7 @@ build/
 src/main/resources/application-*.properties
 src/main/resources/application-*.yml
 src/main/resources/logback-spring-*.xml
+src/main/resources/*.bak
 
 ### Logs ###
 logs/
