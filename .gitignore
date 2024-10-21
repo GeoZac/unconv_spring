@@ -49,3 +49,6 @@ logs/
 ### VS Code extensions ###
 test_suite_analysis/
 managed_context/
+
+### Eclipse Theia ###
+.theia/
