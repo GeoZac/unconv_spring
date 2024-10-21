@@ -404,7 +404,6 @@
                                 <exclude>**/utils/*</exclude>
                                 <exclude>**/*Constants*</exclude>
                                 <exclude>**/security/**</exclude>
-                                <exclude>**/service/impl/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
