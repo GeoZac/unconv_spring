@@ -141,16 +141,12 @@ public class EnvironmentalReadingController {
 
     @GetMapping("Interval/SensorSystem/{sensorSystemId}")
     public List<EnvironmentalReading> getReadingsInLastInterval(
-            @RequestParam(required = false) Integer hours,
-            @RequestParam(required = false) Integer days,
-            @PathVariable UUID sensorSystemId) {
+            @RequestParam(required = false) Integer hours, @PathVariable UUID sensorSystemId) {
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime startTime;
 
         if (hours != null) {
             startTime = now.minusHours(hours);
-        } else if (days != null) {
-            startTime = now.minusDays(days);
         } else {
             startTime = now.minusDays(1);
         }
