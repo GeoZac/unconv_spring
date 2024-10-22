@@ -224,6 +224,76 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldFetchAllEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .create();
+
+        given(
+                        environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
+                                any(UUID.class),
+                                any(OffsetDateTime.class),
+                                any(OffsetDateTime.class)))
+                .willReturn(environmentalReadingsOfSpecificSensor);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andDo(
+                        document(
+                                "shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
+    void
+            shouldFetchAllEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedIntervalWithHourSpecified()
+                    throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(5)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .create();
+
+        given(
+                        environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
+                                any(UUID.class),
+                                any(OffsetDateTime.class),
+                                any(OffsetDateTime.class)))
+                .willReturn(environmentalReadingsOfSpecificSensor);
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .param("hours", "24"))
+                .andDo(
+                        document(
+                                "shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
