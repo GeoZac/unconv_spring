@@ -131,10 +131,10 @@ include::api/HumidityThreshold/humidity_threshold_api.adoc[]
 include::api/TemperatureThreshold/temperature_threshold_api.adoc[]
 
 === SensorLocation
-include::api/SensorLocation/api.adoc[]
+include::api/SensorLocation/sensor_location_api.adoc[]
 
 === UnconvUser
-include::api/UnconvUser/api.adoc[]
+include::api/UnconvUser/unconv_user_api.adoc[]
 
 === UnconvRole
-include::api/UnconvRole/api.adoc[]
+include::api/UnconvRole/unconv_role_api.adoc[]
