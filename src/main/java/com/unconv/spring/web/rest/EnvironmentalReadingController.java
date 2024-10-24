@@ -9,6 +9,7 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
+import com.unconv.spring.service.UnconvUserService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +45,8 @@ public class EnvironmentalReadingController {
 
     private final SensorSystemService sensorSystemService;
 
+    private final UnconvUserService unconvUserService;
+
     private final ModelMapper modelMapper;
 
     /**
@@ -58,9 +61,11 @@ public class EnvironmentalReadingController {
     public EnvironmentalReadingController(
             EnvironmentalReadingService environmentalReadingService,
             SensorSystemService sensorSystemService,
+            UnconvUserService unconvUserService,
             ModelMapper modelMapper) {
         this.environmentalReadingService = environmentalReadingService;
         this.sensorSystemService = sensorSystemService;
+        this.unconvUserService = unconvUserService;
         this.modelMapper = modelMapper;
     }
 
@@ -140,19 +145,29 @@ public class EnvironmentalReadingController {
     }
 
     @GetMapping("Interval/SensorSystem/{sensorSystemId}")
-    public List<EnvironmentalReading> getReadingsInLastInterval(
+    public ResponseEntity<List<EnvironmentalReading>> getReadingsInLastInterval(
             @RequestParam(required = false) Integer hours, @PathVariable UUID sensorSystemId) {
-        OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime startTime;
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystem -> {
+                            OffsetDateTime now = OffsetDateTime.now();
+                            OffsetDateTime startTime;
 
-        if (hours != null) {
-            startTime = now.minusHours(hours);
-        } else {
-            startTime = now.minusDays(1);
-        }
+                            if (hours != null) {
+                                startTime = now.minusHours(hours);
+                            } else {
+                                startTime = now.minusDays(1);
+                            }
 
-        return environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
-                sensorSystemId, startTime, now);
+                            List<EnvironmentalReading> readings =
+                                    environmentalReadingService
+                                            .findBySensorSystemIdAndTimestampBetween(
+                                                    sensorSystemId, startTime, now);
+
+                            return ResponseEntity.ok(readings);
+                        })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
