@@ -125,10 +125,10 @@ include::api/SensorAuthToken/sensor_auth_token_api.adoc[]
 include::api/SensorSystem/sensor_system_api.adoc[]
 
 === Humidity Threshold
-include::api/HumidityThreshold/api.adoc[]
+include::api/HumidityThreshold/humidity_threshold_api.adoc[]
 
 === Temperature Threshold
-include::api/TemperatureThreshold/api.adoc[]
+include::api/TemperatureThreshold/temperature_threshold_api.adoc[]
 
 === SensorLocation
 include::api/SensorLocation/api.adoc[]
