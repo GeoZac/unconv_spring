@@ -116,13 +116,13 @@ include::entity/unconvRole.adoc[]
 
 == API Documentation
 === Environmental Reading
-include::api/EnvironmentalReading/api.adoc/[]
+include::api/EnvironmentalReading/environmental_reading_api.adoc/[]
 
 === SensorAuthToken
-include::api/SensorAuthToken/api.adoc[]
+include::api/SensorAuthToken/sensor_auth_token_api.adoc[]
 
 === SensorSystem
-include::api/SensorSystem/api.adoc[]
+include::api/SensorSystem/sensor_system_api.adoc[]
 
 === Humidity Threshold
 include::api/HumidityThreshold/api.adoc[]
