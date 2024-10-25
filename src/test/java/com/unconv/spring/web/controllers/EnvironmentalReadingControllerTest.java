@@ -240,6 +240,9 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
+        given(sensorSystemService.findSensorSystemById(any(UUID.class)))
+                .willReturn(Optional.of(sensorSystem));
+
         given(
                         environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
                                 any(UUID.class),
@@ -274,6 +277,9 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         .size(5)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
+
+        given(sensorSystemService.findSensorSystemById(any(UUID.class)))
+                .willReturn(Optional.of(sensorSystem));
 
         given(
                         environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
