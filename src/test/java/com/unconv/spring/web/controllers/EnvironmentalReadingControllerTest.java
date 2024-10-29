@@ -297,6 +297,23 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenFindingLatestEnvironmentalReadingsForAUnconvUserIdForRandomUnconvUser()
+            throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        given(unconvUserService.findUnconvUserById(any(UUID.class))).willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get("/EnvironmentalReading/Latest/UnconvUser/{unconvUserId}", unconvUserId))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFindingLatestEnvironmentalReadingsForAUnconvUserIdForRandomUnconvUser",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
 
         EnvironmentalReadingDTO environmentalReadingDTO =
