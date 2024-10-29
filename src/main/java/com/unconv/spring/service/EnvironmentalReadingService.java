@@ -41,6 +41,16 @@ public interface EnvironmentalReadingService {
     PagedResult<EnvironmentalReading> findAllEnvironmentalReadingsBySensorSystemId(
             UUID sensorSystemId, int pageNo, int pageSize, String sortBy, String sortDir);
 
+    /**
+     * Finds a list of {@link EnvironmentalReading} entities associated with a specific sensor
+     * system within a given time range.
+     *
+     * @param sensorSystemId the unique identifier of the sensor system
+     * @param startTime the start of the time range as an {@link OffsetDateTime}
+     * @param endTime the end of the time range as an {@link OffsetDateTime}
+     * @return a list of {@link EnvironmentalReading} entities that match the sensor system ID and
+     *     fall within the specified time range
+     */
     List<EnvironmentalReading> findBySensorSystemIdAndTimestampBetween(
             UUID sensorSystemId, OffsetDateTime startTime, OffsetDateTime endTime);
 
