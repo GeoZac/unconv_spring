@@ -144,6 +144,17 @@ public class EnvironmentalReadingController {
                 sensorSystemId, pageNo, pageSize, sortBy, sortDir);
     }
 
+    /**
+     * Retrieves environmental readings for a specified sensor system within the last specified
+     * interval. If no interval (hours) is provided, the default interval is the past 24 hours.
+     *
+     * @param hours an optional number of hours representing the time interval to look back from the
+     *     current time; if omitted, defaults to 24 hours
+     * @param sensorSystemId the unique identifier of the sensor system for which readings are
+     *     requested
+     * @return a {@link ResponseEntity} containing a list of {@link EnvironmentalReading} entities
+     *     if the sensor system exists, or a {@link ResponseEntity#notFound()} status if it does not
+     */
     @GetMapping("Interval/SensorSystem/{sensorSystemId}")
     public ResponseEntity<List<EnvironmentalReading>> getReadingsInLastInterval(
             @RequestParam(required = false) Integer hours, @PathVariable UUID sensorSystemId) {
