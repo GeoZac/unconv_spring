@@ -55,6 +55,7 @@ public class EnvironmentalReadingController {
      *
      * @param environmentalReadingService the service to manage environmental readings
      * @param sensorSystemService the service to manage sensor systems
+     * @param unconvUserService the service to manage user-specific functionalities
      * @param modelMapper the mapper to convert between DTOs and entities
      */
     @Autowired
