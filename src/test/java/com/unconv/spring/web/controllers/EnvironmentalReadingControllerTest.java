@@ -303,6 +303,30 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        given(sensorSystemService.findSensorSystemById(any(UUID.class)))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
         UUID environmentalReadingId = UUID.randomUUID();
         EnvironmentalReading environmentalReading =
