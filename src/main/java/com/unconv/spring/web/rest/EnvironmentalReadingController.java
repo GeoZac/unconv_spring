@@ -161,11 +161,7 @@ public class EnvironmentalReadingController {
                             OffsetDateTime now = OffsetDateTime.now();
                             OffsetDateTime startTime;
 
-                            if (hours != null) {
-                                startTime = now.minusHours(hours);
-                            } else {
-                                startTime = now.minusDays(1);
-                            }
+                            startTime = hours != null ? now.minusHours(hours) : now.minusDays(1);
 
                             List<EnvironmentalReading> readings =
                                     environmentalReadingService
