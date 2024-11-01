@@ -287,6 +287,48 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldFindEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(15)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .generate(
+                                field(EnvironmentalReading::getTimestamp),
+                                gen ->
+                                        gen.temporal()
+                                                .offsetDateTime()
+                                                .past()
+                                                .min(OffsetDateTime.now().minusHours(23)))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(15)));
+    }
+
+    @Test
     void shouldReturn404WhenFetchingEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval()
             throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
