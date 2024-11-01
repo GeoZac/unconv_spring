@@ -9,7 +9,6 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
-import com.unconv.spring.service.UnconvUserService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;

@@ -46,7 +46,6 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
-import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.EnvironmentalReadingController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
