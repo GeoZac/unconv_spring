@@ -89,8 +89,6 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
     @MockBean private SensorSystemService sensorSystemService;
 
-    @MockBean private UnconvUserService unconvUserService;
-
     private List<EnvironmentalReading> environmentalReadingList;
 
     private final UnconvUser mUnconvUser =
