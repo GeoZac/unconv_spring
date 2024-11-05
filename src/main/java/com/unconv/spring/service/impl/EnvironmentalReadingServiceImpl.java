@@ -18,6 +18,7 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.utils.CSVUtil;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -93,6 +94,23 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                 environmentalReadingRepository.findAllBySensorSystemId(sensorSystemId, pageable);
 
         return new PagedResult<>(environmentalReadingsPage);
+    }
+
+    /**
+     * Finds a list of {@link EnvironmentalReading} entities associated with a specific sensor
+     * system within a given time range.
+     *
+     * @param sensorSystemId the unique identifier of the sensor system
+     * @param startTime the start of the time range as an {@link OffsetDateTime}
+     * @param endTime the end of the time range as an {@link OffsetDateTime}
+     * @return a list of {@link EnvironmentalReading} entities that match the sensor system ID and
+     *     fall within the specified time range
+     */
+    @Override
+    public List<EnvironmentalReading> findBySensorSystemIdAndTimestampBetween(
+            UUID sensorSystemId, OffsetDateTime startTime, OffsetDateTime endTime) {
+        return environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                sensorSystemId, startTime, endTime);
     }
 
     /**
