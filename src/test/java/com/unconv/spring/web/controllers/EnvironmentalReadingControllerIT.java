@@ -431,6 +431,17 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingLatestEnvironmentalReadingsForANonExistentUnconvUserId()
+            throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        this.mockMvc
+                .perform(
+                        get("/EnvironmentalReading/Latest/UnconvUser/{unconvUserId}", unconvUserId))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
         UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
         UnconvUser unconvUser =
