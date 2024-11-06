@@ -204,10 +204,17 @@ public class EnvironmentalReadingController {
      *     specified unconverted user.
      */
     @GetMapping("/Latest/UnconvUser/{unconvUserId}")
-    public List<EnvironmentalReading> findLatestEnvironmentalReadingsByUnconvUser(
+    public ResponseEntity<List<EnvironmentalReading>> findLatestEnvironmentalReadingsByUnconvUser(
             @PathVariable UUID unconvUserId) {
-        return environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
-                unconvUserId);
+        return unconvUserService
+                .findUnconvUserById(unconvUserId)
+                .map(
+                        unconvUser ->
+                                ResponseEntity.ok(
+                                        environmentalReadingService
+                                                .findLatestEnvironmentalReadingsByUnconvUserId(
+                                                        unconvUserId)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
