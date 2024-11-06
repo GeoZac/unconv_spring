@@ -379,8 +379,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser =
+                new UnconvUser(unconvUserId, "UnconvUser", "unconvuser@email.com", "password");
         List<EnvironmentalReading> environmentalReadings =
                 Instancio.ofList(EnvironmentalReading.class).size(9).create();
+
+        given(unconvUserService.findUnconvUserById(any(UUID.class)))
+                .willReturn(Optional.of(unconvUser));
 
         given(
                         environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
