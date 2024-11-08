@@ -9,6 +9,8 @@ import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
+import com.unconv.spring.service.UnconvUserService;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -43,6 +45,8 @@ public class EnvironmentalReadingController {
 
     private final SensorSystemService sensorSystemService;
 
+    private final UnconvUserService unconvUserService;
+
     private final ModelMapper modelMapper;
 
     /**
@@ -51,15 +55,18 @@ public class EnvironmentalReadingController {
      *
      * @param environmentalReadingService the service to manage environmental readings
      * @param sensorSystemService the service to manage sensor systems
+     * @param unconvUserService the service to manage user-specific functionalities
      * @param modelMapper the mapper to convert between DTOs and entities
      */
     @Autowired
     public EnvironmentalReadingController(
             EnvironmentalReadingService environmentalReadingService,
             SensorSystemService sensorSystemService,
+            UnconvUserService unconvUserService,
             ModelMapper modelMapper) {
         this.environmentalReadingService = environmentalReadingService;
         this.sensorSystemService = sensorSystemService;
+        this.unconvUserService = unconvUserService;
         this.modelMapper = modelMapper;
     }
 
@@ -139,6 +146,39 @@ public class EnvironmentalReadingController {
     }
 
     /**
+     * Retrieves environmental readings for a specified sensor system within the last specified
+     * interval. If no interval (hours) is provided, the default interval is the past 24 hours.
+     *
+     * @param hours an optional number of hours representing the time interval to look back from the
+     *     current time; if omitted, defaults to 24 hours
+     * @param sensorSystemId the unique identifier of the sensor system for which readings are
+     *     requested
+     * @return a {@link ResponseEntity} containing a list of {@link EnvironmentalReading} entities
+     *     if the sensor system exists, or a {@link ResponseEntity#notFound()} status if it does not
+     */
+    @GetMapping("Interval/SensorSystem/{sensorSystemId}")
+    public ResponseEntity<List<EnvironmentalReading>> getReadingsInLastInterval(
+            @RequestParam(required = false) Integer hours, @PathVariable UUID sensorSystemId) {
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystem -> {
+                            OffsetDateTime now = OffsetDateTime.now();
+                            OffsetDateTime startTime;
+
+                            startTime = hours != null ? now.minusHours(hours) : now.minusDays(1);
+
+                            List<EnvironmentalReading> readings =
+                                    environmentalReadingService
+                                            .findBySensorSystemIdAndTimestampBetween(
+                                                    sensorSystemId, startTime, now);
+
+                            return ResponseEntity.ok(readings);
+                        })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
      * Retrieves an EnvironmentalReading by its ID.
      *
      * @param id The ID of the EnvironmentalReading to retrieve.
@@ -164,10 +204,17 @@ public class EnvironmentalReadingController {
      *     specified unconverted user.
      */
     @GetMapping("/Latest/UnconvUser/{unconvUserId}")
-    public List<EnvironmentalReading> findLatestEnvironmentalReadingsByUnconvUser(
+    public ResponseEntity<List<EnvironmentalReading>> findLatestEnvironmentalReadingsByUnconvUser(
             @PathVariable UUID unconvUserId) {
-        return environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
-                unconvUserId);
+        return unconvUserService
+                .findUnconvUserById(unconvUserId)
+                .map(
+                        unconvUser ->
+                                ResponseEntity.ok(
+                                        environmentalReadingService
+                                                .findLatestEnvironmentalReadingsByUnconvUserId(
+                                                        unconvUserId)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
