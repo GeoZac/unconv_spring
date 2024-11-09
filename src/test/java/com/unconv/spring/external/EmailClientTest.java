@@ -59,4 +59,51 @@ public class EmailClientTest {
 
         verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
     }
+
+    @Test
+    void testEmailClientShouldNotSendEmailIfNoRecipient() {
+        String to = ""; // Empty recipient
+        String subject = "Test Subject";
+        String text = "This email should not be sent because there's no recipient.";
+        String fromAddress = "sender@example.com";
+        String mailHost = "smtp.example.com";
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmail(to, subject, text);
+
+        verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testSendEmailWhenNoSubject() {
+        String to = "recipient@example.com";
+        String subject = ""; // Empty subject
+        String text = "This email should be sent without a subject.";
+        String fromAddress = "sender@example.com";
+        String mailHost = "smtp.example.com";
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmail(to, subject, text);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+        message.setFrom(fromAddress);
+
+        verify(mailSender, times(1)).send(message);
+    }
+
+    @Test
+    void testSendEmailWithInvalidConfiguration() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String text = "Email shouldn't be sent because configuration is incomplete.";
+
+        emailClient = new EmailClient(mailSender, "", "");
+
+        emailClient.sendEmail(to, subject, text);
+
+        verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
+    }
 }
