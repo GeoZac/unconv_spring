@@ -32,6 +32,10 @@ public class EmailClient {
             return;
         }
 
+        if (to.isBlank()) {
+            return;
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
