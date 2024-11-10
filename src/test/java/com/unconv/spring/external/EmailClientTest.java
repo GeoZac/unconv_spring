@@ -1,7 +1,8 @@
 package com.unconv.spring.external;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,17 +14,17 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 @ExtendWith(MockitoExtension.class)
-public class EmailClientTest {
+class EmailClientTest {
 
     @Mock private JavaMailSender mailSender;
 
     @InjectMocks private EmailClient emailClient;
 
     @Value("${spring.mail.username}")
-    private String fromAddress;
+    private String mFromAddress;
 
     @Value("${spring.mail.host}")
-    private String mailHost;
+    private String mMailHost;
 
     @Test
     void testSendEmailWhenEmailEnabled() {
