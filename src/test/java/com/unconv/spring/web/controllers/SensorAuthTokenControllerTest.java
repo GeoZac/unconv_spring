@@ -52,6 +52,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,7 +101,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     sensorLocation,
                     mUnconvUser,
                     new HumidityThreshold(UUID.randomUUID(), 75, 23),
-                    new TemperatureThreshold(UUID.randomUUID(), 100, 0));
+                    new TemperatureThreshold(UUID.randomUUID(), 100, 0),
+                    OffsetDateTime.now().minusDays(new Random().nextLong(365)),
+                    OffsetDateTime.now().minusHours(new Random().nextLong(24)));
 
     @BeforeEach
     void setUp() {

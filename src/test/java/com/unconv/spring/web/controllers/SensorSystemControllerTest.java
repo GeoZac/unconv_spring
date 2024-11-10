@@ -222,7 +222,9 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         sensorLocation,
                         unconvUser,
                         new HumidityThreshold(UUID.randomUUID(), 75, 23),
-                        new TemperatureThreshold(UUID.randomUUID(), 100, 0));
+                        new TemperatureThreshold(UUID.randomUUID(), 100, 0),
+                        OffsetDateTime.now().minusDays(new Random().nextLong(365)),
+                        OffsetDateTime.now().minusHours(new Random().nextLong(24)));
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
