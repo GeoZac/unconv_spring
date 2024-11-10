@@ -6,6 +6,7 @@ import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorStatus;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -69,6 +70,10 @@ public class SensorSystemDTO {
     private HumidityThreshold humidityThreshold;
 
     private TemperatureThreshold temperatureThreshold;
+
+    private OffsetDateTime createdDate;
+
+    private OffsetDateTime updatedDate;
 
     private long readingCount;
 
