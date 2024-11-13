@@ -213,18 +213,19 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     void shouldFindSensorSystemById() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
-                new SensorSystem(
-                        sensorSystemId,
-                        "Workspace sensor system",
-                        "Monitors temperature and humidity for personal workspace",
-                        false,
-                        SensorStatus.ACTIVE,
-                        sensorLocation,
-                        unconvUser,
-                        new HumidityThreshold(UUID.randomUUID(), 75, 23),
-                        new TemperatureThreshold(UUID.randomUUID(), 100, 0),
-                        OffsetDateTime.now().minusDays(new Random().nextLong(365)),
-                        OffsetDateTime.now().minusHours(new Random().nextLong(24)));
+                SensorSystem.builder()
+                        .id(sensorSystemId)
+                        .sensorName("Workspace sensor system")
+                        .description("Monitors temperature and humidity for personal workspace")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(sensorLocation)
+                        .unconvUser(unconvUser)
+                        .humidityThreshold(new HumidityThreshold(UUID.randomUUID(), 75, 23))
+                        .temperatureThreshold(new TemperatureThreshold(UUID.randomUUID(), 100, 0))
+                        .createdDate(OffsetDateTime.now().minusDays(new Random().nextLong(365)))
+                        .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
+                        .build();
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
                         UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
