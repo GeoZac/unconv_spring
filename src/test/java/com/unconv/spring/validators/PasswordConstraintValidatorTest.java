@@ -11,9 +11,17 @@ import javax.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootTest
+@TestPropertySource(
+        properties = {
+            "spring.mail.host=localhost",
+            "spring.mail.port=1025",
+            "spring.mail.username=test",
+            "spring.mail.password=test"
+        })
 class PasswordConstraintValidatorTest {
 
     private Validator validator;

@@ -1,3 +1,10 @@
+spring:
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+
 unconv:
     auth:
         skip-header: true
