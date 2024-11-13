@@ -397,16 +397,17 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         SensorSystem sensorSystem =
-                new SensorSystem(
-                        null,
-                        "New sensor system",
-                        "A description about the new sensor system",
-                        false,
-                        SensorStatus.ACTIVE,
-                        sensorLocation,
-                        unconvUser,
-                        new HumidityThreshold(60, 40),
-                        new TemperatureThreshold(33, 23));
+                SensorSystem.builder()
+                        .id(null)
+                        .sensorName("New sensor system")
+                        .description("A description about the new sensor system")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(sensorLocation)
+                        .unconvUser(unconvUser)
+                        .humidityThreshold(new HumidityThreshold(60, 40))
+                        .temperatureThreshold(new TemperatureThreshold(33, 23))
+                        .build();
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
 
         given(
@@ -414,8 +415,11 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 any(SensorSystemDTO.class), any(Authentication.class)))
                 .willAnswer(
                         (invocation) -> {
+                            OffsetDateTime creationTime = OffsetDateTime.now();
                             SensorSystemDTO sensorSystemArg = invocation.getArgument(0);
                             sensorSystemArg.setId(UUID.randomUUID());
+                            sensorSystemArg.setCreatedDate(creationTime);
+                            sensorSystemArg.setUpdatedDate(creationTime);
 
                             MessageResponse<SensorSystemDTO>
                                     environmentalReadingDTOMessageResponse =
