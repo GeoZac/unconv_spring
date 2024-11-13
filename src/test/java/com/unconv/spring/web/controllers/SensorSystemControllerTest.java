@@ -533,16 +533,17 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     void shouldDeleteSensorSystem() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
-                new SensorSystem(
-                        sensorSystemId,
-                        "Existing sensor system",
-                        "Sensor system without any readings associated",
-                        false,
-                        SensorStatus.ACTIVE,
-                        sensorLocation,
-                        unconvUser,
-                        null,
-                        null);
+                SensorSystem.builder()
+                        .id(sensorSystemId)
+                        .sensorName("Existing sensor system")
+                        .description("Sensor system without any readings associated")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(sensorLocation)
+                        .unconvUser(unconvUser)
+                        .humidityThreshold(null)
+                        .temperatureThreshold(null)
+                        .build();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(true);
@@ -564,16 +565,17 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     void shouldDeleteSensorSystemWithReadingsPresent() throws Exception {
         UUID sensorSystemId = UUID.randomUUID();
         SensorSystem sensorSystem =
-                new SensorSystem(
-                        sensorSystemId,
-                        "Existing sensor system",
-                        "Sensor system with readings associated",
-                        true,
-                        SensorStatus.ACTIVE,
-                        sensorLocation,
-                        unconvUser,
-                        null,
-                        null);
+                SensorSystem.builder()
+                        .id(sensorSystemId)
+                        .sensorName("Existing sensor system")
+                        .description("Sensor system with readings associated")
+                        .deleted(true)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(sensorLocation)
+                        .unconvUser(unconvUser)
+                        .humidityThreshold(null)
+                        .temperatureThreshold(null)
+                        .build();
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.deleteSensorSystemById(sensorSystemId)).willReturn(false);
