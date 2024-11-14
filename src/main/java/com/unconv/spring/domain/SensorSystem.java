@@ -59,29 +59,6 @@ public class SensorSystem {
         this.sensorStatus = SensorStatus.ACTIVE;
     }
 
-    // TODO Remove this constructor, after Builder is implemented
-    @Deprecated(forRemoval = true)
-    public SensorSystem(
-            UUID id,
-            String sensorName,
-            String description,
-            boolean deleted,
-            SensorStatus sensorStatus,
-            SensorLocation sensorLocation,
-            UnconvUser unconvUser,
-            HumidityThreshold humidityThreshold,
-            TemperatureThreshold temperatureThreshold) {
-        this.id = id;
-        this.sensorName = sensorName;
-        this.description = description;
-        this.deleted = deleted;
-        this.sensorStatus = sensorStatus;
-        this.sensorLocation = sensorLocation;
-        this.unconvUser = unconvUser;
-        this.humidityThreshold = humidityThreshold;
-        this.temperatureThreshold = temperatureThreshold;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "BINARY(16)")
