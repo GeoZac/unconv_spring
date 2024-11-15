@@ -37,28 +37,6 @@ import lombok.Setter;
 @Builder
 public class SensorSystem {
 
-    /**
-     * Constructs a new SensorSystem with the specified parameters. Sets default values for backward
-     * compatibility.
-     *
-     * @param uuid the unique identifier of the sensor system
-     * @param sensorName the name of the sensor
-     * @param sensorLocation the location of the sensor
-     * @param unconvUser the user associated with the sensor
-     */
-    public SensorSystem(
-            UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
-        this.id = uuid;
-        this.sensorName = sensorName;
-        this.sensorLocation = sensorLocation;
-        this.unconvUser = unconvUser;
-
-        // Set defaults for backward compatibility
-        this.description = null;
-        this.deleted = false;
-        this.sensorStatus = SensorStatus.ACTIVE;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "BINARY(16)")
@@ -107,6 +85,28 @@ public class SensorSystem {
 
     @Column(nullable = false)
     private OffsetDateTime updatedDate;
+
+    /**
+     * Constructs a new SensorSystem with the specified parameters. Sets default values for backward
+     * compatibility.
+     *
+     * @param uuid the unique identifier of the sensor system
+     * @param sensorName the name of the sensor
+     * @param sensorLocation the location of the sensor
+     * @param unconvUser the user associated with the sensor
+     */
+    public SensorSystem(
+            UUID uuid, String sensorName, SensorLocation sensorLocation, UnconvUser unconvUser) {
+        this.id = uuid;
+        this.sensorName = sensorName;
+        this.sensorLocation = sensorLocation;
+        this.unconvUser = unconvUser;
+
+        // Set defaults for backward compatibility
+        this.description = null;
+        this.deleted = false;
+        this.sensorStatus = SensorStatus.ACTIVE;
+    }
 
     @PrePersist
     protected void onCreate() {
