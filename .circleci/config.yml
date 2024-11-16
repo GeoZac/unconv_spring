@@ -170,6 +170,7 @@ workflows:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
+                - /infra\/.*/
       - build:
           requires:
             - setup
@@ -187,6 +188,7 @@ workflows:
             branches:
                 only:
                 - /docs\/.*/
+                - /infra\/.*/
                 - master
             tags:
                 only: /^v.*/
