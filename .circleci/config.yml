@@ -20,7 +20,7 @@ jobs:
           command: chmod +x mvnw
       - run:
           name: Download dependecies
-          command: ./mvnw dependency:resolve
+          command: ./mvnw dependency:go-offline
       - run:
             name: Display dependency tree
             command: ./mvnw dependency:tree
