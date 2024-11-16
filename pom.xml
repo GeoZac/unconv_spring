@@ -47,6 +47,9 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <sonar.organization>geozac</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+        <!-- Unconv POM variables -->
+        <unconv.skip.asciidoctor>true</unconv.skip.asciidoctor>
     </properties>
 
     <dependencies>
