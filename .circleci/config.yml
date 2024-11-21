@@ -46,6 +46,26 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
+  install_ci:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - run: java --version
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Grant execute permission for mvnw
+          command: chmod +x mvnw
+      - run:
+          name: Package
+          command: ./mvnw install
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
   setup:
     machine:
       image: ubuntu-2004:current
@@ -207,6 +227,7 @@ workflows:
     jobs:
       - setup_ci
       - build_ci
+      - install_ci
       - setup
       - owasp/maven_owasp_dependency_check:
           filters:
