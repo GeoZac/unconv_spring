@@ -51,6 +51,9 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
+      - setup_remote_docker:
+            version: default
+            docker_layer_caching: true
       - run: java --version
       - restore_cache:
           keys:
