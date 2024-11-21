@@ -3,7 +3,7 @@ orbs:
   codecov: codecov/codecov@4.1.0
   owasp: entur/owasp@0.0.19
 jobs:
-  build_ci:
+  setup_ci:
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -22,6 +22,26 @@ jobs:
       - run:
             name: Display dependency tree
             command: ./mvnw dependency:tree
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+  build_ci:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - run: java --version
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Grant execute permission for mvnw
+          command: chmod +x mvnw
+      - run:
+          name: Package
+          command: ./mvnw package
       - save_cache:
           paths:
             - ~/.m2
@@ -185,6 +205,7 @@ jobs:
 workflows:
   build-and-test:
     jobs:
+      - setup_ci
       - build_ci
       - setup
       - owasp/maven_owasp_dependency_check:
