@@ -1,11 +1,13 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static java.lang.Math.min;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
@@ -63,7 +65,7 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                         : Sort.by(sortBy).descending();
 
         // create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNo, min(pageSize, MAX_PAGE_SIZE), sort);
         Page<EnvironmentalReading> environmentalReadingsPage =
                 environmentalReadingRepository.findAll(pageable);
 
@@ -89,7 +91,7 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                         : Sort.by(sortBy).descending();
 
         // create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNo, min(pageSize, MAX_PAGE_SIZE), sort);
         Page<EnvironmentalReading> environmentalReadingsPage =
                 environmentalReadingRepository.findAllBySensorSystemId(sensorSystemId, pageable);
 
