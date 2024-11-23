@@ -264,9 +264,21 @@ workflows:
   build-and-test:
     jobs:
       - setup_ci
-      - build_ci
+      - build_ci:
+          requires:
+            - setup_ci
       - install_ci
-      - doc_ci
+      - doc_ci:
+          requires:
+            - install_ci
+          filters:
+            branches:
+                only:
+                - /docs\/.*/
+                - /infra\/.*/
+                - master
+            tags:
+                only: /^v.*/
       - setup
       - owasp/maven_owasp_dependency_check:
           filters:
