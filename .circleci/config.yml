@@ -148,7 +148,7 @@ jobs:
             - v1-dependencies-
       - run:
           name: Build API doc
-          command: ./mvnw package
+          command: ./mvnw package -Dunconv.skip.asciidoctor=false
       - run:
           name: Build JavaDoc
           command: ./mvnw javadoc:javadoc
@@ -170,6 +170,7 @@ workflows:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
+                - /infra\/.*/
       - build:
           requires:
             - setup
@@ -187,6 +188,7 @@ workflows:
             branches:
                 only:
                 - /docs\/.*/
+                - /infra\/.*/
                 - master
             tags:
                 only: /^v.*/
