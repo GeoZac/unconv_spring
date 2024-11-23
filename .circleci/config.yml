@@ -34,6 +34,7 @@ jobs:
       - run: java --version
       - restore_cache:
           keys:
+            - v1-dependencies-build-{{ checksum "pom.xml" }}
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
@@ -45,7 +46,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          key: v1-dependencies-build-{{ checksum "pom.xml" }}
   install_ci:
     docker:
       - image: cimg/openjdk:17.0
@@ -57,6 +58,7 @@ jobs:
       - run: java --version
       - restore_cache:
           keys:
+            - v1-dependencies-install-{{ checksum "pom.xml" }}
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
@@ -68,7 +70,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          key: v1-dependencies-install-{{ checksum "pom.xml" }}
   setup:
     machine:
       image: ubuntu-2004:current
