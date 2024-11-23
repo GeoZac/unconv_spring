@@ -26,6 +26,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
+
   build_ci:
     docker:
       - image: cimg/openjdk:17.0
@@ -47,6 +48,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-build-{{ checksum "pom.xml" }}
+
   install_ci:
     docker:
       - image: cimg/openjdk:17.0
@@ -71,6 +73,37 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-install-{{ checksum "pom.xml" }}
+
+  doc_ci:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+            version: default
+            docker_layer_caching: true
+      - run: java --version
+      - restore_cache:
+          keys:
+            - v1-dependencies-doc-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Grant execute permission for mvnw
+          command: chmod +x mvnw
+      - run:
+          name: Build API doc
+          command: ./mvnw package -Dunconv.skip.asciidoctor=false
+      - run:
+          name: Build JavaDoc
+          command: ./mvnw javadoc:javadoc
+      - store_artifacts:
+          path: target/generated-docs/index.pdf
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-doc-{{ checksum "pom.xml" }}
+
   setup:
     machine:
       image: ubuntu-2004:current
@@ -233,6 +266,7 @@ workflows:
       - setup_ci
       - build_ci
       - install_ci
+      - doc_ci
       - setup
       - owasp/maven_owasp_dependency_check:
           filters:
