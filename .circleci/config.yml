@@ -264,7 +264,9 @@ workflows:
       - build_ci:
           requires:
             - setup_ci
-      - install_ci
+      - install_ci:
+          requires:
+            - setup_ci
       - doc_ci:
           requires:
             - install_ci
