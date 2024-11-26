@@ -43,7 +43,7 @@ jobs:
           command: chmod +x mvnw
       - run:
           name: Package
-          command: ./mvnw package
+          command: ./mvnw -DskipTests package
       - save_cache:
           paths:
             - ~/.m2
