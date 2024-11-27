@@ -77,6 +77,8 @@ jobs:
             | sed -e "s/.java/,/"; \
             done | tr -d '\r\n') \
             -e test
+      - store_test_results:
+          path: target/test-results
       - save_cache:
           paths:
             - ~/.m2
