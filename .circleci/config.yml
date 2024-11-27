@@ -245,7 +245,7 @@ workflows:
             - setup_ci
       - doc_ci:
           requires:
-            - install_ci
+            - build_ci
           filters:
             branches:
                 only:
