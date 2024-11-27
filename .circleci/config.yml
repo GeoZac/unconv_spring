@@ -2,13 +2,22 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@4.1.0
   owasp: entur/owasp@0.0.19
+
+commands:
+  show_java_version:
+    steps:
+      - run:
+          name: Show Java Info
+          command: |
+            java --version
+
 jobs:
   setup_ci:
     docker:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: java --version
+      - show_java_version
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
@@ -32,7 +41,7 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: java --version
+      - show_java_version
       - restore_cache:
           keys:
             - v1-dependencies-build-{{ checksum "pom.xml" }}
@@ -54,10 +63,10 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
+      - show_java_version
       - setup_remote_docker:
             version: default
             docker_layer_caching: true
-      - run: java --version
       - restore_cache:
           keys:
             - v1-dependencies-install-{{ checksum "pom.xml" }}
@@ -79,7 +88,7 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: java --version
+      - show_java_version
       - restore_cache:
           keys:
             - v1-dependencies-doc-{{ checksum "pom.xml" }}
