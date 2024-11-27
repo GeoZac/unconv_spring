@@ -68,14 +68,15 @@ jobs:
             - v1-dependencies-install-{{ checksum "pom.xml" }}
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
-      - run: |
-          ./mvnw \
-          -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" \
-          | circleci tests split --split-by=timings); \
-          do basename $file \
-          | sed -e "s/.java/,/"; \
-          done | tr -d '\r\n') \
-          -e test
+      - run:
+          name: Test
+          command: |
+            ./mvnw -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" \
+            | circleci tests split --split-by=timings); \
+            do basename $file \
+            | sed -e "s/.java/,/"; \
+            done | tr -d '\r\n') \
+            -e test
       - save_cache:
           paths:
             - ~/.m2
