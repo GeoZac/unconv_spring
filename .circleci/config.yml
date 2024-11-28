@@ -52,7 +52,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-build-{{ checksum "pom.xml" }}
 
-  install_ci:
+  test_ci:
     docker:
       - image: cimg/openjdk:17.0
     working_directory: /tmp/spring
@@ -239,7 +239,7 @@ workflows:
       - build_ci:
           requires:
             - setup_ci
-      - install_ci:
+      - test_ci:
           requires:
             - setup_ci
       - doc_ci:
