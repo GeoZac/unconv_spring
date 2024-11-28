@@ -71,6 +71,11 @@ jobs:
       - run:
           name: Test
           command: |
+            echo $(for file in $(circleci tests glob "/tmp/spring/src/test/**/**.java" \
+            | circleci tests split --split-by=timings); \
+            do basename $file \
+            | sed -e "s/.java/,/"; \
+            done | tr -d '\r\n')
             ./mvnw -Dtest=$(for file in $(circleci tests glob "/tmp/spring/src/test/**/**.java" \
             | circleci tests split --split-by=timings); \
             do basename $file \
