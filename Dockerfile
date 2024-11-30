@@ -1,9 +1,10 @@
-FROM maven:3.8.5-openjdk-17 AS build
+FROM eclipse-temurin:17-jdk-focal AS build
 WORKDIR /application
-COPY pom.xml ./
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
 COPY src ./src
 COPY sonar-project.properties ./
-RUN mvn clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-focal AS builder
 WORKDIR /application
