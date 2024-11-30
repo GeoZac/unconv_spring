@@ -13,7 +13,7 @@ COPY --from=build /application/${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 # the third stage of our build will copy the extracted layers
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /application
 COPY --from=builder application/dependencies/ ./
 COPY --from=builder application/spring-boot-loader/ ./
