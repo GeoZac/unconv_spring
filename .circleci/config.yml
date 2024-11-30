@@ -193,6 +193,7 @@ workflows:
                 - master
             tags:
                 only: /^v.*/
+      - docker/hadolint
       - docker/publish:
           deploy: false
           image: spring-test
