@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@4.1.0
+  docker: circleci/docker@2.6.0
   owasp: entur/owasp@0.0.19
 
 commands:
@@ -234,4 +235,8 @@ workflows:
           context: SonarCloud
           requires:
             - build
+      - docker/hadolint
+      - docker/publish:
+          deploy: false
+          image: spring-test
 
