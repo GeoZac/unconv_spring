@@ -83,4 +83,12 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
      *     systems, ordered by timestamp in descending order
      */
     List<EnvironmentalReading> findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(UUID id);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByTemperatureDesc(UUID sensorSystemId);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByTemperatureAsc(UUID sensorSystemId);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByHumidityDesc(UUID sensorSystemId);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByHumidityAsc(UUID sensorSystemId);
 }
