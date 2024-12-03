@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -45,6 +46,16 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", is("application/json")))
                 .andExpect(jsonPath("$.version", is("0.0.9")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingAppVersionWithIncorrectURL() throws Exception {
+        this.mockMvc
+                .perform(get("/public/v1/version"))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(header().string("Content-Type", nullValue()))
                 .andReturn();
     }
 }
