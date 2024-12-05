@@ -79,8 +79,11 @@ jobs:
       - run:
           name: Build with Maven
           command: |
-            circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings --timings-type=classname
-            ./mvnw -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings --timings-type=classname); do basename $file | sed -e "s/.java/,/"; done | tr -d '\r\n') -e test
+            cd src/test/java/
+            TESTS=$(circleci tests glob "com/**/*.java" | sed 's/\.java$//;s/\//./g' | circleci tests split --split-by=timings | paste -sd, -)
+            cd ../../..
+            echo $TESTS
+            ./mvnw -Dtest="$TESTS" -e test
       - store_test_results:
           path: target/test-results
       - store_artifacts:
