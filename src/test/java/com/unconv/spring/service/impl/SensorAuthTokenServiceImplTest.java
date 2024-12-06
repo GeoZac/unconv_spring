@@ -2,6 +2,8 @@ package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorAuthToken;
@@ -78,7 +80,11 @@ class SensorAuthTokenServiceImplTest {
     void saveSensorAuthTokenDTO() {}
 
     @Test
-    void deleteSensorAuthTokenById() {}
+    void deleteSensorAuthTokenById() {
+        sensorAuthTokenService.deleteSensorAuthTokenById(sensorAuthTokenId);
+
+        verify(sensorAuthTokenRepository, times(1)).deleteById(sensorAuthTokenId);
+    }
 
     @Test
     void deleteAnyExistingSensorSystem() {}
