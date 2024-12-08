@@ -23,12 +23,12 @@
         <problem-spring-web.version>0.27.0</problem-spring-web.version>
         <springdoc-openapi.version>1.8.0</springdoc-openapi.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
-        <commons-io.version>2.17.0</commons-io.version>
-        <jackson.version>2.18.1</jackson.version>
+        <commons-io.version>2.18.0</commons-io.version>
+        <jackson.version>2.18.2</jackson.version>
 
-        <testcontainers.version>1.20.3</testcontainers.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
         <awaitility.version>4.2.2</awaitility.version>
-        <instancio.version>5.0.2</instancio.version>
+        <instancio.version>5.1.0</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
         <spotless.version>2.43.0</spotless.version>
@@ -36,7 +36,7 @@
         <dependency-check-maven.version>11.1.0</dependency-check-maven.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
-        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jacoco.minimum.coverage>0.80</jacoco.minimum.coverage>
         <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
@@ -47,6 +47,9 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <sonar.organization>geozac</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+        <!-- Unconv POM variables -->
+        <unconv.skip.asciidoctor>true</unconv.skip.asciidoctor>
     </properties>
 
     <dependencies>
@@ -209,6 +212,11 @@
             <groupId>com.bugsnag</groupId>
             <version>3.7.2</version>
             <artifactId>bugsnag-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
     </dependencies>
@@ -458,7 +466,7 @@
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <id>generate-docs</id>
@@ -467,6 +475,7 @@
                             <goal>process-asciidoc</goal>
                         </goals>
                         <configuration>
+                            <skip>${unconv.skip.asciidoctor}</skip>
                             <backend>html</backend>
                             <doctype>book</doctype>
                             <sourceDirectory>src/main/doc</sourceDirectory>
@@ -482,6 +491,7 @@
                             <goal>process-asciidoc</goal>
                         </goals>
                         <configuration>
+                            <skip>${unconv.skip.asciidoctor}</skip>
                             <backend>pdf</backend>
                             <sourceDirectory>src/main/doc</sourceDirectory>
                             <attributes>

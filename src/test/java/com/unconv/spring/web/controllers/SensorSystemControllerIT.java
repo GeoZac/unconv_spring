@@ -473,16 +473,17 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
-                new SensorSystem(
-                        null,
-                        "New SensorSystem",
-                        "Fully qualified sensor",
-                        false,
-                        SensorStatus.ACTIVE,
-                        null,
-                        savedUnconvUser,
-                        new HumidityThreshold(null, 100, 0),
-                        new TemperatureThreshold(null, 100, 0));
+                SensorSystem.builder()
+                        .id(null)
+                        .sensorName("New SensorSystem")
+                        .description("Fully qualified sensor")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(null)
+                        .unconvUser(savedUnconvUser)
+                        .humidityThreshold(new HumidityThreshold(null, 100, 0))
+                        .temperatureThreshold(new TemperatureThreshold(null, 100, 0))
+                        .build();
 
         assert sensorSystem.getHumidityThreshold().getId() == null;
         assert sensorSystem.getTemperatureThreshold().getId() == null;
@@ -500,6 +501,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
                 .andExpect(jsonPath("$.entity.humidityThreshold", notNullValue()))
                 .andExpect(jsonPath("$.entity.temperatureThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.createdDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.updatedDate", notNullValue()))
                 .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
                 .andExpect(
                         jsonPath(
@@ -531,6 +534,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.createdDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.updatedDate", notNullValue()))
                 .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
                 .andExpect(
                         jsonPath("$.entity.unconvUser.id", is(savedUnconvUser.getId().toString())));

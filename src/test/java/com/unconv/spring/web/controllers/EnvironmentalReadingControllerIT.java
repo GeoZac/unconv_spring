@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
@@ -19,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -180,6 +182,36 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
                         jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                .andExpect(
+                        jsonPath(
+                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllEnvironmentalReadingsInAscendingOrderWithinMaxPageSize() throws Exception {
+        SensorSystem sensorSystem = environmentalReadingList.get(0).getSensorSystem();
+
+        environmentalReadingList =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(150)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .create();
+
+        environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
+
+        this.mockMvc
+                .perform(
+                        get("/EnvironmentalReading")
+                                .param("sortDir", "asc")
+                                .param("pageSize", String.valueOf(MAX_PAGE_SIZE + 10)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(MAX_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", greaterThan(MAX_PAGE_SIZE)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(jsonPath("$.totalPages", greaterThan(0)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(false)))
                 .andExpect(
                         jsonPath(
                                 "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))

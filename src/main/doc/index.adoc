@@ -116,25 +116,25 @@ include::entity/unconvRole.adoc[]
 
 == API Documentation
 === Environmental Reading
-include::api/EnvironmentalReading/api.adoc/[]
+include::api/EnvironmentalReading/environmental_reading_api.adoc/[]
 
 === SensorAuthToken
-include::api/SensorAuthToken/api.adoc[]
+include::api/SensorAuthToken/sensor_auth_token_api.adoc[]
 
 === SensorSystem
-include::api/SensorSystem/api.adoc[]
+include::api/SensorSystem/sensor_system_api.adoc[]
 
 === Humidity Threshold
-include::api/HumidityThreshold/api.adoc[]
+include::api/HumidityThreshold/humidity_threshold_api.adoc[]
 
 === Temperature Threshold
-include::api/TemperatureThreshold/api.adoc[]
+include::api/TemperatureThreshold/temperature_threshold_api.adoc[]
 
 === SensorLocation
-include::api/SensorLocation/api.adoc[]
+include::api/SensorLocation/sensor_location_api.adoc[]
 
 === UnconvUser
-include::api/UnconvUser/api.adoc[]
+include::api/UnconvUser/unconv_user_api.adoc[]
 
 === UnconvRole
-include::api/UnconvRole/api.adoc[]
+include::api/UnconvRole/unconv_role_api.adoc[]
