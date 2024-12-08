@@ -1,5 +1,6 @@
 package com.unconv.spring.persistence;
 
+import com.unconv.spring.config.tracing.Traceable;
 import com.unconv.spring.domain.EnvironmentalReading;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.Nullable;
 
 /** Repository interface for accessing {@link EnvironmentalReading} entities in the database. */
+@Traceable
 public interface EnvironmentalReadingRepository extends JpaRepository<EnvironmentalReading, UUID> {
 
     /**
@@ -83,4 +85,12 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
      *     systems, ordered by timestamp in descending order
      */
     List<EnvironmentalReading> findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(UUID id);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByTemperatureDesc(UUID sensorSystemId);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByTemperatureAsc(UUID sensorSystemId);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByHumidityDesc(UUID sensorSystemId);
+
+    EnvironmentalReading findFirstBySensorSystemIdOrderByHumidityAsc(UUID sensorSystemId);
 }
