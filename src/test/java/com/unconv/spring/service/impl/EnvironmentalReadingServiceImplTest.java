@@ -2,6 +2,8 @@ package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.EnvironmentalReading;
@@ -82,7 +84,16 @@ class EnvironmentalReadingServiceImplTest {
     void findLatestEnvironmentalReadingsByUnconvUserId() {}
 
     @Test
-    void saveEnvironmentalReading() {}
+    void saveEnvironmentalReading() {
+
+        when(environmentalReadingRepository.save(any(EnvironmentalReading.class)))
+                .thenReturn(environmentalReading);
+
+        EnvironmentalReading result =
+                environmentalReadingService.saveEnvironmentalReading(environmentalReading);
+
+        assertEquals(environmentalReading.getId(), result.getId());
+    }
 
     @Test
     void generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading() {}
@@ -91,7 +102,11 @@ class EnvironmentalReadingServiceImplTest {
     void parseFromCSVAndSaveEnvironmentalReading() {}
 
     @Test
-    void deleteEnvironmentalReadingById() {}
+    void deleteEnvironmentalReadingById() {
+        environmentalReadingService.deleteEnvironmentalReadingById(environmentalReadingId);
+
+        verify(environmentalReadingRepository, times(1)).deleteById(environmentalReadingId);
+    }
 
     @Test
     void verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings() {}
