@@ -33,12 +33,15 @@ class UnconvRoleServiceImplTest {
 
     private UnconvRole unconvRole;
     private UUID unconvRoleId;
+    private String unconvRoleName;
 
     @BeforeEach
     void setUp() {
         unconvRoleId = UUID.randomUUID();
+        unconvRoleName = "ROLE_NAME";
         unconvRole = new UnconvRole();
         unconvRole.setId(unconvRoleId);
+        unconvRole.setName(unconvRoleName);
     }
 
     @Test
@@ -70,7 +73,14 @@ class UnconvRoleServiceImplTest {
     }
 
     @Test
-    void findUnconvRoleByName() {}
+    void findUnconvRoleByName() {
+        when(unconvRoleRepository.findByName(any(String.class))).thenReturn(unconvRole);
+
+        UnconvRole resultUnconvRole = unconvRoleService.findUnconvRoleByName(unconvRoleName);
+
+        assertEquals(unconvRole.getId(), resultUnconvRole.getId());
+        assertEquals(unconvRole.getName(), resultUnconvRole.getName());
+    }
 
     @Test
     void saveUnconvRole() {
