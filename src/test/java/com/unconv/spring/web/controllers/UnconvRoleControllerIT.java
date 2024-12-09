@@ -51,7 +51,6 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                         .apply(springSecurity())
                         .build();
 
-        cleanUpUnconvRoles();
         assert unconvRoleRepository.findAll().size() == defaultUserRoleCount;
 
         unconvRoleList = new ArrayList<>();
@@ -236,10 +235,6 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        cleanUpUnconvRoles();
-    }
-
-    private void cleanUpUnconvRoles() {
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
             if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
