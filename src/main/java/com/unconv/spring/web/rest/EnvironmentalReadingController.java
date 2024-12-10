@@ -5,6 +5,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
@@ -215,6 +216,13 @@ public class EnvironmentalReadingController {
                                                 .findLatestEnvironmentalReadingsByUnconvUserId(
                                                         unconvUserId)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/Extreme/SensorSystem/{sensorSystemId}")
+    public ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(
+            @PathVariable UUID sensorSystemId) {
+        return environmentalReadingService.getExtremeReadingsResponseBySensorSystemId(
+                sensorSystemId);
     }
 
     /**
