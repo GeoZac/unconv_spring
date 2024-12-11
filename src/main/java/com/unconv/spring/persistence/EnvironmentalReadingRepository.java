@@ -1,6 +1,7 @@
 package com.unconv.spring.persistence;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.projection.EnvironmentalReadingProjection;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -83,4 +84,15 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
      *     systems, ordered by timestamp in descending order
      */
     List<EnvironmentalReading> findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(UUID id);
+
+    EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByTemperatureDesc(
+            UUID sensorSystemId);
+
+    EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByTemperatureAsc(
+            UUID sensorSystemId);
+
+    EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByHumidityDesc(
+            UUID sensorSystemId);
+
+    EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByHumidityAsc(UUID sensorSystemId);
 }
