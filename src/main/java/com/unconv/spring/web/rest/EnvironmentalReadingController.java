@@ -219,10 +219,17 @@ public class EnvironmentalReadingController {
     }
 
     @GetMapping("/Extreme/SensorSystem/{sensorSystemId}")
-    public ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(
+    public ResponseEntity<ExtremeReadingsResponse> getExtremeReadingsResponseBySensorSystemId(
             @PathVariable UUID sensorSystemId) {
-        return environmentalReadingService.getExtremeReadingsResponseBySensorSystemId(
-                sensorSystemId);
+        return sensorSystemService
+                .findSensorSystemById(sensorSystemId)
+                .map(
+                        sensorSystem ->
+                                ResponseEntity.ok(
+                                        environmentalReadingService
+                                                .getExtremeReadingsResponseBySensorSystemId(
+                                                        sensorSystemId)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
