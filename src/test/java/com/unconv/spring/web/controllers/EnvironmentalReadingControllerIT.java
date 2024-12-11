@@ -417,6 +417,20 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingExtremeEnvironmentalReadingsOfSpecificSensor()
+            throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Extreme/SensorSystem/{sensorSystemId}",
+                                sensorSystemId))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
         EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
         UUID environmentalReadingId = environmentalReading.getId();
