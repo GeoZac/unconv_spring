@@ -118,5 +118,12 @@ public interface EnvironmentalReadingService {
     ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
             SensorSystem sensorSystem, MultipartFile file);
 
+    /**
+     * Retrieves the extreme readings (highest and lowest temperature, highest and lowest humidity)
+     * for a given sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return an {@link ExtremeReadingsResponse} object containing the extreme readings
+     */
     ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(UUID sensorSystemId);
 }
