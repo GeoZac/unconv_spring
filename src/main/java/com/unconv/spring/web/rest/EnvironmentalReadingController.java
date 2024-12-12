@@ -218,6 +218,14 @@ public class EnvironmentalReadingController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Retrieves the extreme readings (highest and lowest temperature, highest and lowest humidity)
+     * for a specific sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return an HTTP response containing the extreme readings, or a 404 Not Found response if the
+     *     sensor system is not found
+     */
     @GetMapping("/Extreme/SensorSystem/{sensorSystemId}")
     public ResponseEntity<ExtremeReadingsResponse> getExtremeReadingsResponseBySensorSystemId(
             @PathVariable UUID sensorSystemId) {

@@ -270,6 +270,13 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
+    /**
+     * Retrieves the extreme readings (highest and lowest temperature, highest and lowest humidity)
+     * for a given sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return an {@link ExtremeReadingsResponse} object containing the extreme readings
+     */
     @Override
     public ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(UUID sensorSystemId) {
         return new ExtremeReadingsResponse(
