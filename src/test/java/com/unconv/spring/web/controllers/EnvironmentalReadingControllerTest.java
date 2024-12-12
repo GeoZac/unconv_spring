@@ -41,8 +41,10 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.projection.EnvironmentalReadingProjection;
 import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
@@ -327,6 +329,117 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 "shouldReturn404WhenFetchingEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldFindExtremeEnvironmentalReadingsOfSpecificSensor() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        given(sensorSystemService.findSensorSystemById(any(UUID.class)))
+                .willReturn(Optional.of(sensorSystem));
+
+        given(
+                        environmentalReadingService.getExtremeReadingsResponseBySensorSystemId(
+                                any(UUID.class)))
+                .willReturn(
+                        new ExtremeReadingsResponse(
+                                new EnvironmentalReadingProjection() {
+
+                                    @Override
+                                    public double getTemperature() {
+
+                                        return 64.0;
+                                    }
+
+                                    @Override
+                                    public double getHumidity() {
+
+                                        return 34.0;
+                                    }
+
+                                    @Override
+                                    public OffsetDateTime getTimestamp() {
+
+                                        return OffsetDateTime.now();
+                                    }
+                                },
+                                new EnvironmentalReadingProjection() {
+
+                                    @Override
+                                    public double getTemperature() {
+
+                                        return 46.0;
+                                    }
+
+                                    @Override
+                                    public double getHumidity() {
+
+                                        return 34.0;
+                                    }
+
+                                    @Override
+                                    public OffsetDateTime getTimestamp() {
+
+                                        return OffsetDateTime.now();
+                                    }
+                                },
+                                new EnvironmentalReadingProjection() {
+
+                                    @Override
+                                    public double getTemperature() {
+
+                                        return 55.0;
+                                    }
+
+                                    @Override
+                                    public double getHumidity() {
+
+                                        return 76.0;
+                                    }
+
+                                    @Override
+                                    public OffsetDateTime getTimestamp() {
+
+                                        return OffsetDateTime.now();
+                                    }
+                                },
+                                new EnvironmentalReadingProjection() {
+
+                                    @Override
+                                    public double getTemperature() {
+
+                                        return 55.0;
+                                    }
+
+                                    @Override
+                                    public double getHumidity() {
+
+                                        return 67.0;
+                                    }
+
+                                    @Override
+                                    public OffsetDateTime getTimestamp() {
+
+                                        return OffsetDateTime.now();
+                                    }
+                                }));
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Extreme/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andDo(
+                        document(
+                                "shouldFindExtremeEnvironmentalReadingsOfSpecificSensor",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(4)))
                 .andReturn();
     }
 
