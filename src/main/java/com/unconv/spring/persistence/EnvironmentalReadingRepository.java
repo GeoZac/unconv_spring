@@ -85,14 +85,46 @@ public interface EnvironmentalReadingRepository extends JpaRepository<Environmen
      */
     List<EnvironmentalReading> findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(UUID id);
 
+    /**
+     * Finds the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     * ordered by temperature in descending order.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     *     ordered by temperature in descending order, or null if not found
+     */
     EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByTemperatureDesc(
             UUID sensorSystemId);
 
+    /**
+     * Finds the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     * ordered by temperature in ascending order.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     *     ordered by temperature in ascending order, or null if not found
+     */
     EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByTemperatureAsc(
             UUID sensorSystemId);
 
+    /**
+     * Finds the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     * ordered by humidity in descending order.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     *     ordered by humidity in descending order, or null if not found
+     */
     EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByHumidityDesc(
             UUID sensorSystemId);
 
+    /**
+     * Finds the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     * ordered by humidity in ascending order.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return the first {@link EnvironmentalReadingProjection} for the given sensor system ID,
+     *     ordered by humidity in ascending order, or null if not found
+     */
     EnvironmentalReadingProjection findFirstBySensorSystemIdOrderByHumidityAsc(UUID sensorSystemId);
 }
