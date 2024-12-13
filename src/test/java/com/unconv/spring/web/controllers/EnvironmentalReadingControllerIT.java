@@ -451,6 +451,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
                 .andExpect(jsonPath("$.size()", is(4)))
+                .andExpect(jsonPath("$.maxTemperature.temperature", notNullValue()))
+                .andExpect(jsonPath("$.maxHumidity.humidity", notNullValue()))
+                .andExpect(jsonPath("$.minTemperature.temperature", notNullValue()))
+                .andExpect(jsonPath("$.minHumidity.humidity", notNullValue()))
                 .andReturn();
     }
 
