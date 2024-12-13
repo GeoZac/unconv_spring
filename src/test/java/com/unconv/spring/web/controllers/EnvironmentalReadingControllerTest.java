@@ -347,86 +347,14 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 any(UUID.class)))
                 .willReturn(
                         new ExtremeReadingsResponse(
-                                new EnvironmentalReadingProjection() {
-
-                                    @Override
-                                    public double getTemperature() {
-
-                                        return 64.0;
-                                    }
-
-                                    @Override
-                                    public double getHumidity() {
-
-                                        return 34.0;
-                                    }
-
-                                    @Override
-                                    public OffsetDateTime getTimestamp() {
-
-                                        return OffsetDateTime.now();
-                                    }
-                                },
-                                new EnvironmentalReadingProjection() {
-
-                                    @Override
-                                    public double getTemperature() {
-
-                                        return 46.0;
-                                    }
-
-                                    @Override
-                                    public double getHumidity() {
-
-                                        return 34.0;
-                                    }
-
-                                    @Override
-                                    public OffsetDateTime getTimestamp() {
-
-                                        return OffsetDateTime.now();
-                                    }
-                                },
-                                new EnvironmentalReadingProjection() {
-
-                                    @Override
-                                    public double getTemperature() {
-
-                                        return 55.0;
-                                    }
-
-                                    @Override
-                                    public double getHumidity() {
-
-                                        return 76.0;
-                                    }
-
-                                    @Override
-                                    public OffsetDateTime getTimestamp() {
-
-                                        return OffsetDateTime.now();
-                                    }
-                                },
-                                new EnvironmentalReadingProjection() {
-
-                                    @Override
-                                    public double getTemperature() {
-
-                                        return 55.0;
-                                    }
-
-                                    @Override
-                                    public double getHumidity() {
-
-                                        return 67.0;
-                                    }
-
-                                    @Override
-                                    public OffsetDateTime getTimestamp() {
-
-                                        return OffsetDateTime.now();
-                                    }
-                                }));
+                                new MockEnvironmentalReadingProjection(
+                                        64.0, 34.0, OffsetDateTime.now()),
+                                new MockEnvironmentalReadingProjection(
+                                        46.0, 34.0, OffsetDateTime.now()),
+                                new MockEnvironmentalReadingProjection(
+                                        55.0, 76.0, OffsetDateTime.now()),
+                                new MockEnvironmentalReadingProjection(
+                                        55.0, 67.0, OffsetDateTime.now())));
 
         this.mockMvc
                 .perform(
@@ -953,5 +881,24 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    public record MockEnvironmentalReadingProjection(
+            double temperature, double humidity, OffsetDateTime timestamp)
+            implements EnvironmentalReadingProjection {
+        @Override
+        public double getTemperature() {
+            return temperature;
+        }
+
+        @Override
+        public double getHumidity() {
+            return humidity;
+        }
+
+        @Override
+        public OffsetDateTime getTimestamp() {
+            return timestamp;
+        }
     }
 }
