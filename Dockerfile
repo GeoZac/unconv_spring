@@ -2,6 +2,7 @@ FROM eclipse-temurin:17-jdk-focal AS build
 WORKDIR /application
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
 COPY src ./src
 COPY sonar-project.properties ./
 RUN ./mvnw clean package -DskipTests
