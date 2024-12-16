@@ -15,10 +15,11 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 # the third stage of our build will copy the extracted layers
 FROM eclipse-temurin:17-jre-alpine
+ARG PORT=8080
 WORKDIR /application
 COPY --from=builder application/dependencies/ ./
 COPY --from=builder application/spring-boot-loader/ ./
 COPY --from=builder application/snapshot-dependencies/ ./
 COPY --from=builder application/application/ ./
-EXPOSE 8080
+EXPOSE ${PORT}
 ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
