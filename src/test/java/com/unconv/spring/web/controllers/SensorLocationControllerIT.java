@@ -163,6 +163,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageSize() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageSize", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page size must not be less than one!")))
+                .andReturn();
+    }
+
+    @Test
     void shouldFindSensorLocationById() throws Exception {
         SensorLocation sensorLocation = sensorLocationList.get(0);
         UUID sensorLocationId = sensorLocation.getId();
