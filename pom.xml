@@ -28,12 +28,12 @@
 
         <testcontainers.version>1.20.4</testcontainers.version>
         <awaitility.version>4.2.2</awaitility.version>
-        <instancio.version>5.1.0</instancio.version>
+        <instancio.version>5.2.1</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
         <spotless.version>2.43.0</spotless.version>
         <googleJavaFormat.version>1.15.0</googleJavaFormat.version>
-        <dependency-check-maven.version>11.1.0</dependency-check-maven.version>
+        <dependency-check-maven.version>11.1.1</dependency-check-maven.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
         <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.2.1</version>
+            <version>3.2.2</version>
         </dependency>
 
         <dependency>
@@ -527,7 +527,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.11.1</version>
+                <version>3.11.2</version>
                 <configuration>
                     <show>private</show>
                     <nohelp>true</nohelp>

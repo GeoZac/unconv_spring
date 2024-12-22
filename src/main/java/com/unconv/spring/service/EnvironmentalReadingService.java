@@ -3,6 +3,7 @@ package com.unconv.spring.service;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import java.time.OffsetDateTime;
@@ -116,4 +117,13 @@ public interface EnvironmentalReadingService {
      */
     ResponseEntity<String> verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
             SensorSystem sensorSystem, MultipartFile file);
+
+    /**
+     * Retrieves the extreme readings (highest and lowest temperature, highest and lowest humidity)
+     * for a given sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return an {@link ExtremeReadingsResponse} object containing the extreme readings
+     */
+    ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(UUID sensorSystemId);
 }
