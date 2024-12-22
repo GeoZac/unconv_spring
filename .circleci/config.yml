@@ -102,6 +102,12 @@ jobs:
       - run:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
+      - codecov/upload:
+            file: target/jacoco/test/jacoco.xml
+            flags: controllers_test
+      - codecov/upload:
+            file: target/jacoco/integrationTest/jacoco.xml
+            flags: integration_test
       - save_cache:
           paths:
             - ~/.m2
