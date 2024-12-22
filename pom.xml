@@ -304,7 +304,7 @@
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     <runOrder>alphabetical</runOrder>
                     <reportsDirectory>${junit.itReportFolder}</reportsDirectory>
-                    <forkCount>2</forkCount>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
                     <parallel>all</parallel>
                     <threadCount>4</threadCount>
