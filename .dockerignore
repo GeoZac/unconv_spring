@@ -1,0 +1,7 @@
+# .dockerignore
+
+# API docs
+src/main/doc
+
+# Tests sources
+src/test
