@@ -52,6 +52,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,16 +92,19 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     private final UUID sensorSystemId = UUID.randomUUID();
     private final SensorSystem mSensorSystem =
-            new SensorSystem(
-                    sensorSystemId,
-                    "Workspace sensor system",
-                    "Monitors temperature and humidity for personal workspace",
-                    false,
-                    SensorStatus.ACTIVE,
-                    sensorLocation,
-                    mUnconvUser,
-                    new HumidityThreshold(UUID.randomUUID(), 75, 23),
-                    new TemperatureThreshold(UUID.randomUUID(), 100, 0));
+            SensorSystem.builder()
+                    .id(sensorSystemId)
+                    .sensorName("Workspace sensor system")
+                    .description("Monitors temperature and humidity for personal workspace")
+                    .deleted(false)
+                    .sensorStatus(SensorStatus.ACTIVE)
+                    .sensorLocation(sensorLocation)
+                    .unconvUser(mUnconvUser)
+                    .humidityThreshold(new HumidityThreshold(UUID.randomUUID(), 75, 23))
+                    .temperatureThreshold(new TemperatureThreshold(UUID.randomUUID(), 100, 0))
+                    .createdDate(OffsetDateTime.now().minusDays(new Random().nextLong(365)))
+                    .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
+                    .build();
 
     @BeforeEach
     void setUp() {

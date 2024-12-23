@@ -1,16 +1,19 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static java.lang.Math.min;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
@@ -63,7 +66,7 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                         : Sort.by(sortBy).descending();
 
         // create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNo, min(pageSize, MAX_PAGE_SIZE), sort);
         Page<EnvironmentalReading> environmentalReadingsPage =
                 environmentalReadingRepository.findAll(pageable);
 
@@ -89,7 +92,7 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                         : Sort.by(sortBy).descending();
 
         // create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNo, min(pageSize, MAX_PAGE_SIZE), sort);
         Page<EnvironmentalReading> environmentalReadingsPage =
                 environmentalReadingRepository.findAllBySensorSystemId(sensorSystemId, pageable);
 
@@ -265,5 +268,25 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
 
         message = ENVT_FILE_FORMAT_ERROR;
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    }
+
+    /**
+     * Retrieves the extreme readings (highest and lowest temperature, highest and lowest humidity)
+     * for a given sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return an {@link ExtremeReadingsResponse} object containing the extreme readings
+     */
+    @Override
+    public ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(UUID sensorSystemId) {
+        return new ExtremeReadingsResponse(
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTemperatureDesc(
+                        sensorSystemId),
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTemperatureAsc(
+                        sensorSystemId),
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByHumidityDesc(
+                        sensorSystemId),
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByHumidityAsc(
+                        sensorSystemId));
     }
 }
