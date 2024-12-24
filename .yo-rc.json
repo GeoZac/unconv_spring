@@ -2,7 +2,7 @@
   "generator-springboot": {
     "appName": "spring",
     "packageName": "com.unconv.spring",
-    "databaseType": "mysql",
+    "databaseType": "postgresql",
     "dbMigrationTool": "none",
     "features": [],
     "buildTool": "maven",
