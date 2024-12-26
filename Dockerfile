@@ -5,13 +5,13 @@ COPY mvnw pom.xml ./
 RUN ./mvnw dependency:go-offline
 COPY src ./src
 COPY sonar-project.properties ./
-RUN --mount=type=secret,id=application-render.yml dst=/application/src/main/resources/application-render.yml
-RUN --mount=type=secret,id=logback-spring-render.xml dst=/application/src/main/resources/logback-spring-render.xml
+COPY application-render.yml ./src/main/resources/application-render.yml
+COPY logback-spring-render.xml ./src/main/resources/logback-spring-render.xml
 RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-focal AS builder
 WORKDIR /application
-ARG JAR_FILE=target/spring-0.0.9.jar
+ARG JAR_FILE=target/spring-0.1.0.jar
 COPY --from=build /application/${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
