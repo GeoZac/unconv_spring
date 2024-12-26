@@ -21,9 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class EnvironmentalReadingServiceImplTest {
@@ -48,7 +46,6 @@ class EnvironmentalReadingServiceImplTest {
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<EnvironmentalReading> environmentalReadingList =
                 Collections.singletonList(environmentalReading);
         Page<EnvironmentalReading> environmentalReadingPage =
