@@ -2,6 +2,8 @@ package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorSystem;
@@ -56,13 +58,23 @@ class SensorSystemServiceImplTest {
     void isActiveSensorSystem() {}
 
     @Test
-    void saveSensorSystem() {}
+    void saveSensorSystem() {
+        when(sensorSystemRepository.save(any(SensorSystem.class))).thenReturn(sensorSystem);
+
+        SensorSystem result = sensorSystemService.saveSensorSystem(sensorSystem);
+
+        assertEquals(sensorSystem.getId(), result.getId());
+    }
 
     @Test
     void validateUnconvUserAndSaveSensorSystem() {}
 
     @Test
-    void deleteSensorSystemById() {}
+    void deleteSensorSystemById() {
+        sensorSystemService.deleteSensorSystemById(sensorSystemId);
+
+        verify(sensorSystemRepository, times(1)).deleteById(sensorSystemId);
+    }
 
     @Test
     void findAllSensorSystemsBySensorName() {}
