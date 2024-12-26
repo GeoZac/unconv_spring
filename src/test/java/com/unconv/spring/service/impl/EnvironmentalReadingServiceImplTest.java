@@ -101,7 +101,18 @@ class EnvironmentalReadingServiceImplTest {
     }
 
     @Test
-    void findLatestEnvironmentalReadingsByUnconvUserId() {}
+    void findLatestEnvironmentalReadingsByUnconvUserId() {
+        when(environmentalReadingRepository
+                        .findFirst10BySensorSystemUnconvUserIdOrderByTimestampDesc(any(UUID.class)))
+                .thenReturn(List.of(environmentalReading));
+
+        List<EnvironmentalReading> result =
+                environmentalReadingService.findLatestEnvironmentalReadingsByUnconvUserId(
+                        UUID.randomUUID());
+
+        assertFalse(result.isEmpty());
+        assertEquals(environmentalReading.getId(), result.get(0).getId());
+    }
 
     @Test
     void saveEnvironmentalReading() {
