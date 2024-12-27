@@ -30,7 +30,6 @@ import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -79,20 +78,16 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
         unconvRoleSet.add(savedUnconvRole);
 
-        sensorLocationList = new ArrayList<>();
-        sensorLocationList.add(
-                new SensorLocation(
-                        null,
-                        "Great Pyramid of Giza",
-                        29.9792,
-                        31.1342,
-                        SensorLocationType.INDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Stonehenge", 51.1789, -1.8262, SensorLocationType.OUTDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Machu Picchu", -13.1631, -72.5450, SensorLocationType.INDOOR));
+        sensorLocationList =
+                Instancio.ofList(SensorLocation.class)
+                        .size(3)
+                        .generate(
+                                field(SensorLocation::getLatitude),
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
+                                field(SensorLocation::getLongitude),
+                                gen -> gen.spatial().coordinate().lon())
+                        .create();
         sensorLocationList = sensorLocationRepository.saveAll(sensorLocationList);
     }
 
