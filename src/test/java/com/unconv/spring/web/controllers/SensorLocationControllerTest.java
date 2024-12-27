@@ -370,12 +370,12 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         List<SensorLocation> sensorLocations =
                 Instancio.ofList(SensorLocation.class)
                         .size(5)
-                        .supply(
+                        .generate(
                                 field(SensorLocation::getLatitude),
-                                random -> random.doubleRange(-90.0, 90.0))
-                        .supply(
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
                                 field(SensorLocation::getLongitude),
-                                random -> random.doubleRange(-180, 180))
+                                gen -> gen.spatial().coordinate().lon())
                         .create();
 
         given(unconvUserService.findUnconvUserById(unconvUser.getId()))
