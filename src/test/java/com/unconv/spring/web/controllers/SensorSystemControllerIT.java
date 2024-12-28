@@ -137,12 +137,12 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
                         .size(12)
-                        .supply(
+                        .generate(
                                 field(SensorLocation::getLatitude),
-                                random -> random.doubleRange(-90.0, 90.0))
-                        .supply(
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
                                 field(SensorLocation::getLongitude),
-                                random -> random.doubleRange(-180, 180))
+                                gen -> gen.spatial().coordinate().lon())
                         .create();
 
         sensorSystemList =
