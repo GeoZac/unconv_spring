@@ -23,12 +23,15 @@ import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvRoleRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +56,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private UnconvRoleRepository unconvRoleRepository;
+
+    @Autowired private UnconvUserRepository unconvUserRepository;
 
     private List<SensorLocation> sensorLocationList = null;
 
@@ -154,6 +159,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.title", is("Bad Request")))
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.detail", is("Page index must not be less than zero")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageSize() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageSize", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page size must not be less than one")))
                 .andReturn();
     }
 
@@ -456,5 +474,13 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     void tearDown() {
         sensorSystemRepository.deleteAll();
         sensorLocationRepository.deleteAll();
+
+        unconvUserRepository.deleteAll();
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
     }
 }

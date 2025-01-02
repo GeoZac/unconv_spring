@@ -13,6 +13,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
@@ -267,5 +268,25 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
 
         message = ENVT_FILE_FORMAT_ERROR;
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    }
+
+    /**
+     * Retrieves the extreme readings (highest and lowest temperature, highest and lowest humidity)
+     * for a given sensor system.
+     *
+     * @param sensorSystemId the ID of the sensor system
+     * @return an {@link ExtremeReadingsResponse} object containing the extreme readings
+     */
+    @Override
+    public ExtremeReadingsResponse getExtremeReadingsResponseBySensorSystemId(UUID sensorSystemId) {
+        return new ExtremeReadingsResponse(
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTemperatureDesc(
+                        sensorSystemId),
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTemperatureAsc(
+                        sensorSystemId),
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByHumidityDesc(
+                        sensorSystemId),
+                environmentalReadingRepository.findFirstBySensorSystemIdOrderByHumidityAsc(
+                        sensorSystemId));
     }
 }

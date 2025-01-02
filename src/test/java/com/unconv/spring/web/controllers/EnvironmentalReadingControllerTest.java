@@ -41,8 +41,10 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
+import com.unconv.spring.projection.EnvironmentalReadingProjection;
 import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
@@ -325,6 +327,73 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .andDo(
                         document(
                                 "shouldReturn404WhenFetchingEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldFindExtremeEnvironmentalReadingsOfSpecificSensor() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        given(sensorSystemService.findSensorSystemById(any(UUID.class)))
+                .willReturn(Optional.of(sensorSystem));
+
+        given(
+                        environmentalReadingService.getExtremeReadingsResponseBySensorSystemId(
+                                any(UUID.class)))
+                .willReturn(
+                        new ExtremeReadingsResponse(
+                                new MockEnvironmentalReadingProjection(
+                                        64.0, 34.0, OffsetDateTime.now()),
+                                new MockEnvironmentalReadingProjection(
+                                        46.0, 34.0, OffsetDateTime.now()),
+                                new MockEnvironmentalReadingProjection(
+                                        55.0, 76.0, OffsetDateTime.now()),
+                                new MockEnvironmentalReadingProjection(
+                                        55.0, 67.0, OffsetDateTime.now())));
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Extreme/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andDo(
+                        document(
+                                "shouldFindExtremeEnvironmentalReadingsOfSpecificSensor",
+                                preprocessResponse(prettyPrint)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(4)))
+                .andExpect(jsonPath("$.maxTemperature.temperature", notNullValue()))
+                .andExpect(jsonPath("$.maxHumidity.humidity", notNullValue()))
+                .andExpect(jsonPath("$.minTemperature.temperature", notNullValue()))
+                .andExpect(jsonPath("$.minHumidity.humidity", notNullValue()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingExtremeEnvironmentalReadingsOfNonExistentSensor()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
+        SensorSystem sensorSystem =
+                new SensorSystem(UUID.randomUUID(), "Specific Sensor System", null, unconvUser);
+
+        given(sensorSystemService.findSensorSystemById(any(UUID.class)))
+                .willReturn(Optional.empty());
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Extreme/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andDo(
+                        document(
+                                "shouldReturn404WhenFetchingExtremeEnvironmentalReadingsOfNonExistentSensor",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -816,5 +885,24 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isNotFound());
+    }
+
+    public record MockEnvironmentalReadingProjection(
+            double temperature, double humidity, OffsetDateTime timestamp)
+            implements EnvironmentalReadingProjection {
+        @Override
+        public double getTemperature() {
+            return temperature;
+        }
+
+        @Override
+        public double getHumidity() {
+            return humidity;
+        }
+
+        @Override
+        public OffsetDateTime getTimestamp() {
+            return timestamp;
+        }
     }
 }

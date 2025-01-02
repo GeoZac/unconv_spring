@@ -39,7 +39,7 @@ public class SensorSystem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Column(name = "id", columnDefinition = "uuid")
     private UUID id;
 
     @Column(nullable = false)
