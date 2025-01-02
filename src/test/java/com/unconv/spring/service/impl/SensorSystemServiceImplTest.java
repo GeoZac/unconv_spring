@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,7 +53,16 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void findSensorSystemDTOById() {}
+    void findSensorSystemDTOById() {
+        when(sensorSystemRepository.findById(any(UUID.class)))
+                .thenReturn(Optional.of(sensorSystem));
+
+        Optional<SensorSystemDTO> result =
+                sensorSystemService.findSensorSystemDTOById(sensorSystemId);
+
+        assertTrue(result.isPresent());
+        assertEquals(sensorSystem.getId(), result.get().getId());
+    }
 
     @Test
     void isActiveSensorSystem() {}
