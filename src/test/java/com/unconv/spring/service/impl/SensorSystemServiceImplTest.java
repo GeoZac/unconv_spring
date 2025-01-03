@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,8 @@ class SensorSystemServiceImplTest {
     @Spy private ModelMapper modelMapper;
 
     @Mock private SensorSystemRepository sensorSystemRepository;
+
+    @Mock private EnvironmentalReadingRepository environmentalReadingRepository;
 
     @InjectMocks private SensorSystemServiceImpl sensorSystemService;
 
