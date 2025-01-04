@@ -89,7 +89,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 gen -> gen.spatial().coordinate().lon())
                         .generate(
                                 field(SensorLocation::getSensorLocationType),
-                                gen -> gen.enumOf(SensorLocationType.class).nullable())
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
         sensorLocationList = sensorLocationRepository.saveAll(sensorLocationList);
     }
@@ -410,7 +410,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 gen -> gen.spatial().coordinate().lon())
                         .generate(
                                 field(SensorLocation::getSensorLocationType),
-                                gen -> gen.enumOf(SensorLocationType.class).nullable())
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         List<SensorLocation> savedSensorLocations =

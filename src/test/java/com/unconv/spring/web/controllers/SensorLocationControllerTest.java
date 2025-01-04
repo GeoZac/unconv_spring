@@ -86,7 +86,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 gen -> gen.spatial().coordinate().lon())
                         .generate(
                                 field(SensorLocation::getSensorLocationType),
-                                gen -> gen.enumOf(SensorLocationType.class).nullable())
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         objectMapper.registerModule(new ProblemModule());
@@ -381,7 +381,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 gen -> gen.spatial().coordinate().lon())
                         .generate(
                                 field(SensorLocation::getSensorLocationType),
-                                gen -> gen.enumOf(SensorLocationType.class).nullable())
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         given(unconvUserService.findUnconvUserById(unconvUser.getId()))
