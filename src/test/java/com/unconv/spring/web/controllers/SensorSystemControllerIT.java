@@ -30,6 +30,7 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.enums.DefaultUserRole;
+import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -143,6 +144,9 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                         .generate(
                                 field(SensorLocation::getLongitude),
                                 gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         sensorSystemList =
