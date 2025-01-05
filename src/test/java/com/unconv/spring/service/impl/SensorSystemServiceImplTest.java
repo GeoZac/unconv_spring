@@ -11,6 +11,7 @@ import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,7 +136,11 @@ class SensorSystemServiceImplTest {
     void findAllSensorSystemsBySensorName() {}
 
     @Test
-    void findRecentStatsBySensorSystemId() {}
+    void findRecentStatsBySensorSystemId() {
+        Map<Integer, Long> result =
+                sensorSystemService.findRecentStatsBySensorSystemId(sensorSystemId);
+        assertEquals(result.size(), 5);
+    }
 
     @Test
     void findAllBySensorSystemsBySensorNameAndUnconvUserId() {}
