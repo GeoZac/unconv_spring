@@ -72,7 +72,14 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void isActiveSensorSystem() {}
+    void isActiveSensorSystem() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setDeleted(true);
+
+        boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
+
+        assertFalse(result);
+    }
 
     @Test
     void saveSensorSystem() {
