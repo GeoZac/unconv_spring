@@ -21,9 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -48,7 +46,6 @@ class BookingServiceImplTest {
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<Booking> bookingList = Collections.singletonList(booking);
         Page<Booking> bookingPage = new PageImpl<>(bookingList);
 
