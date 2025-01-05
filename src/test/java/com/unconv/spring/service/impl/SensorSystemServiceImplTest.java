@@ -133,6 +133,16 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
+    void deleteSensorSystemByIdWithReadingsPresent() {
+        when(environmentalReadingRepository.countBySensorSystemId(any(UUID.class))).thenReturn(1L);
+
+        when(sensorSystemRepository.findSensorSystemById(any(UUID.class))).thenReturn(sensorSystem);
+
+        sensorSystemService.deleteSensorSystemById(sensorSystemId);
+        verify(sensorSystemRepository, times(0)).deleteById(sensorSystemId);
+    }
+
+    @Test
     void findAllSensorSystemsBySensorName() {}
 
     @Test
