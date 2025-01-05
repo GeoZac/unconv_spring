@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import java.util.Optional;
@@ -72,13 +73,43 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void isActiveSensorSystem() {
+    void isActiveSensorSystemWhenSensorSystemDeleted() {
         SensorSystem sensorSystem = new SensorSystem();
         sensorSystem.setDeleted(true);
 
         boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
 
         assertFalse(result);
+    }
+
+    @Test
+    void isActiveSensorSystemWhenSensorSystemInactive() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
+
+        boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void isActiveSensorSystemWhenSensorSystemNotDeleted() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setDeleted(false);
+
+        boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isActiveSensorSystemWhenSensorSystemActive() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setSensorStatus(SensorStatus.ACTIVE);
+
+        boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
+
+        assertTrue(result);
     }
 
     @Test
