@@ -127,8 +127,9 @@ class SensorSystemServiceImplTest {
 
     @Test
     void deleteSensorSystemById() {
-        sensorSystemService.deleteSensorSystemById(sensorSystemId);
+        boolean result = sensorSystemService.deleteSensorSystemById(sensorSystemId);
 
+        assertTrue(result);
         verify(sensorSystemRepository, times(1)).deleteById(sensorSystemId);
     }
 
@@ -138,7 +139,8 @@ class SensorSystemServiceImplTest {
 
         when(sensorSystemRepository.findSensorSystemById(any(UUID.class))).thenReturn(sensorSystem);
 
-        sensorSystemService.deleteSensorSystemById(sensorSystemId);
+        boolean result = sensorSystemService.deleteSensorSystemById(sensorSystemId);
+        assertFalse(result);
         verify(sensorSystemRepository, times(0)).deleteById(sensorSystemId);
     }
 
