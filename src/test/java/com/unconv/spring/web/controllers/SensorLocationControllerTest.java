@@ -34,7 +34,6 @@ import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorLocationController;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -76,20 +75,19 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        this.sensorLocationList = new ArrayList<>();
-        sensorLocationList.add(
-                new SensorLocation(
-                        null,
-                        "Great Pyramid of Giza",
-                        29.9792,
-                        31.1342,
-                        SensorLocationType.INDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Stonehenge", 51.1789, -1.8262, SensorLocationType.OUTDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Machu Picchu", -13.1631, -72.5450, SensorLocationType.INDOOR));
+        sensorLocationList =
+                Instancio.ofList(SensorLocation.class)
+                        .size(3)
+                        .generate(
+                                field(SensorLocation::getLatitude),
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
+                                field(SensorLocation::getLongitude),
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
+                        .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -375,12 +373,15 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         List<SensorLocation> sensorLocations =
                 Instancio.ofList(SensorLocation.class)
                         .size(5)
-                        .supply(
+                        .generate(
                                 field(SensorLocation::getLatitude),
-                                random -> random.doubleRange(-90.0, 90.0))
-                        .supply(
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
                                 field(SensorLocation::getLongitude),
-                                random -> random.doubleRange(-180, 180))
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         given(unconvUserService.findUnconvUserById(unconvUser.getId()))
