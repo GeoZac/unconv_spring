@@ -27,7 +27,7 @@ public class SuppressedBadCredentialsException extends BadCredentialsException {
      * @return this instance, with no stack trace generated.
      */
     @Override
-    public Throwable fillInStackTrace() {
+    public synchronized Throwable fillInStackTrace() {
         // Suppress stack trace generation
         return this;
     }
