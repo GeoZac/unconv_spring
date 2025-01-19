@@ -80,7 +80,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
-                        .size(3)
+                        .size(30)
                         .generate(
                                 field(SensorLocation::getLatitude),
                                 gen -> gen.spatial().coordinate().lat())
