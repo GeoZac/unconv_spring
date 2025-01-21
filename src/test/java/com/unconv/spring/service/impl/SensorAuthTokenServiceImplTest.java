@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorAuthToken;
+import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
@@ -122,10 +123,30 @@ class SensorAuthTokenServiceImplTest {
     void deleteAnyExistingSensorSystem() {}
 
     @Test
-    void generateSensorAuthToken() {}
+    void generateSensorAuthToken() {
+        SensorSystem sensorSystem = new SensorSystem();
+
+        when(sensorAuthTokenRepository.saveAndFlush(any(SensorAuthToken.class)))
+                .thenReturn(sensorAuthToken);
+
+        SensorAuthTokenDTO result =
+                sensorAuthTokenService.generateSensorAuthToken(sensorSystem, sensorAuthTokenId);
+
+        assertEquals(sensorAuthToken.getId(), result.getId());
+    }
 
     @Test
-    void getSensorAuthTokenInfo() {}
+    void getSensorAuthTokenInfo() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setId(UUID.randomUUID());
+
+        when(sensorAuthTokenRepository.findBySensorSystemId(sensorSystem.getId()))
+                .thenReturn(sensorAuthToken);
+
+        SensorAuthTokenDTO result = sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystem);
+
+        assertEquals(sensorAuthToken.getId(), result.getId());
+    }
 
     @Test
     void generateUniqueSaltedSuffix() {}
