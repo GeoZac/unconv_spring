@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorAuthToken;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import java.util.Collections;
@@ -18,13 +19,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class SensorAuthTokenServiceImplTest {
+
+    @Spy private ModelMapper modelMapper;
     @Mock private SensorAuthTokenRepository sensorAuthTokenRepository;
 
     @InjectMocks private SensorAuthTokenServiceImpl sensorAuthTokenService;
@@ -71,7 +76,16 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
-    void findSensorAuthTokenDTOById() {}
+    void findSensorAuthTokenDTOById() {
+        when(sensorAuthTokenRepository.findById(any(UUID.class)))
+                .thenReturn(Optional.of(sensorAuthToken));
+
+        Optional<SensorAuthTokenDTO> result =
+                sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId);
+
+        assertTrue(result.isPresent());
+        assertEquals(sensorAuthToken.getId(), result.get().getId());
+    }
 
     @Test
     void saveSensorAuthToken() {}
