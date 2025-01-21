@@ -88,10 +88,28 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
-    void saveSensorAuthToken() {}
+    void saveSensorAuthToken() {
+        when(sensorAuthTokenRepository.saveAndFlush(any(SensorAuthToken.class)))
+                .thenReturn(sensorAuthToken);
+
+        sensorAuthToken.setAuthToken("sensorAuthToken");
+
+        SensorAuthToken result = sensorAuthTokenService.saveSensorAuthToken(sensorAuthToken);
+
+        assertEquals(sensorAuthToken.getId(), result.getId());
+    }
 
     @Test
-    void saveSensorAuthTokenDTO() {}
+    void saveSensorAuthTokenDTO() {
+        when(sensorAuthTokenRepository.saveAndFlush(any(SensorAuthToken.class)))
+                .thenReturn(sensorAuthToken);
+
+        sensorAuthToken.setAuthToken("sensorAuthToken");
+
+        SensorAuthTokenDTO result = sensorAuthTokenService.saveSensorAuthTokenDTO(sensorAuthToken);
+
+        assertEquals(sensorAuthToken.getId(), result.getId());
+    }
 
     @Test
     void deleteSensorAuthTokenById() {
