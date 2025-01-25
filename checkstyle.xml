@@ -13,6 +13,9 @@
         <module name="JavadocStyle">
             <property name="severity" value="warning"/>
         </module>
+        <module name="JavadocType">
+            <property name="severity" value="warning"/>
+        </module>
     </module>
 
     <module name="SuppressionFilter">
