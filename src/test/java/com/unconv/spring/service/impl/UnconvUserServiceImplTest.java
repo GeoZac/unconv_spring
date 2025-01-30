@@ -2,6 +2,8 @@ package com.unconv.spring.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.UnconvUser;
@@ -9,6 +11,7 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,10 +59,23 @@ class UnconvUserServiceImplTest {
     }
 
     @Test
-    void findUnconvUserById() {}
+    void findUnconvUserById() {
+        when(unconvUserRepository.findById(any(UUID.class))).thenReturn(Optional.of(unconvUser));
+
+        Optional<UnconvUser> result = unconvUserService.findUnconvUserById(unconvUserId);
+
+        assertTrue(result.isPresent());
+        assertEquals(unconvUser.getId(), result.get().getId());
+    }
 
     @Test
-    void isUsernameUnique() {}
+    void isUsernameUnique() {
+        when(unconvUserRepository.existsByUsername(any(String.class))).thenReturn(true);
+
+        boolean result = unconvUserService.isUsernameUnique("U$erName");
+
+        assertFalse(result);
+    }
 
     @Test
     void findUnconvUserByUserName() {}
@@ -77,7 +93,11 @@ class UnconvUserServiceImplTest {
     void updateUnconvUser() {}
 
     @Test
-    void deleteUnconvUserById() {}
+    void deleteUnconvUserById() {
+        unconvUserService.deleteUnconvUserById(unconvUserId);
+
+        verify(unconvUserRepository, times(1)).deleteById(unconvUserId);
+    }
 
     @Test
     void bCryptPasswordEncoder() {}
