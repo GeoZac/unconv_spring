@@ -30,6 +30,8 @@ class UnconvUserServiceImplTest {
 
     @InjectMocks private UnconvUserServiceImpl unconvUserService;
 
+    @Mock private UnconvRoleServiceImpl unconvRoleService;
+
     private UnconvUser unconvUser;
     private UUID unconvUserId;
 
