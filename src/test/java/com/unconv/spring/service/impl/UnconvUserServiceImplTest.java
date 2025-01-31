@@ -78,10 +78,21 @@ class UnconvUserServiceImplTest {
     }
 
     @Test
-    void findUnconvUserByUserName() {}
+    void findUnconvUserByUserName() {
+        when(unconvUserRepository.findByUsername(any(String.class))).thenReturn(unconvUser);
+
+        UnconvUser result = unconvUserService.findUnconvUserByUserName("U$erName");
+        assertEquals(unconvUser.getId(), result.getId());
+    }
 
     @Test
-    void saveUnconvUser() {}
+    void saveUnconvUser() {
+
+        when(unconvUserRepository.save(any(UnconvUser.class))).thenReturn(unconvUser);
+
+        UnconvUser result = unconvUserService.saveUnconvUser(unconvUser, "Pa$sW0rd");
+        assertEquals(unconvUser.getId(), result.getId());
+    }
 
     @Test
     void checkPasswordMatch() {}
