@@ -96,7 +96,6 @@ class SensorSystemServiceImplTest {
 
     @Test
     void isActiveSensorSystemWhenSensorSystemDeleted() {
-        SensorSystem sensorSystem = new SensorSystem();
         sensorSystem.setDeleted(true);
 
         boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
@@ -106,7 +105,6 @@ class SensorSystemServiceImplTest {
 
     @Test
     void isActiveSensorSystemWhenSensorSystemInactive() {
-        SensorSystem sensorSystem = new SensorSystem();
         sensorSystem.setSensorStatus(SensorStatus.INACTIVE);
 
         boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
@@ -116,7 +114,6 @@ class SensorSystemServiceImplTest {
 
     @Test
     void isActiveSensorSystemWhenSensorSystemNotDeleted() {
-        SensorSystem sensorSystem = new SensorSystem();
         sensorSystem.setDeleted(false);
 
         boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
@@ -126,7 +123,6 @@ class SensorSystemServiceImplTest {
 
     @Test
     void isActiveSensorSystemWhenSensorSystemActive() {
-        SensorSystem sensorSystem = new SensorSystem();
         sensorSystem.setSensorStatus(SensorStatus.ACTIVE);
 
         boolean result = sensorSystemService.isActiveSensorSystem(sensorSystem);
@@ -172,7 +168,7 @@ class SensorSystemServiceImplTest {
     void findRecentStatsBySensorSystemId() {
         Map<Integer, Long> result =
                 sensorSystemService.findRecentStatsBySensorSystemId(sensorSystemId);
-        assertEquals(result.size(), 5);
+        assertEquals(5, result.size());
     }
 
     @Test
