@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import java.util.Collections;
@@ -18,13 +19,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class UnconvUserServiceImplTest {
+    @Spy private ModelMapper modelMapper;
 
     @Mock private UnconvUserRepository unconvUserRepository;
 
@@ -97,10 +101,28 @@ class UnconvUserServiceImplTest {
     }
 
     @Test
-    void checkPasswordMatch() {}
+    void checkPasswordMatch() {
+        String encodedPass = unconvUserService.bCryptPasswordEncoder().encode("Pa$sw0rd");
+        unconvUser.setPassword(encodedPass);
+        when(unconvUserRepository.findUnconvUserById(unconvUserId)).thenReturn(unconvUser);
+
+        boolean result = unconvUserService.checkPasswordMatch(unconvUserId, "Pa$sw0rd");
+        assertTrue(result);
+    }
 
     @Test
-    void createUnconvUser() {}
+    void createUnconvUser() {
+        unconvUser.setUsername("NewUnconvUser");
+        unconvUser.setEmail("newuser@email.com");
+        unconvUser.setPassword("Pa$sw0rd");
+        UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
+
+        when(unconvUserRepository.save(any(UnconvUser.class))).thenReturn(unconvUser);
+
+        UnconvUserDTO result = unconvUserService.createUnconvUser(unconvUserDTO);
+
+        assertEquals(unconvUser.getId(), result.getId());
+    }
 
     @Test
     void updateUnconvUser() {}
