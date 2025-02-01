@@ -9,8 +9,11 @@ import static org.mockito.Mockito.when;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +25,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class SensorSystemServiceImplTest {
@@ -45,7 +51,22 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void findAllSensorSystems() {}
+    void findAllSensorSystems() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "ASC";
+        List<SensorSystem> sensorSystemList = Collections.singletonList(sensorSystem);
+        Page<SensorSystem> sensorLocationPage = new PageImpl<>(sensorSystemList);
+
+        when(sensorSystemRepository.findAll(any(Pageable.class))).thenReturn(sensorLocationPage);
+
+        PagedResult<SensorSystemDTO> result =
+                sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(sensorSystemList.size(), result.data().size());
+        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+    }
 
     @Test
     void findAllSensorSystemsByUnconvUserId() {}
