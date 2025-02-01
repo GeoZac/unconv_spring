@@ -69,7 +69,25 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void findAllSensorSystemsByUnconvUserId() {}
+    void findAllSensorSystemsByUnconvUserId() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "ASC";
+        List<SensorSystem> sensorSystemList = Collections.singletonList(sensorSystem);
+        Page<SensorSystem> sensorLocationPage = new PageImpl<>(sensorSystemList);
+
+        when(sensorSystemRepository.findByUnconvUserIdAndDeletedFalse(
+                        any(UUID.class), any(Pageable.class)))
+                .thenReturn(sensorLocationPage);
+
+        PagedResult<SensorSystemDTO> result =
+                sensorSystemService.findAllSensorSystemsByUnconvUserId(
+                        UUID.randomUUID(), pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(sensorSystemList.size(), result.data().size());
+        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+    }
 
     @Test
     void findSensorSystemById() {
