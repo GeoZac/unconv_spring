@@ -1,5 +1,7 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForDailyStats;
+import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForHourlyStats;
 import static com.unconv.spring.utils.EnvironmentalReadingStatsUtils.generateMockDataForQuarterHourlyStats;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,13 +56,33 @@ class EnvironmentalReadingStatsServiceImplTest {
     void testGetAverageTempsForQuarterHourly() {}
 
     @Test
-    void getAverageTempsForHourly() {}
+    void getAverageTempsForHourly() {
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForHourlyStats(sensorSystem, 5);
+
+        when(environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                        any(UUID.class), any(OffsetDateTime.class), any(OffsetDateTime.class)))
+                .thenReturn(environmentalReadings);
+        Map<OffsetDateTime, Double> result =
+                environmentalReadingStatsService.getAverageTempsForHourly(sensorSystemId);
+        assertFalse(result.isEmpty());
+    }
 
     @Test
     void testGetAverageTempsForHourly() {}
 
     @Test
-    void getAverageTempsForDaily() {}
+    void getAverageTempsForDaily() {
+        List<EnvironmentalReading> environmentalReadings =
+                generateMockDataForDailyStats(sensorSystem, 5);
+
+        when(environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                        any(UUID.class), any(OffsetDateTime.class), any(OffsetDateTime.class)))
+                .thenReturn(environmentalReadings);
+        Map<OffsetDateTime, Double> result =
+                environmentalReadingStatsService.getAverageTempsForDaily(sensorSystemId);
+        assertFalse(result.isEmpty());
+    }
 
     @Test
     void testGetAverageTempsForDaily() {}
