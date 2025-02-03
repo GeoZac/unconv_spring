@@ -53,9 +53,6 @@ class EnvironmentalReadingStatsServiceImplTest {
     }
 
     @Test
-    void testGetAverageTempsForQuarterHourly() {}
-
-    @Test
     void getAverageTempsForHourly() {
         List<EnvironmentalReading> environmentalReadings =
                 generateMockDataForHourlyStats(sensorSystem, 5);
@@ -69,9 +66,6 @@ class EnvironmentalReadingStatsServiceImplTest {
     }
 
     @Test
-    void testGetAverageTempsForHourly() {}
-
-    @Test
     void getAverageTempsForDaily() {
         List<EnvironmentalReading> environmentalReadings =
                 generateMockDataForDailyStats(sensorSystem, 5);
@@ -83,7 +77,4 @@ class EnvironmentalReadingStatsServiceImplTest {
                 environmentalReadingStatsService.getAverageTempsForDaily(sensorSystemId);
         assertFalse(result.isEmpty());
     }
-
-    @Test
-    void testGetAverageTempsForDaily() {}
 }
