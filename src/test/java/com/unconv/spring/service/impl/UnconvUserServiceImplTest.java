@@ -133,7 +133,4 @@ class UnconvUserServiceImplTest {
 
         verify(unconvUserRepository, times(1)).deleteById(unconvUserId);
     }
-
-    @Test
-    void bCryptPasswordEncoder() {}
 }

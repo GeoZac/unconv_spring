@@ -160,7 +160,4 @@ class SensorAuthTokenServiceImplTest {
 
     @Test
     void generateUniqueSaltedSuffix() {}
-
-    @Test
-    void bCryptPasswordEncoder() {}
 }
