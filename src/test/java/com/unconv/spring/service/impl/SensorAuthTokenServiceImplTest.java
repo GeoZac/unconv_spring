@@ -120,7 +120,17 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
-    void deleteAnyExistingSensorSystem() {}
+    void deleteAnyExistingSensorSystem() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setId(UUID.randomUUID());
+        sensorAuthToken.setSensorSystem(sensorSystem);
+
+        when(sensorAuthTokenRepository.findBySensorSystemId(any(UUID.class))).thenReturn(null);
+
+        sensorAuthTokenService.deleteAnyExistingSensorSystem(sensorSystem.getId());
+
+        verify(sensorAuthTokenRepository, times(1)).findBySensorSystemId(sensorSystem.getId());
+    }
 
     @Test
     void generateSensorAuthToken() {
