@@ -295,10 +295,8 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
                             sensorSystem.getId());
 
-            if (environmentalReading != null) {
-                sensorSystemDTO.setLatestReading(
-                        modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
-            }
+            sensorSystemDTO.setLatestReading(
+                    modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
         }
         return sensorSystemDTO;
     }
