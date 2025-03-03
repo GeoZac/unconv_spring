@@ -1,6 +1,7 @@
 package com.unconv.spring.service.impl;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -177,6 +178,32 @@ class EnvironmentalReadingServiceImplTest {
         // Then
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(ENVT_RECORD_ACCEPTED, Objects.requireNonNull(response.getBody()).message());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenSavingEnvironmentalReadingWithUserMismatched() {
+        // Given
+        Authentication authentication = mock(Authentication.class);
+        EnvironmentalReadingDTO environmentalReadingDTO = new EnvironmentalReadingDTO();
+        SensorSystem sensorSystem = new SensorSystem();
+        UnconvUser unconvUser = new UnconvUser();
+        unconvUser.setUsername("expectedUser");
+        sensorSystem.setUnconvUser(unconvUser);
+
+        environmentalReadingDTO.setSensorSystem(sensorSystem);
+
+        when(authentication.getName()).thenReturn("wrongUser");
+        when(sensorSystemRepository.findSensorSystemById(any())).thenReturn(sensorSystem);
+
+        // When
+        ResponseEntity<MessageResponse<EnvironmentalReadingDTO>> response =
+                environmentalReadingService
+                        .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                                environmentalReadingDTO, authentication);
+
+        // Then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals(ENVT_RECORD_REJ_USER, response.getBody().message());
     }
 
     @Test
