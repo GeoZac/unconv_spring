@@ -15,10 +15,13 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.ExtremeReadingsResponse;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.projection.EnvironmentalReadingProjection;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -218,4 +221,61 @@ class EnvironmentalReadingServiceImplTest {
 
     @Test
     void verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings() {}
+
+    @Test
+    void getExtremeReadingsResponseBySensorSystemId() {
+        UUID sensorSystemId = UUID.randomUUID();
+        OffsetDateTime now = OffsetDateTime.now();
+
+        MockEnvironmentalReadingProjection maxTemp =
+                new MockEnvironmentalReadingProjection(64.0, 34.0, now);
+        MockEnvironmentalReadingProjection minTemp =
+                new MockEnvironmentalReadingProjection(12.0, 30.0, now.minusDays(1));
+        MockEnvironmentalReadingProjection maxHumidity =
+                new MockEnvironmentalReadingProjection(50.0, 80.0, now.minusHours(2));
+        MockEnvironmentalReadingProjection minHumidity =
+                new MockEnvironmentalReadingProjection(25.0, 20.0, now.minusHours(3));
+
+        when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByTemperatureDesc(
+                        sensorSystemId))
+                .thenReturn(maxTemp);
+        when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByTemperatureAsc(
+                        sensorSystemId))
+                .thenReturn(minTemp);
+        when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByHumidityDesc(
+                        sensorSystemId))
+                .thenReturn(maxHumidity);
+        when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByHumidityAsc(
+                        sensorSystemId))
+                .thenReturn(minHumidity);
+
+        ExtremeReadingsResponse response =
+                environmentalReadingService.getExtremeReadingsResponseBySensorSystemId(
+                        sensorSystemId);
+
+        assertNotNull(response);
+        assertEquals(64.0, response.getMaxTemperature().getTemperature());
+        assertEquals(12.0, response.getMinTemperature().getTemperature());
+        assertEquals(80.0, response.getMaxHumidity().getHumidity());
+        assertEquals(20.0, response.getMinHumidity().getHumidity());
+    }
+
+    public record MockEnvironmentalReadingProjection(
+            double temperature, double humidity, OffsetDateTime timestamp)
+            implements EnvironmentalReadingProjection {
+        @Override
+        public double getTemperature() {
+            return temperature;
+        }
+
+        @Override
+        public double getHumidity() {
+            return humidity;
+        }
+
+        @Override
+        public OffsetDateTime getTimestamp() {
+            return timestamp;
+        }
+    }
 }
