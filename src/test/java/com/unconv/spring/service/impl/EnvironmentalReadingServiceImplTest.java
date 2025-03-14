@@ -63,11 +63,33 @@ class EnvironmentalReadingServiceImplTest {
     }
 
     @Test
-    void findAllEnvironmentalReadings() {
+    void findAllEnvironmentalReadingsInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<EnvironmentalReading> environmentalReadingList =
+                Collections.singletonList(environmentalReading);
+        Page<EnvironmentalReading> environmentalReadingPage =
+                new PageImpl<>(environmentalReadingList);
+
+        when(environmentalReadingRepository.findAll(any(Pageable.class)))
+                .thenReturn(environmentalReadingPage);
+
+        PagedResult<EnvironmentalReading> result =
+                environmentalReadingService.findAllEnvironmentalReadings(
+                        pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(environmentalReadingList.size(), result.data().size());
+        assertEquals(environmentalReadingList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllEnvironmentalReadingsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<EnvironmentalReading> environmentalReadingList =
                 Collections.singletonList(environmentalReading);
         Page<EnvironmentalReading> environmentalReadingPage =
