@@ -113,14 +113,14 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorAuthToken").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorAuthTokenList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.totalElements", is(sensorAuthTokenList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
     }
 
     @Test
@@ -128,14 +128,14 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorAuthToken").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorAuthTokenList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.totalElements", is(sensorAuthTokenList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
     }
 
     @Test
