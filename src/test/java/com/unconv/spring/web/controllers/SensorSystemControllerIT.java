@@ -151,7 +151,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         sensorSystemList =
                 Instancio.ofList(SensorSystem.class)
-                        .size(6)
+                        .size(60)
                         .supply(
                                 field(SensorSystem::getSensorLocation),
                                 () -> {
@@ -198,7 +198,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
-                        .size(5)
+                        .size(15)
                         .supply(field(SensorSystem::isDeleted), () -> false)
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
