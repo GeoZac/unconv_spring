@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -80,7 +81,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
-                        .size(3)
+                        .size(30)
                         .generate(
                                 field(SensorLocation::getLatitude),
                                 gen -> gen.spatial().coordinate().lat())
@@ -99,13 +100,18 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorLocation").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
+                .andExpect(jsonPath("$.totalElements", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(
+                        jsonPath(
+                                "$.totalPages",
+                                is(
+                                        sensorLocationList.size()
+                                                / Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(false)))
+                .andExpect(jsonPath("$.hasNext", is(true)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -114,13 +120,18 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorLocation").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
+                .andExpect(jsonPath("$.totalElements", is(sensorLocationList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(
+                        jsonPath(
+                                "$.totalPages",
+                                is(
+                                        sensorLocationList.size()
+                                                / Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(false)))
+                .andExpect(jsonPath("$.hasNext", is(true)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
