@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
@@ -63,6 +64,12 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
+    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
+    final int setUpListSize = 17;
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -82,7 +89,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
         List<SensorSystem> sensorSystemList =
                 Instancio.ofList(SensorSystem.class)
-                        .size(17)
+                        .size(setUpListSize)
                         .ignore(field(SensorSystem::getSensorLocation))
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
@@ -97,6 +104,8 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                     sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null);
             sensorAuthTokenList.add(sensorAuthTokenDTO);
         }
+
+        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / defaultPageSize);
     }
 
     @Test
