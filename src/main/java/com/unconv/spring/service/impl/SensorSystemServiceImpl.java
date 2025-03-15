@@ -71,8 +71,11 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<SensorSystem> sensorSystemsPage = sensorSystemRepository.findAll(pageable);
 
+        List<SensorSystemDTO> sensorSystemDTOs =
+                populateSensorSystemDTOFromSensorSystemPage(sensorSystemsPage);
+
         Page<SensorSystemDTO> sensorSystemDTOPage =
-                new PageImpl<>(populateSensorSystemDTOFromSensorSystemPage(sensorSystemsPage));
+                new PageImpl<>(sensorSystemDTOs, pageable, sensorSystemsPage.getTotalElements());
 
         return new PagedResult<>(sensorSystemDTOPage);
     }
