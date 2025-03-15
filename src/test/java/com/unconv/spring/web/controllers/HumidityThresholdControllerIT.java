@@ -54,7 +54,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                         .build();
 
         humidityThresholdRepository.deleteAllInBatch();
-        final int setUpListSize = 7;
+        final int setUpListSize = 27;
         humidityThresholdList =
                 Instancio.ofList(HumidityThreshold.class)
                         .size(setUpListSize)

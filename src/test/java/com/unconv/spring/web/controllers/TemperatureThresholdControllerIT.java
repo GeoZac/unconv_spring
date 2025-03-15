@@ -55,7 +55,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         .build();
 
         temperatureThresholdRepository.deleteAllInBatch();
-        final int setUpListSize = 7;
+        final int setUpListSize = 27;
         temperatureThresholdList =
                 Instancio.ofList(TemperatureThreshold.class)
                         .size(setUpListSize)
