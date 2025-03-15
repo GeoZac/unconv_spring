@@ -176,7 +176,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorSystem").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
@@ -221,6 +221,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
 
         this.mockMvc
                 .perform(
@@ -232,7 +233,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
@@ -244,7 +245,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorSystem").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
@@ -266,7 +267,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
-                        .size(5)
+                        .size(15)
                         .supply(field(SensorSystem::isDeleted), () -> false)
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
@@ -289,18 +290,19 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
 
         this.mockMvc
                 .perform(
                         get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
