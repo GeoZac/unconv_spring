@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -44,6 +45,12 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     private List<TemperatureThreshold> temperatureThresholdList = null;
 
+    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
+    final int setUpListSize = 27;
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -55,7 +62,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                         .build();
 
         temperatureThresholdRepository.deleteAllInBatch();
-        final int setUpListSize = 27;
+
         temperatureThresholdList =
                 Instancio.ofList(TemperatureThreshold.class)
                         .size(setUpListSize)
@@ -70,6 +77,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
         temperatureThresholdList = temperatureThresholdRepository.saveAll(temperatureThresholdList);
 
         assert temperatureThresholdList.size() == setUpListSize;
+        totalPages = (int) Math.ceil((double) temperatureThresholdList.size() / defaultPageSize);
 
         List<HumidityThreshold> humidityThresholdList =
                 Instancio.ofList(HumidityThreshold.class)
@@ -92,14 +100,14 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
                 .perform(get("/TemperatureThreshold").param("sortDir", "asc"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
     }
 
     @Test
@@ -107,14 +115,14 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/TemperatureThreshold").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
     }
 
     @Test
