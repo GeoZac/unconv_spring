@@ -80,7 +80,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
         List<TemperatureThreshold> temperatureThresholdList =
                 Instancio.ofList(TemperatureThreshold.class)
-                        .size(5)
+                        .size(15)
                         .ignore(field(TemperatureThreshold::getId))
                         .generate(
                                 field(TemperatureThreshold::getMinValue),
