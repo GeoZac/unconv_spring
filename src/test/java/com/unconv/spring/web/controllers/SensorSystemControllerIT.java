@@ -126,7 +126,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         unconvUserList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
-                        .size(7)
+                        .size(17)
                         .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
                         .ignore(field(UnconvUser::getId))
                         .create();
@@ -212,7 +212,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
@@ -281,7 +281,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
@@ -329,7 +329,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
@@ -774,7 +774,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
