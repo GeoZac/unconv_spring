@@ -274,7 +274,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
@@ -312,7 +312,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
@@ -617,7 +617,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
                                 random ->
@@ -691,7 +691,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
                                 random ->
