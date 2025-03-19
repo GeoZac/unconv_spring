@@ -217,20 +217,29 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
         int dataSize = environmentalReadingsOfSpecificSensor.size();
 
-        Page<EnvironmentalReading> page = new PageImpl<>(environmentalReadingsOfSpecificSensor);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_ER_SORT_DIRECTION, DEFAULT_ER_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, defaultPageSize, sort);
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + defaultPageSize, dataSize);
+        List<EnvironmentalReading> pagedReadings =
+                environmentalReadingsOfSpecificSensor.subList(start, end);
+
+        Page<EnvironmentalReading> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
         PagedResult<EnvironmentalReading> environmentalReadingPagedResult = new PagedResult<>(page);
 
         given(
                         environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
                                 sensorSystem.getId(),
-                                0,
-                                10,
+                                pageNo,
+                                defaultPageSize,
                                 DEFAULT_ER_SORT_BY,
                                 DEFAULT_ER_SORT_DIRECTION))
                 .willReturn(environmentalReadingPagedResult);
@@ -245,13 +254,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
