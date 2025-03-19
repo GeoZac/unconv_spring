@@ -1,9 +1,11 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -19,10 +21,10 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,10 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
 
     private static final int defaultUserRoleCount = DefaultUserRole.values().length;
 
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
@@ -53,56 +59,69 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
 
         assert unconvRoleRepository.findAll().size() == defaultUserRoleCount;
 
-        unconvRoleList = new ArrayList<>();
-        unconvRoleList.add(new UnconvRole(null, "First UnconvRole"));
-        unconvRoleList.add(new UnconvRole(null, "Second UnconvRole"));
-        unconvRoleList.add(new UnconvRole(null, "Third UnconvRole"));
+        unconvRoleList =
+                Instancio.ofList(UnconvRole.class)
+                        .size(30)
+                        .ignore(field(UnconvRole::getId))
+                        .create();
         unconvRoleList = unconvRoleRepository.saveAll(unconvRoleList);
     }
 
     // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvRolesInAscendingOrder() throws Exception {
+
+        totalPages =
+                (int)
+                        Math.ceil(
+                                (double) (unconvRoleList.size() + defaultUserRoleCount)
+                                        / DEFAULT_PAGE_SIZE_INT);
+
         this.mockMvc
                 .perform(
                         get("/UnconvRole")
                                 .param("sortDir", "asc")
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.size()", is(unconvRoleList.size() + defaultUserRoleCount)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
                                 "$.totalElements",
                                 is(unconvRoleList.size() + defaultUserRoleCount)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(unconvRoleList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(unconvRoleList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
     // TODO Add test with USER access
     @Test
     void shouldFetchAllUnconvRolesInDescendingOrder() throws Exception {
+
+        totalPages =
+                (int)
+                        Math.ceil(
+                                (double) (unconvRoleList.size() + defaultUserRoleCount)
+                                        / DEFAULT_PAGE_SIZE_INT);
+
         this.mockMvc
                 .perform(
                         get("/UnconvRole")
                                 .param("sortDir", "desc")
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.data.size()", is(unconvRoleList.size() + defaultUserRoleCount)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
                                 "$.totalElements",
                                 is(unconvRoleList.size() + defaultUserRoleCount)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(unconvRoleList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(unconvRoleList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
