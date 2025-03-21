@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
@@ -33,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorLocation;
@@ -63,6 +66,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -106,6 +111,10 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
                     .build();
 
+    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -120,32 +129,47 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         this.sensorAuthTokenList = new ArrayList<>();
         this.sensorAuthTokenList =
                 Instancio.ofList(SensorAuthToken.class)
-                        .size(5)
+                        .size(15)
                         .ignore(field(SensorAuthToken::getId))
                         .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE);
     }
 
     @Test
     void shouldFetchAllSensorAuthTokens() throws Exception {
-        Page<SensorAuthToken> page = new PageImpl<>(sensorAuthTokenList);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+
+        int dataSize = sensorAuthTokenList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        List<SensorAuthToken> pagedReadings = sensorAuthTokenList.subList(start, end);
+
+        Page<SensorAuthToken> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
+
         PagedResult<SensorAuthToken> sensorAuthTokenPagedResult = new PagedResult<>(page);
-        given(sensorAuthTokenService.findAllSensorAuthTokens(0, 10, "id", "asc"))
+        given(
+                        sensorAuthTokenService.findAllSensorAuthTokens(
+                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
                 .willReturn(sensorAuthTokenPagedResult);
 
         this.mockMvc
                 .perform(get("/SensorAuthToken"))
                 .andDo(document("shouldFetchAllSensorAuthTokens", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorAuthTokenList.size())))
-                .andExpect(jsonPath("$.totalElements", is(sensorAuthTokenList.size())))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
