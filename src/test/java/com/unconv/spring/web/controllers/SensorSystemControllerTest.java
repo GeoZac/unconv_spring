@@ -46,7 +46,6 @@ import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorSystemController;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,14 +107,16 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        // TODO Switch to Instancio generated objects
-        this.sensorSystemList = new ArrayList<>();
-        this.sensorSystemList.add(
-                new SensorSystem(UUID.randomUUID(), "text 1", sensorLocation, null));
-        this.sensorSystemList.add(
-                new SensorSystem(UUID.randomUUID(), "text 2", sensorLocation, null));
-        this.sensorSystemList.add(
-                new SensorSystem(UUID.randomUUID(), "text 3", sensorLocation, null));
+        this.sensorSystemList =
+                Instancio.ofList(SensorSystem.class)
+                        .size(3)
+                        .generate(
+                                field(SensorSystem::getCreatedDate),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .generate(
+                                field(SensorSystem::getUpdatedDate),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
