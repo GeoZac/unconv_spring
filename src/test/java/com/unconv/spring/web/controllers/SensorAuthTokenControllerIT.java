@@ -64,7 +64,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -105,7 +105,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
             sensorAuthTokenList.add(sensorAuthTokenDTO);
         }
 
-        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
@@ -117,10 +117,10 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.totalElements", is(sensorAuthTokenList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)));
     }
 
     @Test
@@ -132,10 +132,10 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.totalElements", is(sensorAuthTokenList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)));
     }
 
     @Test

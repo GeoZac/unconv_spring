@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -149,7 +148,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 new PageImpl<>(
                         pagedReadings.stream()
                                 .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
-                                .collect(Collectors.toList()),
+                                .toList(),
                         pageRequest,
                         dataSize);
 
@@ -211,7 +210,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                 new PageImpl<>(
                         pagedReadings.stream()
                                 .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
-                                .collect(Collectors.toList()),
+                                .toList(),
                         pageRequest,
                         dataSize);
         PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);

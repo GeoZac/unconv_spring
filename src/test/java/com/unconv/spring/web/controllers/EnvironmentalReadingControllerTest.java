@@ -140,7 +140,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                             gen -> gen.temporal().offsetDateTime().past())
                     .toModel();
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -164,19 +164,20 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
 
-        totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
+        totalPages =
+                (int) Math.ceil((double) environmentalReadingList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllEnvironmentalReadings() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_ER_SORT_DIRECTION, DEFAULT_ER_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, defaultPageSize, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = environmentalReadingList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + defaultPageSize, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<EnvironmentalReading> pagedReadings = environmentalReadingList.subList(start, end);
 
         Page<EnvironmentalReading> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -185,7 +186,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         given(
                         environmentalReadingService.findAllEnvironmentalReadings(
                                 pageNo,
-                                defaultPageSize,
+                                DEFAULT_PAGE_SIZE_INT,
                                 DEFAULT_ER_SORT_BY,
                                 DEFAULT_ER_SORT_DIRECTION))
                 .willReturn(environmentalReadingPagedResult);
@@ -198,13 +199,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -225,10 +226,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_ER_SORT_DIRECTION, DEFAULT_ER_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, defaultPageSize, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + defaultPageSize, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<EnvironmentalReading> pagedReadings =
                 environmentalReadingsOfSpecificSensor.subList(start, end);
 
@@ -239,7 +240,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                         environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
                                 sensorSystem.getId(),
                                 pageNo,
-                                defaultPageSize,
+                                DEFAULT_PAGE_SIZE_INT,
                                 DEFAULT_ER_SORT_BY,
                                 DEFAULT_ER_SORT_DIRECTION))
                 .willReturn(environmentalReadingPagedResult);
@@ -254,13 +255,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 

@@ -44,7 +44,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     private List<HumidityThreshold> humidityThresholdList = null;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -76,7 +76,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
         humidityThresholdList = humidityThresholdRepository.saveAll(humidityThresholdList);
 
         assert humidityThresholdList.size() == setUpListSize;
-        totalPages = (int) Math.ceil((double) humidityThresholdList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) humidityThresholdList.size() / DEFAULT_PAGE_SIZE_INT);
 
         List<TemperatureThreshold> temperatureThresholdList =
                 Instancio.ofList(TemperatureThreshold.class)
@@ -102,10 +102,10 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.totalElements", is(humidityThresholdList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)));
     }
 
     @Test
@@ -117,10 +117,10 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.totalElements", is(setUpListSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.isLast", is(setUpListSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(setUpListSize > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < defaultPageSize)));
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)));
     }
 
     @Test
