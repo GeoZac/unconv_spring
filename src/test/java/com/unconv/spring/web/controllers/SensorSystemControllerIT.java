@@ -516,6 +516,54 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldCreateNewSensorSystemWithAllFields() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        null, "Hagia Sophia", 41.0082, 28.9784, SensorLocationType.INDOOR);
+        SensorSystem sensorSystem =
+                SensorSystem.builder()
+                        .id(null)
+                        .sensorName("New SensorSystem")
+                        .description("Fully qualified sensor")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(sensorLocation)
+                        .unconvUser(savedUnconvUser)
+                        .humidityThreshold(new HumidityThreshold(null, 100, 0))
+                        .temperatureThreshold(new TemperatureThreshold(null, 100, 0))
+                        .build();
+
+        assert sensorSystem.getHumidityThreshold().getId() == null;
+        assert sensorSystem.getTemperatureThreshold().getId() == null;
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.sensorLocation", notNullValue()))
+                .andExpect(jsonPath("$.entity.humidityThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.temperatureThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.createdDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.updatedDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
+    }
+
+    @Test
     void shouldCreateNewSensorSystemWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
