@@ -413,6 +413,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         List<SensorLocation> sensorLocations =
                 Instancio.ofList(SensorLocation.class)
                         .size(3)
+                        .set(field(SensorLocation::getId), null)
                         .generate(
                                 field(SensorLocation::getLatitude),
                                 gen -> gen.spatial().coordinate().lat())
@@ -423,9 +424,6 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 field(SensorLocation::getSensorLocationType),
                                 gen -> gen.enumOf(SensorLocationType.class))
                         .create();
-
-        List<SensorLocation> savedSensorLocations =
-                sensorLocationRepository.saveAll(sensorLocations);
 
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
@@ -442,10 +440,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .supply(
                                 field(SensorSystem::getSensorLocation),
-                                random -> random.oneOf(savedSensorLocations))
+                                random -> random.oneOf(sensorLocations))
                         .create();
 
-        for (SensorLocation sensorLocation : savedSensorLocations) {
+        for (SensorLocation sensorLocation : sensorLocations) {
             SensorSystem sensorSystem =
                     Instancio.of(SensorSystem.class)
                             .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
@@ -454,6 +452,9 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                             .ignore(field(SensorSystem::getHumidityThreshold))
                             .ignore(field(SensorSystem::getTemperatureThreshold))
                             .create();
+
+            // TODO Fix with proper Instancio methods
+            sensorSystem.getSensorLocation().setId(null);
             sensorSystemsOfSpecificUnconvUser.add(sensorSystem);
         }
 
@@ -468,7 +469,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 "/SensorLocation/UnconvUser/{unconvUserId}",
                                 savedUnconvUser.getId().toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(savedSensorLocations.size())));
+                .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
     }
 
     @Test
