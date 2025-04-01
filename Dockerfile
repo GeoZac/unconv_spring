@@ -9,7 +9,7 @@ RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-focal AS builder
 WORKDIR /application
-ARG JAR_FILE=target/spring-0.1.0.jar
+ARG JAR_FILE=target/spring-0.1.1.jar
 COPY --from=build /application/${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
