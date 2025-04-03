@@ -623,5 +623,11 @@
                 <spring.profiles.active>release</spring.profiles.active>
             </properties>
         </profile>
+        <profile>
+            <id>render</id>
+            <properties>
+                <spring.profiles.active>render</spring.profiles.active>
+            </properties>
+        </profile>
     </profiles>
 </project>

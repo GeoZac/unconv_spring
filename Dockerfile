@@ -5,6 +5,8 @@ COPY mvnw pom.xml ./
 RUN ./mvnw dependency:go-offline
 COPY src ./src
 COPY sonar-project.properties ./
+COPY application-render.yml ./src/main/resources/application-render.yml
+COPY logback-spring-render.xml ./src/main/resources/logback-spring-render.xml
 RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-focal AS builder
@@ -21,4 +23,4 @@ COPY --from=builder application/spring-boot-loader/ ./
 COPY --from=builder application/snapshot-dependencies/ ./
 COPY --from=builder application/application/ ./
 EXPOSE ${PORT}
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=render", "org.springframework.boot.loader.JarLauncher"]
