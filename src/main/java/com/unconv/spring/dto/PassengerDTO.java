@@ -2,10 +2,10 @@ package com.unconv.spring.dto;
 
 import com.unconv.spring.domain.Booking;
 import com.unconv.spring.enums.Gender;
-import java.time.LocalDate;
-import java.time.Period;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import java.time.LocalDate;
+import java.time.Period;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

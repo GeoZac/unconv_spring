@@ -2,9 +2,9 @@ package com.unconv.spring.domain;
 
 import com.unconv.spring.annotation.ValidThreshold;
 import com.unconv.spring.domain.shared.Threshold;
-import java.util.UUID;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import java.util.UUID;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;

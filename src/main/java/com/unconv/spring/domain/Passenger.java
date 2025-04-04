@@ -2,8 +2,6 @@ package com.unconv.spring.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.unconv.spring.enums.Gender;
-import java.time.LocalDate;
-import java.time.Period;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.Period;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
