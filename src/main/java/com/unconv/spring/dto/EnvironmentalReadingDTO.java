@@ -4,9 +4,9 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM
 
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
+import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 package com.unconv.spring.dto;
 
-import java.util.UUID;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

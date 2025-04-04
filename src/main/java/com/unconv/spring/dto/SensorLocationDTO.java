@@ -1,11 +1,11 @@
 package com.unconv.spring.dto;
 
 import com.unconv.spring.enums.SensorLocationType;
-import java.util.UUID;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
