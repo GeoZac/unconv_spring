@@ -34,7 +34,7 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$",
                                 is(
-                                        "0.0.9\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
+                                        "0.1.1\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
                 .andReturn();
     }
 
@@ -44,7 +44,7 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
                 .perform(get("/public/status/v1/version"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", is("application/json")))
-                .andExpect(jsonPath("$.version", is("0.0.9")))
+                .andExpect(jsonPath("$.version", is("0.1.1")))
                 .andReturn();
     }
 }

@@ -30,6 +30,7 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.enums.DefaultUserRole;
+import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
@@ -125,7 +126,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         unconvUserList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
-                        .size(7)
+                        .size(17)
                         .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
                         .ignore(field(UnconvUser::getId))
                         .create();
@@ -137,17 +138,20 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
                         .size(12)
-                        .supply(
+                        .generate(
                                 field(SensorLocation::getLatitude),
-                                random -> random.doubleRange(-90.0, 90.0))
-                        .supply(
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
                                 field(SensorLocation::getLongitude),
-                                random -> random.doubleRange(-180, 180))
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         sensorSystemList =
                 Instancio.ofList(SensorSystem.class)
-                        .size(6)
+                        .size(60)
                         .supply(
                                 field(SensorSystem::getSensorLocation),
                                 () -> {
@@ -172,7 +176,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorSystem").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
@@ -194,7 +198,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
-                        .size(5)
+                        .size(15)
                         .supply(field(SensorSystem::isDeleted), () -> false)
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
@@ -208,7 +212,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
@@ -217,18 +221,19 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
 
         this.mockMvc
                 .perform(
                         get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
                                 .param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
@@ -240,7 +245,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorSystem").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(sensorSystemList.size())))
@@ -262,7 +267,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
-                        .size(5)
+                        .size(15)
                         .supply(field(SensorSystem::isDeleted), () -> false)
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .ignore(field(SensorSystem::getId))
@@ -276,7 +281,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSomeSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 random -> random.oneOf(savedSensorSystemsOfSpecificUnconvUser))
@@ -285,18 +290,19 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
+        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
 
         this.mockMvc
                 .perform(
                         get("/SensorSystem/UnconvUser/{unconvUserId}", savedUnconvUser.getId())
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
@@ -323,7 +329,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
@@ -510,6 +516,54 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldCreateNewSensorSystemWithAllFields() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        null, "Hagia Sophia", 41.0082, 28.9784, SensorLocationType.INDOOR);
+        SensorSystem sensorSystem =
+                SensorSystem.builder()
+                        .id(null)
+                        .sensorName("New SensorSystem")
+                        .description("Fully qualified sensor")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(sensorLocation)
+                        .unconvUser(savedUnconvUser)
+                        .humidityThreshold(new HumidityThreshold(null, 100, 0))
+                        .temperatureThreshold(new TemperatureThreshold(null, 100, 0))
+                        .build();
+
+        assert sensorSystem.getHumidityThreshold().getId() == null;
+        assert sensorSystem.getTemperatureThreshold().getId() == null;
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.sensorLocation", notNullValue()))
+                .andExpect(jsonPath("$.entity.humidityThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.temperatureThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.createdDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.updatedDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
+    }
+
+    @Test
     void shouldCreateNewSensorSystemWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
@@ -599,6 +653,62 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.violations[1].message", is("Sensor status cannot be null")))
                 .andExpect(jsonPath("$.violations[2].field", is("unconvUser")))
                 .andExpect(jsonPath("$.violations[2].message", is("UnconvUser cannot be empty")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingNewSensorSystemWithMalformedThresholds() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                SensorSystem.builder()
+                        .id(null)
+                        .sensorName("New SensorSystem")
+                        .description("Fully qualified sensor")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(null)
+                        .unconvUser(savedUnconvUser)
+                        .humidityThreshold(new HumidityThreshold(null, 0, 100))
+                        .temperatureThreshold(new TemperatureThreshold(null, 0, 100))
+                        .build();
+
+        assert sensorSystem.getHumidityThreshold().getId() == null;
+        assert sensorSystem.getTemperatureThreshold().getId() == null;
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations[0].field", is("humidityThreshold")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Min. value must be less than Max. value")))
+                .andExpect(jsonPath("$.violations[1].field", is("temperatureThreshold")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[1].message",
+                                is("Min. value must be less than Max. value")))
                 .andReturn();
     }
 
@@ -712,7 +822,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         SensorSystem sensorSystem = sensorSystemList.get(0);
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 

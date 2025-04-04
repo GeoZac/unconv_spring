@@ -159,7 +159,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingList =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(15)
+                        .size(25)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -231,7 +231,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -241,6 +241,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
 
         this.mockMvc
                 .perform(
@@ -249,10 +250,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
@@ -290,7 +291,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -300,6 +301,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
 
         this.mockMvc
                 .perform(
@@ -308,10 +310,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
                 .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
@@ -960,7 +962,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
                                 random ->
@@ -1028,7 +1030,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -1078,7 +1080,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -1127,7 +1129,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
