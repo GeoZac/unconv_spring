@@ -3,7 +3,7 @@ package com.unconv.spring.utils;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 /** Component class responsible for initializing default roles in the system. */
