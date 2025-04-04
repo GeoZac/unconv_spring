@@ -6,7 +6,7 @@ import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

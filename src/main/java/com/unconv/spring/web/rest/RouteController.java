@@ -5,7 +5,7 @@ import com.unconv.spring.domain.Route;
 import com.unconv.spring.dto.RouteDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.RouteService;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

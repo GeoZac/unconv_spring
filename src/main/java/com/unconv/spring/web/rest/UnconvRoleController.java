@@ -6,7 +6,7 @@ import com.unconv.spring.dto.UnconvRoleDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvRoleService;
 import java.util.UUID;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,7 +4,7 @@ import com.unconv.spring.domain.FruitProduct;
 import com.unconv.spring.dto.FruitProductDTO;
 import com.unconv.spring.service.FruitProductService;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

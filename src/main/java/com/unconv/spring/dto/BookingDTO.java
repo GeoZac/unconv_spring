@@ -3,7 +3,7 @@ package com.unconv.spring.dto;
 import com.unconv.spring.domain.Passenger;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

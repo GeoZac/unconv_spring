@@ -5,7 +5,7 @@ import com.unconv.spring.domain.Passenger;
 import com.unconv.spring.dto.PassengerDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
