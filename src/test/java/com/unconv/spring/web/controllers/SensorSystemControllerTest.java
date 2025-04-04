@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SS_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SS_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
@@ -46,14 +49,12 @@ import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorSystemController;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +67,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +100,10 @@ class SensorSystemControllerTest extends AbstractControllerTest {
             new UnconvUser(
                     UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
+    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -108,26 +115,43 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        // TODO Switch to Instancio generated objects
-        this.sensorSystemList = new ArrayList<>();
-        this.sensorSystemList.add(
-                new SensorSystem(UUID.randomUUID(), "text 1", sensorLocation, null));
-        this.sensorSystemList.add(
-                new SensorSystem(UUID.randomUUID(), "text 2", sensorLocation, null));
-        this.sensorSystemList.add(
-                new SensorSystem(UUID.randomUUID(), "text 3", sensorLocation, null));
+        this.sensorSystemList =
+                Instancio.ofList(SensorSystem.class)
+                        .size(30)
+                        .generate(
+                                field(SensorSystem::getCreatedDate),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .generate(
+                                field(SensorSystem::getUpdatedDate),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        totalPages = (int) Math.ceil((double) sensorSystemList.size() / DEFAULT_PAGE_SIZE);
     }
 
     @Test
     void shouldFetchAllSensorSystems() throws Exception {
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+
+        int dataSize = sensorSystemList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        List<SensorSystem> pagedReadings = sensorSystemList.subList(start, end);
+
         Page<SensorSystemDTO> page =
                 new PageImpl<>(
-                        sensorSystemList.stream()
+                        pagedReadings.stream()
                                 .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
-                                .collect(Collectors.toList()));
+                                .toList(),
+                        pageRequest,
+                        dataSize);
+
         PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);
         given(
                         sensorSystemService.findAllSensorSystems(
@@ -142,18 +166,27 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorSystemList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
+                .andExpect(jsonPath("$.pageNumber", is(pageNo)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
     @Test
     void shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder() throws Exception {
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+
+        int dataSize = sensorSystemList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+
         UnconvUser unconvUser =
                 new UnconvUser(
                         UUID.randomUUID(),
@@ -163,7 +196,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
         List<SensorSystem> sensorSystemsOfSpecificUnconvUser =
                 Instancio.ofList(SensorSystem.class)
-                        .size(5)
+                        .size(25)
                         .supply(field(SensorSystem::isDeleted), () -> false)
                         .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
                         .ignore(field(SensorSystem::getSensorLocation))
@@ -171,22 +204,24 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .create();
 
+        List<SensorSystem> pagedReadings = sensorSystemsOfSpecificUnconvUser.subList(start, end);
+
         Page<SensorSystemDTO> page =
                 new PageImpl<>(
-                        sensorSystemsOfSpecificUnconvUser.stream()
+                        pagedReadings.stream()
                                 .map((element) -> modelMapper.map(element, SensorSystemDTO.class))
-                                .collect(Collectors.toList()));
+                                .toList(),
+                        pageRequest,
+                        dataSize);
         PagedResult<SensorSystemDTO> sensorSystemPagedResult = new PagedResult<>(page);
         given(
                         sensorSystemService.findAllSensorSystemsByUnconvUserId(
                                 unconvUser.getId(),
-                                0,
-                                10,
+                                pageNo,
+                                DEFAULT_PAGE_SIZE,
                                 DEFAULT_SS_SORT_BY,
                                 DEFAULT_SS_SORT_DIRECTION))
                 .willReturn(sensorSystemPagedResult);
-
-        int dataSize = sensorSystemsOfSpecificUnconvUser.size();
 
         this.mockMvc
                 .perform(
@@ -197,15 +232,15 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllSensorSystemsOfSpecificUnconvUserInAscendingOrder",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.data[0].readingCount", is(notNullValue())))
                 .andExpect(jsonPath("$.data[0].latestReading").hasJsonPath())
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(pageNo)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 

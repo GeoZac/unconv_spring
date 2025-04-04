@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.security.MethodSecurityConfig;
@@ -42,6 +45,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -59,6 +64,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
     private List<HumidityThreshold> humidityThresholdList;
 
+    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -73,19 +82,34 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
         this.humidityThresholdList = new ArrayList<>();
         humidityThresholdList =
                 Instancio.ofList(HumidityThreshold.class)
-                        .size(5)
+                        .size(15)
                         .ignore(field(HumidityThreshold::getId))
                         .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        totalPages = (int) Math.ceil((double) humidityThresholdList.size() / DEFAULT_PAGE_SIZE);
     }
 
     @Test
     void shouldFetchAllHumidityThresholds() throws Exception {
-        Page<HumidityThreshold> page = new PageImpl<>(humidityThresholdList);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+
+        int dataSize = humidityThresholdList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        List<HumidityThreshold> pagedReadings = humidityThresholdList.subList(start, end);
+
+        Page<HumidityThreshold> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
+
         PagedResult<HumidityThreshold> humidityThresholdPagedResult = new PagedResult<>(page);
-        given(humidityThresholdService.findAllHumidityThresholds(0, 10, "id", "asc"))
+        given(
+                        humidityThresholdService.findAllHumidityThresholds(
+                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
                 .willReturn(humidityThresholdPagedResult);
 
         this.mockMvc
@@ -95,13 +119,13 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllHumidityThresholds",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(humidityThresholdList.size())))
-                .andExpect(jsonPath("$.totalElements", is(5)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 

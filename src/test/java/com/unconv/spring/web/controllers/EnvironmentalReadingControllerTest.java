@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.DEFAULT_ER_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_ER_SORT_DIRECTION;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
@@ -70,6 +71,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -137,6 +140,10 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                             gen -> gen.temporal().offsetDateTime().past())
                     .toModel();
 
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -156,15 +163,32 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        totalPages =
+                (int) Math.ceil((double) environmentalReadingList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllEnvironmentalReadings() throws Exception {
-        Page<EnvironmentalReading> page = new PageImpl<>(environmentalReadingList);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_ER_SORT_DIRECTION, DEFAULT_ER_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
+
+        int dataSize = environmentalReadingList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
+        List<EnvironmentalReading> pagedReadings = environmentalReadingList.subList(start, end);
+
+        Page<EnvironmentalReading> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
+
         PagedResult<EnvironmentalReading> environmentalReadingPagedResult = new PagedResult<>(page);
         given(
                         environmentalReadingService.findAllEnvironmentalReadings(
-                                0, 10, DEFAULT_ER_SORT_BY, DEFAULT_ER_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_ER_SORT_BY,
+                                DEFAULT_ER_SORT_DIRECTION))
                 .willReturn(environmentalReadingPagedResult);
 
         this.mockMvc
@@ -175,13 +199,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -194,20 +218,29 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
         int dataSize = environmentalReadingsOfSpecificSensor.size();
 
-        Page<EnvironmentalReading> page = new PageImpl<>(environmentalReadingsOfSpecificSensor);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_ER_SORT_DIRECTION, DEFAULT_ER_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
+        List<EnvironmentalReading> pagedReadings =
+                environmentalReadingsOfSpecificSensor.subList(start, end);
+
+        Page<EnvironmentalReading> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
         PagedResult<EnvironmentalReading> environmentalReadingPagedResult = new PagedResult<>(page);
 
         given(
                         environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
                                 sensorSystem.getId(),
-                                0,
-                                10,
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
                                 DEFAULT_ER_SORT_BY,
                                 DEFAULT_ER_SORT_DIRECTION))
                 .willReturn(environmentalReadingPagedResult);
@@ -222,13 +255,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -242,7 +275,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
@@ -280,7 +313,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
                         .create();
 
@@ -585,7 +618,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
                                 random ->
@@ -659,7 +692,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
                                 random ->
