@@ -188,5 +188,17 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
+    void getSensorAuthTokenInfoWhenEmpty() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setId(UUID.randomUUID());
+
+        when(sensorAuthTokenRepository.findBySensorSystemId(sensorSystem.getId())).thenReturn(null);
+
+        SensorAuthTokenDTO result = sensorAuthTokenService.getSensorAuthTokenInfo(sensorSystem);
+
+        assertNull(result);
+    }
+
+    @Test
     void generateUniqueSaltedSuffix() {}
 }
