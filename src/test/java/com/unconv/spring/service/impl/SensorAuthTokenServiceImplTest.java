@@ -18,6 +18,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -200,5 +201,19 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
-    void generateUniqueSaltedSuffix() {}
+    void generateUniqueSaltedSuffix() {
+        when(sensorAuthTokenRepository.findByTokenHashAllIgnoreCase(any(String.class)))
+                .thenReturn(null);
+
+        String result = sensorAuthTokenService.generateUniqueSaltedSuffix();
+
+        assertNotNull(result);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(sensorAuthTokenRepository).findByTokenHashAllIgnoreCase(captor.capture());
+
+        String calledTokenHash = captor.getValue();
+
+        assertEquals(calledTokenHash, result);
+    }
 }
