@@ -1,6 +1,7 @@
 package com.unconv.spring.service.impl;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -252,6 +253,36 @@ class EnvironmentalReadingServiceImplTest {
         // Then
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals(ENVT_RECORD_REJ_USER, response.getBody().message());
+    }
+
+    @Test
+    void shouldRejectWhenSavingEnvironmentalReadingWithSensorSystemDeleted() {
+        // Given
+        Authentication authentication = mock(Authentication.class);
+        EnvironmentalReadingDTO environmentalReadingDTO = new EnvironmentalReadingDTO();
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setId(UUID.randomUUID());
+        sensorSystem.setSensorStatus(SensorStatus.ACTIVE);
+        sensorSystem.setDeleted(true);
+        UnconvUser unconvUser = new UnconvUser();
+        unconvUser.setUsername("TestUser");
+        sensorSystem.setUnconvUser(unconvUser);
+
+        environmentalReadingDTO.setSensorSystem(sensorSystem);
+
+        EnvironmentalReading environmentalReading = new EnvironmentalReading();
+        environmentalReading.setSensorSystem(sensorSystem);
+
+        when(sensorSystemRepository.findSensorSystemById(any())).thenReturn(sensorSystem);
+        when(authentication.getName()).thenReturn("TestUser");
+
+        ResponseEntity<MessageResponse<EnvironmentalReadingDTO>> response =
+                environmentalReadingService
+                        .generateTimestampIfRequiredAndValidatedUnconvUserAndSaveEnvironmentalReading(
+                                environmentalReadingDTO, authentication);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(ENVT_RECORD_REJ_DLTD, Objects.requireNonNull(response.getBody()).message());
     }
 
     @Test
