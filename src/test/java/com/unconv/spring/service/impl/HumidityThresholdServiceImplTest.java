@@ -42,11 +42,32 @@ class HumidityThresholdServiceImplTest {
     }
 
     @Test
-    void findAllHumidityThresholds() {
+    void findAllHumidityThresholdsInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<HumidityThreshold> humidityThresholdList =
+                Collections.singletonList(humidityThreshold);
+        Page<HumidityThreshold> humidityThresholdPage = new PageImpl<>(humidityThresholdList);
+
+        when(humidityThresholdRepository.findAll(any(Pageable.class)))
+                .thenReturn(humidityThresholdPage);
+
+        PagedResult<HumidityThreshold> result =
+                humidityThresholdService.findAllHumidityThresholds(
+                        pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(humidityThresholdList.size(), result.data().size());
+        assertEquals(humidityThresholdList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllHumidityThresholdsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<HumidityThreshold> humidityThresholdList =
                 Collections.singletonList(humidityThreshold);
         Page<HumidityThreshold> humidityThresholdPage = new PageImpl<>(humidityThresholdList);
