@@ -47,11 +47,29 @@ class UnconvUserServiceImplTest {
     }
 
     @Test
-    void findAllUnconvUsers() {
+    void findAllUnconvUsersInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<UnconvUser> unconvUserList = Collections.singletonList(unconvUser);
+        Page<UnconvUser> unconvUserPage = new PageImpl<>(unconvUserList);
+
+        when(unconvUserRepository.findAll(any(Pageable.class))).thenReturn(unconvUserPage);
+
+        PagedResult<UnconvUser> result =
+                unconvUserService.findAllUnconvUsers(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(unconvUserList.size(), result.data().size());
+        assertEquals(unconvUserList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllUnconvUsersInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<UnconvUser> unconvUserList = Collections.singletonList(unconvUser);
         Page<UnconvUser> unconvUserPage = new PageImpl<>(unconvUserList);
 
