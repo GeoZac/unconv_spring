@@ -45,11 +45,29 @@ class UnconvRoleServiceImplTest {
     }
 
     @Test
-    void findAllUnconvRoles() {
+    void findAllUnconvRolesInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<UnconvRole> unconvRoleList = Collections.singletonList(unconvRole);
+        Page<UnconvRole> unconvRolePage = new PageImpl<>(unconvRoleList);
+
+        when(unconvRoleRepository.findAll(any(Pageable.class))).thenReturn(unconvRolePage);
+
+        PagedResult<UnconvRole> result =
+                unconvRoleService.findAllUnconvRoles(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(unconvRoleList.size(), result.data().size());
+        assertEquals(unconvRoleList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllUnconvRolesInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<UnconvRole> unconvRoleList = Collections.singletonList(unconvRole);
         Page<UnconvRole> unconvRolePage = new PageImpl<>(unconvRoleList);
 
