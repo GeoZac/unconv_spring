@@ -46,11 +46,30 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
-    void findAllSensorAuthTokens() {
+    void findAllSensorAuthTokensInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<SensorAuthToken> sensorAuthTokenList = Collections.singletonList(sensorAuthToken);
+        Page<SensorAuthToken> sensorAuthTokenPage = new PageImpl<>(sensorAuthTokenList);
+
+        when(sensorAuthTokenRepository.findAll(any(Pageable.class)))
+                .thenReturn(sensorAuthTokenPage);
+
+        PagedResult<SensorAuthToken> result =
+                sensorAuthTokenService.findAllSensorAuthTokens(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(sensorAuthTokenList.size(), result.data().size());
+        assertEquals(sensorAuthTokenList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllSensorAuthTokensInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<SensorAuthToken> sensorAuthTokenList = Collections.singletonList(sensorAuthToken);
         Page<SensorAuthToken> sensorAuthTokenPage = new PageImpl<>(sensorAuthTokenList);
 
@@ -86,6 +105,16 @@ class SensorAuthTokenServiceImplTest {
 
         assertTrue(result.isPresent());
         assertEquals(sensorAuthToken.getId(), result.get().getId());
+    }
+
+    @Test
+    void findSensorAuthTokenDTOByIdWhenEmpty() {
+        when(sensorAuthTokenRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        Optional<SensorAuthTokenDTO> result =
+                sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId);
+
+        assertFalse(result.isPresent());
     }
 
     @Test
