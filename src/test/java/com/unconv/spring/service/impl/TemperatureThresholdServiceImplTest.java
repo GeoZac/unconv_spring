@@ -64,6 +64,28 @@ class TemperatureThresholdServiceImplTest {
     }
 
     @Test
+    void findAllTemperatureThresholdsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
+        List<TemperatureThreshold> temperatureThresholdList =
+                Collections.singletonList(temperatureThreshold);
+        Page<TemperatureThreshold> temperatureThresholdPage =
+                new PageImpl<>(temperatureThresholdList);
+
+        when(temperatureThresholdRepository.findAll(any(Pageable.class)))
+                .thenReturn(temperatureThresholdPage);
+
+        PagedResult<TemperatureThreshold> result =
+                temperatureThresholdService.findAllTemperatureThresholds(
+                        pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(temperatureThresholdList.size(), result.data().size());
+        assertEquals(temperatureThresholdList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
     void findTemperatureThresholdById() {
         when(temperatureThresholdRepository.findById(any(UUID.class)))
                 .thenReturn(Optional.of(temperatureThreshold));
