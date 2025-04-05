@@ -51,11 +51,29 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void findAllSensorSystems() {
+    void findAllSensorSystemsInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<SensorSystem> sensorSystemList = Collections.singletonList(sensorSystem);
+        Page<SensorSystem> sensorLocationPage = new PageImpl<>(sensorSystemList);
+
+        when(sensorSystemRepository.findAll(any(Pageable.class))).thenReturn(sensorLocationPage);
+
+        PagedResult<SensorSystemDTO> result =
+                sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(sensorSystemList.size(), result.data().size());
+        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllSensorSystemsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<SensorSystem> sensorSystemList = Collections.singletonList(sensorSystem);
         Page<SensorSystem> sensorLocationPage = new PageImpl<>(sensorSystemList);
 
