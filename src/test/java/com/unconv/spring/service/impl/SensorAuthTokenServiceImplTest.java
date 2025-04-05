@@ -216,4 +216,26 @@ class SensorAuthTokenServiceImplTest {
 
         assertEquals(calledTokenHash, result);
     }
+
+    @Test
+    void generateUniqueSaltedSuffixWhenFirstGeneratedTokenIsNotUniqueShouldGenerateAnother() {
+        SensorAuthToken existingToken = new SensorAuthToken();
+
+        when(sensorAuthTokenRepository.findByTokenHashAllIgnoreCase(any(String.class)))
+                .thenReturn(existingToken)
+                .thenReturn(null);
+
+        String result = sensorAuthTokenService.generateUniqueSaltedSuffix();
+
+        assertNotNull(result);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(sensorAuthTokenRepository, times(2)).findByTokenHashAllIgnoreCase(captor.capture());
+
+        List<String> allGenerated = captor.getAllValues();
+
+        assertNotEquals(allGenerated.get(0), allGenerated.get(1));
+
+        assertEquals(allGenerated.get(1), result);
+    }
 }
