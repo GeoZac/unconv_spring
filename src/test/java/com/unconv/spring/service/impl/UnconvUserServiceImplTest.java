@@ -1,11 +1,13 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
@@ -13,6 +15,7 @@ import com.unconv.spring.persistence.UnconvUserRepository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,7 +146,28 @@ class UnconvUserServiceImplTest {
     }
 
     @Test
-    void updateUnconvUser() {}
+    void updateUnconvUser() {
+        UnconvUser user = new UnconvUser();
+        user.setId(UUID.randomUUID());
+        user.setUsername("testuser");
+        user.setUnconvRoles(Set.of(new UnconvRole(UUID.randomUUID(), UNCONV_USER.toString())));
+
+        UnconvUserDTO dto = new UnconvUserDTO();
+        dto.setPassword("newPass");
+
+        UnconvUser savedUser = new UnconvUser();
+        savedUser.setId(user.getId());
+        savedUser.setUsername("testuser");
+        user.setUnconvRoles(Set.of(new UnconvRole(UUID.randomUUID(), UNCONV_USER.toString())));
+
+        when(unconvUserRepository.save(any(UnconvUser.class))).thenReturn(savedUser);
+
+        UnconvUserDTO result = unconvUserService.updateUnconvUser(user, dto);
+
+        assertNotNull(result);
+        assertEquals("testuser", result.getUsername());
+        assertNull(result.getPassword());
+    }
 
     @Test
     void deleteUnconvUserById() {
