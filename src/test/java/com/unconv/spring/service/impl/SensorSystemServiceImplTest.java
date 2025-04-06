@@ -1,20 +1,26 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
 import com.unconv.spring.enums.SensorStatus;
+import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +34,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 @ExtendWith(MockitoExtension.class)
 class SensorSystemServiceImplTest {
@@ -37,6 +46,8 @@ class SensorSystemServiceImplTest {
     @Mock private SensorSystemRepository sensorSystemRepository;
 
     @Mock private EnvironmentalReadingRepository environmentalReadingRepository;
+
+    @Mock private UnconvUserRepository unconvUserRepository;
 
     @InjectMocks private SensorSystemServiceImpl sensorSystemService;
 
@@ -176,7 +187,34 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void validateUnconvUserAndSaveSensorSystem() {}
+    void validateUnconvUserAndSaveSensorSystem() {
+
+        Authentication authentication = mock(Authentication.class);
+
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser = new UnconvUser();
+        unconvUser.setId(unconvUserId);
+        unconvUser.setUsername("TestUser");
+
+        SensorSystemDTO sensorSystemDTO = new SensorSystemDTO();
+        sensorSystemDTO.setUnconvUser(unconvUser);
+
+        SensorSystem resSensorSystem = new SensorSystem();
+        resSensorSystem.setId(UUID.randomUUID());
+        resSensorSystem.setUnconvUser(unconvUser);
+
+        when(unconvUserRepository.findById(unconvUserId)).thenReturn(Optional.of(unconvUser));
+        when(authentication.getName()).thenReturn("TestUser");
+
+        when(sensorSystemRepository.save(any(SensorSystem.class))).thenReturn(resSensorSystem);
+
+        ResponseEntity<MessageResponse<SensorSystemDTO>> result =
+                sensorSystemService.validateUnconvUserAndSaveSensorSystem(
+                        sensorSystemDTO, authentication);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertEquals(ENVT_RECORD_ACCEPTED, Objects.requireNonNull(result.getBody()).message());
+    }
 
     @Test
     void deleteSensorSystemById() {
