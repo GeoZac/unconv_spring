@@ -130,12 +130,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         } else {
             SensorSystemDTO sensorSystemDTO =
                     modelMapper.map(sensorSystem.get(), SensorSystemDTO.class);
-            sensorSystemDTO.setReadingCount(
-                    environmentalReadingRepository.countBySensorSystemId(id));
-            EnvironmentalReading environmentalReading =
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            id);
-            if (environmentalReading != null) {
+            long readingCount = environmentalReadingRepository.countBySensorSystemId(id);
+            sensorSystemDTO.setReadingCount(readingCount);
+            if (readingCount != 0) {
+                EnvironmentalReading environmentalReading =
+                        environmentalReadingRepository
+                                .findFirstBySensorSystemIdOrderByTimestampDesc(id);
                 sensorSystemDTO.setLatestReading(
                         modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
             }
