@@ -2,6 +2,7 @@ package com.unconv.spring.service.impl;
 
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
+import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -215,6 +216,32 @@ class SensorSystemServiceImplTest {
 
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
         assertEquals(ENVT_RECORD_ACCEPTED, Objects.requireNonNull(result.getBody()).message());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenSavingSensorSystemWithUnknownUser() {
+        Authentication authentication = mock(Authentication.class);
+
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser = new UnconvUser();
+        unconvUser.setId(unconvUserId);
+        unconvUser.setUsername("TestUser");
+
+        SensorSystemDTO sensorSystemDTO = new SensorSystemDTO();
+        sensorSystemDTO.setUnconvUser(unconvUser);
+
+        SensorSystem resSensorSystem = new SensorSystem();
+        resSensorSystem.setId(UUID.randomUUID());
+        resSensorSystem.setUnconvUser(unconvUser);
+
+        when(unconvUserRepository.findById(unconvUserId)).thenReturn(Optional.empty());
+
+        ResponseEntity<MessageResponse<SensorSystemDTO>> result =
+                sensorSystemService.validateUnconvUserAndSaveSensorSystem(
+                        sensorSystemDTO, authentication);
+
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertEquals(SENS_RECORD_REJ_USER, Objects.requireNonNull(result.getBody()).message());
     }
 
     @Test
