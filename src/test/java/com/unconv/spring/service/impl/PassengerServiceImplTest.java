@@ -42,11 +42,29 @@ class PassengerServiceImplTest {
     }
 
     @Test
-    void findAllPassengers() {
+    void findAllPassengersInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<Passenger> passengerList = Collections.singletonList(passenger);
+        Page<Passenger> passengerPage = new PageImpl<>(passengerList);
+
+        when(passengerRepository.findAll(any(Pageable.class))).thenReturn(passengerPage);
+
+        PagedResult<Passenger> result =
+                passengerService.findAllPassengers(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(passengerList.size(), result.data().size());
+        assertEquals(passengerList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllPassengersInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<Passenger> passengerList = Collections.singletonList(passenger);
         Page<Passenger> passengerPage = new PageImpl<>(passengerList);
 
