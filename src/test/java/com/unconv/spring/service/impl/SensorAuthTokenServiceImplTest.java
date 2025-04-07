@@ -163,6 +163,20 @@ class SensorAuthTokenServiceImplTest {
     }
 
     @Test
+    void deleteAnyExistingSensorSystemWhenSensorAuthTokenExists() {
+        SensorSystem sensorSystem = new SensorSystem();
+        sensorSystem.setId(UUID.randomUUID());
+        sensorAuthToken.setSensorSystem(sensorSystem);
+
+        when(sensorAuthTokenRepository.findBySensorSystemId(any(UUID.class)))
+                .thenReturn(sensorAuthToken);
+
+        sensorAuthTokenService.deleteAnyExistingSensorSystem(sensorSystem.getId());
+
+        verify(sensorAuthTokenRepository, times(1)).findBySensorSystemId(sensorSystem.getId());
+    }
+
+    @Test
     void generateSensorAuthToken() {
         SensorSystem sensorSystem = new SensorSystem();
 
@@ -171,6 +185,19 @@ class SensorAuthTokenServiceImplTest {
 
         SensorAuthTokenDTO result =
                 sensorAuthTokenService.generateSensorAuthToken(sensorSystem, sensorAuthTokenId);
+
+        assertEquals(sensorAuthToken.getId(), result.getId());
+    }
+
+    @Test
+    void generateSensorAuthTokenWithNullSensorAuthTokenId() {
+        SensorSystem sensorSystem = new SensorSystem();
+
+        when(sensorAuthTokenRepository.saveAndFlush(any(SensorAuthToken.class)))
+                .thenReturn(sensorAuthToken);
+
+        SensorAuthTokenDTO result =
+                sensorAuthTokenService.generateSensorAuthToken(sensorSystem, null);
 
         assertEquals(sensorAuthToken.getId(), result.getId());
     }
