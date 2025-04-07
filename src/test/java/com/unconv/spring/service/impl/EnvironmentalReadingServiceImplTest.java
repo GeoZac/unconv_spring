@@ -207,15 +207,15 @@ class EnvironmentalReadingServiceImplTest {
 
         environmentalReadingDTO.setSensorSystem(sensorSystem);
 
-        EnvironmentalReading environmentalReading = new EnvironmentalReading();
-        environmentalReading.setSensorSystem(sensorSystem);
+        EnvironmentalReading pEnvironmentalReading = new EnvironmentalReading();
+        pEnvironmentalReading.setSensorSystem(sensorSystem);
 
         when(sensorSystemRepository.findSensorSystemById(any())).thenReturn(sensorSystem);
         when(authentication.getName()).thenReturn("TestUser");
         when(modelMapper.map(any(EnvironmentalReadingDTO.class), eq(EnvironmentalReading.class)))
-                .thenReturn(environmentalReading);
+                .thenReturn(pEnvironmentalReading);
         when(environmentalReadingRepository.save(any(EnvironmentalReading.class)))
-                .thenReturn(environmentalReading);
+                .thenReturn(pEnvironmentalReading);
         when(modelMapper.map(any(EnvironmentalReading.class), eq(EnvironmentalReadingDTO.class)))
                 .thenReturn(environmentalReadingDTO);
 
@@ -271,8 +271,8 @@ class EnvironmentalReadingServiceImplTest {
 
         environmentalReadingDTO.setSensorSystem(sensorSystem);
 
-        EnvironmentalReading environmentalReading = new EnvironmentalReading();
-        environmentalReading.setSensorSystem(sensorSystem);
+        EnvironmentalReading pEnvironmentalReading = new EnvironmentalReading();
+        pEnvironmentalReading.setSensorSystem(sensorSystem);
 
         when(sensorSystemRepository.findSensorSystemById(any())).thenReturn(sensorSystem);
         when(authentication.getName()).thenReturn("TestUser");
@@ -300,8 +300,8 @@ class EnvironmentalReadingServiceImplTest {
 
         environmentalReadingDTO.setSensorSystem(sensorSystem);
 
-        EnvironmentalReading environmentalReading = new EnvironmentalReading();
-        environmentalReading.setSensorSystem(sensorSystem);
+        EnvironmentalReading pEnvironmentalReading = new EnvironmentalReading();
+        pEnvironmentalReading.setSensorSystem(sensorSystem);
 
         when(sensorSystemRepository.findSensorSystemById(any())).thenReturn(sensorSystem);
         when(authentication.getName()).thenReturn("TestUser");
