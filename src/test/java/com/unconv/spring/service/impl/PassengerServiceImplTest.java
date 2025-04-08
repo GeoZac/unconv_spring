@@ -1,5 +1,6 @@
 package com.unconv.spring.service.impl;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.Passenger;
+import com.unconv.spring.enums.Gender;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.PassengerRepository;
 import java.time.LocalDate;
@@ -37,8 +39,14 @@ class PassengerServiceImplTest {
     @BeforeEach
     void setUp() {
         passengerId = 1L;
-        passenger = new Passenger();
-        passenger.setId(passengerId);
+        passenger =
+                new Passenger(
+                        passengerId,
+                        "Pierce",
+                        null,
+                        "Bronsnan",
+                        LocalDate.of(1953, 12, 4),
+                        Gender.MALE);
     }
 
     @Test
@@ -88,7 +96,17 @@ class PassengerServiceImplTest {
     }
 
     @Test
-    void findPassengerByFirstNameIgnoreCase() {}
+    void findPassengerByFirstNameIgnoreCase() {
+        String inputName = passenger.getFirstName().toUpperCase();
+        when(passengerRepository.findByFirstNameIgnoreCase(inputName))
+                .thenReturn(Optional.of(passenger));
+
+        Optional<Passenger> result = passengerService.findPassengerByFirstNameIgnoreCase(inputName);
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(passenger);
+        verify(passengerRepository).findByFirstNameIgnoreCase(inputName);
+    }
 
     @Test
     void savePassenger() {
