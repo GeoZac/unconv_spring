@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
@@ -19,6 +20,9 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -162,6 +166,29 @@ class SensorSystemServiceImplTest {
 
         assertTrue(result.isPresent());
         assertEquals(sensorSystem.getId(), result.get().getId());
+    }
+
+    @Test
+    void findSensorSystemDTOByIdWithReadingsPresent() {
+        when(sensorSystemRepository.findById(any(UUID.class)))
+                .thenReturn(Optional.of(sensorSystem));
+        when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                        any(UUID.class)))
+                .thenReturn(
+                        new EnvironmentalReading(
+                                UUID.randomUUID(),
+                                13L,
+                                75L,
+                                OffsetDateTime.of(
+                                        LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
+                                sensorSystem));
+
+        Optional<SensorSystemDTO> result =
+                sensorSystemService.findSensorSystemDTOById(sensorSystemId);
+
+        assertTrue(result.isPresent());
+        assertEquals(sensorSystem.getId(), result.get().getId());
+        assertNotEquals(null, result.get().getLatestReading());
     }
 
     @Test
