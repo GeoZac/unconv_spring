@@ -7,6 +7,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
@@ -41,6 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -60,7 +62,7 @@ class EnvironmentalReadingServiceImplTest {
 
     @Mock private ModelMapper modelMapper;
 
-    @InjectMocks private EnvironmentalReadingServiceImpl environmentalReadingService;
+    @Spy @InjectMocks private EnvironmentalReadingServiceImpl environmentalReadingService;
 
     private EnvironmentalReading environmentalReading;
     private UUID environmentalReadingId;
@@ -372,7 +374,32 @@ class EnvironmentalReadingServiceImplTest {
     }
 
     @Test
-    void verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings() {}
+    void verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings() {
+        SensorSystem mockSensorSystem = new SensorSystem();
+        String csvContent = "timestamp,value\n2024-01-01T00:00:00,23.5";
+        MockMultipartFile mockFile =
+                new MockMultipartFile(
+                        "file",
+                        "readings.csv",
+                        "text/csv",
+                        csvContent.getBytes(StandardCharsets.UTF_8));
+
+        try (MockedStatic<CSVUtil> mockedCsvUtil = mockStatic(CSVUtil.class)) {
+            mockedCsvUtil.when(() -> CSVUtil.isOfCSVFormat(mockFile)).thenReturn(true);
+            doReturn(5)
+                    .when(environmentalReadingService)
+                    .parseFromCSVAndSaveEnvironmentalReading(mockFile, mockSensorSystem);
+
+            ResponseEntity<String> response =
+                    environmentalReadingService
+                            .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                    mockSensorSystem, mockFile);
+
+            assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            assertTrue(response.getBody().contains("Uploaded the file successfully"));
+            assertTrue(response.getBody().contains("5 records"));
+        }
+    }
 
     @Test
     void getExtremeReadingsResponseBySensorSystemId() {
