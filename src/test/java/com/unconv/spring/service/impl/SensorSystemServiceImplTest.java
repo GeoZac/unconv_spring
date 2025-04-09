@@ -341,7 +341,41 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void findAllSensorSystemsBySensorName() {}
+    void findAllSensorSystemsBySensorName() {
+        String sensorName = "Temp";
+        UUID unconvUserId = UUID.randomUUID();
+
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Specific UnconvUser", "unconvuser@email.com", "password");
+
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(10)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen ->
+                                        gen.ints()
+                                                .range(0, 10)
+                                                .as(num -> sensorName + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        when(sensorSystemRepository
+                        .findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(
+                                sensorName))
+                .thenReturn(sensorSystems);
+
+        List<SensorSystem> actualList =
+                sensorSystemService.findAllSensorSystemsBySensorName(sensorName);
+
+        assertEquals(sensorSystems, actualList);
+        verify(sensorSystemRepository, times(1))
+                .findDistinctBySensorNameContainingIgnoreCaseOrderBySensorNameAsc(sensorName);
+    }
 
     @Test
     void findRecentStatsBySensorSystemId() {
