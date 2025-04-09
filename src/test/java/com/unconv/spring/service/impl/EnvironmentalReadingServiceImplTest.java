@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +24,12 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.projection.EnvironmentalReadingProjection;
+import com.unconv.spring.utils.CSVUtil;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -41,6 +48,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 
 @ExtendWith(MockitoExtension.class)
@@ -316,7 +324,45 @@ class EnvironmentalReadingServiceImplTest {
     }
 
     @Test
-    void parseFromCSVAndSaveEnvironmentalReading() {}
+    void parseFromCSVAndSaveEnvironmentalReading() {
+        SensorSystem mockSensorSystem = new SensorSystem();
+        String csvContent = "timestamp,value\n2024-01-01T00:00:00,23.5";
+        MockMultipartFile mockFile =
+                new MockMultipartFile(
+                        "file",
+                        "readings.csv",
+                        "text/csv",
+                        csvContent.getBytes(StandardCharsets.UTF_8));
+
+        EnvironmentalReading reading =
+                new EnvironmentalReading(
+                        UUID.randomUUID(),
+                        13L,
+                        75L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
+                        null);
+
+        List<EnvironmentalReading> readingList = List.of(reading);
+
+        // Mock the static method
+        try (MockedStatic<CSVUtil> mockedCsvUtil = mockStatic(CSVUtil.class)) {
+            mockedCsvUtil
+                    .when(
+                            () ->
+                                    CSVUtil.csvToEnvironmentalReadings(
+                                            any(InputStream.class), eq(mockSensorSystem)))
+                    .thenReturn(readingList);
+
+            when(environmentalReadingRepository.saveAll(readingList)).thenReturn(readingList);
+
+            int result =
+                    environmentalReadingService.parseFromCSVAndSaveEnvironmentalReading(
+                            mockFile, mockSensorSystem);
+
+            assertEquals(1, result);
+            verify(environmentalReadingRepository).saveAll(readingList);
+        }
+    }
 
     @Test
     void deleteEnvironmentalReadingById() {
