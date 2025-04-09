@@ -3,6 +3,7 @@ package com.unconv.spring.service.impl;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
+import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -349,5 +351,41 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
-    void findAllBySensorSystemsBySensorNameAndUnconvUserId() {}
+    void findAllBySensorSystemsBySensorNameAndUnconvUserId() {
+        String sensorName = "Temp";
+        UUID unconvUserId = UUID.randomUUID();
+
+        UnconvUser unconvUser =
+                new UnconvUser(
+                        unconvUserId, "Specific UnconvUser", "unconvuser@email.com", "password");
+
+        List<SensorSystem> sensorSystems =
+                Instancio.ofList(SensorSystem.class)
+                        .size(4)
+                        .ignore(field(SensorSystem::getSensorLocation))
+                        .supply(field(SensorSystem::getUnconvUser), () -> unconvUser)
+                        .generate(
+                                field(SensorSystem.class, "sensorName"),
+                                gen ->
+                                        gen.ints()
+                                                .range(0, 10)
+                                                .as(num -> sensorName + num.toString()))
+                        .ignore(field(SensorSystem::getHumidityThreshold))
+                        .ignore(field(SensorSystem::getTemperatureThreshold))
+                        .create();
+
+        when(sensorSystemRepository
+                        .findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
+                                sensorName, unconvUserId))
+                .thenReturn(sensorSystems);
+
+        List<SensorSystem> actualList =
+                sensorSystemService.findAllBySensorSystemsBySensorNameAndUnconvUserId(
+                        sensorName, unconvUserId);
+
+        assertEquals(sensorSystems, actualList);
+        verify(sensorSystemRepository, times(1))
+                .findDistinctBySensorNameContainsIgnoreCaseAndUnconvUserIdOrderBySensorNameAsc(
+                        sensorName, unconvUserId);
+    }
 }
