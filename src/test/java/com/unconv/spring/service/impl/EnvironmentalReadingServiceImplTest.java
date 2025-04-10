@@ -510,6 +510,31 @@ class EnvironmentalReadingServiceImplTest {
         assertEquals(20.0, response.getMinHumidity().getHumidity());
     }
 
+    @Test
+    void findBySensorSystemIdAndTimestampBetween() {
+        UUID sensorSystemId = UUID.randomUUID();
+        OffsetDateTime startTime = OffsetDateTime.now().minusHours(1);
+        OffsetDateTime endTime = OffsetDateTime.now();
+
+        EnvironmentalReading reading1 = new EnvironmentalReading();
+        EnvironmentalReading reading2 = new EnvironmentalReading();
+        List<EnvironmentalReading> expectedReadings = List.of(reading1, reading2);
+
+        when(environmentalReadingRepository.findBySensorSystemIdAndTimestampBetween(
+                        sensorSystemId, startTime, endTime))
+                .thenReturn(expectedReadings);
+
+        List<EnvironmentalReading> result =
+                environmentalReadingService.findBySensorSystemIdAndTimestampBetween(
+                        sensorSystemId, startTime, endTime);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedReadings, result);
+        verify(environmentalReadingRepository)
+                .findBySensorSystemIdAndTimestampBetween(sensorSystemId, startTime, endTime);
+    }
+
     public record MockEnvironmentalReadingProjection(
             double temperature, double humidity, OffsetDateTime timestamp)
             implements EnvironmentalReadingProjection {
