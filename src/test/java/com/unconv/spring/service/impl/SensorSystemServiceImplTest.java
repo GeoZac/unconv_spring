@@ -194,6 +194,16 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
+    void findSensorSystemDTOByIdWithEmptySensorSystem() {
+        when(sensorSystemRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        Optional<SensorSystemDTO> result =
+                sensorSystemService.findSensorSystemDTOById(sensorSystemId);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
     void isActiveSensorSystemWhenSensorSystemDeleted() {
         sensorSystem.setDeleted(true);
 
