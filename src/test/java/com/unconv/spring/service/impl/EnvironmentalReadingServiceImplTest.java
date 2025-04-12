@@ -1,5 +1,6 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
@@ -418,6 +419,29 @@ class EnvironmentalReadingServiceImplTest {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             assertTrue(response.getBody().contains("Uploaded the file successfully"));
             assertTrue(response.getBody().contains("5 records"));
+        }
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenFileIsNotCSVFormat() {
+        SensorSystem sensorSystem = new SensorSystem();
+        MockMultipartFile mockFile =
+                new MockMultipartFile(
+                        "file",
+                        "invalid.txt",
+                        "text/plain",
+                        "not csv".getBytes(StandardCharsets.UTF_8));
+
+        try (MockedStatic<CSVUtil> mockedCsvUtil = mockStatic(CSVUtil.class)) {
+            mockedCsvUtil.when(() -> CSVUtil.isOfCSVFormat(mockFile)).thenReturn(false);
+
+            ResponseEntity<String> response =
+                    environmentalReadingService
+                            .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                    sensorSystem, mockFile);
+
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertEquals(ENVT_FILE_FORMAT_ERROR, response.getBody());
         }
     }
 
