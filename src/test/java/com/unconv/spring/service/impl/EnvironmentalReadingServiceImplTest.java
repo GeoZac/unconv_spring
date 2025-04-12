@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
@@ -442,6 +443,32 @@ class EnvironmentalReadingServiceImplTest {
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
             assertEquals(ENVT_FILE_FORMAT_ERROR, response.getBody());
+        }
+    }
+
+    @Test
+    void shouldReturnExpectationFailedWhenExceptionOccursDuringParsing() {
+        SensorSystem sensorSystem = new SensorSystem();
+        MockMultipartFile mockFile =
+                new MockMultipartFile(
+                        "file",
+                        "readings.csv",
+                        "text/csv",
+                        "timestamp,value\n".getBytes(StandardCharsets.UTF_8));
+
+        try (MockedStatic<CSVUtil> mockedCsvUtil = mockStatic(CSVUtil.class)) {
+            mockedCsvUtil.when(() -> CSVUtil.isOfCSVFormat(mockFile)).thenReturn(true);
+            doThrow(new RuntimeException("Parsing error"))
+                    .when(environmentalReadingService)
+                    .parseFromCSVAndSaveEnvironmentalReading(mockFile, sensorSystem);
+
+            ResponseEntity<String> response =
+                    environmentalReadingService
+                            .verifyCSVFileAndValidateSensorSystemAndParseEnvironmentalReadings(
+                                    sensorSystem, mockFile);
+
+            assertEquals(HttpStatus.EXPECTATION_FAILED, response.getStatusCode());
+            assertTrue(response.getBody().contains(mockFile.getOriginalFilename()));
         }
     }
 
