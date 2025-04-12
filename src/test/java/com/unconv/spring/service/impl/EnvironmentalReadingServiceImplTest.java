@@ -26,6 +26,7 @@ import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.projection.EnvironmentalReadingProjection;
 import com.unconv.spring.utils.CSVUtil;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -52,6 +53,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class EnvironmentalReadingServiceImplTest {
@@ -364,6 +366,24 @@ class EnvironmentalReadingServiceImplTest {
             assertEquals(1, result);
             verify(environmentalReadingRepository).saveAll(readingList);
         }
+    }
+
+    @Test
+    void shouldThrowRuntimeExceptionOnIOExceptionWhenParsingCSVFile() throws IOException {
+
+        MultipartFile mockFile = mock(MultipartFile.class);
+        SensorSystem sensorSystem = new SensorSystem();
+
+        when(mockFile.getInputStream()).thenThrow(new IOException("Stream failure"));
+
+        RuntimeException ex =
+                assertThrows(
+                        RuntimeException.class,
+                        () ->
+                                environmentalReadingService.parseFromCSVAndSaveEnvironmentalReading(
+                                        mockFile, sensorSystem));
+
+        assertTrue(ex.getMessage().contains("Failed to read file data"));
     }
 
     @Test
