@@ -42,11 +42,29 @@ class OrderProductServiceImplTest {
     }
 
     @Test
-    void findAllOrderProducts() {
+    void findAllOrderProductsInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<OrderProduct> orderProductList = Collections.singletonList(orderProduct);
+        Page<OrderProduct> orderProductPage = new PageImpl<>(orderProductList);
+
+        when(orderProductRepository.findAll(any(Pageable.class))).thenReturn(orderProductPage);
+
+        PagedResult<OrderProduct> result =
+                orderProductService.findAllOrderProducts(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(orderProductList.size(), result.data().size());
+        assertEquals(orderProductList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllOrderProductsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<OrderProduct> orderProductList = Collections.singletonList(orderProduct);
         Page<OrderProduct> orderProductPage = new PageImpl<>(orderProductList);
 
