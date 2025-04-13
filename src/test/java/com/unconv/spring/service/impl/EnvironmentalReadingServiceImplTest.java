@@ -219,6 +219,7 @@ class EnvironmentalReadingServiceImplTest {
         unconvUser.setUsername("TestUser");
         sensorSystem.setUnconvUser(unconvUser);
 
+        environmentalReadingDTO.setTimestamp(OffsetDateTime.now());
         environmentalReadingDTO.setSensorSystem(sensorSystem);
 
         EnvironmentalReading pEnvironmentalReading = new EnvironmentalReading();
