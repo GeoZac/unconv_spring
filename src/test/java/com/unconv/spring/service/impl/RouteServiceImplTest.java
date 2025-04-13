@@ -41,11 +41,28 @@ class RouteServiceImplTest {
     }
 
     @Test
-    void findAllRoutes() {
+    void findAllRoutesInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<Route> routeList = Collections.singletonList(route);
+        Page<Route> routePage = new PageImpl<>(routeList);
+
+        when(routeRepository.findAll(any(Pageable.class))).thenReturn(routePage);
+
+        PagedResult<Route> result = routeService.findAllRoutes(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(routeList.size(), result.data().size());
+        assertEquals(routeList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllRoutesInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<Route> routeList = Collections.singletonList(route);
         Page<Route> routePage = new PageImpl<>(routeList);
 
