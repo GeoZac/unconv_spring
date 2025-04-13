@@ -96,12 +96,21 @@ class UnconvUserServiceImplTest {
     }
 
     @Test
-    void isUsernameUnique() {
+    void isUsernameUniqueWhenUnique() {
         when(unconvUserRepository.existsByUsername(any(String.class))).thenReturn(true);
 
         boolean result = unconvUserService.isUsernameUnique("U$erName");
 
         assertFalse(result);
+    }
+
+    @Test
+    void isUsernameUniqueWhenNotUnique() {
+        when(unconvUserRepository.existsByUsername(any(String.class))).thenReturn(false);
+
+        boolean result = unconvUserService.isUsernameUnique("U$erName");
+
+        assertTrue(result);
     }
 
     @Test
