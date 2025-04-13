@@ -44,11 +44,29 @@ class SensorLocationServiceImplTest {
     }
 
     @Test
-    void findAllSensorLocations() {
+    void findAllSensorLocationsInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<SensorLocation> sensorLocationList = Collections.singletonList(sensorLocation);
+        Page<SensorLocation> sensorLocationPage = new PageImpl<>(sensorLocationList);
+
+        when(sensorLocationRepository.findAll(any(Pageable.class))).thenReturn(sensorLocationPage);
+
+        PagedResult<SensorLocation> result =
+                sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(sensorLocationList.size(), result.data().size());
+        assertEquals(sensorLocationList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllSensorLocationsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<SensorLocation> sensorLocationList = Collections.singletonList(sensorLocation);
         Page<SensorLocation> sensorLocationPage = new PageImpl<>(sensorLocationList);
 
