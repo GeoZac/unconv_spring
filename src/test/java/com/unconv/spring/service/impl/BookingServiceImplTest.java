@@ -41,11 +41,29 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void findAllBookings() {
+    void findAllBookingsInAscendingOrder() {
         int pageNo = 0;
         int pageSize = 10;
         String sortBy = "id";
         String sortDir = "ASC";
+        List<Booking> bookingList = Collections.singletonList(booking);
+        Page<Booking> bookingPage = new PageImpl<>(bookingList);
+
+        when(bookingRepository.findAll(any(Pageable.class))).thenReturn(bookingPage);
+
+        PagedResult<Booking> result =
+                bookingService.findAllBookings(pageNo, pageSize, sortBy, sortDir);
+
+        assertEquals(bookingList.size(), result.data().size());
+        assertEquals(bookingList.get(0).getId(), result.data().get(0).getId());
+    }
+
+    @Test
+    void findAllBookingsInDescendingOrder() {
+        int pageNo = 0;
+        int pageSize = 10;
+        String sortBy = "id";
+        String sortDir = "DESC";
         List<Booking> bookingList = Collections.singletonList(booking);
         Page<Booking> bookingPage = new PageImpl<>(bookingList);
 
