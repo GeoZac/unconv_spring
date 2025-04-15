@@ -104,7 +104,7 @@ class PassengerServiceImplTest {
         Optional<Passenger> result = passengerService.findPassengerByFirstNameIgnoreCase(inputName);
 
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(passenger);
+        assertThat(passenger).isEqualTo(result.get());
         verify(passengerRepository).findByFirstNameIgnoreCase(inputName);
     }
 
