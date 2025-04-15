@@ -219,6 +219,13 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -412,7 +419,6 @@
                                 <exclude>**/utils/*</exclude>
                                 <exclude>**/*Constants*</exclude>
                                 <exclude>**/security/**</exclude>
-                                <exclude>**/service/impl/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
