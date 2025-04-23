@@ -40,6 +40,7 @@ class SensorAuthTokenExpiryReminderTest {
         mockUser.setEmail("john@example.com");
 
         SensorSystem mockSystem = new SensorSystem();
+        mockSystem.setSensorName("Mock System");
         mockSystem.setUnconvUser(mockUser);
 
         SensorAuthToken mockToken = new SensorAuthToken();
@@ -52,13 +53,16 @@ class SensorAuthTokenExpiryReminderTest {
         reminder.remindSensorAuthTokenExpiry();
 
         verify(emailClient)
-                .sendEmail(
+                .sendEmailWithHTMLContent(
                         eq("john@example.com"),
-                        eq("Sensor Auth Token Expiry Reminder"),
+                        eq("⚠️ Sensor Auth Token Expiry Reminder"),
                         argThat(
                                 body ->
                                         body.contains("john_doe")
-                                                && body.contains(mockToken.getId().toString())));
+                                                && body.contains(
+                                                        mockToken
+                                                                .getSensorSystem()
+                                                                .getSensorName())));
     }
 
     @Test
