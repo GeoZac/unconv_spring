@@ -5,8 +5,10 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.external.EmailClient;
 import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,6 +36,9 @@ public class SensorAuthTokenExpiryReminder {
             if (Math.abs(monthsDifference) < 1) {
                 UnconvUser user = sensorAuthToken.getSensorSystem().getUnconvUser();
                 String email = user.getEmail();
+                DateTimeFormatter formatter =
+                        DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm 'UTC'", Locale.ENGLISH);
+                String prettyTimeString = expiryTime.format(formatter);
                 String subject = "⚠️ Sensor Auth Token Expiry Reminder";
 
                 String body =
@@ -54,7 +59,7 @@ public class SensorAuthTokenExpiryReminder {
                         """,
                                 user.getUsername(),
                                 sensorAuthToken.getSensorSystem().getSensorName(),
-                                expiryTime.toLocalDateTime());
+                                prettyTimeString);
 
                 emailClient.sendEmailWithHTMLContent(email, subject, body);
             }
