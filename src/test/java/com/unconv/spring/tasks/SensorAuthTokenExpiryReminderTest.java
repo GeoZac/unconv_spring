@@ -1,7 +1,9 @@
 package com.unconv.spring.tasks;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,5 +59,29 @@ class SensorAuthTokenExpiryReminderTest {
                                 body ->
                                         body.contains("john_doe")
                                                 && body.contains(mockToken.getId().toString())));
+    }
+
+    @Test
+    void shouldNotSendEmailWhenTokenDoesNotExpireThisMonth() {
+
+        OffsetDateTime expiry = OffsetDateTime.now().plusMonths(2);
+
+        UnconvUser mockUser = new UnconvUser();
+        mockUser.setUsername("jane_doe");
+        mockUser.setEmail("jane@example.com");
+
+        SensorSystem mockSystem = new SensorSystem();
+        mockSystem.setUnconvUser(mockUser);
+
+        SensorAuthToken mockToken = new SensorAuthToken();
+        mockToken.setId(UUID.randomUUID());
+        mockToken.setExpiry(expiry);
+        mockToken.setSensorSystem(mockSystem);
+
+        when(sensorAuthTokenService.findAllSensorAuthTokens()).thenReturn(List.of(mockToken));
+
+        reminder.remindSensorAuthTokenExpiry();
+
+        verify(emailClient, never()).sendEmail(any(), any(), any());
     }
 }
