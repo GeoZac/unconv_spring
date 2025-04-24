@@ -311,7 +311,8 @@
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     <runOrder>alphabetical</runOrder>
                     <reportsDirectory>${junit.itReportFolder}</reportsDirectory>
-                    <forkCount>4</forkCount>
+                    <forkCount>2</forkCount>
+                    <argLine>-Xms4g -Xmx8g</argLine>
                     <reuseForks>true</reuseForks>
                     <parallel>classesAndMethods</parallel>
                     <threadCount>8</threadCount>
