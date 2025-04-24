@@ -58,9 +58,7 @@ public class SensorSystem {
     @NotNull(message = "Sensor status cannot be null")
     private SensorStatus sensorStatus;
 
-    @ManyToOne(
-            fetch = FetchType.EAGER,
-            cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "sensor_location_id")
     private SensorLocation sensorLocation;
 
