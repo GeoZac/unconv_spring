@@ -313,8 +313,8 @@
                     <reportsDirectory>${junit.itReportFolder}</reportsDirectory>
                     <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
-                    <parallel>all</parallel>
-                    <threadCount>4</threadCount>
+                    <parallel>classesAndMethods</parallel>
+                    <threadCount>8</threadCount>
                     <includes>
                         <include>**/*IT*</include>
                         <include>**/*IntTest*</include>
