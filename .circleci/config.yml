@@ -98,7 +98,6 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - show_java_version
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
