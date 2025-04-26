@@ -219,6 +219,16 @@ workflows:
       - test:
           requires:
             - setup
+      - smoke_test:
+          requires:
+            - test
+          filters:
+            branches:
+                only:
+                - master
+                - /dependabot\/.*/
+                - /chore\/.*/
+                - /infra\/.*/
       - analyse:
           context: SonarCloud
           requires:
