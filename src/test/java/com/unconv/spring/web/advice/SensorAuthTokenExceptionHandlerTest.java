@@ -8,11 +8,11 @@ import com.unconv.spring.exception.ExpiredAuthTokenException;
 import com.unconv.spring.exception.InvalidTokenLengthException;
 import com.unconv.spring.exception.MalformedAuthTokenException;
 import com.unconv.spring.exception.UnknownAuthTokenException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
