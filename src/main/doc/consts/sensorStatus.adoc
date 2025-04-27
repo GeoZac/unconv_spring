@@ -1,5 +1,3 @@
-    The `SensorStatus` enum represents the different states or statuses that a sensor can have. It is designed to indicate whether a sensor is currently active or inactive.
-
 ===== Enum Constants
 
 The enum has the following constants:
