@@ -1,4 +1,4 @@
-===== Fields
+==== Fields
 
 - `id` (UUID): Unique identifier for the role.
 
