@@ -37,13 +37,13 @@ public class EnvironmentalReading {
 
     @DecimalMin(value = "-9999.000")
     @DecimalMax(value = "9999.000")
-    @Column(nullable = false, precision = 7, scale = 3)
+    @Column(nullable = false, precision = 7)
     @NotNull(message = "Temperature cannot be empty")
     private double temperature;
 
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.00")
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(nullable = false, precision = 5)
     @NotNull(message = "Humidity cannot be empty")
     private double humidity;
 
