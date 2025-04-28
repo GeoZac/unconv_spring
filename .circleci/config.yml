@@ -120,7 +120,7 @@ jobs:
             echo "Waiting for application to be ready..."
             for i in {1..30}; do
               echo "Attempt $i: Checking if app is ready inside container..."
-              if docker exec unconv-spring-container curl --fail --silent http://localhost:8080/public/status/v1/version; then
+              if docker exec unconv-spring-container wget --quiet --spider http://localhost:8080/public/status/v1/version; then
                 echo "App is ready inside container!"
                 exit 0
               fi
