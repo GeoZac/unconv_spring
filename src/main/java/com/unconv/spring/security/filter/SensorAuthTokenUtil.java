@@ -10,7 +10,6 @@ import com.unconv.spring.exception.UnknownAuthTokenException;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import java.time.OffsetDateTime;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,6 @@ public class SensorAuthTokenUtil {
      *
      * @param sensorAuthTokenRepository the repository for sensor auth tokens
      */
-    @Autowired
     public SensorAuthTokenUtil(SensorAuthTokenRepository sensorAuthTokenRepository) {
         this.sensorAuthTokenRepository = sensorAuthTokenRepository;
     }

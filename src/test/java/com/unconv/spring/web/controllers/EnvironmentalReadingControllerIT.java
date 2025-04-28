@@ -1044,7 +1044,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = String.format(ENVT_FILE_REJ_ERR, "test.csv");
+        String expectedResponse = ENVT_FILE_REJ_ERR.formatted("test.csv");
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =

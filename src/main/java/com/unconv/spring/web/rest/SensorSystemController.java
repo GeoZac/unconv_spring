@@ -55,22 +55,18 @@ public class SensorSystemController {
     @GetMapping
     public PagedResult<SensorSystemDTO> getAllSensorSystems(
             @RequestParam(
-                            value = "pageNo",
                             defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
                             required = false)
                     int pageNo,
             @RequestParam(
-                            value = "pageSize",
                             defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
                             required = false)
                     int pageSize,
             @RequestParam(
-                            value = "sortBy",
                             defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
-                            value = "sortDir",
                             defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
@@ -91,22 +87,18 @@ public class SensorSystemController {
     public PagedResult<SensorSystemDTO> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId,
             @RequestParam(
-                            value = "pageNo",
                             defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
                             required = false)
                     int pageNo,
             @RequestParam(
-                            value = "pageSize",
                             defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
                             required = false)
                     int pageSize,
             @RequestParam(
-                            value = "sortBy",
                             defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
-                            value = "sortDir",
                             defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
                             required = false)
                     String sortDir) {

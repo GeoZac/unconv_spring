@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -51,7 +50,6 @@ public class SensorAuthTokenController {
      * @param sensorSystemService the service for sensor systems
      * @param modelMapper the model mapper
      */
-    @Autowired
     public SensorAuthTokenController(
             SensorAuthTokenService sensorAuthTokenService,
             SensorSystemService sensorSystemService,
@@ -73,22 +71,18 @@ public class SensorAuthTokenController {
     @GetMapping
     public PagedResult<SensorAuthToken> getAllSensorAuthTokens(
             @RequestParam(
-                            value = "pageNo",
                             defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
                             required = false)
                     int pageNo,
             @RequestParam(
-                            value = "pageSize",
                             defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
                             required = false)
                     int pageSize,
             @RequestParam(
-                            value = "sortBy",
                             defaultValue = AppConstants.DEFAULT_SORT_BY,
                             required = false)
                     String sortBy,
             @RequestParam(
-                            value = "sortDir",
                             defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
                             required = false)
                     String sortDir) {
