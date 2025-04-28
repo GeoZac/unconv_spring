@@ -93,6 +93,44 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
+  smoke_test:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - setup_remote_docker
+
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t unconv-spring:test .
+
+      - run:
+          name: Run container
+          command: |
+            docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
+
+      - run:
+          name: Wait for container and test HTTP endpoint
+          command: |
+            echo "Waiting for application to be ready..."
+            for i in {1..30}; do
+              echo "Attempt $i: Checking if app is ready inside container..."
+              if docker exec unconv-spring-container wget --quiet --spider http://localhost:8080/public/status/v1/version; then
+                echo "App is ready inside container!"
+                exit 0
+              fi
+              echo "App not ready yet inside container... retrying in 5 seconds"
+              sleep 5
+            done
+            echo "App failed to start inside container after 30 retries. Showing container logs:"
+            docker logs unconv-spring-container
+            exit 1
+
   analyse:
     machine:
       image: ubuntu-2004:current
@@ -181,6 +219,16 @@ workflows:
       - test:
           requires:
             - setup
+      - smoke_test:
+          requires:
+            - test
+          filters:
+            branches:
+                only:
+                - master
+                - /dependabot\/.*/
+                - /chore\/.*/
+                - /infra\/.*/
       - analyse:
           context: SonarCloud
           requires:

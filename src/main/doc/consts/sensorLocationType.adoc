@@ -1,6 +1,4 @@
-    The `SensorLocationType` enum represents different types of sensor locations. It is designed to categorize sensors based on whether they are placed indoors or outdoors.
-
-===== Enum Constants
+==== Enum Constants
 
 The enum has the following constants:
 
