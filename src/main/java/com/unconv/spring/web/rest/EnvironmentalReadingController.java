@@ -80,21 +80,13 @@ public class EnvironmentalReadingController {
      */
     @GetMapping
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadings(
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION, required = false)
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadings(
                 pageNo, pageSize, sortBy, sortDir);
@@ -116,21 +108,13 @@ public class EnvironmentalReadingController {
     @GetMapping("SensorSystem/{sensorSystemId}")
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadingsBySensorSystemId(
             @PathVariable UUID sensorSystemId,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION, required = false)
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
                 sensorSystemId, pageNo, pageSize, sortBy, sortDir);

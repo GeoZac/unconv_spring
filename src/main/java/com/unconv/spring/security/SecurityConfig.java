@@ -56,25 +56,27 @@ public class SecurityConfig {
 
         http
                 // Disable CSRF protection if using it in Postman
-                .csrf(csrf -> csrf
-                        .disable())
+                .csrf(csrf -> csrf.disable())
 
                 // Configure request authorization
-                .authorizeHttpRequests(requests -> requests
+                .authorizeHttpRequests(
+                        requests ->
+                                requests
 
-                        // Allow specific URLs without authentication
-                        .requestMatchers(HttpMethod.GET, "/UnconvUser/Username/Available/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/UnconvUser")
-                        .permitAll()
-                        .requestMatchers("/public/**")
-                        .permitAll()
-                        .requestMatchers("/favicon.ico")
-                        .permitAll()
+                                        // Allow specific URLs without authentication
+                                        .requestMatchers(
+                                                HttpMethod.GET, "/UnconvUser/Username/Available/**")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/UnconvUser")
+                                        .permitAll()
+                                        .requestMatchers("/public/**")
+                                        .permitAll()
+                                        .requestMatchers("/favicon.ico")
+                                        .permitAll()
 
-                        // Require authentication for any other request
-                        .anyRequest()
-                        .authenticated())
+                                        // Require authentication for any other request
+                                        .anyRequest()
+                                        .authenticated())
                 .addFilterBefore(
                         new ExceptionHandlerFilter(sensorAuthTokenExceptionHandler),
                         AuthenticationFilter.class)
@@ -86,8 +88,9 @@ public class SecurityConfig {
                         AuthenticationFilter.class)
 
                 // Configure session management
-                .sessionManagement(management -> management
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(
+                        management ->
+                                management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.exceptionHandling(
                 exceptionHandling ->

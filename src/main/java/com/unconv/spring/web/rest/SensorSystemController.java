@@ -54,21 +54,13 @@ public class SensorSystemController {
      */
     @GetMapping
     public PagedResult<SensorSystemDTO> getAllSensorSystems(
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SS_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION, required = false)
                     String sortDir) {
         return sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
     }
@@ -86,21 +78,13 @@ public class SensorSystemController {
     @GetMapping("UnconvUser/{unconvUserId}")
     public PagedResult<SensorSystemDTO> getAllSensorSystemsByUnconvUserId(
             @PathVariable UUID unconvUserId,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_SS_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SS_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SS_SORT_DIRECTION, required = false)
                     String sortDir) {
         return sensorSystemService.findAllSensorSystemsByUnconvUserId(
                 unconvUserId, pageNo, pageSize, sortBy, sortDir);
