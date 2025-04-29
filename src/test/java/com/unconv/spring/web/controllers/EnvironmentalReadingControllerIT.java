@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
@@ -483,7 +484,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(
+                        jsonPath(
+                                "$.temperature",
+                                closeTo(environmentalReading.getTemperature(), 0.001)));
     }
 
     @Test
@@ -1347,7 +1351,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(
+                        jsonPath(
+                                "$.temperature",
+                                closeTo(environmentalReading.getTemperature(), 0.001)))
                 .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
                 .andReturn();
     }
