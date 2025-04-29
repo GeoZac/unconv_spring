@@ -205,14 +205,14 @@ workflows:
   build-and-test:
     jobs:
       - setup
-      - owasp/maven_owasp_dependency_check:
-          filters:
-            branches:
-                only:
-                - master
-                - /dependabot\/.*/
-                - /chore\/.*/
-                - /infra\/.*/
+      - owasp/maven_owasp_dependency_check
+          # filters:
+          #   branches:
+          #       only:
+          #       - master
+          #       - /dependabot\/.*/
+          #       - /chore\/.*/
+          #       - /infra\/.*/
       - build:
           requires:
             - setup
@@ -229,14 +229,14 @@ workflows:
       - doc:
           requires:
             - test
-          filters:
-            branches:
-                only:
-                - /docs\/.*/
-                - /infra\/.*/
-                - master
-            tags:
-                only: /^v.*/
+          # filters:
+          #   branches:
+          #       only:
+          #       - /docs\/.*/
+          #       - /infra\/.*/
+          #       - master
+          #   tags:
+          #       only: /^v.*/
       - docker/hadolint
       - docker/publish:
           deploy: false
