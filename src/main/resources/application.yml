@@ -28,7 +28,7 @@ spring:
             auto-commit: false
     h2:
         console:
-            enabled: true
+            enabled: false
     jmx:
         enabled: false
     jpa:
