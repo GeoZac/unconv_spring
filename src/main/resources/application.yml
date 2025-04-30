@@ -26,6 +26,9 @@ spring:
     datasource:
         hikari:
             auto-commit: false
+    h2:
+        console:
+            enabled: true
     jmx:
         enabled: false
     jpa:
