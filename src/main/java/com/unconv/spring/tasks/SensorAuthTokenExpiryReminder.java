@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Component
 @EnableScheduling
@@ -21,6 +23,8 @@ public class SensorAuthTokenExpiryReminder {
     @Autowired private SensorAuthTokenService sensorAuthTokenService;
 
     @Autowired private EmailClient emailClient;
+
+    @Autowired private SpringTemplateEngine templateEngine;
 
     @Scheduled(fixedRate = 604800000)
     public void remindSensorAuthTokenExpiry() {
@@ -41,25 +45,14 @@ public class SensorAuthTokenExpiryReminder {
                 String prettyTimeString = expiryTime.format(formatter);
                 String subject = "⚠️ Sensor Auth Token Expiry Reminder";
 
+                Context context = new Context();
+                context.setVariable("username", user.getUsername());
+                context.setVariable(
+                        "sensorName", sensorAuthToken.getSensorSystem().getSensorName());
+                context.setVariable("expiryDate", prettyTimeString);
+
                 String body =
-                        String.format(
-                                """
-                        <html>
-                        <body>
-                            <p>Dear <strong>%s</strong>,</p>
-                            <p>This is a reminder that your sensor auth token is about to expire.</p>
-                            <table style="border: 1px solid #ccc; padding: 10px;">
-                                <tr><td><b>Sensor Name:</b></td><td>%s</td></tr>
-                                <tr><td><b>Expiry Date:</b></td><td>%s</td></tr>
-                            </table>
-                            <p>Please renew it before the expiry to avoid service interruption.</p>
-                            <p style="margin-top: 20px;">Best regards,<br/>Sensor Monitoring Team</p>
-                        </body>
-                        </html>
-                        """,
-                                user.getUsername(),
-                                sensorAuthToken.getSensorSystem().getSensorName(),
-                                prettyTimeString);
+                        templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
 
                 emailClient.sendEmailWithHTMLContent(email, subject, body);
             }
