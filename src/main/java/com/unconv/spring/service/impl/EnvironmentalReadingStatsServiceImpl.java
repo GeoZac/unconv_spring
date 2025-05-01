@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ public class EnvironmentalReadingStatsServiceImpl implements EnvironmentalReadin
      *
      * @param environmentalReadingRepository the repository for accessing environmental reading data
      */
-    @Autowired
     public EnvironmentalReadingStatsServiceImpl(
             EnvironmentalReadingRepository environmentalReadingRepository) {
         this.environmentalReadingRepository = environmentalReadingRepository;

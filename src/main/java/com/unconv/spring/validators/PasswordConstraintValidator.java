@@ -1,11 +1,11 @@
 package com.unconv.spring.validators;
 
 import com.unconv.spring.annotation.ValidPassword;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;

@@ -11,13 +11,12 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.EnvironmentalReadingService;
 import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.service.UnconvUserService;
+import jakarta.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -59,7 +58,6 @@ public class EnvironmentalReadingController {
      * @param unconvUserService the service to manage user-specific functionalities
      * @param modelMapper the mapper to convert between DTOs and entities
      */
-    @Autowired
     public EnvironmentalReadingController(
             EnvironmentalReadingService environmentalReadingService,
             SensorSystemService sensorSystemService,
@@ -82,25 +80,13 @@ public class EnvironmentalReadingController {
      */
     @GetMapping
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadings(
-            @RequestParam(
-                            value = "pageNo",
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            value = "pageSize",
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION, required = false)
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadings(
                 pageNo, pageSize, sortBy, sortDir);
@@ -122,25 +108,13 @@ public class EnvironmentalReadingController {
     @GetMapping("SensorSystem/{sensorSystemId}")
     public PagedResult<EnvironmentalReading> getAllEnvironmentalReadingsBySensorSystemId(
             @PathVariable UUID sensorSystemId,
-            @RequestParam(
-                            value = "pageNo",
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            value = "pageSize",
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_ER_SORT_DIRECTION, required = false)
                     String sortDir) {
         return environmentalReadingService.findAllEnvironmentalReadingsBySensorSystemId(
                 sensorSystemId, pageNo, pageSize, sortBy, sortDir);
@@ -283,7 +257,7 @@ public class EnvironmentalReadingController {
      */
     @PostMapping("/Bulk/SensorSystem/{sensorSystemId}")
     public ResponseEntity<String> uploadFile(
-            @PathVariable UUID sensorSystemId, @RequestParam("file") MultipartFile file) {
+            @PathVariable UUID sensorSystemId, @RequestParam MultipartFile file) {
         return sensorSystemService
                 .findSensorSystemById(sensorSystemId)
                 .map(

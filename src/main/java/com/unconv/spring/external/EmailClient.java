@@ -1,8 +1,7 @@
 package com.unconv.spring.external;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -31,7 +30,6 @@ public class EmailClient {
      * @param mailHost the host of the email server; used to verify if email configuration is
      *     complete
      */
-    @Autowired
     public EmailClient(
             JavaMailSender mailSender,
             @Value("${spring.mail.username:}") String fromAddress,
