@@ -57,9 +57,14 @@ Unconventional Spring Project tries to adhere as closely as possible to standard
 
 === SensorStatus
 
+    The `SensorStatus` enum represents the different states or statuses that a sensor can have. It is designed to indicate whether a sensor is currently active or inactive.
+
+
 include::consts/sensorStatus.adoc[]
 
 === SensorLocationType
+
+    The `SensorLocationType` enum represents different types of sensor locations. It is designed to categorize sensors based on whether they are placed indoors or outdoors.
 
 include::consts/sensorLocationType.adoc[]
 

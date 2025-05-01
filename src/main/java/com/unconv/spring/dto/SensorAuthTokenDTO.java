@@ -2,11 +2,11 @@ package com.unconv.spring.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.unconv.spring.domain.SensorSystem;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import javax.validation.constraints.Future;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
