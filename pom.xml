@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
+        <version>3.0.13</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.unconv.spring</groupId>
@@ -19,9 +19,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <java.version>17</java.version>
-        <spring-cloud.version>2021.0.4</spring-cloud.version>
-        <problem-spring-web.version>0.27.0</problem-spring-web.version>
-        <springdoc-openapi.version>1.8.0</springdoc-openapi.version>
+        <spring-cloud.version>2022.0.5</spring-cloud.version>
+        <problem-spring-web.version>0.29.1</problem-spring-web.version>
+        <springdoc-openapi.version>2.1.0</springdoc-openapi.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <commons-io.version>2.19.0</commons-io.version>
         <jackson.version>2.19.0</jackson.version>
@@ -101,13 +101,12 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-openapi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -121,9 +120,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.6.15.Final</version>
+            <version>6.1.7.Final</version>
         </dependency>
 
         <dependency>
@@ -134,7 +133,6 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -161,7 +159,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>4.2.2.RELEASE</version>
+            <version>6.0.8</version>
             <scope>test</scope>
         </dependency>
 
@@ -226,10 +224,27 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>6.1.7.Final</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -270,6 +285,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
                 <executions>
                     <execution>
                         <goals>
@@ -292,7 +308,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
                     <reportsDirectory>${junit.utReportFolder}</reportsDirectory>
@@ -306,7 +321,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     <runOrder>alphabetical</runOrder>
@@ -534,10 +548,11 @@
                     <show>private</show>
                     <nohelp>true</nohelp>
                     <links>
-                        <link>https://javadoc.io/doc/org.zalando/problem/${problem-spring-web.version}/</link>
-                        <link>https://javadoc.io/doc/org.zalando/problem-spring-web/${problem-spring-web.version}/</link>
-                        <link>https://javadoc.io/doc/org.zalando/problem-spring-common/${problem-spring-web.version}/</link>
-                        <link>https://javadoc.io/doc/org.zalando/problem-violations/${problem-spring-web.version}/</link>
+                        <!-- TODO: Revert 'latest' Javadoc links back to version specific -->
+                        <link>https://javadoc.io/doc/org.zalando/problem/latest/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-web/latest/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-common/latest/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-violations/latest/</link>
                         
                         <link>https://javadoc.io/doc/com.auth0/java-jwt/4.4.0/</link>
 
