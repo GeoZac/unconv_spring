@@ -15,7 +15,7 @@ public class DBContainerInitializer
 
     @Container
     public static final PostgreSQLContainer<?> sqlContainer =
-            new PostgreSQLContainer<>("postgres:11.1")
+            new PostgreSQLContainer<>("postgres:15")
                     .withDatabaseName("integration-tests-db")
                     .withUsername("username")
                     .withPassword("password");
