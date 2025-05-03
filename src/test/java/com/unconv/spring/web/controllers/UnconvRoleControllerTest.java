@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
@@ -23,15 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.UnconvRoleService;
 import com.unconv.spring.web.rest.UnconvRoleController;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -40,6 +43,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -56,6 +61,10 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
     private List<UnconvRole> unconvRoleList;
 
+    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -67,33 +76,45 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        this.unconvRoleList = new ArrayList<>();
-        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_A"));
-        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_B"));
-        this.unconvRoleList.add(new UnconvRole(UUID.randomUUID(), "ROLE_C"));
+        unconvRoleList = Instancio.ofList(UnconvRole.class).size(30).create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        totalPages = (int) Math.ceil((double) unconvRoleList.size() / DEFAULT_PAGE_SIZE);
     }
 
     @Test
     void shouldFetchAllUnconvRoles() throws Exception {
-        Page<UnconvRole> page = new PageImpl<>(unconvRoleList);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+
+        int dataSize = unconvRoleList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        List<UnconvRole> pagedReadings = unconvRoleList.subList(start, end);
+
+        Page<UnconvRole> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
+
         PagedResult<UnconvRole> unconvRolePagedResult = new PagedResult<>(page);
-        given(unconvRoleService.findAllUnconvRoles(0, 10, "id", "asc"))
+        given(
+                        unconvRoleService.findAllUnconvRoles(
+                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
                 .willReturn(unconvRolePagedResult);
 
         this.mockMvc
                 .perform(get("/UnconvRole").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvRoles", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvRoleList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 

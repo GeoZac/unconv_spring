@@ -5,8 +5,8 @@ import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.dto.HumidityThresholdDTO;
 import com.unconv.spring.dto.TemperatureThresholdDTO;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Validator for validating threshold values. This class implements {@link ConstraintValidator} to

@@ -1,12 +1,12 @@
 package com.unconv.spring.annotation;
 
 import com.unconv.spring.validators.ThresholdValidator;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import javax.validation.Constraint;
-import javax.validation.Payload;
 
 /**
  * An annotation to validate that a minimum value is less than a maximum value within a class.

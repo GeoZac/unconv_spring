@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +45,6 @@ public class UnconvUserServiceImpl implements UnconvUserService {
      * @param unconvRoleService the service for managing UnconvRole entities
      * @param modelMapper the mapper for converting between DTOs and entities
      */
-    @Autowired
     public UnconvUserServiceImpl(
             UnconvUserRepository unconvUserRepository,
             UnconvRoleService unconvRoleService,
