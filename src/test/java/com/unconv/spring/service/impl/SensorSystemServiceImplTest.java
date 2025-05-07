@@ -141,18 +141,6 @@ class SensorSystemServiceImplTest {
 
         Page<SensorSystem> sensorLocationPage = new PageImpl<>(sensorSystemList);
 
-        when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                        any(UUID.class)))
-                .thenReturn(
-                        new EnvironmentalReading(
-                                UUID.randomUUID(),
-                                13L,
-                                75L,
-                                OffsetDateTime.of(
-                                        LocalDateTime.of(2023, 1, 17, 17, 39), ZoneOffset.UTC),
-                                sensorSystem))
-                .thenReturn(null);
-
         when(sensorSystemRepository.findByUnconvUserIdAndDeletedFalse(
                         any(UUID.class), any(Pageable.class)))
                 .thenReturn(sensorLocationPage);
