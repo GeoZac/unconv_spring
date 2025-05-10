@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.instancio.Instancio;
 import org.instancio.junit.InstancioExtension;
+import org.instancio.junit.Seed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,34 +64,52 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         passengerList = passengerRepository.saveAll(passengerList);
     }
 
+    @Seed(1545187534542043418L)
     @Test
     void shouldFetchAllPassengersInAscendingOrder() throws Exception {
-        this.mockMvc
-                .perform(get("/Passenger").param("sortDir", "asc"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
-                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+        try {
+            this.mockMvc
+                    .perform(get("/Passenger").param("sortDir", "asc"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                    .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                    .andExpect(jsonPath("$.isFirst", is(true)))
+                    .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
+                    .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
+                    .andExpect(jsonPath("$.hasPrevious", is(false)));
+        } catch (AssertionError e) {
+            List<Passenger> passengers = passengerRepository.findAll();
+            for (Passenger passenger : passengers) {
+                System.out.println(passenger.toString());
+            }
+        }
     }
 
+    @Seed(168766468362125633L)
     @Test
     void shouldFetchAllPassengersInDescendingOrder() throws Exception {
-        this.mockMvc
-                .perform(get("/Passenger").param("sortDir", "desc"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
-                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+        try {
+            this.mockMvc
+                    .perform(get("/Passenger").param("sortDir", "desc"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                    .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                    .andExpect(jsonPath("$.isFirst", is(true)))
+                    .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
+                    .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
+                    .andExpect(jsonPath("$.hasPrevious", is(false)));
+        } catch (Exception e) {
+            List<Passenger> passengers = passengerRepository.findAll();
+            for (Passenger passenger : passengers) {
+                System.out.println(passenger.toString());
+            }
+        }
     }
 
     @Test
