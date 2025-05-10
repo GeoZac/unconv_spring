@@ -60,23 +60,22 @@ public class SecurityConfig {
 
                 // Configure request authorization
                 .authorizeHttpRequests(
-                        requests ->
-                                requests
+                        requests -> {
+                            requests
+                                    // Allow specific URLs without authentication
+                                    .requestMatchers(
+                                            HttpMethod.GET, "/UnconvUser/Username/Available/**")
+                                    .permitAll()
+                                    .requestMatchers(HttpMethod.POST, "/UnconvUser")
+                                    .permitAll()
+                                    .requestMatchers("/public/**")
+                                    .permitAll()
+                                    .requestMatchers("/favicon.ico")
+                                    .permitAll();
 
-                                        // Allow specific URLs without authentication
-                                        .requestMatchers(
-                                                HttpMethod.GET, "/UnconvUser/Username/Available/**")
-                                        .permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/UnconvUser")
-                                        .permitAll()
-                                        .requestMatchers("/public/**")
-                                        .permitAll()
-                                        .requestMatchers("/favicon.ico")
-                                        .permitAll()
-
-                                        // Require authentication for any other request
-                                        .anyRequest()
-                                        .authenticated())
+                            // Require authentication for any other request
+                            requests.anyRequest().authenticated();
+                        })
                 .addFilterBefore(
                         new ExceptionHandlerFilter(sensorAuthTokenExceptionHandler),
                         AuthenticationFilter.class)
