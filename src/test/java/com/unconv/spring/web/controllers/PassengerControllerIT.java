@@ -24,7 +24,6 @@ import java.time.LocalDate;
 import java.util.List;
 import org.instancio.Instancio;
 import org.instancio.junit.InstancioExtension;
-import org.instancio.junit.Seed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +63,6 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         passengerList = passengerRepository.saveAll(passengerList);
     }
 
-    @Seed(1545187534542043418L)
     @Test
     void shouldFetchAllPassengersInAscendingOrder() throws Exception {
         try {
@@ -88,7 +86,6 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         }
     }
 
-    @Seed(168766468362125633L)
     @Test
     void shouldFetchAllPassengersInDescendingOrder() throws Exception {
         try {
