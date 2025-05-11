@@ -80,7 +80,12 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                     .andExpect(jsonPath("$.hasPrevious", is(false)));
         } catch (AssertionError e) {
             List<Passenger> passengers = passengerRepository.findAll();
+            System.out.println("Persisted List");
             for (Passenger passenger : passengers) {
+                System.out.println(passenger.toString());
+            }
+            System.out.println("Raw List");
+            for (Passenger passenger : passengerList) {
                 System.out.println(passenger.toString());
             }
         }
@@ -103,7 +108,12 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                     .andExpect(jsonPath("$.hasPrevious", is(false)));
         } catch (Exception e) {
             List<Passenger> passengers = passengerRepository.findAll();
+            System.out.println("Persisted List");
             for (Passenger passenger : passengers) {
+                System.out.println(passenger.toString());
+            }
+            System.out.println("Raw List");
+            for (Passenger passenger : passengerList) {
                 System.out.println(passenger.toString());
             }
         }
