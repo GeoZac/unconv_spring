@@ -99,4 +99,34 @@ public class Passenger {
         LocalDate currentDate = LocalDate.now();
         this.age = Period.between(dateOfBirth, currentDate).getYears();
     }
+
+    @Override
+    public String toString() {
+        return "Passenger {\n"
+                + "  id="
+                + id
+                + ",\n"
+                + "  firstName='"
+                + firstName
+                + "',\n"
+                + "  middleName='"
+                + middleName
+                + "',\n"
+                + "  lastName='"
+                + lastName
+                + "',\n"
+                + "  age="
+                + age
+                + ",\n"
+                + "  dateOfBirth="
+                + dateOfBirth
+                + ",\n"
+                + "  gender="
+                + gender
+                + ",\n"
+                + "  bookingId="
+                + (booking != null ? booking.getId() : "null")
+                + "\n"
+                + '}';
+    }
 }
