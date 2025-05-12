@@ -8,3 +8,5 @@ spring:
 unconv:
     auth:
         skip-header: true
+    expose-docs: true
+    expose-actuator: true
