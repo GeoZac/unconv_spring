@@ -18,6 +18,7 @@ import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvRoleRepository;
@@ -27,6 +28,7 @@ import com.unconv.spring.service.UnconvUserService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -221,5 +223,12 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
         unconvUserRepository.deleteAll();
+
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
     }
 }

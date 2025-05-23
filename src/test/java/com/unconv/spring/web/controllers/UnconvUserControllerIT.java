@@ -87,7 +87,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         unconvUserDTOList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
-                        .size(7)
+                        .size(17)
                         .supply(field(UnconvUser::getUnconvRoles), () -> unconvRoleSet)
                         .ignore(field(UnconvUser::getId))
                         .supply(field(UnconvUser::getUsername), random -> random.alphanumeric(10))
@@ -121,7 +121,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .param("sortDir", "asc")
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
@@ -148,7 +148,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .param("sortDir", "desc")
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
+                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))

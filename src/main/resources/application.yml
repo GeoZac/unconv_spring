@@ -26,9 +26,9 @@ spring:
     datasource:
         hikari:
             auto-commit: false
-    http:
-        encoding:
-            force: true
+    h2:
+        console:
+            enabled: false
     jmx:
         enabled: false
     jpa:
@@ -65,8 +65,10 @@ spring:
         allow-bean-definition-overriding: true
     mvc:
         throw-exception-if-no-handler-found: true
-    resources:
-        add-mappings: false
+    web.resources.add-mappings: false
 unconv:
+    expose-actuator: false
+    expose-docs: false
     jwt_expiry: 3600
     jwt_secret: NOT_A_SECRET
+server.servlet.encoding.force: true

@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
@@ -26,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
+import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.enums.SensorLocationType;
@@ -34,7 +37,6 @@ import com.unconv.spring.security.MethodSecurityConfig;
 import com.unconv.spring.service.SensorLocationService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorLocationController;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,6 +49,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -65,6 +69,10 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
     private List<SensorLocation> sensorLocationList;
 
+    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
     @BeforeEach
     void setUp() {
         mockMvc =
@@ -76,43 +84,57 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                         .apply(springSecurity())
                         .build();
 
-        this.sensorLocationList = new ArrayList<>();
-        sensorLocationList.add(
-                new SensorLocation(
-                        null,
-                        "Great Pyramid of Giza",
-                        29.9792,
-                        31.1342,
-                        SensorLocationType.INDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Stonehenge", 51.1789, -1.8262, SensorLocationType.OUTDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Machu Picchu", -13.1631, -72.5450, SensorLocationType.INDOOR));
+        sensorLocationList =
+                Instancio.ofList(SensorLocation.class)
+                        .size(30)
+                        .generate(
+                                field(SensorLocation::getLatitude),
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
+                                field(SensorLocation::getLongitude),
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
+                        .create();
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
+
+        totalPages = (int) Math.ceil((double) sensorLocationList.size() / DEFAULT_PAGE_SIZE);
     }
 
     @Test
     void shouldFetchAllSensorLocations() throws Exception {
-        Page<SensorLocation> page = new PageImpl<>(sensorLocationList);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+
+        int dataSize = sensorLocationList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        List<SensorLocation> pagedReadings = sensorLocationList.subList(start, end);
+
+        Page<SensorLocation> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
+
         PagedResult<SensorLocation> sensorLocationPagedResult = new PagedResult<>(page);
-        given(sensorLocationService.findAllSensorLocations(0, 10, "id", "asc"))
+        given(
+                        sensorLocationService.findAllSensorLocations(
+                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
                 .willReturn(sensorLocationPagedResult);
 
         this.mockMvc
                 .perform(get("/SensorLocation"))
                 .andDo(document("shouldFetchAllSensorLocations", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -374,13 +396,16 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
         List<SensorLocation> sensorLocations =
                 Instancio.ofList(SensorLocation.class)
-                        .size(5)
-                        .supply(
+                        .size(15)
+                        .generate(
                                 field(SensorLocation::getLatitude),
-                                random -> random.doubleRange(-90.0, 90.0))
-                        .supply(
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
                                 field(SensorLocation::getLongitude),
-                                random -> random.doubleRange(-180, 180))
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
         given(unconvUserService.findUnconvUserById(unconvUser.getId()))

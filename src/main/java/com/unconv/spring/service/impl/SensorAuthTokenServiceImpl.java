@@ -15,7 +15,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,7 +38,6 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
      * @param sensorAuthTokenRepository the repository for managing sensor authentication tokens
      * @param modelMapper the mapper for converting between DTOs and entities
      */
-    @Autowired
     public SensorAuthTokenServiceImpl(
             SensorAuthTokenRepository sensorAuthTokenRepository, ModelMapper modelMapper) {
         this.sensorAuthTokenRepository = sensorAuthTokenRepository;
