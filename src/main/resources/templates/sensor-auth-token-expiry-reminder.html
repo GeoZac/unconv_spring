@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Sensor Auth Token Expiry Reminder</title>
+</head>
+<body>
+<p>Dear <strong th:text="${username}">Username</strong>,</p>
+<p>This is a reminder that your sensor auth token is about to expire.</p>
+<table style="border: 1px solid #ccc; padding: 10px;">
+    <tr>
+        <td><b>Sensor Name:</b></td>
+        <td th:text="${sensorName}">Sensor Name</td>
+    </tr>
+    <tr>
+        <td><b>Expiry Date:</b></td>
+        <td th:text="${expiryDate}">Expiry Date</td>
+    </tr>
+</table>
+<p>Please renew it before the expiry to avoid service interruption.</p>
+<p style="margin-top: 20px;">Best regards,<br/>Sensor Monitoring Team</p>
+</body>
+</html>
