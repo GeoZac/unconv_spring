@@ -12,13 +12,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
+import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import java.time.LocalDateTime;
@@ -52,6 +55,8 @@ class SensorSystemServiceImplTest {
     @Spy private ModelMapper modelMapper;
 
     @Mock private SensorSystemRepository sensorSystemRepository;
+
+    @Mock private SensorLocationRepository sensorLocationRepository;
 
     @Mock private EnvironmentalReadingRepository environmentalReadingRepository;
 
@@ -278,6 +283,45 @@ class SensorSystemServiceImplTest {
 
         SensorSystemDTO sensorSystemDTO = new SensorSystemDTO();
         sensorSystemDTO.setUnconvUser(unconvUser);
+
+        SensorSystem resSensorSystem = new SensorSystem();
+        resSensorSystem.setId(UUID.randomUUID());
+        resSensorSystem.setUnconvUser(unconvUser);
+
+        when(unconvUserRepository.findById(unconvUserId)).thenReturn(Optional.of(unconvUser));
+        when(authentication.getName()).thenReturn("TestUser");
+
+        when(sensorSystemRepository.save(any(SensorSystem.class))).thenReturn(resSensorSystem);
+
+        ResponseEntity<MessageResponse<SensorSystemDTO>> result =
+                sensorSystemService.validateUnconvUserAndSaveSensorSystem(
+                        sensorSystemDTO, authentication);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertEquals(ENVT_RECORD_ACCEPTED, Objects.requireNonNull(result.getBody()).message());
+    }
+
+    @Test
+    void validateUnconvUserAndSaveSensorSystemWithExistingSensorLocation() {
+
+        Authentication authentication = mock(Authentication.class);
+
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser = new UnconvUser();
+        unconvUser.setId(unconvUserId);
+        unconvUser.setUsername("TestUser");
+
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        UUID.randomUUID(),
+                        "Parthenon",
+                        37.9715,
+                        23.7269,
+                        SensorLocationType.OUTDOOR);
+
+        SensorSystemDTO sensorSystemDTO = new SensorSystemDTO();
+        sensorSystemDTO.setUnconvUser(unconvUser);
+        sensorSystemDTO.setSensorLocation(sensorLocation);
 
         SensorSystem resSensorSystem = new SensorSystem();
         resSensorSystem.setId(UUID.randomUUID());
