@@ -5,6 +5,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
@@ -13,6 +14,7 @@ import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorSystemService;
@@ -43,6 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class SensorSystemServiceImpl implements SensorSystemService {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private SensorLocationRepository sensorLocationRepository;
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
@@ -200,6 +204,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.UNAUTHORIZED);
         }
 
+        SensorLocation sensorLocation =
+                resolveSensorLocationReference(sensorSystemDTO.getSensorLocation());
+        if (sensorLocation != null) {
+            sensorSystemDTO.setSensorLocation(sensorLocation);
+        }
+
         SensorSystem sensorSystem =
                 saveSensorSystem(modelMapper.map(sensorSystemDTO, SensorSystem.class));
 
@@ -304,5 +314,19 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
         }
         return sensorSystemDTO;
+    }
+
+    private SensorLocation resolveSensorLocationReference(SensorLocation sensorLocation) {
+        if (sensorLocation == null) {
+            return null;
+        }
+
+        if (sensorLocation.getId() != null) {
+            Optional<SensorLocation> optionalSensorLocation =
+                    sensorLocationRepository.findById(sensorLocation.getId());
+            return optionalSensorLocation.orElse(null);
+        } else {
+            return sensorLocationRepository.save(sensorLocation);
+        }
     }
 }
