@@ -316,6 +316,17 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         return sensorSystemDTO;
     }
 
+    /**
+     * Resolves a {@link SensorLocation} reference by either retrieving it from the repository if it
+     * has an existing ID, or saving it as a new entity if it does not.
+     *
+     * <p>This method ensures that a fully managed {@code SensorLocation} entity is returned for
+     * further use, typically for associating with other entities.
+     *
+     * @param sensorLocation the {@code SensorLocation} object to resolve; may be {@code null}
+     * @return the resolved {@code SensorLocation} entity from the database, or {@code null} if the
+     *     input was {@code null}
+     */
     private SensorLocation resolveSensorLocationReference(SensorLocation sensorLocation) {
         if (sensorLocation == null) {
             return null;
