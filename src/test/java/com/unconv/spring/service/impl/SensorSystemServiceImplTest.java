@@ -341,6 +341,40 @@ class SensorSystemServiceImplTest {
     }
 
     @Test
+    void validateUnconvUserAndSaveSensorSystemWithNewSensorLocation() {
+
+        Authentication authentication = mock(Authentication.class);
+
+        UUID unconvUserId = UUID.randomUUID();
+        UnconvUser unconvUser = new UnconvUser();
+        unconvUser.setId(unconvUserId);
+        unconvUser.setUsername("TestUser");
+
+        SensorLocation sensorLocation =
+                new SensorLocation(null, "Parthenon", 37.9715, 23.7269, SensorLocationType.OUTDOOR);
+
+        SensorSystemDTO sensorSystemDTO = new SensorSystemDTO();
+        sensorSystemDTO.setUnconvUser(unconvUser);
+        sensorSystemDTO.setSensorLocation(sensorLocation);
+
+        SensorSystem resSensorSystem = new SensorSystem();
+        resSensorSystem.setId(UUID.randomUUID());
+        resSensorSystem.setUnconvUser(unconvUser);
+
+        when(unconvUserRepository.findById(unconvUserId)).thenReturn(Optional.of(unconvUser));
+        when(authentication.getName()).thenReturn("TestUser");
+
+        when(sensorSystemRepository.save(any(SensorSystem.class))).thenReturn(resSensorSystem);
+
+        ResponseEntity<MessageResponse<SensorSystemDTO>> result =
+                sensorSystemService.validateUnconvUserAndSaveSensorSystem(
+                        sensorSystemDTO, authentication);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertEquals(ENVT_RECORD_ACCEPTED, Objects.requireNonNull(result.getBody()).message());
+    }
+
+    @Test
     void shouldReturnUnauthorizedWhenSavingSensorSystemWithoutUsername() {
         Authentication authentication = mock(Authentication.class);
 
