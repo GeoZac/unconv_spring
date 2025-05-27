@@ -330,6 +330,9 @@ class SensorSystemServiceImplTest {
         when(unconvUserRepository.findById(unconvUserId)).thenReturn(Optional.of(unconvUser));
         when(authentication.getName()).thenReturn("TestUser");
 
+        when(sensorLocationRepository.findById(any(UUID.class)))
+                .thenReturn(Optional.of(sensorLocation));
+
         when(sensorSystemRepository.save(any(SensorSystem.class))).thenReturn(resSensorSystem);
 
         ResponseEntity<MessageResponse<SensorSystemDTO>> result =
