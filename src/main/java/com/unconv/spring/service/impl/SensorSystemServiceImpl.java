@@ -317,15 +317,17 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     }
 
     /**
-     * Resolves a {@link SensorLocation} reference by either retrieving it from the repository if it
-     * has an existing ID, or saving it as a new entity if it does not.
+     * Resolves a {@link SensorLocation} reference by retrieving it from the repository if it has an
+     * existing ID.
      *
-     * <p>This method ensures that a fully managed {@code SensorLocation} entity is returned for
-     * further use, typically for associating with other entities.
+     * <p>This method ensures that a managed {@code SensorLocation} entity is returned only if a
+     * valid ID is provided. If the ID is {@code null} or not found, {@code null} is returned.
      *
-     * @param sensorLocation the {@code SensorLocation} object to resolve; may be {@code null}
-     * @return the resolved {@code SensorLocation} entity from the database, or {@code null} if the
-     *     input was {@code null}
+     * <p>Note: If this method returns {@code null}, persistence may still occur via the owning
+     * entity's {@code @ManyToOne(cascade = ALL)} mapping.
+     *
+     * @param sensorLocation the {@code SensorLocation} to resolve; may be {@code null}
+     * @return the resolved {@code SensorLocation} from the database, or {@code null}
      */
     private SensorLocation resolveSensorLocationReference(SensorLocation sensorLocation) {
         if (sensorLocation == null) {
@@ -337,7 +339,7 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     sensorLocationRepository.findById(sensorLocation.getId());
             return optionalSensorLocation.orElse(null);
         } else {
-            return sensorLocationRepository.save(sensorLocation);
+            return null;
         }
     }
 }
