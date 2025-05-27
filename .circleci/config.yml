@@ -163,6 +163,12 @@ jobs:
       - codecov/upload:
             file: target/jacoco/integrationTest/jacoco.xml
             flags: integration_test
+      - store_artifacts:
+          path: target/jacoco/test
+          destination: coverage/unit
+      - store_artifacts:
+          path: target/jacoco/integrationTest
+          destination: coverage/integration
       - save_cache:
           paths:
             - ~/.m2
