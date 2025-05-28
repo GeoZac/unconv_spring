@@ -5,6 +5,7 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
 
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.SensorSystemDTO;
@@ -13,6 +14,7 @@ import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorSystemService;
@@ -43,6 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class SensorSystemServiceImpl implements SensorSystemService {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private SensorLocationRepository sensorLocationRepository;
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
@@ -200,6 +204,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             return new ResponseEntity<>(sensorSystemDTOMessageResponse, HttpStatus.UNAUTHORIZED);
         }
 
+        SensorLocation sensorLocation =
+                resolveSensorLocationReference(sensorSystemDTO.getSensorLocation());
+        if (sensorLocation != null) {
+            sensorSystemDTO.setSensorLocation(sensorLocation);
+        }
+
         SensorSystem sensorSystem =
                 saveSensorSystem(modelMapper.map(sensorSystemDTO, SensorSystem.class));
 
@@ -305,5 +315,32 @@ public class SensorSystemServiceImpl implements SensorSystemService {
                     modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
         }
         return sensorSystemDTO;
+    }
+
+    /**
+     * Resolves a {@link SensorLocation} reference by retrieving it from the repository if it has an
+     * existing ID.
+     *
+     * <p>This method ensures that a managed {@code SensorLocation} entity is returned only if a
+     * valid ID is provided. If the ID is {@code null} or not found, {@code null} is returned.
+     *
+     * <p>Note: If this method returns {@code null}, persistence may still occur via the owning
+     * entity's {@code @ManyToOne(cascade = ALL)} mapping.
+     *
+     * @param sensorLocation the {@code SensorLocation} to resolve; may be {@code null}
+     * @return the resolved {@code SensorLocation} from the database, or {@code null}
+     */
+    private SensorLocation resolveSensorLocationReference(SensorLocation sensorLocation) {
+        if (sensorLocation == null) {
+            return null;
+        }
+
+        if (sensorLocation.getId() != null) {
+            Optional<SensorLocation> optionalSensorLocation =
+                    sensorLocationRepository.findById(sensorLocation.getId());
+            return optionalSensorLocation.orElse(null);
+        } else {
+            return null;
+        }
     }
 }
