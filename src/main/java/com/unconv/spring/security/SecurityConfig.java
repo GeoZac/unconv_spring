@@ -1,5 +1,6 @@
 package com.unconv.spring.security;
 
+import com.unconv.spring.config.ApiVisibilityConfig;
 import com.unconv.spring.security.filter.AuthenticationFilter;
 import com.unconv.spring.security.filter.CustomAuthenticationManager;
 import com.unconv.spring.security.filter.ExceptionHandlerFilter;
@@ -41,6 +42,8 @@ public class SecurityConfig {
 
     private final SecurityProblemSupport problemSupport;
 
+    private final ApiVisibilityConfig apiVisibilityConfig;
+
     /**
      * Configures the security filter chain for the application.
      *
@@ -60,23 +63,34 @@ public class SecurityConfig {
 
                 // Configure request authorization
                 .authorizeHttpRequests(
-                        requests ->
-                                requests
+                        requests -> {
+                            requests
+                                    // Allow specific URLs without authentication
+                                    .requestMatchers(
+                                            HttpMethod.GET, "/UnconvUser/Username/Available/**")
+                                    .permitAll()
+                                    .requestMatchers(HttpMethod.POST, "/UnconvUser")
+                                    .permitAll()
+                                    .requestMatchers("/public/**")
+                                    .permitAll()
+                                    .requestMatchers("/favicon.ico")
+                                    .permitAll();
 
-                                        // Allow specific URLs without authentication
-                                        .requestMatchers(
-                                                HttpMethod.GET, "/UnconvUser/Username/Available/**")
-                                        .permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/UnconvUser")
-                                        .permitAll()
-                                        .requestMatchers("/public/**")
-                                        .permitAll()
-                                        .requestMatchers("/favicon.ico")
-                                        .permitAll()
+                            if (apiVisibilityConfig.isExposeActuator()) {
+                                requests.requestMatchers("/actuator/**").permitAll();
+                            }
 
-                                        // Require authentication for any other request
-                                        .anyRequest()
-                                        .authenticated())
+                            if (apiVisibilityConfig.isExposeDocs()) {
+                                requests.requestMatchers(
+                                                "/v3/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
+                                        .permitAll();
+                            }
+
+                            // Require authentication for any other request
+                            requests.anyRequest().authenticated();
+                        })
                 .addFilterBefore(
                         new ExceptionHandlerFilter(sensorAuthTokenExceptionHandler),
                         AuthenticationFilter.class)
