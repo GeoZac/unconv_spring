@@ -33,6 +33,7 @@ import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
 import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
@@ -66,6 +67,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
+
+    @Autowired private SensorLocationRepository sensorLocationRepository;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
@@ -564,6 +567,58 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldCreateNewSensorSystemWithExistingSensorLocation() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorLocation sensorLocation =
+                new SensorLocation(
+                        null, "Hagia Sophia", 41.0082, 28.9784, SensorLocationType.INDOOR);
+
+        SensorLocation existingSensorLocation = sensorLocationRepository.save(sensorLocation);
+        assert existingSensorLocation.getId() != null;
+
+        SensorSystem sensorSystem =
+                SensorSystem.builder()
+                        .id(null)
+                        .sensorName("New SensorSystem")
+                        .description("Fully qualified sensor")
+                        .deleted(false)
+                        .sensorStatus(SensorStatus.ACTIVE)
+                        .sensorLocation(existingSensorLocation)
+                        .unconvUser(savedUnconvUser)
+                        .humidityThreshold(new HumidityThreshold(null, 100, 0))
+                        .temperatureThreshold(new TemperatureThreshold(null, 100, 0))
+                        .build();
+
+        assert sensorSystem.getHumidityThreshold().getId() == null;
+        assert sensorSystem.getTemperatureThreshold().getId() == null;
+
+        this.mockMvc
+                .perform(
+                        post("/SensorSystem")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sensorSystem)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorName", is(sensorSystem.getSensorName())))
+                .andExpect(jsonPath("$.entity.sensorLocation", notNullValue()))
+                .andExpect(jsonPath("$.entity.humidityThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.temperatureThreshold", notNullValue()))
+                .andExpect(jsonPath("$.entity.createdDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.updatedDate", notNullValue()))
+                .andExpect(jsonPath("$.entity.unconvUser", validUnconvUser()))
+                .andExpect(
+                        jsonPath(
+                                "$.entity.unconvUser.username", is(savedUnconvUser.getUsername())));
+    }
+
+    @Test
     void shouldCreateNewSensorSystemWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
@@ -883,6 +938,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         }
         environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
+        sensorLocationRepository.deleteAll();
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
             if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))

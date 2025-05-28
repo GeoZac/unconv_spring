@@ -73,6 +73,8 @@ spring:
         cache: false
     web.resources.add-mappings: false
 unconv:
+    expose-actuator: false
+    expose-docs: false
     jwt_expiry: 3600
     jwt_secret: NOT_A_SECRET
 server.servlet.encoding.force: true

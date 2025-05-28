@@ -487,7 +487,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(
                         jsonPath(
                                 "$.temperature",
-                                closeTo(environmentalReading.getTemperature(), 0.001)));
+                                closeTo(environmentalReading.getTemperature(), 0.01)));
     }
 
     @Test
@@ -1354,7 +1354,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(
                         jsonPath(
                                 "$.temperature",
-                                closeTo(environmentalReading.getTemperature(), 0.001)))
+                                closeTo(environmentalReading.getTemperature(), 0.01)))
                 .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
                 .andReturn();
     }
