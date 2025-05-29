@@ -20,6 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @ExtendWith(MockitoExtension.class)
 class SensorAuthTokenExpiryReminderTest {
@@ -27,6 +29,7 @@ class SensorAuthTokenExpiryReminderTest {
     @Mock private SensorAuthTokenService sensorAuthTokenService;
 
     @Mock private EmailClient emailClient;
+    @Mock private SpringTemplateEngine templateEngine;
 
     @InjectMocks private SensorAuthTokenExpiryReminder reminder;
 
@@ -49,6 +52,10 @@ class SensorAuthTokenExpiryReminderTest {
         mockToken.setSensorSystem(mockSystem);
 
         when(sensorAuthTokenService.findAllSensorAuthTokens()).thenReturn(List.of(mockToken));
+
+        when(templateEngine.process(
+                        eq("sensor-auth-token-expiry-reminder.html"), any(Context.class)))
+                .thenReturn("<html>Email body for john_doe and Mock System</html>");
 
         reminder.remindSensorAuthTokenExpiry();
 
