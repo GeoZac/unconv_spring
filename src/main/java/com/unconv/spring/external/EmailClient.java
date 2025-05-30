@@ -2,6 +2,7 @@ package com.unconv.spring.external;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
  * simple email messages. This client is enabled only if the email configuration properties are
  * provided.
  */
+@Slf4j
 @Service
 public class EmailClient {
 
@@ -97,7 +99,7 @@ public class EmailClient {
             helper.setFrom(fromAddress);
             mailSender.send(message);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.error("Failed to send email to {}: {}", to, e.getMessage(), e);
         }
     }
 }
