@@ -70,6 +70,19 @@ public class EmailClient {
         mailSender.send(message);
     }
 
+    /**
+     * Sends an HTML email to the specified recipient if email sending is enabled and the recipient
+     * address is valid.
+     *
+     * <p>This method constructs a {@link MimeMessage} with the given subject and HTML content, sets
+     * the recipient and sender, and attempts to send the email using the configured {@link
+     * JavaMailSender}. If email configuration is incomplete or the recipient address is blank, the
+     * method exits silently.
+     *
+     * @param to the recipient's email address
+     * @param subject the subject line of the email
+     * @param htmlContent the body of the email in HTML format
+     */
     public void sendEmailWithHTMLContent(String to, String subject, String htmlContent) {
         if (!emailEnabled || to.isBlank()) {
             return;
