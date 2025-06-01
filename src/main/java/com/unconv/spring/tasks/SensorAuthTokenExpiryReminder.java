@@ -16,6 +16,21 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+/**
+ * Scheduled component that checks for sensor authentication tokens nearing their expiry and sends
+ * reminder emails to the associated users.
+ *
+ * <p>This class is scheduled to run once every 7 days (604800000 milliseconds). If a token is found
+ * to expire within one month from the current date, a reminder email is sent to the associated user
+ * using a Thymeleaf template.
+ *
+ * <p>The email contains information about the sensor system, the username, and the token's expiry
+ * date.
+ *
+ * @see SensorAuthTokenService
+ * @see EmailClient
+ * @see SpringTemplateEngine
+ */
 @Component
 @EnableScheduling
 public class SensorAuthTokenExpiryReminder {
