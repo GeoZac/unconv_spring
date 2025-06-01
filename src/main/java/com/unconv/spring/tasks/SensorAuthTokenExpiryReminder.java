@@ -41,6 +41,15 @@ public class SensorAuthTokenExpiryReminder {
 
     @Autowired SpringTemplateEngine templateEngine;
 
+    /**
+     * Scheduled method that runs every 7 days to remind users of expiring sensor auth tokens.
+     *
+     * <p>This method retrieves all sensor authentication tokens, checks if any are expiring within
+     * one month, and sends a reminder email to the user associated with each expiring token.
+     *
+     * <p>The email uses a Thymeleaf template named {@code sensor-auth-token-expiry-reminder.html}
+     * and includes the username, sensor name, and formatted expiry date.
+     */
     @Scheduled(fixedRate = 604800000)
     public void remindSensorAuthTokenExpiry() {
 
