@@ -30,8 +30,6 @@ class SensorAuthTokenExpiryReminderTest {
     @Mock private SensorAuthTokenService sensorAuthTokenService;
     @Mock private EmailClient emailClient;
 
-    private SpringTemplateEngine templateEngine;
-
     @InjectMocks private SensorAuthTokenExpiryReminder reminder;
 
     @BeforeEach
@@ -42,7 +40,7 @@ class SensorAuthTokenExpiryReminderTest {
         templateResolver.setTemplateMode("HTML");
         templateResolver.setCharacterEncoding("UTF-8");
 
-        templateEngine = new SpringTemplateEngine();
+        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);
 
         reminder.templateEngine = templateEngine;
