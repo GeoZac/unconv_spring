@@ -24,7 +24,7 @@ public class SensorAuthTokenExpiryReminder {
 
     @Autowired private EmailClient emailClient;
 
-    @Autowired private SpringTemplateEngine templateEngine;
+    @Autowired SpringTemplateEngine templateEngine;
 
     @Scheduled(fixedRate = 604800000)
     public void remindSensorAuthTokenExpiry() {

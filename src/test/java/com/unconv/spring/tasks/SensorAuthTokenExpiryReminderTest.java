@@ -15,23 +15,38 @@ import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 @ExtendWith(MockitoExtension.class)
 class SensorAuthTokenExpiryReminderTest {
 
     @Mock private SensorAuthTokenService sensorAuthTokenService;
-
     @Mock private EmailClient emailClient;
-    @Mock private SpringTemplateEngine templateEngine;
+
+    private SpringTemplateEngine templateEngine;
 
     @InjectMocks private SensorAuthTokenExpiryReminder reminder;
+
+    @BeforeEach
+    void setUp() {
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("templates/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode("HTML");
+        templateResolver.setCharacterEncoding("UTF-8");
+
+        templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+
+        reminder.templateEngine = templateEngine;
+    }
 
     @Test
     void shouldSendEmailWhenTokenExpiresThisMonth() {
@@ -53,23 +68,13 @@ class SensorAuthTokenExpiryReminderTest {
 
         when(sensorAuthTokenService.findAllSensorAuthTokens()).thenReturn(List.of(mockToken));
 
-        when(templateEngine.process(
-                        eq("sensor-auth-token-expiry-reminder.html"), any(Context.class)))
-                .thenReturn("<html>Email body for john_doe and Mock System</html>");
-
         reminder.remindSensorAuthTokenExpiry();
 
         verify(emailClient)
                 .sendEmailWithHTMLContent(
                         eq("john@example.com"),
                         eq("⚠️ Sensor Auth Token Expiry Reminder"),
-                        argThat(
-                                body ->
-                                        body.contains("john_doe")
-                                                && body.contains(
-                                                        mockToken
-                                                                .getSensorSystem()
-                                                                .getSensorName())));
+                        argThat(body -> body.contains("john_doe") && body.contains("Mock System")));
     }
 
     @Test
