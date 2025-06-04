@@ -52,6 +52,11 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         return sensorAuthTokenRepository.findAll();
     }
 
+    @Override
+    public Page<SensorAuthToken> findSensorAuthTokens(Pageable pageable) {
+        return sensorAuthTokenRepository.findAll(pageable);
+    }
+
     /**
      * Retrieves a paginated list of SensorAuthTokens.
      *
