@@ -47,11 +47,13 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         this.modelMapper = modelMapper;
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<SensorAuthToken> findAllSensorAuthTokens() {
         return sensorAuthTokenRepository.findAll();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Page<SensorAuthToken> findSensorAuthTokens(Pageable pageable) {
         return sensorAuthTokenRepository.findAll(pageable);

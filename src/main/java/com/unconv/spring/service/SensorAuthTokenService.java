@@ -13,8 +13,19 @@ import org.springframework.data.domain.Pageable;
 /** Service interface for managing {@link SensorAuthToken}s. */
 public interface SensorAuthTokenService {
 
+    /**
+     * Retrieves all {@link SensorAuthToken} entries from the database.
+     *
+     * @return a list of all sensor authentication tokens
+     */
     List<SensorAuthToken> findAllSensorAuthTokens();
 
+    /**
+     * Retrieves a paginated list of {@link SensorAuthToken} entries.
+     *
+     * @param pageable the pagination and sorting information
+     * @return a page containing sensor authentication tokens
+     */
     Page<SensorAuthToken> findSensorAuthTokens(Pageable pageable);
 
     /**
