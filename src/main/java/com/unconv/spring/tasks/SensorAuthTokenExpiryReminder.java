@@ -7,9 +7,11 @@ import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -52,34 +54,41 @@ public class SensorAuthTokenExpiryReminder {
      */
     @Scheduled(fixedRate = 604800000)
     public void remindSensorAuthTokenExpiry() {
+        int page = 0;
+        int size = 10;
+        Page<SensorAuthToken> tokenPage;
 
-        List<SensorAuthToken> sensorAuthTokenList =
-                sensorAuthTokenService.findAllSensorAuthTokens();
-        for (SensorAuthToken sensorAuthToken : sensorAuthTokenList) {
-            OffsetDateTime now = OffsetDateTime.now();
+        do {
+            Pageable pageable = PageRequest.of(page, size);
+            tokenPage = sensorAuthTokenService.findSensorAuthTokens(pageable);
 
-            OffsetDateTime expiryTime = sensorAuthToken.getExpiry();
-            long monthsDifference = ChronoUnit.MONTHS.between(expiryTime, now);
+            for (SensorAuthToken sensorAuthToken : tokenPage.getContent()) {
+                OffsetDateTime now = OffsetDateTime.now();
+                OffsetDateTime expiryTime = sensorAuthToken.getExpiry();
+                long monthsDifference = ChronoUnit.MONTHS.between(expiryTime, now);
 
-            if (Math.abs(monthsDifference) < 1) {
-                UnconvUser user = sensorAuthToken.getSensorSystem().getUnconvUser();
-                String email = user.getEmail();
-                DateTimeFormatter formatter =
-                        DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm 'UTC'", Locale.ENGLISH);
-                String prettyTimeString = expiryTime.format(formatter);
-                String subject = "⚠️ Sensor Auth Token Expiry Reminder";
+                if (Math.abs(monthsDifference) < 1) {
+                    UnconvUser user = sensorAuthToken.getSensorSystem().getUnconvUser();
+                    String email = user.getEmail();
+                    DateTimeFormatter formatter =
+                            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm 'UTC'", Locale.ENGLISH);
+                    String prettyTimeString = expiryTime.format(formatter);
+                    String subject = "⚠️ Sensor Auth Token Expiry Reminder";
 
-                Context context = new Context();
-                context.setVariable("username", user.getUsername());
-                context.setVariable(
-                        "sensorName", sensorAuthToken.getSensorSystem().getSensorName());
-                context.setVariable("expiryDate", prettyTimeString);
+                    Context context = new Context();
+                    context.setVariable("username", user.getUsername());
+                    context.setVariable(
+                            "sensorName", sensorAuthToken.getSensorSystem().getSensorName());
+                    context.setVariable("expiryDate", prettyTimeString);
 
-                String body =
-                        templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
-
-                emailClient.sendEmailWithHTMLContent(email, subject, body);
+                    String body =
+                            templateEngine.process(
+                                    "sensor-auth-token-expiry-reminder.html", context);
+                    emailClient.sendEmailWithHTMLContent(email, subject, body);
+                }
             }
-        }
+
+            page++;
+        } while (!tokenPage.isLast());
     }
 }
