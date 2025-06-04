@@ -21,6 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -64,7 +68,12 @@ class SensorAuthTokenExpiryReminderTest {
         mockToken.setExpiry(expiry);
         mockToken.setSensorSystem(mockSystem);
 
-        when(sensorAuthTokenService.findAllSensorAuthTokens()).thenReturn(List.of(mockToken));
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SensorAuthToken> mockPage = new PageImpl<>(List.of(mockToken));
+
+        when(sensorAuthTokenService.findSensorAuthTokens(pageable)).thenReturn(mockPage);
 
         reminder.remindSensorAuthTokenExpiry();
 
@@ -92,7 +101,12 @@ class SensorAuthTokenExpiryReminderTest {
         mockToken.setExpiry(expiry);
         mockToken.setSensorSystem(mockSystem);
 
-        when(sensorAuthTokenService.findAllSensorAuthTokens()).thenReturn(List.of(mockToken));
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SensorAuthToken> mockPage = new PageImpl<>(List.of(mockToken));
+
+        when(sensorAuthTokenService.findSensorAuthTokens(pageable)).thenReturn(mockPage);
 
         reminder.remindSensorAuthTokenExpiry();
 
