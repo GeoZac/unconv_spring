@@ -4,7 +4,6 @@ import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
 import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -12,13 +11,6 @@ import org.springframework.data.domain.Pageable;
 
 /** Service interface for managing {@link SensorAuthToken}s. */
 public interface SensorAuthTokenService {
-
-    /**
-     * Retrieves all {@link SensorAuthToken} entries from the database.
-     *
-     * @return a list of all sensor authentication tokens
-     */
-    List<SensorAuthToken> findAllSensorAuthTokens();
 
     /**
      * Retrieves a paginated list of {@link SensorAuthToken} entries.

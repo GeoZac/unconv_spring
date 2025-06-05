@@ -14,7 +14,6 @@ import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.utils.AccessTokenGenerator;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
@@ -45,12 +44,6 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
             SensorAuthTokenRepository sensorAuthTokenRepository, ModelMapper modelMapper) {
         this.sensorAuthTokenRepository = sensorAuthTokenRepository;
         this.modelMapper = modelMapper;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public List<SensorAuthToken> findAllSensorAuthTokens() {
-        return sensorAuthTokenRepository.findAll();
     }
 
     /** {@inheritDoc} */
