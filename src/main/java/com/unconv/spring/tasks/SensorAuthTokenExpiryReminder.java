@@ -43,6 +43,9 @@ public class SensorAuthTokenExpiryReminder {
 
     @Autowired SpringTemplateEngine templateEngine;
 
+    private static final DateTimeFormatter EXPIRY_FORMATTER =
+            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm 'UTC'", Locale.ENGLISH);
+
     /**
      * Scheduled method that runs every 7 days to remind users of expiring sensor auth tokens.
      *
@@ -62,33 +65,31 @@ public class SensorAuthTokenExpiryReminder {
             Pageable pageable = PageRequest.of(page, size);
             tokenPage = sensorAuthTokenService.findSensorAuthTokens(pageable);
 
-            for (SensorAuthToken sensorAuthToken : tokenPage.getContent()) {
-                OffsetDateTime now = OffsetDateTime.now();
-                OffsetDateTime expiryTime = sensorAuthToken.getExpiry();
-                long monthsDifference = ChronoUnit.MONTHS.between(expiryTime, now);
-
-                if (Math.abs(monthsDifference) < 1) {
-                    UnconvUser user = sensorAuthToken.getSensorSystem().getUnconvUser();
-                    String email = user.getEmail();
-                    DateTimeFormatter formatter =
-                            DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm 'UTC'", Locale.ENGLISH);
-                    String prettyTimeString = expiryTime.format(formatter);
-                    String subject = "⚠️ Sensor Auth Token Expiry Reminder";
-
-                    Context context = new Context();
-                    context.setVariable("username", user.getUsername());
-                    context.setVariable(
-                            "sensorName", sensorAuthToken.getSensorSystem().getSensorName());
-                    context.setVariable("expiryDate", prettyTimeString);
-
-                    String body =
-                            templateEngine.process(
-                                    "sensor-auth-token-expiry-reminder.html", context);
-                    emailClient.sendEmailWithHTMLContent(email, subject, body);
-                }
-            }
+            tokenPage.getContent().stream()
+                    .filter(this::isExpiringWithinOneMonth)
+                    .forEach(this::sendReminderEmail);
 
             page++;
         } while (!tokenPage.isLast());
+    }
+
+    private boolean isExpiringWithinOneMonth(SensorAuthToken token) {
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime expiry = token.getExpiry();
+        return Math.abs(ChronoUnit.MONTHS.between(expiry, now)) < 1;
+    }
+
+    private void sendReminderEmail(SensorAuthToken token) {
+        UnconvUser user = token.getSensorSystem().getUnconvUser();
+        String email = user.getEmail();
+        String subject = "⚠️ Sensor Auth Token Expiry Reminder";
+
+        Context context = new Context();
+        context.setVariable("username", user.getUsername());
+        context.setVariable("sensorName", token.getSensorSystem().getSensorName());
+        context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
+
+        String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
+        emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 }
