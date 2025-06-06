@@ -42,6 +42,8 @@ public class DefaultRoleInitializer {
         if (existingRole == null) {
             UnconvRole newRole = new UnconvRole();
             newRole.setName(defaultUserRole.name());
+            newRole.setCreatedBy(this.getClass().getName());
+            newRole.setCreatedReason(this.getClass().getName());
             unconvRoleRepository.save(newRole);
         }
     }
