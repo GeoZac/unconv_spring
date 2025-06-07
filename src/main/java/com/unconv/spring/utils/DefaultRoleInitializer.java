@@ -4,6 +4,7 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
 import jakarta.annotation.PostConstruct;
+import java.util.Date;
 import org.springframework.stereotype.Component;
 
 /** Component class responsible for initializing default roles in the system. */
@@ -44,6 +45,7 @@ public class DefaultRoleInitializer {
             newRole.setName(defaultUserRole.name());
             newRole.setCreatedBy(this.getClass().getName());
             newRole.setCreatedReason(this.getClass().getName());
+            newRole.setCreatedAt(new Date());
             unconvRoleRepository.save(newRole);
         }
     }
