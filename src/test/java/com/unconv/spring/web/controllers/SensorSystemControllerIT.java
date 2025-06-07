@@ -45,6 +45,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -122,7 +123,13 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
         sensorSystemRepository.deleteAllInBatch();
 
-        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole unconvRole =
+                new UnconvRole(
+                        null,
+                        "ROLE_USER",
+                        this.getClass().getName(),
+                        this.getClass().getName(),
+                        new Date());
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
         unconvRoleSet.add(savedUnconvRole);
 
