@@ -42,4 +42,10 @@ public class UnconvRole {
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    // TODO Remove this when tests pass
+    public UnconvRole(UUID uuid, String name) {
+        this.id = uuid;
+        this.name = name;
+    }
 }
