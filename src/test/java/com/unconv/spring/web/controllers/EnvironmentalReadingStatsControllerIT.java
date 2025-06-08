@@ -94,7 +94,7 @@ class EnvironmentalReadingStatsControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingRepository.deleteAllInBatch();
 
-        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
         unconvRoleSet.add(savedUnconvRole);
 
