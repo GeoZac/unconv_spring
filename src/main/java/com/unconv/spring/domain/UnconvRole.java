@@ -54,4 +54,14 @@ public class UnconvRole {
         this.id = uuid;
         this.name = name;
     }
+
+    public static UnconvRole create(UUID id, String roleName, Class<?> origin) {
+        String originName = origin != null ? origin.getName() : "UnknownOrigin";
+        return new UnconvRole(
+                id != null ? id : UUID.randomUUID(),
+                roleName != null ? roleName : "Default Role",
+                originName,
+                originName,
+                new Date());
+    }
 }
