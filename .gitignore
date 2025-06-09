@@ -53,3 +53,6 @@ managed_context/
 
 ### Eclipse Theia ###
 .theia/
+
+### Liquibase ###
+liquibase.properties
