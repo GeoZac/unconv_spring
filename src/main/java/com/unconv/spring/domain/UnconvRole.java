@@ -53,12 +53,6 @@ public class UnconvRole {
         this.createdAt = new Date();
     }
 
-    // TODO Remove this when tests pass
-    public UnconvRole(UUID uuid, String name) {
-        this.id = uuid;
-        this.name = name;
-    }
-
     public static UnconvRole create(UUID id, String roleName, Class<?> origin) {
         String originName = origin != null ? origin.getName() : "UnknownOrigin";
         return new UnconvRole(
