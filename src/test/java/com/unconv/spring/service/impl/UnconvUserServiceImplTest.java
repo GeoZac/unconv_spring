@@ -13,7 +13,6 @@ import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -162,12 +161,8 @@ class UnconvUserServiceImplTest {
         user.setUsername("testuser");
         user.setUnconvRoles(
                 Set.of(
-                        new UnconvRole(
-                                UUID.randomUUID(),
-                                UNCONV_USER.toString(),
-                                this.getClass().getName(),
-                                this.getClass().getName(),
-                                new Date())));
+                        UnconvRole.create(
+                                UUID.randomUUID(), UNCONV_USER.toString(), this.getClass())));
 
         UnconvUserDTO dto = new UnconvUserDTO();
         dto.setPassword("newPass");
@@ -177,12 +172,8 @@ class UnconvUserServiceImplTest {
         savedUser.setUsername("testuser");
         user.setUnconvRoles(
                 Set.of(
-                        new UnconvRole(
-                                UUID.randomUUID(),
-                                UNCONV_USER.toString(),
-                                this.getClass().getName(),
-                                this.getClass().getName(),
-                                new Date())));
+                        UnconvRole.create(
+                                UUID.randomUUID(), UNCONV_USER.toString(), this.getClass())));
 
         when(unconvUserRepository.save(any(UnconvUser.class))).thenReturn(savedUser);
 
