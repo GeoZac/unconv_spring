@@ -143,7 +143,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     // TODO Add test with USER access
     @Test
     void shouldCreateNewUnconvRole() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, "New UnconvRole");
+        UnconvRole unconvRole = UnconvRole.create(null, "New UnconvRole", this.getClass());
         this.mockMvc
                 .perform(
                         post("/UnconvRole")
