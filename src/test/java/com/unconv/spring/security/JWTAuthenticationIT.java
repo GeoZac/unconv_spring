@@ -11,7 +11,6 @@ import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.security.filter.JWTUtil;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -67,13 +66,7 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
 
     @Test
     void testAuthorisationContext() throws Exception {
-        UnconvRole unconvRole =
-                new UnconvRole(
-                        null,
-                        "ROLE_USER",
-                        this.getClass().getName(),
-                        this.getClass().getName(),
-                        new Date());
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
         Set<UnconvRole> unconvRoleSet = new HashSet<>();
         unconvRoleSet.add(unconvRole);
         UnconvUser unconvUser =
