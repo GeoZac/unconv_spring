@@ -85,7 +85,10 @@ public class UnconvRoleController {
     @Secured("ROLE_MANAGER")
     public UnconvRole createUnconvRole(@RequestBody @Validated UnconvRoleDTO unconvRoleDTO) {
         unconvRoleDTO.setId(null);
-        return unconvRoleService.saveUnconvRole(modelMapper.map(unconvRoleDTO, UnconvRole.class));
+        UnconvRole unconvRole = modelMapper.map(unconvRoleDTO, UnconvRole.class);
+        unconvRole.setCreatedBy(this.getClass().getName());
+        unconvRole.setCreatedReason(this.getClass().getName());
+        return unconvRoleService.saveUnconvRole(unconvRole);
     }
 
     /**
@@ -107,9 +110,11 @@ public class UnconvRoleController {
                 .map(
                         unconvRoleObj -> {
                             unconvRoleDTO.setId(id);
-                            return ResponseEntity.ok(
-                                    unconvRoleService.saveUnconvRole(
-                                            modelMapper.map(unconvRoleDTO, UnconvRole.class)));
+                            UnconvRole unconvRole =
+                                    modelMapper.map(unconvRoleDTO, UnconvRole.class);
+                            unconvRole.setCreatedBy(this.getClass().getName());
+                            unconvRole.setCreatedReason(this.getClass().getName());
+                            return ResponseEntity.ok(unconvRoleService.saveUnconvRole(unconvRole));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
