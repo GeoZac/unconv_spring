@@ -32,7 +32,6 @@ import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -80,13 +79,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                         .apply(springSecurity())
                         .build();
 
-        UnconvRole unconvRole =
-                new UnconvRole(
-                        null,
-                        "ROLE_USER",
-                        this.getClass().getName(),
-                        this.getClass().getName(),
-                        new Date());
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
         unconvRoleSet.add(savedUnconvRole);
 
