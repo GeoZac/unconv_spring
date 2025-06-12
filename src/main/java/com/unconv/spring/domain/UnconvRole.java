@@ -53,6 +53,18 @@ public class UnconvRole {
         this.createdAt = new Date();
     }
 
+    /**
+     * Creates an {@code UnconvRole} using the provided parameters without applying any defaults.
+     * The {@code origin} class's fully qualified name is used for both {@code createdReason} and
+     * {@code createdBy}. This method assumes that all arguments are non-null; no null checks or
+     * fallbacks are applied.
+     *
+     * @param id the UUID to assign to the role
+     * @param roleName the name of the role
+     * @param origin the class representing the creation origin
+     * @return a new {@code UnconvRole} instance with values populated directly from inputs
+     * @throws NullPointerException if {@code origin} is {@code null}
+     */
     public static UnconvRole create(UUID id, String roleName, Class<?> origin) {
         String originName = origin.getName();
         return new UnconvRole(id, roleName, originName, originName, new Date());
