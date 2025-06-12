@@ -30,6 +30,7 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -50,7 +51,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     private static int totalPages;
 
     @BeforeEach
-    void setUp() {
+    void setUp(TestInfo testInfo) {
         this.mockMvc =
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
@@ -85,6 +86,13 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 Instancio.ofList(UnconvRole.class)
                         .size(30)
                         .ignore(field(UnconvRole::getId))
+                        .supply(field(UnconvRole::getCreatedReason), testInfo::getDisplayName)
+                        .supply(
+                                field(UnconvRole::getCreatedBy),
+                                () ->
+                                        testInfo.getTestClass()
+                                                .map(Class::getSimpleName)
+                                                .orElse("UnknownTestClass"))
                         .create();
         unconvRoleList = unconvRoleRepository.saveAll(unconvRoleList);
     }
