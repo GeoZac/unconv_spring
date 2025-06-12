@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -24,6 +25,7 @@ import com.unconv.spring.persistence.UnconvRoleRepository;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +59,27 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                         .apply(springSecurity())
                         .build();
 
-        assert unconvRoleRepository.findAll().size() == defaultUserRoleCount;
+        List<UnconvRole> existingRoles = unconvRoleRepository.findAll();
+        int actualCount = existingRoles.size();
+
+        assertEquals(
+                defaultUserRoleCount,
+                actualCount,
+                () ->
+                        "Expected "
+                                + defaultUserRoleCount
+                                + " default roles, but found "
+                                + actualCount
+                                + ".\nExisting roles:\n"
+                                + existingRoles.stream()
+                                        .map(
+                                                role ->
+                                                        String.format(
+                                                                "[Name: %s, Origin: %s, Reason: %s]",
+                                                                role.getName(),
+                                                                role.getCreatedBy(),
+                                                                role.getCreatedReason()))
+                                        .collect(Collectors.joining(",\n")));
 
         unconvRoleList =
                 Instancio.ofList(UnconvRole.class)
