@@ -167,7 +167,11 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvRole.getId().toString())))
-                .andExpect(jsonPath("$.name", is(unconvRole.getName())));
+                .andExpect(jsonPath("$.name", is(unconvRole.getName())))
+                .andExpect(jsonPath("$.createdBy").doesNotExist())
+                .andExpect(jsonPath("$.createdReason").doesNotExist())
+                .andExpect(jsonPath("$.createdAt").doesNotExist())
+                .andReturn();
     }
 
     // TODO Add test with USER access
@@ -183,7 +187,11 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.name", is(unconvRole.getName())));
+                .andExpect(jsonPath("$.name", is(unconvRole.getName())))
+                .andExpect(jsonPath("$.createdBy").doesNotExist())
+                .andExpect(jsonPath("$.createdReason").doesNotExist())
+                .andExpect(jsonPath("$.createdAt").doesNotExist())
+                .andReturn();
     }
 
     @Test
@@ -225,7 +233,11 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(unconvRole)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(unconvRole.getId().toString())))
-                .andExpect(jsonPath("$.name", is(unconvRole.getName())));
+                .andExpect(jsonPath("$.name", is(unconvRole.getName())))
+                .andExpect(jsonPath("$.createdBy").doesNotExist())
+                .andExpect(jsonPath("$.createdReason").doesNotExist())
+                .andExpect(jsonPath("$.createdAt").doesNotExist())
+                .andReturn();
     }
 
     // TODO Add test with USER access
