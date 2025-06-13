@@ -192,6 +192,9 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.createdReason").doesNotExist())
                 .andExpect(jsonPath("$.createdAt").doesNotExist())
                 .andReturn();
+
+        UnconvRole savedUnconvRole = unconvRoleRepository.findByName("New UnconvRole");
+        assertEquals("username", savedUnconvRole.getCreatedBy());
     }
 
     @Test
@@ -238,6 +241,9 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.createdReason").doesNotExist())
                 .andExpect(jsonPath("$.createdAt").doesNotExist())
                 .andReturn();
+
+        UnconvRole savedUnconvRole = unconvRoleRepository.findByName("Updated UnconvRole");
+        assertEquals("username", savedUnconvRole.getCreatedBy());
     }
 
     // TODO Add test with USER access
