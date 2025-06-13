@@ -292,7 +292,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                             UnconvUserDTO unconvUserDTOArg = invocation.getArgument(0);
 
                             UnconvRole userUnconvRole =
-                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                                    UnconvRole.create(
+                                            UUID.randomUUID(), "ROLE_USER", this.getClass());
                             Set<UnconvRole> unconvRoleSet = new HashSet<>();
                             unconvRoleSet.add(userUnconvRole);
 
@@ -412,7 +413,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                             UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
 
                             UnconvRole userUnconvRole =
-                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                                    UnconvRole.create(
+                                            UUID.randomUUID(), "ROLE_USER", this.getClass());
                             Set<UnconvRole> unconvRoleSet = new HashSet<>();
                             unconvRoleSet.add(userUnconvRole);
 

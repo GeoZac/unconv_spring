@@ -66,7 +66,7 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
 
     @Test
     void testAuthorisationContext() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
         Set<UnconvRole> unconvRoleSet = new HashSet<>();
         unconvRoleSet.add(unconvRole);
         UnconvUser unconvUser =

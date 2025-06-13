@@ -79,7 +79,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                         .apply(springSecurity())
                         .build();
 
-        UnconvRole unconvRole = new UnconvRole(null, "ROLE_USER");
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
         unconvRoleSet.add(savedUnconvRole);
 

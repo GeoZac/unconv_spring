@@ -145,7 +145,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindUnconvRoleById() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "ROLE_X");
+        UnconvRole unconvRole = UnconvRole.create(unconvRoleId, "ROLE_X", this.getClass());
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
 
@@ -226,7 +226,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                             return unconvRole;
                         });
 
-        UnconvRole unconvRole = new UnconvRole(null, "ROLE_NEW");
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_NEW", this.getClass());
         this.mockMvc
                 .perform(
                         post("/UnconvRole")
@@ -246,7 +246,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturn403WhenCreatingNewUnconvRoleAsUnconvUser() throws Exception {
-        UnconvRole unconvRole = new UnconvRole(null, "ROLE_NEW");
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_NEW", this.getClass());
         this.mockMvc
                 .perform(
                         post("/UnconvRole")
@@ -294,7 +294,8 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldUpdateUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated ROLE name");
+        UnconvRole unconvRole =
+                UnconvRole.create(unconvRoleId, "Updated ROLE name", this.getClass());
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
@@ -319,7 +320,8 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldReturn403WhenUpdatingUnconvRoleAsUnconvUser() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated ROLE name");
+        UnconvRole unconvRole =
+                UnconvRole.create(unconvRoleId, "Updated ROLE name", this.getClass());
         this.mockMvc
                 .perform(
                         put("/UnconvRole/{id}", unconvRole.getId())
@@ -339,7 +341,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     void shouldReturn404WhenUpdatingNonExistingUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
         given(unconvRoleService.findUnconvRoleById(unconvRoleId)).willReturn(Optional.empty());
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated text");
+        UnconvRole unconvRole = UnconvRole.create(unconvRoleId, "Updated text", this.getClass());
 
         this.mockMvc
                 .perform(
@@ -361,7 +363,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     void shouldReturn403WhenUpdatingNonExistingUnconvRoleAsUnconvUser() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
         given(unconvRoleService.findUnconvRoleById(unconvRoleId)).willReturn(Optional.empty());
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "Updated text");
+        UnconvRole unconvRole = UnconvRole.create(unconvRoleId, "Updated text", this.getClass());
 
         this.mockMvc
                 .perform(
@@ -381,7 +383,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @Test
     void shouldDeleteUnconvRole() throws Exception {
         UUID unconvRoleId = UUID.randomUUID();
-        UnconvRole unconvRole = new UnconvRole(unconvRoleId, "ROLE_KING");
+        UnconvRole unconvRole = UnconvRole.create(unconvRoleId, "ROLE_KING", this.getClass());
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         doNothing().when(unconvRoleService).deleteUnconvRoleById(unconvRole.getId());

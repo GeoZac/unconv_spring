@@ -159,7 +159,10 @@ class UnconvUserServiceImplTest {
         UnconvUser user = new UnconvUser();
         user.setId(UUID.randomUUID());
         user.setUsername("testuser");
-        user.setUnconvRoles(Set.of(new UnconvRole(UUID.randomUUID(), UNCONV_USER.toString())));
+        user.setUnconvRoles(
+                Set.of(
+                        UnconvRole.create(
+                                UUID.randomUUID(), UNCONV_USER.toString(), this.getClass())));
 
         UnconvUserDTO dto = new UnconvUserDTO();
         dto.setPassword("newPass");
@@ -167,7 +170,10 @@ class UnconvUserServiceImplTest {
         UnconvUser savedUser = new UnconvUser();
         savedUser.setId(user.getId());
         savedUser.setUsername("testuser");
-        user.setUnconvRoles(Set.of(new UnconvRole(UUID.randomUUID(), UNCONV_USER.toString())));
+        user.setUnconvRoles(
+                Set.of(
+                        UnconvRole.create(
+                                UUID.randomUUID(), UNCONV_USER.toString(), this.getClass())));
 
         when(unconvUserRepository.save(any(UnconvUser.class))).thenReturn(savedUser);
 
