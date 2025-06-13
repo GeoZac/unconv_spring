@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,10 +84,11 @@ public class UnconvRoleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Secured("ROLE_MANAGER")
-    public UnconvRole createUnconvRole(@RequestBody @Validated UnconvRoleDTO unconvRoleDTO) {
+    public UnconvRole createUnconvRole(
+            @RequestBody @Validated UnconvRoleDTO unconvRoleDTO, Authentication authentication) {
         unconvRoleDTO.setId(null);
         UnconvRole unconvRole = modelMapper.map(unconvRoleDTO, UnconvRole.class);
-        unconvRole.setCreatedBy(this.getClass().getName());
+        unconvRole.setCreatedBy(authentication.getName());
         unconvRole.setCreatedReason(this.getClass().getName());
         return unconvRoleService.saveUnconvRole(unconvRole);
     }
