@@ -78,7 +78,12 @@ public class UnconvRoleController {
     /**
      * Creates a new UnconvRole based on the provided UnconvRoleDTO.
      *
+     * <p>The authenticated user's name is used to populate the {@code createdBy} field for auditing
+     * purposes.
+     *
      * @param unconvRoleDTO The UnconvRoleDTO containing the data for the new UnconvRole.
+     * @param authentication The authentication context used to extract the username of the
+     *     requester.
      * @return The created UnconvRole.
      */
     @PostMapping
@@ -97,8 +102,13 @@ public class UnconvRoleController {
      * Updates an existing UnconvRole identified by the given ID with the data from the provided
      * UnconvRoleDTO.
      *
+     * <p>The authenticated user's name is used to populate the {@code createdBy} field for auditing
+     * purposes.
+     *
      * @param id The ID of the UnconvRole to update.
      * @param unconvRoleDTO The updated data for the UnconvRole.
+     * @param authentication The authentication context used to extract the username of the *
+     *     requester.
      * @return ResponseEntity with status 200 (OK) and the updated UnconvRole if found and updated
      *     successfully, or ResponseEntity with status 404 (Not Found) if no UnconvRole with the
      *     given ID exists.
