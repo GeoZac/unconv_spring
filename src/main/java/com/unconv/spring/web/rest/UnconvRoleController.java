@@ -106,7 +106,9 @@ public class UnconvRoleController {
     @PutMapping("/{id}")
     @Secured("ROLE_MANAGER")
     public ResponseEntity<UnconvRole> updateUnconvRole(
-            @PathVariable UUID id, @RequestBody @Valid UnconvRoleDTO unconvRoleDTO) {
+            @PathVariable UUID id,
+            @RequestBody @Valid UnconvRoleDTO unconvRoleDTO,
+            Authentication authentication) {
         return unconvRoleService
                 .findUnconvRoleById(id)
                 .map(
@@ -114,7 +116,7 @@ public class UnconvRoleController {
                             unconvRoleDTO.setId(id);
                             UnconvRole unconvRole =
                                     modelMapper.map(unconvRoleDTO, UnconvRole.class);
-                            unconvRole.setCreatedBy(this.getClass().getName());
+                            unconvRole.setCreatedBy(authentication.getName());
                             unconvRole.setCreatedReason(this.getClass().getName());
                             return ResponseEntity.ok(unconvRoleService.saveUnconvRole(unconvRole));
                         })
