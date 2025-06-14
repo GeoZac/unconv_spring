@@ -220,7 +220,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     void shouldCreateNewUnconvRole() throws Exception {
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             UnconvRole unconvRole = invocation.getArgument(0);
                             unconvRole.setId(UUID.randomUUID());
                             return unconvRole;
@@ -299,7 +299,7 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         given(unconvRoleService.findUnconvRoleById(unconvRoleId))
                 .willReturn(Optional.of(unconvRole));
         given(unconvRoleService.saveUnconvRole(any(UnconvRole.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(
