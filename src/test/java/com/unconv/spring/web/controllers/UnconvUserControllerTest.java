@@ -406,10 +406,10 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
                 .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
         given(unconvUserService.updateUnconvUser((any(UnconvUser.class)), any(UnconvUserDTO.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
 
                             UnconvRole userUnconvRole =
@@ -464,7 +464,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
                 .willReturn(false);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
@@ -499,7 +499,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
                 .willReturn(false);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
 
