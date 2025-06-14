@@ -20,7 +20,7 @@ jobs:
           name: Grant execute permission for mvnw
           command: chmod +x mvnw
       - run:
-          name: Download dependecies
+          name: Download dependencies
           command: ./mvnw dependency:resolve
       - run:
             name: Display dependency tree

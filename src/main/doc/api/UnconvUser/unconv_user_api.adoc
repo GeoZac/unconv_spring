@@ -23,10 +23,10 @@ include::{snippets}/UnconvUser/shouldReturnTrueWhenAnUnregisteredUnconvUserIsChe
 
 Response +
 
-* 200 Response - _Username avaialbe_
+* 200 Response - _Username available_
 include::{snippets}/UnconvUser/shouldReturnTrueWhenAnUnregisteredUnconvUserIsCheckedIfAvailable/http-response.adoc[]
 
-* 400 Response - _Username unavaialbe_
+* 400 Response - _Username unavailable_
 include::{snippets}/UnconvUser/shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable/http-response.adoc[]
 
 ==== Creating a UnconvUser
