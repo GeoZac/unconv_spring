@@ -165,7 +165,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
     void shouldCreateNewHumidityThreshold() throws Exception {
         given(humidityThresholdService.saveHumidityThreshold(any(HumidityThreshold.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             HumidityThreshold humidityThreshold = invocation.getArgument(0);
                             humidityThreshold.setId(UUID.randomUUID());
                             return humidityThreshold;
@@ -229,7 +229,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
         given(humidityThresholdService.findHumidityThresholdById(humidityThresholdId))
                 .willReturn(Optional.of(humidityThreshold));
         given(humidityThresholdService.saveHumidityThreshold(any(HumidityThreshold.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(
