@@ -1251,7 +1251,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
                 .andReturn();
-        ;
     }
 
     @Test

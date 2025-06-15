@@ -246,7 +246,6 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
                 .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andReturn();
-        ;
     }
 
     @Test
@@ -287,7 +286,6 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.maxValue", is(humidityThreshold.getMaxValue())))
                 .andExpect(jsonPath("$.minValue", is(humidityThreshold.getMinValue())))
                 .andReturn();
-        ;
     }
 
     @Test
