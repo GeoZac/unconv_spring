@@ -230,7 +230,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
     void shouldCreateNewSensorLocation() throws Exception {
         given(sensorLocationService.saveSensorLocation(any(SensorLocation.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             SensorLocation sensorLocation = invocation.getArgument(0);
                             sensorLocation.setId(UUID.randomUUID());
                             return sensorLocation;
@@ -299,7 +299,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         given(sensorLocationService.findSensorLocationById(sensorLocationId))
                 .willReturn(Optional.of(sensorLocation));
         given(sensorLocationService.saveSensorLocation(any(SensorLocation.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

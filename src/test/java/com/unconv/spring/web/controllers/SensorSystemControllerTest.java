@@ -429,7 +429,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
         UnconvUser unconvUser =
                 new UnconvUser(UUID.randomUUID(), "UnconvUser", "unconvuser@email.com", "password");
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         SensorSystem sensorSystem =
                 SensorSystem.builder()
@@ -449,7 +449,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         sensorSystemService.validateUnconvUserAndSaveSensorSystem(
                                 any(SensorSystemDTO.class), any(Authentication.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             OffsetDateTime creationTime = OffsetDateTime.now();
                             SensorSystemDTO sensorSystemArg = invocation.getArgument(0);
                             sensorSystemArg.setId(UUID.randomUUID());
@@ -521,7 +521,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
         given(sensorSystemService.findSensorSystemById(sensorSystemId))
                 .willReturn(Optional.of(sensorSystem));
         given(sensorSystemService.saveSensorSystem(any(SensorSystem.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
 
