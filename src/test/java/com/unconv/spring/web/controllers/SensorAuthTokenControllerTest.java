@@ -224,7 +224,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     void shouldCreateNewSensorAuthToken() throws Exception {
         given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class), isNull()))
                 .willAnswer(
-                        (invocation) ->
+                        invocation ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),
@@ -304,7 +304,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenService.generateSensorAuthToken(
                                 any(SensorSystem.class), any(UUID.class)))
                 .willAnswer(
-                        (invocation) ->
+                        invocation ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),

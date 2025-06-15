@@ -169,7 +169,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
     void shouldCreateNewTemperatureThreshold() throws Exception {
         given(temperatureThresholdService.saveTemperatureThreshold(any(TemperatureThreshold.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             TemperatureThreshold temperatureThreshold = invocation.getArgument(0);
                             temperatureThreshold.setId(UUID.randomUUID());
                             return temperatureThreshold;
@@ -236,7 +236,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
         given(temperatureThresholdService.findTemperatureThresholdById(temperatureThresholdId))
                 .willReturn(Optional.of(temperatureThreshold));
         given(temperatureThresholdService.saveTemperatureThreshold(any(TemperatureThreshold.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

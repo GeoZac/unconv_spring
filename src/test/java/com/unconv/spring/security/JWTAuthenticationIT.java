@@ -39,7 +39,7 @@ class JWTAuthenticationIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void testAuthorizedRequestWithoutToeknPrefix() throws Exception {
+    void testAuthorizedRequestWithoutTokenPrefix() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(UUID.randomUUID(), "Test user", "testuser@email.com", "password");
         // Generate a valid JWT token
