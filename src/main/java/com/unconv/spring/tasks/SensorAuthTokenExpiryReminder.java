@@ -55,7 +55,7 @@ public class SensorAuthTokenExpiryReminder {
      * <p>The email uses a Thymeleaf template named {@code sensor-auth-token-expiry-reminder.html}
      * and includes the username, sensor name, and formatted expiry date.
      */
-    @Scheduled(fixedRate = 604800000)
+    @Scheduled(fixedRate = 604800000, initialDelay = 86400000)
     public void remindSensorAuthTokenExpiry() {
         int page = 0;
         int size = 10;
