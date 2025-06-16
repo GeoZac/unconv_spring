@@ -110,7 +110,7 @@ class RouteControllerTest extends AbstractControllerTest {
     void shouldCreateNewRoute() throws Exception {
         given(routeService.saveRoute(any(Route.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Route route = invocation.getArgument(0);
                             route.setId(1L);
                             return route;
@@ -158,7 +158,7 @@ class RouteControllerTest extends AbstractControllerTest {
         Route route = new Route(routeId, "Updated text");
         given(routeService.findRouteById(routeId)).willReturn(Optional.of(route));
         given(routeService.saveRoute(any(Route.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

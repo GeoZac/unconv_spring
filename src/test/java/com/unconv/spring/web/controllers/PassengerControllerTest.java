@@ -127,7 +127,7 @@ class PassengerControllerTest extends AbstractControllerTest {
     void shouldCreateNewPassenger() throws Exception {
         given(passengerService.savePassenger(any(Passenger.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Passenger passenger = invocation.getArgument(0);
                             passenger.setId(1L);
                             return passenger;
@@ -185,7 +185,7 @@ class PassengerControllerTest extends AbstractControllerTest {
 
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
         given(passengerService.savePassenger(any(Passenger.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(
