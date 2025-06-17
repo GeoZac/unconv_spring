@@ -8,6 +8,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 /** Utility class for generating access tokens. */
 public class AccessTokenGenerator {
 
+    /** Private constructor to hide the implicit public one */
     private AccessTokenGenerator() {
         // Private constructor to hide the implicit public one.
     }
