@@ -95,10 +95,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
             new UnconvUser(
                     UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
-    private final UUID sensorSystemId = UUID.randomUUID();
     private final SensorSystem mSensorSystem =
             SensorSystem.builder()
-                    .id(sensorSystemId)
+                    .id(UUID.randomUUID())
                     .sensorName("Workspace sensor system")
                     .description("Monitors temperature and humidity for personal workspace")
                     .deleted(false)
