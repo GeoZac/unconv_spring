@@ -21,6 +21,10 @@ public class CSVUtil {
     /** The content type for CSV files. */
     public static final String TYPE = "text/csv";
 
+    private CSVUtil() {
+        // Private constructor to hide the implicit public one
+    }
+
     /**
      * Checks if the provided file is of CSV format.
      *
