@@ -277,7 +277,8 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .andDo(
                                 document(
                                         "shouldFindSensorSystemById",
-                                        preprocessRequest(prettyPrint)))
+                                        preprocessRequest(prettyPrint),
+                                        preprocessResponse(prettyPrint)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id", is(sensorSystemId.toString())))
                         .andReturn()
