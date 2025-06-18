@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,7 +67,6 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         try {
             this.mockMvc
                     .perform(get("/Passenger").param("sortDir", "asc"))
-                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                     .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
@@ -96,7 +94,6 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         try {
             this.mockMvc
                     .perform(get("/Passenger").param("sortDir", "desc"))
-                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
                     .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
