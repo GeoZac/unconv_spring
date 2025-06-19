@@ -110,7 +110,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -166,7 +166,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 () -> savedSensorSystem)
                         .create();
 
-        totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
+        totalPages =
+                (int) Math.ceil((double) environmentalReadingList.size() / DEFAULT_PAGE_SIZE_INT);
 
         environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
     }
@@ -176,16 +177,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
-                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                        jsonPath(
+                                "$.isLast",
+                                is(environmentalReadingList.size() < DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -215,7 +219,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.isLast", is(false)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -242,7 +247,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
-        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -251,13 +256,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -266,16 +271,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
-                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                        jsonPath(
+                                "$.isLast",
+                                is(environmentalReadingList.size() < DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -302,7 +310,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
-        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -311,13 +319,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
