@@ -20,15 +20,4 @@ public class SuppressedBadCredentialsException extends BadCredentialsException {
     public SuppressedBadCredentialsException(String message) {
         super(message);
     }
-
-    /**
-     * Overrides {@link Throwable#fillInStackTrace()} to suppress the generation of a stack trace.
-     *
-     * @return this instance, with no stack trace generated.
-     */
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        // Suppress stack trace generation
-        return this;
-    }
 }
