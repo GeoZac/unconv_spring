@@ -99,7 +99,7 @@ class OfferControllerTest extends AbstractControllerTest {
     void shouldCreateNewOffer() throws Exception {
         given(offerService.saveOffer(any(Offer.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Offer offer = invocation.getArgument(0);
                             offer.setId(1L);
                             return offer;
@@ -147,7 +147,7 @@ class OfferControllerTest extends AbstractControllerTest {
         Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
         given(offerService.findOfferById(offerId)).willReturn(Optional.of(offer));
         given(offerService.saveOffer(any(Offer.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

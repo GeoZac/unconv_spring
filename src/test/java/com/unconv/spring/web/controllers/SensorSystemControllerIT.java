@@ -16,9 +16,13 @@ import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
 import com.unconv.spring.domain.EnvironmentalReading;
@@ -78,7 +82,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Autowired private UnconvUserService unconvUserService;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -170,7 +174,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                     return unconvUserList.get(randomIndex);
                                 })
                         .create();
-        totalPages = (int) Math.ceil((double) sensorSystemList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) sensorSystemList.size() / DEFAULT_PAGE_SIZE_INT);
         sensorSystemList = sensorSystemRepository.saveAll(sensorSystemList);
     }
 
@@ -186,8 +190,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(sensorSystemList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(sensorSystemList.size() > defaultPageSize)))
+                .andExpect(
+                        jsonPath("$.isLast", is(sensorSystemList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(
+                        jsonPath("$.hasNext", is(sensorSystemList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -224,7 +230,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
-        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -238,8 +244,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -255,8 +261,10 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(sensorSystemList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(sensorSystemList.size() > defaultPageSize)))
+                .andExpect(
+                        jsonPath("$.isLast", is(sensorSystemList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(
+                        jsonPath("$.hasNext", is(sensorSystemList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -293,7 +301,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         environmentalReadingRepository.saveAll(environmentalReadingsOfSomeSensor);
 
         int dataSize = savedSensorSystemsOfSpecificUnconvUser.size();
-        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -307,8 +315,8 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -503,7 +511,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
@@ -550,7 +557,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
@@ -602,7 +608,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_ACCEPTED)))
                 .andExpect(jsonPath("$.entity.id", notNullValue()))
@@ -782,7 +787,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystem)))
-                .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message", is(ENVT_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))
@@ -806,7 +810,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(sensorSystemDTO)))
-                .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", is(SENS_RECORD_REJ_USER)))
                 .andExpect(jsonPath("$.entity.id", nullValue()))

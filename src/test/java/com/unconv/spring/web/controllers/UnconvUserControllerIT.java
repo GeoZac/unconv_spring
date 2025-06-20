@@ -65,7 +65,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -110,7 +110,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
             unconvUserDTO.setUnconvRoles(unconvRoleSet);
             unconvUserDTOList.add(unconvUserDTO);
         }
-        totalPages = (int) Math.ceil((double) unconvUserList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) unconvUserList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
@@ -121,13 +121,13 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .param("sortDir", "asc")
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -148,13 +148,13 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
                                 .param("sortDir", "desc")
                                 .with(user("username").roles("TENANT")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
