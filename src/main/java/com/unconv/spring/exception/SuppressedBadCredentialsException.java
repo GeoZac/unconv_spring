@@ -19,5 +19,16 @@ public class SuppressedBadCredentialsException extends BadCredentialsException {
      */
     public SuppressedBadCredentialsException(String message) {
         super(message);
+        clipStackTrace();
+    }
+
+    /** Truncates the stack trace to the specified depth. */
+    private void clipStackTrace() {
+        StackTraceElement[] fullStackTrace = getStackTrace();
+        if (fullStackTrace.length > 5) {
+            StackTraceElement[] clipped = new StackTraceElement[5];
+            System.arraycopy(fullStackTrace, 0, clipped, 0, 5);
+            setStackTrace(clipped);
+        }
     }
 }
