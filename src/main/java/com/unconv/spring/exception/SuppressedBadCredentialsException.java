@@ -4,25 +4,31 @@ import org.springframework.security.authentication.BadCredentialsException;
 
 /**
  * A custom exception that extends {@link BadCredentialsException} and suppresses the generation of
- * stack traces for performance reasons.
+ * full stack traces for performance reasons.
  *
- * <p>This exception is useful in scenarios where stack trace generation and logging are
- * unnecessary, such as in cases of frequent authentication failures, to reduce overhead and improve
- * application performance.
+ * <p>This exception is particularly useful in high-throughput authentication systems where frequent
+ * authentication failures are expected and stack trace generation is unnecessary. Limiting the
+ * stack trace helps reduce CPU and memory overhead, especially when logging is involved.
  */
 public class SuppressedBadCredentialsException extends BadCredentialsException {
 
     /**
      * Constructs a new {@code SuppressedBadCredentialsException} with the specified detail message.
+     * The stack trace is truncated to a limited depth to reduce overhead.
      *
-     * @param message the detail message, which provides information about the exception.
+     * @param message the detail message providing context about the authentication failure.
      */
     public SuppressedBadCredentialsException(String message) {
         super(message);
         clipStackTrace();
     }
 
-    /** Truncates the stack trace to the specified depth. */
+    /**
+     * Truncates the stack trace to a maximum of 5 elements.
+     *
+     * <p>This method reduces the size of the stack trace associated with this exception, which can
+     * be beneficial for performance in scenarios where detailed stack traces are not necessary.
+     */
     private void clipStackTrace() {
         StackTraceElement[] fullStackTrace = getStackTrace();
         if (fullStackTrace.length > 5) {
