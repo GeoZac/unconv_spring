@@ -3,7 +3,9 @@ package com.unconv.spring.external;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +28,8 @@ class EmailClientTest {
     @Value("${spring.mail.host}")
     private String mMailHost;
 
+    @Mock private MimeMessage mimeMessage;
+
     @Test
     void testSendEmailWhenEmailEnabled() {
         String to = "recipient@example.com";
@@ -47,6 +51,22 @@ class EmailClientTest {
     }
 
     @Test
+    void testSendEmailWithHTMLContentWhenEmailEnabled() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String htmlContent = "<h1>This is a test email.</h1>";
+        String fromAddress = "sender@example.com";
+        String mailHost = "smtp.example.com";
+
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
+
+        verify(mailSender, times(1)).send(mimeMessage);
+    }
+
+    @Test
     void testSendEmailWhenEmailNotEnabled() {
         // Arrange
         String to = "recipient@example.com";
@@ -59,6 +79,34 @@ class EmailClientTest {
         emailClient.sendEmail(to, subject, text);
 
         verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testSendEmailWithHTMLContentWhenEmailNotEnabled() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String htmlContent = "<h1>This is a test email.</h1>";
+        String fromAddress = "";
+        String mailHost = "";
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
+
+        verify(mailSender, times(0)).send(mimeMessage);
+    }
+
+    @Test
+    void testSendEmailWithHTMLContentWhenEmailWithEmptyToAddress() {
+        String to = "";
+        String subject = "Test Subject";
+        String htmlContent = "<h1>This is a test email.</h1>";
+        String fromAddress = "sender@example.com";
+        String mailHost = "smtp.example.com";
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
+
+        verify(mailSender, times(0)).send(mimeMessage);
     }
 
     @Test

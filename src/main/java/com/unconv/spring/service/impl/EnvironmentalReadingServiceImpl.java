@@ -261,7 +261,7 @@ public class EnvironmentalReadingServiceImpl implements EnvironmentalReadingServ
                                 + " records";
                 return ResponseEntity.status(HttpStatus.CREATED).body(message);
             } catch (Exception e) {
-                message = String.format(ENVT_FILE_REJ_ERR, file.getOriginalFilename());
+                message = ENVT_FILE_REJ_ERR.formatted(file.getOriginalFilename());
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
             }
         }

@@ -6,10 +6,11 @@ import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.base.BaseEnvironmentalReadingDTO;
 import com.unconv.spring.enums.SensorStatus;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,9 +47,9 @@ public class SensorSystemDTO {
     @NotNull(message = "UnconvUser cannot be empty")
     private UnconvUser unconvUser;
 
-    private HumidityThreshold humidityThreshold;
+    @Valid private HumidityThreshold humidityThreshold;
 
-    private TemperatureThreshold temperatureThreshold;
+    @Valid private TemperatureThreshold temperatureThreshold;
 
     private OffsetDateTime createdDate;
 

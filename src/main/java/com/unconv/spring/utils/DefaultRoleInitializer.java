@@ -3,7 +3,7 @@ package com.unconv.spring.utils;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.enums.DefaultUserRole;
 import com.unconv.spring.persistence.UnconvRoleRepository;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 /** Component class responsible for initializing default roles in the system. */
@@ -40,8 +40,7 @@ public class DefaultRoleInitializer {
     private void createRoleIfNotExists(DefaultUserRole defaultUserRole) {
         UnconvRole existingRole = unconvRoleRepository.findByName(String.valueOf(defaultUserRole));
         if (existingRole == null) {
-            UnconvRole newRole = new UnconvRole();
-            newRole.setName(defaultUserRole.name());
+            UnconvRole newRole = UnconvRole.create(null, defaultUserRole.name(), this.getClass());
             unconvRoleRepository.save(newRole);
         }
     }

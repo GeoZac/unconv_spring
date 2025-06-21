@@ -5,14 +5,15 @@ import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.dto.UnconvRoleDTO;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvRoleService;
+import jakarta.validation.Valid;
 import java.util.UUID;
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,25 +48,13 @@ public class UnconvRoleController {
     @GetMapping
     @Secured("ROLE_TENANT")
     public PagedResult<UnconvRole> getAllUnconvRoles(
-            @RequestParam(
-                            value = "pageNo",
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            value = "pageSize",
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false)
                     String sortDir) {
         return unconvRoleService.findAllUnconvRoles(pageNo, pageSize, sortBy, sortDir);
     }
@@ -89,23 +78,37 @@ public class UnconvRoleController {
     /**
      * Creates a new UnconvRole based on the provided UnconvRoleDTO.
      *
+     * <p>The authenticated user's name is used to populate the {@code createdBy} field for auditing
+     * purposes.
+     *
      * @param unconvRoleDTO The UnconvRoleDTO containing the data for the new UnconvRole.
+     * @param authentication The authentication context used to extract the username of the
+     *     requester.
      * @return The created UnconvRole.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Secured("ROLE_MANAGER")
-    public UnconvRole createUnconvRole(@RequestBody @Validated UnconvRoleDTO unconvRoleDTO) {
+    public UnconvRole createUnconvRole(
+            @RequestBody @Validated UnconvRoleDTO unconvRoleDTO, Authentication authentication) {
         unconvRoleDTO.setId(null);
-        return unconvRoleService.saveUnconvRole(modelMapper.map(unconvRoleDTO, UnconvRole.class));
+        UnconvRole unconvRole = modelMapper.map(unconvRoleDTO, UnconvRole.class);
+        unconvRole.setCreatedBy(authentication.getName());
+        unconvRole.setCreatedReason(this.getClass().getName());
+        return unconvRoleService.saveUnconvRole(unconvRole);
     }
 
     /**
      * Updates an existing UnconvRole identified by the given ID with the data from the provided
      * UnconvRoleDTO.
      *
+     * <p>The authenticated user's name is used to populate the {@code createdBy} field for auditing
+     * purposes.
+     *
      * @param id The ID of the UnconvRole to update.
      * @param unconvRoleDTO The updated data for the UnconvRole.
+     * @param authentication The authentication context used to extract the username of the *
+     *     requester.
      * @return ResponseEntity with status 200 (OK) and the updated UnconvRole if found and updated
      *     successfully, or ResponseEntity with status 404 (Not Found) if no UnconvRole with the
      *     given ID exists.
@@ -113,15 +116,19 @@ public class UnconvRoleController {
     @PutMapping("/{id}")
     @Secured("ROLE_MANAGER")
     public ResponseEntity<UnconvRole> updateUnconvRole(
-            @PathVariable UUID id, @RequestBody @Valid UnconvRoleDTO unconvRoleDTO) {
+            @PathVariable UUID id,
+            @RequestBody @Valid UnconvRoleDTO unconvRoleDTO,
+            Authentication authentication) {
         return unconvRoleService
                 .findUnconvRoleById(id)
                 .map(
                         unconvRoleObj -> {
                             unconvRoleDTO.setId(id);
-                            return ResponseEntity.ok(
-                                    unconvRoleService.saveUnconvRole(
-                                            modelMapper.map(unconvRoleDTO, UnconvRole.class)));
+                            UnconvRole unconvRole =
+                                    modelMapper.map(unconvRoleDTO, UnconvRole.class);
+                            unconvRole.setCreatedBy(authentication.getName());
+                            unconvRole.setCreatedReason(this.getClass().getName());
+                            return ResponseEntity.ok(unconvRoleService.saveUnconvRole(unconvRole));
                         })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

@@ -1,0 +1,368 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="geozac (generated)" id="1749357518036-1">
+        <createTable tableName="sensor_systems">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="sensor_systems_pkey"/>
+            </column>
+            <column name="sensorname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sensor_location_id" type="UUID"/>
+            <column name="unconv_user_id" type="UUID"/>
+            <column name="description" type="VARCHAR(500)"/>
+            <column defaultValueBoolean="false" name="deleted" type="BOOLEAN"/>
+            <column defaultValueNumeric="0" name="sensorstatus" type="INTEGER"/>
+            <column name="humidity_threshold_id" type="UUID"/>
+            <column name="temperature_threshold_id" type="UUID"/>
+            <column name="updateddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="createddate" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-2">
+        <createTable tableName="environmental_readings">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="environmental_readings_pkey"/>
+            </column>
+            <column name="humidity" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="temperature" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sensor_id" type="UUID"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-3">
+        <createTable tableName="environmental_reading">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="environmental_reading_pkey"/>
+            </column>
+            <column name="humidity" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="temperature" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sensor_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-4">
+        <createIndex indexName="idx_sensor_user" tableName="sensor_systems">
+            <column name="unconv_user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-5">
+        <createIndex indexName="idx_env_sensor_timestamp" tableName="environmental_readings">
+            <column name="sensor_id"/>
+            <column descending="true" name="timestamp"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-6">
+        <createIndex indexName="idx_sensor_system" tableName="environmental_readings">
+            <column name="sensor_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-7">
+        <createIndex indexName="idx_envreading_sensorsystem_timestamp" tableName="environmental_reading">
+            <column name="sensor_id"/>
+            <column descending="true" name="timestamp"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-8">
+        <createTable tableName="bookings">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="bookings_pkey"/>
+            </column>
+            <column name="booking" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bookingreference" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-9">
+        <createTable tableName="fruit_products">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="fruit_products_pkey"/>
+            </column>
+            <column name="costprice" type="FLOAT4">
+                <constraints nullable="false"/>
+            </column>
+            <column name="packageweight" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sellingprice" type="FLOAT4">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fruit_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="offer_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-10">
+        <createTable tableName="fruits">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="fruits_pkey"/>
+            </column>
+            <column name="fruitimageurl" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fruitname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fruitvendor" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-11">
+        <createTable tableName="heaters">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="heaters_pkey"/>
+            </column>
+            <column name="temptolerance" type="FLOAT4">
+                <constraints nullable="false"/>
+            </column>
+            <column name="temperature" type="FLOAT4">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-12">
+        <createTable tableName="offers">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="offers_pkey"/>
+            </column>
+            <column name="badgecolor" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-13">
+        <createTable tableName="order_products">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="order_products_pkey"/>
+            </column>
+            <column name="text" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-14">
+        <createTable tableName="passengers">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="passengers_pkey"/>
+            </column>
+            <column name="age" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dateofbirth" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="firstname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gender" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastname" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="middlename" type="VARCHAR(255)"/>
+            <column name="booking_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-15">
+        <createTable tableName="routes">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="routes_pkey"/>
+            </column>
+            <column name="text" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-16">
+        <createTable tableName="sensor_auth_tokens">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="sensor_auth_tokens_pkey"/>
+            </column>
+            <column name="authtoken" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiry" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tokenhash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sensor_system_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-17">
+        <createTable tableName="sensor_locations">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="sensor_locations_pkey"/>
+            </column>
+            <column name="latitude" type="FLOAT8"/>
+            <column name="longitude" type="FLOAT8"/>
+            <column name="sensorlocationtext" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sensorlocationtype" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-18">
+        <createTable tableName="thresholds">
+            <column name="threshold_type" type="VARCHAR(31)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="thresholds_pkey"/>
+            </column>
+            <column name="maxvalue" type="FLOAT8"/>
+            <column name="minvalue" type="FLOAT8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-19">
+        <createTable tableName="unconv_roles">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="unconv_roles_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-20">
+        <createTable tableName="unconv_users">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="unconv_users_pkey"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-21">
+        <createTable tableName="users_roles">
+            <column name="unconv_user_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="users_roles_pkey"/>
+            </column>
+            <column name="unconv_role_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="users_roles_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-22">
+        <addForeignKeyConstraint baseColumnNames="unconv_user_id" baseTableName="users_roles" constraintName="fk1dpwldlwemlsoeo3awqvm3jlw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="unconv_users" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-23">
+        <addForeignKeyConstraint baseColumnNames="temperature_threshold_id" baseTableName="sensor_systems" constraintName="fk1kardv18irlb5fra1s9jvexug" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="thresholds" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-24">
+        <addForeignKeyConstraint baseColumnNames="humidity_threshold_id" baseTableName="sensor_systems" constraintName="fk3p9p8kd7gvid3halvkqtnr8cp" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="thresholds" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-25">
+        <addForeignKeyConstraint baseColumnNames="fruit_id" baseTableName="fruit_products" constraintName="fk4cix1026xm5xppvyn7mv09yxi" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="fruits" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-26">
+        <addForeignKeyConstraint baseColumnNames="sensor_location_id" baseTableName="sensor_systems" constraintName="fk7p4u2tu2d3o57axdb6hffu5rt" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="sensor_locations" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-27">
+        <addForeignKeyConstraint baseColumnNames="sensor_id" baseTableName="environmental_reading" constraintName="fka6u201il1wy0gq255mdoisp8t" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="sensor_systems" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-28">
+        <addForeignKeyConstraint baseColumnNames="offer_id" baseTableName="fruit_products" constraintName="fkdvt4cfiyxh7e6qap65j0ldpdh" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="offers" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-29">
+        <addForeignKeyConstraint baseColumnNames="sensor_id" baseTableName="environmental_readings" constraintName="fkejggh95bcodf8julu8qaggqrs" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="sensor_systems" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-30">
+        <addForeignKeyConstraint baseColumnNames="sensor_system_id" baseTableName="sensor_auth_tokens" constraintName="fkfaaerjyvt15rvux4shak5uxtw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="sensor_systems" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-31">
+        <addForeignKeyConstraint baseColumnNames="booking_id" baseTableName="passengers" constraintName="fkgc7vcfrut3vamougerwse2m2u" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="bookings" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-32">
+        <addForeignKeyConstraint baseColumnNames="unconv_role_id" baseTableName="users_roles" constraintName="fkkumads3xg7e60b5tgqogo6o31" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="unconv_roles" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-33">
+        <addForeignKeyConstraint baseColumnNames="unconv_user_id" baseTableName="sensor_systems" constraintName="fkt3ba4dq1uqm0s0mv5e33p81ng" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="unconv_users" validate="true"/>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-34">
+        <createView fullDefinition="false" viewName="pg_stat_statements">SELECT userid,
+    dbid,
+    toplevel,
+    queryid,
+    query,
+    plans,
+    total_plan_time,
+    min_plan_time,
+    max_plan_time,
+    mean_plan_time,
+    stddev_plan_time,
+    calls,
+    total_exec_time,
+    min_exec_time,
+    max_exec_time,
+    mean_exec_time,
+    stddev_exec_time,
+    rows,
+    shared_blks_hit,
+    shared_blks_read,
+    shared_blks_dirtied,
+    shared_blks_written,
+    local_blks_hit,
+    local_blks_read,
+    local_blks_dirtied,
+    local_blks_written,
+    temp_blks_read,
+    temp_blks_written,
+    blk_read_time,
+    blk_write_time,
+    temp_blk_read_time,
+    temp_blk_write_time,
+    wal_records,
+    wal_fpi,
+    wal_bytes,
+    jit_functions,
+    jit_generation_time,
+    jit_inlining_count,
+    jit_inlining_time,
+    jit_optimization_count,
+    jit_optimization_time,
+    jit_emission_count,
+    jit_emission_time
+   FROM pg_stat_statements(true) pg_stat_statements(userid, dbid, toplevel, queryid, query, plans, total_plan_time, min_plan_time, max_plan_time, mean_plan_time, stddev_plan_time, calls, total_exec_time, min_exec_time, max_exec_time, mean_exec_time, stddev_exec_time, rows, shared_blks_hit, shared_blks_read, shared_blks_dirtied, shared_blks_written, local_blks_hit, local_blks_read, local_blks_dirtied, local_blks_written, temp_blks_read, temp_blks_written, blk_read_time, blk_write_time, temp_blk_read_time, temp_blk_write_time, wal_records, wal_fpi, wal_bytes, jit_functions, jit_generation_time, jit_inlining_count, jit_inlining_time, jit_optimization_count, jit_optimization_time, jit_emission_count, jit_emission_time);</createView>
+    </changeSet>
+    <changeSet author="geozac (generated)" id="1749357518036-35">
+        <createView fullDefinition="false" viewName="pg_stat_statements_info">SELECT dealloc,
+    stats_reset
+   FROM pg_stat_statements_info() pg_stat_statements_info(dealloc, stats_reset);</createView>
+    </changeSet>
+</databaseChangeLog>

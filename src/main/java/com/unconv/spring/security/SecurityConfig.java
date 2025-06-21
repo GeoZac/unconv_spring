@@ -1,5 +1,6 @@
 package com.unconv.spring.security;
 
+import com.unconv.spring.config.ApiVisibilityConfig;
 import com.unconv.spring.security.filter.AuthenticationFilter;
 import com.unconv.spring.security.filter.CustomAuthenticationManager;
 import com.unconv.spring.security.filter.ExceptionHandlerFilter;
@@ -41,6 +42,8 @@ public class SecurityConfig {
 
     private final SecurityProblemSupport problemSupport;
 
+    private final ApiVisibilityConfig apiVisibilityConfig;
+
     /**
      * Configures the security filter chain for the application.
      *
@@ -56,28 +59,38 @@ public class SecurityConfig {
 
         http
                 // Disable CSRF protection if using it in Postman
-                .csrf()
-                .disable()
+                .csrf(csrf -> csrf.disable())
 
                 // Configure request authorization
-                .authorizeRequests()
+                .authorizeHttpRequests(
+                        requests -> {
+                            requests
+                                    // Allow specific URLs without authentication
+                                    .requestMatchers(
+                                            HttpMethod.GET, "/UnconvUser/Username/Available/**")
+                                    .permitAll()
+                                    .requestMatchers(HttpMethod.POST, "/UnconvUser")
+                                    .permitAll()
+                                    .requestMatchers("/public/**")
+                                    .permitAll()
+                                    .requestMatchers("/favicon.ico")
+                                    .permitAll();
 
-                // Allow specific URLs without authentication
-                .antMatchers(HttpMethod.GET, "/UnconvUser/Username/Available/**")
-                .permitAll()
-                .antMatchers(HttpMethod.POST, "/UnconvUser")
-                .permitAll()
-                .antMatchers("/public/**")
-                .permitAll()
-                .antMatchers("/favicon.ico")
-                .permitAll()
+                            if (apiVisibilityConfig.isExposeActuator()) {
+                                requests.requestMatchers("/actuator/**").permitAll();
+                            }
 
-                // Require authentication for any other request
-                .anyRequest()
-                .authenticated()
+                            if (apiVisibilityConfig.isExposeDocs()) {
+                                requests.requestMatchers(
+                                                "/v3/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
+                                        .permitAll();
+                            }
 
-                // Configure additional filters
-                .and()
+                            // Require authentication for any other request
+                            requests.anyRequest().authenticated();
+                        })
                 .addFilterBefore(
                         new ExceptionHandlerFilter(sensorAuthTokenExceptionHandler),
                         AuthenticationFilter.class)
@@ -89,8 +102,9 @@ public class SecurityConfig {
                         AuthenticationFilter.class)
 
                 // Configure session management
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement(
+                        management ->
+                                management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.exceptionHandling(
                 exceptionHandling ->

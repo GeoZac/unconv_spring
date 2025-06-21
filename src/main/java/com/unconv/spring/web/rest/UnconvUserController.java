@@ -12,11 +12,11 @@ import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.model.response.MessageResponse;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.UnconvUserService;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,25 +61,13 @@ public class UnconvUserController {
     @GetMapping
     @Secured("ROLE_TENANT")
     public PagedResult<UnconvUser> getAllUnconvUsers(
-            @RequestParam(
-                            value = "pageNo",
-                            defaultValue = AppConstants.DEFAULT_PAGE_NUMBER,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false)
                     int pageNo,
-            @RequestParam(
-                            value = "pageSize",
-                            defaultValue = AppConstants.DEFAULT_PAGE_SIZE,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false)
                     int pageSize,
-            @RequestParam(
-                            value = "sortBy",
-                            defaultValue = AppConstants.DEFAULT_SORT_BY,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SORT_BY, required = false)
                     String sortBy,
-            @RequestParam(
-                            value = "sortDir",
-                            defaultValue = AppConstants.DEFAULT_SORT_DIRECTION,
-                            required = false)
+            @RequestParam(defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false)
                     String sortDir) {
         return unconvUserService.findAllUnconvUsers(pageNo, pageSize, sortBy, sortDir);
     }

@@ -1,8 +1,10 @@
 package com.unconv.spring.service.impl;
 
+import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_LENGTH;
 import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_PREFIX;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
+import static java.lang.Math.min;
 
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
@@ -15,7 +17,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,11 +40,16 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
      * @param sensorAuthTokenRepository the repository for managing sensor authentication tokens
      * @param modelMapper the mapper for converting between DTOs and entities
      */
-    @Autowired
     public SensorAuthTokenServiceImpl(
             SensorAuthTokenRepository sensorAuthTokenRepository, ModelMapper modelMapper) {
         this.sensorAuthTokenRepository = sensorAuthTokenRepository;
         this.modelMapper = modelMapper;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Page<SensorAuthToken> findSensorAuthTokens(Pageable pageable) {
+        return sensorAuthTokenRepository.findAll(pageable);
     }
 
     /**
@@ -64,7 +70,7 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
                         : Sort.by(sortBy).descending();
 
         // Create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Pageable pageable = PageRequest.of(pageNo, min(pageSize, MAX_PAGE_SIZE), sort);
         Page<SensorAuthToken> sensorAuthTokensPage = sensorAuthTokenRepository.findAll(pageable);
 
         return new PagedResult<>(sensorAuthTokensPage);
