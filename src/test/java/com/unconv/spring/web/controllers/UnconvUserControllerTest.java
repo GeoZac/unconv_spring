@@ -245,7 +245,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         int length = 10;
         boolean useLetters = true;
         boolean useNumbers = false;
-        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+        String randomGeneratedString =
+                RandomStringUtils.secure().next(length, useLetters, useNumbers);
 
         given(unconvUserService.isUsernameUnique(randomGeneratedString)).willReturn(true);
 
