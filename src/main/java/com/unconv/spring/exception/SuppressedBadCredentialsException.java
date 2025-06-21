@@ -29,7 +29,7 @@ public class SuppressedBadCredentialsException extends BadCredentialsException {
      * <p>This method reduces the size of the stack trace associated with this exception, which can
      * be beneficial for performance in scenarios where detailed stack traces are not necessary.
      */
-    private void clipStackTrace() {
+    protected void clipStackTrace() {
         StackTraceElement[] fullStackTrace = getStackTrace();
         if (fullStackTrace.length > 5) {
             StackTraceElement[] clipped = new StackTraceElement[5];
