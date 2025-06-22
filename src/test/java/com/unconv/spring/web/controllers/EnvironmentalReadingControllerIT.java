@@ -754,7 +754,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         assertNotEquals(savedSensorSystem.getId(), savedInactiveSensorSystem.getId());
 
-        String sensorAccessToken = RandomStringUtils.randomAlphanumeric(20);
+        String sensorAccessToken = RandomStringUtils.secure().nextAlphanumeric(20);
 
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
