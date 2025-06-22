@@ -1,7 +1,6 @@
 package com.unconv.spring.exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +14,6 @@ class SuppressedBadCredentialsExceptionTest {
 
         assertEquals(
                 message, exception.getMessage(), "Exception message should match input message");
-        assertTrue(true, "Exception should be a subclass of BadCredentialsException");
     }
 
     @Test
