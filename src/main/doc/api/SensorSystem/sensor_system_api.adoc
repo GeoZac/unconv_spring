@@ -86,8 +86,8 @@ include::{snippets}/SensorSystem/shouldDeleteSensorSystem/http-response.adoc[]
 include::{snippets}/SensorSystem/shouldReturn404WhenDeletingNonExistingSensorSystem/http-response.adoc[]
 
 ==== Fetching Recent readings of a SensorSystem
-*Fetch recent readings of a sesnor system* +
-_Fetch recent readings of a sesnor system_ +
+*Fetch recent readings of a sensor system* +
+_Fetch recent readings of a sensor system_ +
 
 Request
 include::{snippets}/SensorSystem/shouldFetchRecentSensorReadingCountsWithReadingsPresent/http-request.adoc[]

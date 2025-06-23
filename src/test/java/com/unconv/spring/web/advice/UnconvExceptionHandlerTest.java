@@ -29,7 +29,7 @@ class UnconvExceptionHandlerTest {
     @Mock private NativeWebRequest request;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 

@@ -36,7 +36,7 @@ class ExceptionHandlerFilterTest {
     }
 
     @Test
-    void shouldReturn500WhenRequestInvolkesRuntimeException() throws ServletException, IOException {
+    void shouldReturn500WhenRequestInvokesRuntimeException() throws ServletException, IOException {
         doThrow(new RuntimeException("Test RuntimeException"))
                 .when(filterChain)
                 .doFilter(request, response);

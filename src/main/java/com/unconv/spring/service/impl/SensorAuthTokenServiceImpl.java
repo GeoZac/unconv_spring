@@ -148,7 +148,7 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
     }
 
     /**
-     * Deletes any SensorAuthToken by the SensoorSystem id.
+     * Deletes any SensorAuthToken by the SensorSystem id.
      *
      * @param sensorSystemId The ID of the SensorSystem to delete SensorAuthTokens of.
      */

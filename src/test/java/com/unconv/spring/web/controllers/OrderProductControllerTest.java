@@ -115,7 +115,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
     void shouldCreateNewOrderProduct() throws Exception {
         given(orderProductService.saveOrderProduct(any(OrderProduct.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             OrderProduct orderProduct = invocation.getArgument(0);
                             orderProduct.setId(UUID.randomUUID());
                             return orderProduct;
@@ -164,7 +164,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
         given(orderProductService.saveOrderProduct(any(OrderProduct.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(
