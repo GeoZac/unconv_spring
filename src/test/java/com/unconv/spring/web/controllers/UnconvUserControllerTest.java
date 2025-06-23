@@ -78,7 +78,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     private List<UnconvUser> unconvUserList;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -100,7 +100,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         .ignore(field(UnconvUser::getId))
                         .create();
 
-        totalPages = (int) Math.ceil((double) this.unconvUserList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) this.unconvUserList.size() / DEFAULT_PAGE_SIZE_INT);
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -126,8 +126,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)))
                 .andReturn();
     }
