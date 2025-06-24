@@ -19,8 +19,17 @@ import org.springframework.util.StringUtils;
 @Service
 public class EmailClient {
 
+    /** The mail sender used to construct and send email messages. */
     private final JavaMailSender mailSender;
+
+    /** The sender's email address used in the "From" field of outgoing emails. */
     private final String fromAddress;
+
+    /**
+     * A flag indicating whether email functionality is enabled.
+     *
+     * <p>If {@code false}, no email will be sent even if send methods are called.
+     */
     private final boolean emailEnabled;
 
     /**
