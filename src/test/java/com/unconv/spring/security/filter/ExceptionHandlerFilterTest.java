@@ -3,6 +3,7 @@ package com.unconv.spring.security.filter;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.web.advice.SensorAuthTokenExceptionHandler;
 import jakarta.servlet.FilterChain;
@@ -48,7 +49,9 @@ class ExceptionHandlerFilterTest {
 
         String jsonResponse = response.getContentAsString();
         Map<String, String> errorResponse;
-        errorResponse = new ObjectMapper().readValue(jsonResponse, Map.class);
+        errorResponse =
+                new ObjectMapper()
+                        .readValue(jsonResponse, new TypeReference<Map<String, String>>() {});
 
         assertEquals("Internal Server Error", errorResponse.get("title"));
         assertEquals(
