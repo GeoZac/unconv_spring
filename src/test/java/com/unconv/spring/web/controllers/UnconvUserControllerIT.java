@@ -179,7 +179,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         int length = 10;
         boolean useLetters = true;
         boolean useNumbers = false;
-        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+        String randomGeneratedString =
+                RandomStringUtils.secure().next(length, useLetters, useNumbers);
 
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", randomGeneratedString))
@@ -419,7 +420,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
         unconvUserDTO.setUsername("UpdatedUnconvUser");
         unconvUserDTO.setCurrentPassword(
-                RandomStringUtils.random(unconvUserDTO.getPassword().length()));
+                RandomStringUtils.secure().next(unconvUserDTO.getPassword().length()));
         unconvUserDTO.setPassword("UpdatedPas$w0rd");
 
         this.mockMvc

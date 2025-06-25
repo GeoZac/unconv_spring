@@ -19,7 +19,7 @@ public class AccessTokenGenerator {
      * @return a randomly generated access token prefixed with "Bearer "
      */
     public static String generateAccessToken() {
-        String randomPart = RandomStringUtils.randomAlphanumeric(TOKEN_LENGTH);
+        String randomPart = RandomStringUtils.secure().nextAlphanumeric(TOKEN_LENGTH);
         return TOKEN_PREFIX + randomPart;
     }
 }
