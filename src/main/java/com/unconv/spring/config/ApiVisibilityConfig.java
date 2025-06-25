@@ -32,6 +32,17 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "unconv")
 public class ApiVisibilityConfig {
 
+    /**
+     * Indicates whether the API documentation (e.g., Swagger/OpenAPI UI) should be exposed.
+     *
+     * <p>Set this to {@code true} to allow access to the documentation endpoints.
+     */
     private boolean exposeDocs;
+
+    /**
+     * Indicates whether the Spring Boot Actuator endpoints should be exposed.
+     *
+     * <p>Set this to {@code true} to allow access to actuator endpoints like health, metrics, etc.
+     */
     private boolean exposeActuator;
 }
