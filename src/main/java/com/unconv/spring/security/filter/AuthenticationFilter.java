@@ -16,6 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Filter responsible for handling authentication requests using username and password.
+ *
+ * <p>This filter reads user credentials from the request body, authenticates the user using a
+ * {@link CustomAuthenticationManager}, and on success, generates a JWT token using {@link JWTUtil}.
+ * It also customizes the response sent back to the client on successful or failed authentication.
+ */
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final CustomAuthenticationManager customAuthenticationManager;
