@@ -48,6 +48,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         this.unconvUserService = unconvUserService;
     }
 
+    /**
+     * Attempts to authenticate a user based on the username and password provided in the request
+     * body.
+     *
+     * @param request the HTTP request containing login credentials
+     * @param response the HTTP response
+     * @return the authenticated {@link Authentication} object
+     * @throws AuthenticationException if authentication fails or the request payload is invalid
+     */
     @Override
     public Authentication attemptAuthentication(
             HttpServletRequest request, HttpServletResponse response)
@@ -65,6 +74,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
+    /**
+     * Handles successful authentication by generating a JWT token and writing a JSON response.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param chain the filter chain
+     * @param authResult the authenticated {@link Authentication} object
+     * @throws IOException if writing to the response fails
+     */
     @Override
     protected void successfulAuthentication(
             HttpServletRequest request,
