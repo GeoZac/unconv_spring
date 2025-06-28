@@ -27,5 +27,16 @@ public class SensorAuthTokenException extends RuntimeException {
         super(message);
         this.token = token;
         this.time = OffsetDateTime.now();
+        clipStackTrace();
+    }
+
+   
+    protected void clipStackTrace() {
+        StackTraceElement[] fullStackTrace = getStackTrace();
+        if (fullStackTrace.length > 5) {
+            StackTraceElement[] clipped = new StackTraceElement[5];
+            System.arraycopy(fullStackTrace, 0, clipped, 0, 5);
+            setStackTrace(clipped);
+        }
     }
 }
