@@ -30,7 +30,6 @@ public class SensorAuthTokenException extends RuntimeException {
         clipStackTrace();
     }
 
-   
     protected void clipStackTrace() {
         StackTraceElement[] fullStackTrace = getStackTrace();
         if (fullStackTrace.length > 5) {
