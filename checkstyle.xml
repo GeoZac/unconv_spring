@@ -10,6 +10,24 @@
             <property name="severity" value="warning"/>
         </module>
         <module name="JavadocMethod"/>
+        <module name="JavadocStyle">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="JavadocType">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="MissingJavadocType">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="FinalClass">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="AvoidStarImport">
+            <property name="severity" value="warning"/>
+        </module>
     </module>
 
     <module name="SuppressionFilter">
