@@ -5,7 +5,6 @@ import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.persistence.BookingRepository;
 import com.unconv.spring.service.BookingService;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +18,6 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
 
-    @Autowired
     public BookingServiceImpl(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
     }

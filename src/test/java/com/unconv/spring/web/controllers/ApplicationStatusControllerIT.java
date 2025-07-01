@@ -1,8 +1,9 @@
 package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,8 +23,23 @@ class ApplicationStatusControllerIT extends AbstractIntegrationTest {
     void shouldFetchAppVersion() throws Exception {
         this.mockMvc
                 .perform(get("/public/status/version"))
-                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("0.0.5-SNAPSHOT")));
+                .andExpect(header().string("Content-Type", not("application/json")))
+                .andExpect(
+                        jsonPath(
+                                "$",
+                                is(
+                                        "0.1.1\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldFetchAppVersionWithJSONResponse() throws Exception {
+        this.mockMvc
+                .perform(get("/public/status/v1/version"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", is("application/json")))
+                .andExpect(jsonPath("$.version", is("0.1.1")))
+                .andReturn();
     }
 }

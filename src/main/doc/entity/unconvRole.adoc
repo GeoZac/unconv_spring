@@ -1,0 +1,6 @@
+==== Fields
+
+- `id` (UUID): Unique identifier for the role.
+
+- `name` (String): Name of the role.
+

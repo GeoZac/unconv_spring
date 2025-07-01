@@ -1,6 +1,8 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@3.2.5
+  codecov: codecov/codecov@4.1.0
+  docker: circleci/docker@2.6.0
+  owasp: entur/owasp@0.0.19
 jobs:
   setup:
     machine:
@@ -18,8 +20,11 @@ jobs:
           name: Grant execute permission for mvnw
           command: chmod +x mvnw
       - run:
-          name: Download dependecies
+          name: Download dependencies
           command: ./mvnw dependency:resolve
+      - run:
+            name: Display dependency tree
+            command: ./mvnw dependency:tree
       - save_cache:
           paths:
             - ~/.m2
@@ -74,8 +79,11 @@ jobs:
       - run:
           name: Build with Maven
           command: |
-            circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings --timings-type=classname
-            ./mvnw -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings --timings-type=classname); do basename $file | sed -e "s/.java/,/"; done | tr -d '\r\n') -e test
+            cd src/test/java/
+            TESTS=$(circleci tests glob "com/**/*.java" | sed 's/\.java$//;s/\//./g' | circleci tests split --split-by=timings | paste -sd, -)
+            cd ../../..
+            echo $TESTS
+            ./mvnw -Dtest="$TESTS" -e test
       - store_test_results:
           path: target/test-results
       - store_artifacts:
@@ -85,13 +93,50 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
+  smoke_test:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - setup_remote_docker
+
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t unconv-spring:test .
+
+      - run:
+          name: Run container
+          command: |
+            docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
+
+      - run:
+          name: Wait for container and test HTTP endpoint
+          command: |
+            echo "Waiting for application to be ready..."
+            for i in {1..30}; do
+              echo "Attempt $i: Checking if app is ready inside container..."
+              if docker exec unconv-spring-container wget --quiet --spider http://localhost:8080/public/status/v1/version; then
+                echo "App is ready inside container!"
+                exit 0
+              fi
+              echo "App not ready yet inside container... retrying in 5 seconds"
+              sleep 5
+            done
+            echo "App failed to start inside container after 30 retries. Showing container logs:"
+            docker logs unconv-spring-container
+            exit 1
+
   analyse:
     machine:
       image: ubuntu-2004:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
-    parallelism: 1
     steps:
       - attach_workspace:
           at: /tmp/spring
@@ -107,6 +152,9 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
+          name: Run CheckStyle
+          command: ./mvnw checkstyle:checkstyle
+      - run:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - codecov/upload:
@@ -115,23 +163,94 @@ jobs:
       - codecov/upload:
             file: target/jacoco/integrationTest/jacoco.xml
             flags: integration_test
+      - store_artifacts:
+          path: target/jacoco/test
+          destination: coverage/unit
+      - store_artifacts:
+          path: target/jacoco/integrationTest
+          destination: coverage/integration
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+  doc:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+    resource_class: large
+    working_directory: /tmp/spring
+    steps:
+      - attach_workspace:
+          at: /tmp/spring
+      - run:
+          name: Install OpenJDK 17
+          command: |
+            sudo apt-get update && sudo apt-get install openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            java -version
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Build API doc
+          command: ./mvnw package -Dunconv.skip.asciidoctor=false
+      - run:
+          name: Build JavaDoc
+          command: ./mvnw javadoc:javadoc
+      - store_artifacts:
+          path: target/generated-docs/index.pdf
       - save_cache:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
 workflows:
-  version: 2
   build-and-test:
     jobs:
       - setup
+      - owasp/maven_owasp_dependency_check:
+          filters:
+            branches:
+                only:
+                - master
+                - /dependabot\/.*/
+                - /chore\/.*/
+                - /infra\/.*/
       - build:
           requires:
             - setup
       - test:
           requires:
             - setup
+      - smoke_test:
+          requires:
+            - test
+          filters:
+            branches:
+                only:
+                - master
+                - /dependabot\/.*/
+                - /chore\/.*/
+                - /infra\/.*/
       - analyse:
           context: SonarCloud
           requires:
             - build
+      - doc:
+          requires:
+            - test
+          filters:
+            branches:
+                only:
+                - /docs\/.*/
+                - /infra\/.*/
+                - master
+            tags:
+                only: /^v.*/
+      - docker/hadolint
+      - docker/publish:
+          deploy: false
+          image: spring-test

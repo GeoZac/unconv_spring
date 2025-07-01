@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -15,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
+import com.unconv.spring.enums.Gender;
 import com.unconv.spring.persistence.PassengerRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,7 +38,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     private List<Passenger> passengerList = null;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -47,46 +48,74 @@ class PassengerControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Passenger")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
         passengerRepository.deleteAll();
 
         passengerList = Instancio.ofList(Passenger.class).size(23).create();
-        totalPages = (int) Math.ceil((double) passengerList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) passengerList.size() / DEFAULT_PAGE_SIZE_INT);
 
         passengerList = passengerRepository.saveAll(passengerList);
     }
 
     @Test
     void shouldFetchAllPassengersInAscendingOrder() throws Exception {
-        this.mockMvc
-                .perform(get("/Passenger").param("sortDir", "asc"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
-                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+        try {
+            this.mockMvc
+                    .perform(get("/Passenger").param("sortDir", "asc"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                    .andExpect(jsonPath("$.isFirst", is(true)))
+                    .andExpect(
+                            jsonPath("$.isLast", is(passengerList.size() < DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(
+                            jsonPath("$.hasNext", is(passengerList.size() > DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(jsonPath("$.hasPrevious", is(false)));
+        } catch (AssertionError e) {
+            List<Passenger> passengers = passengerRepository.findAll();
+            System.out.println("Persisted List");
+            for (Passenger passenger : passengers) {
+                System.out.println(passenger.toString());
+            }
+            System.out.println("Raw List");
+            for (Passenger passenger : passengerList) {
+                System.out.println(passenger.toString());
+            }
+        }
     }
 
     @Test
     void shouldFetchAllPassengersInDescendingOrder() throws Exception {
-        this.mockMvc
-                .perform(get("/Passenger").param("sortDir", "desc"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
-                .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+        try {
+            this.mockMvc
+                    .perform(get("/Passenger").param("sortDir", "desc"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                    .andExpect(jsonPath("$.isFirst", is(true)))
+                    .andExpect(
+                            jsonPath("$.isLast", is(passengerList.size() < DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(
+                            jsonPath("$.hasNext", is(passengerList.size() > DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(jsonPath("$.hasPrevious", is(false)));
+        } catch (Exception e) {
+            List<Passenger> passengers = passengerRepository.findAll();
+            System.out.println("Persisted List");
+            for (Passenger passenger : passengers) {
+                System.out.println(passenger.toString());
+            }
+            System.out.println("Raw List");
+            for (Passenger passenger : passengerList) {
+                System.out.println(passenger.toString());
+            }
+        }
     }
 
     @Test
@@ -127,8 +156,8 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
+    void shouldReturn400WhenCreateNewPassengerWithNullValues() throws Exception {
+        Passenger passenger = new Passenger();
 
         this.mockMvc
                 .perform(

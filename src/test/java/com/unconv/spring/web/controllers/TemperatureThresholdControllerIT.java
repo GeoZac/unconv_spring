@@ -1,5 +1,7 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -11,7 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,18 +41,24 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     private List<TemperatureThreshold> temperatureThresholdList = null;
 
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
+
+    private static int totalPages;
+
+    final int setUpListSize = 27;
+
     @BeforeEach
     void setUp() {
         this.mockMvc =
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/TemperatureThreshold")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
         temperatureThresholdRepository.deleteAllInBatch();
-        final int setUpListSize = 7;
+
         temperatureThresholdList =
                 Instancio.ofList(TemperatureThreshold.class)
                         .size(setUpListSize)
@@ -66,10 +73,12 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
         temperatureThresholdList = temperatureThresholdRepository.saveAll(temperatureThresholdList);
 
         assert temperatureThresholdList.size() == setUpListSize;
+        totalPages =
+                (int) Math.ceil((double) temperatureThresholdList.size() / DEFAULT_PAGE_SIZE_INT);
 
         List<HumidityThreshold> humidityThresholdList =
                 Instancio.ofList(HumidityThreshold.class)
-                        .size(5)
+                        .size(15)
                         .ignore(field(HumidityThreshold::getId))
                         .generate(
                                 field(HumidityThreshold::getMinValue),
@@ -86,16 +95,15 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllTemperatureThresholdsInAscendingOrder() throws Exception {
         this.mockMvc
                 .perform(get("/TemperatureThreshold").param("sortDir", "asc"))
-                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)));
     }
 
     @Test
@@ -103,14 +111,14 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/TemperatureThreshold").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(temperatureThresholdList.size())))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.totalElements", is(temperatureThresholdList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
+                .andExpect(jsonPath("$.isFirst", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.isLast", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(setUpListSize > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(setUpListSize < DEFAULT_PAGE_SIZE_INT)));
     }
 
     @Test
@@ -156,7 +164,34 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInPositiveRange()
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithMaxValueLessThanMinValue()
+            throws Exception {
+        TemperatureThreshold temperatureThreshold = new TemperatureThreshold(null, 20, 80);
+        this.mockMvc
+                .perform(
+                        post("/TemperatureThreshold")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(temperatureThreshold)))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("Content-Type", is("application/problem+json")))
+                .andExpect(
+                        jsonPath(
+                                "$.type",
+                                is("https://zalando.github.io/problem/constraint-violation")))
+                .andExpect(jsonPath("$.title", is("Constraint Violation")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
+                .andExpect(jsonPath("$.violations[0].field", is("temperatureThresholdDTO")))
+                .andExpect(
+                        jsonPath(
+                                "$.violations[0].message",
+                                is("Min. value must be less than Max. value")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperLimitsInPositiveRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
                 new TemperatureThreshold(null, 10000.0, 10000.0);
@@ -194,7 +229,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperCoordinatesInNegativeRange()
+    void shouldReturn400WhenCreateNewTemperatureThresholdWithImproperLimitsInNegativeRange()
             throws Exception {
         TemperatureThreshold temperatureThreshold =
                 new TemperatureThreshold(null, -10000.0, -10000.0);

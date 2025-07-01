@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -53,7 +54,7 @@ class RouteControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Route")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -77,7 +78,7 @@ class RouteControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(routeList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -88,7 +89,7 @@ class RouteControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindRouteById() throws Exception {
         Long routeId = 1L;
-        Route route = new Route(routeId, "text 1");
+        Route route = new Route(routeId, "Route name");
         given(routeService.findRouteById(routeId)).willReturn(Optional.of(route));
 
         this.mockMvc
@@ -109,13 +110,13 @@ class RouteControllerTest extends AbstractControllerTest {
     void shouldCreateNewRoute() throws Exception {
         given(routeService.saveRoute(any(Route.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Route route = invocation.getArgument(0);
                             route.setId(1L);
                             return route;
                         });
 
-        Route route = new Route(1L, "some text");
+        Route route = new Route(null, "New route");
         this.mockMvc
                 .perform(
                         post("/Route")
@@ -128,8 +129,8 @@ class RouteControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewRouteWithoutText() throws Exception {
-        Route route = new Route(null, null);
+    void shouldReturn400WhenCreateNewRouteWithNullValues() throws Exception {
+        Route route = new Route();
 
         this.mockMvc
                 .perform(
@@ -157,7 +158,7 @@ class RouteControllerTest extends AbstractControllerTest {
         Route route = new Route(routeId, "Updated text");
         given(routeService.findRouteById(routeId)).willReturn(Optional.of(route));
         given(routeService.saveRoute(any(Route.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

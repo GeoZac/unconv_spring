@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -50,7 +51,7 @@ class HeaterControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Heater")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -97,13 +98,13 @@ class HeaterControllerTest extends AbstractControllerTest {
     void shouldCreateNewHeater() throws Exception {
         given(heaterService.saveHeater(any(Heater.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Heater heater = invocation.getArgument(0);
                             heater.setId(1L);
                             return heater;
                         });
 
-        Heater heater = new Heater(1L, 30F, .5F);
+        Heater heater = new Heater(null, 30F, .5F);
         this.mockMvc
                 .perform(
                         post("/Heater")
@@ -116,8 +117,8 @@ class HeaterControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewHeaterWithoutText() throws Exception {
-        Heater heater = new Heater(null, null, null);
+    void shouldReturn400WhenCreateNewHeaterWithNullValues() throws Exception {
+        Heater heater = new Heater();
 
         this.mockMvc
                 .perform(
@@ -148,7 +149,7 @@ class HeaterControllerTest extends AbstractControllerTest {
         Heater heater = new Heater(heaterId, 27F, .7F);
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
         given(heaterService.saveHeater(any(Heater.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

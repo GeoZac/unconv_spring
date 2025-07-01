@@ -1,0 +1,6 @@
+==== Enum Constants
+
+The enum has the following constants:
+
+- `ACTIVE`: Represents an active sensor.
+- `INACTIVE`: Represents an inactive sensor.

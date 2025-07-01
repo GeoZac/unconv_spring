@@ -1,5 +1,6 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -43,7 +44,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Booking")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -57,7 +58,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         null,
                         "Langdon",
                         java.time.LocalDate.of(1972, 8, 13),
-                        com.unconv.spring.consts.Gender.MALE,
+                        com.unconv.spring.enums.Gender.MALE,
                         null));
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
@@ -66,7 +67,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         null,
                         "Brewster",
                         java.time.LocalDate.of(1988, 5, 9),
-                        com.unconv.spring.consts.Gender.FEMALE,
+                        com.unconv.spring.enums.Gender.FEMALE,
                         null));
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
@@ -75,7 +76,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         "Marvelo",
                         "Riddle",
                         java.time.LocalDate.of(1872, 12, 1),
-                        com.unconv.spring.consts.Gender.OTHER,
+                        com.unconv.spring.enums.Gender.OTHER,
                         null));
         passengerList = passengerRepository.saveAll(passengerList);
 
@@ -93,7 +94,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(bookingList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -108,7 +109,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(bookingList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -143,8 +144,8 @@ class BookingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewBookingWithoutText() throws Exception {
-        Booking booking = new Booking(4L, null, passengerList);
+    void shouldReturn400WhenCreateNewBookingWithNullValues() throws Exception {
+        Booking booking = new Booking();
 
         this.mockMvc
                 .perform(

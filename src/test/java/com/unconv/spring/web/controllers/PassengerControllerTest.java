@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -18,8 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.Gender;
 import com.unconv.spring.domain.Passenger;
+import com.unconv.spring.enums.Gender;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.service.PassengerService;
 import com.unconv.spring.web.rest.PassengerController;
@@ -54,7 +55,7 @@ class PassengerControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Passenger")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -76,7 +77,7 @@ class PassengerControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(passengerList.size())))
                 .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -126,7 +127,7 @@ class PassengerControllerTest extends AbstractControllerTest {
     void shouldCreateNewPassenger() throws Exception {
         given(passengerService.savePassenger(any(Passenger.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Passenger passenger = invocation.getArgument(0);
                             passenger.setId(1L);
                             return passenger;
@@ -134,7 +135,7 @@ class PassengerControllerTest extends AbstractControllerTest {
 
         Passenger passenger =
                 new Passenger(
-                        1L, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
+                        null, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
@@ -147,8 +148,8 @@ class PassengerControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewPassengerWithoutText() throws Exception {
-        Passenger passenger = new Passenger(null, null, null, null, 0, null, null, null);
+    void shouldReturn400WhenCreateNewPassengerWithNullValues() throws Exception {
+        Passenger passenger = new Passenger();
 
         this.mockMvc
                 .perform(
@@ -184,7 +185,7 @@ class PassengerControllerTest extends AbstractControllerTest {
 
         given(passengerService.findPassengerById(passengerId)).willReturn(Optional.of(passenger));
         given(passengerService.savePassenger(any(Passenger.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

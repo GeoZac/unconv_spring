@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -50,7 +51,7 @@ class OfferControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Offer")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -82,6 +83,7 @@ class OfferControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/Offer/{id}", offerId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(offerId), Long.class))
                 .andExpect(jsonPath("$.badgeColor", is(offer.getBadgeColor())));
     }
 
@@ -97,13 +99,13 @@ class OfferControllerTest extends AbstractControllerTest {
     void shouldCreateNewOffer() throws Exception {
         given(offerService.saveOffer(any(Offer.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Offer offer = invocation.getArgument(0);
                             offer.setId(1L);
                             return offer;
                         });
 
-        Offer offer = new Offer(1L, "0xff000000", "25% OFF");
+        Offer offer = new Offer(null, "0xff000000", "25% OFF");
         this.mockMvc
                 .perform(
                         post("/Offer")
@@ -116,8 +118,8 @@ class OfferControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOfferWithoutText() throws Exception {
-        Offer offer = new Offer(null, null, null);
+    void shouldReturn400WhenCreateNewOfferWithNullValues() throws Exception {
+        Offer offer = new Offer();
 
         this.mockMvc
                 .perform(
@@ -145,7 +147,7 @@ class OfferControllerTest extends AbstractControllerTest {
         Offer offer = new Offer(offerId, "0xff000000", "25% OFF");
         given(offerService.findOfferById(offerId)).willReturn(Optional.of(offer));
         given(offerService.saveOffer(any(Offer.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

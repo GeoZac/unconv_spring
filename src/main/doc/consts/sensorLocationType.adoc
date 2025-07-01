@@ -1,0 +1,8 @@
+==== Enum Constants
+
+The enum has the following constants:
+
+- `INDOOR`: Represents a sensor located indoors.
+- `OUTDOOR`: Represents a sensor located outdoors.
+
+

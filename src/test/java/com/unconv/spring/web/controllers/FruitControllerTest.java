@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -49,7 +50,7 @@ class FruitControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/Fruit")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -101,6 +102,7 @@ class FruitControllerTest extends AbstractControllerTest {
         this.mockMvc
                 .perform(get("/Fruit/{id}", fruitId))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.fruitName", is(fruit.getFruitName())));
     }
 
@@ -116,7 +118,7 @@ class FruitControllerTest extends AbstractControllerTest {
     void shouldCreateNewFruit() throws Exception {
         given(fruitService.saveFruit(any(Fruit.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Fruit fruit = invocation.getArgument(0);
                             fruit.setId(1L);
                             return fruit;
@@ -124,7 +126,7 @@ class FruitControllerTest extends AbstractControllerTest {
 
         Fruit fruit =
                 new Fruit(
-                        1L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
@@ -140,8 +142,8 @@ class FruitControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewFruitWithoutText() throws Exception {
-        Fruit fruit = new Fruit(null, null, null, null);
+    void shouldReturn400WhenCreateNewFruitWithNullValues() throws Exception {
+        Fruit fruit = new Fruit();
 
         this.mockMvc
                 .perform(
@@ -175,7 +177,7 @@ class FruitControllerTest extends AbstractControllerTest {
                         "Daily Fresh");
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.of(fruit));
         given(fruitService.saveFruit(any(Fruit.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

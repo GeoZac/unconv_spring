@@ -13,6 +13,19 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
+/**
+ * Aspect for logging execution of service and repository Spring components.
+ *
+ * <p>This aspect is applied to all classes annotated with {@link
+ * org.springframework.stereotype.Repository}, {@link org.springframework.stereotype.Service}, and
+ * {@link org.springframework.web.bind.annotation.RestController}. It also applies to classes and
+ * methods annotated with {@link com.unconv.spring.config.logging.Loggable}.
+ *
+ * <p>The logging aspect logs method entry and exit as well as exceptions thrown by the methods.
+ *
+ * <p>The logs include detailed information when the application is not running in the production
+ * profile.
+ */
 @Aspect
 @Component
 public class LoggingAspect {
@@ -21,28 +34,44 @@ public class LoggingAspect {
 
     private final Environment env;
 
+    /**
+     * Constructs a new {@code LoggingAspect}.
+     *
+     * @param env the Spring {@link Environment} used to check the current active profiles
+     */
     public LoggingAspect(Environment env) {
         this.env = env;
     }
 
+    /** Pointcut that matches all repositories, services, and REST controllers. */
     @Pointcut(
             "within(@org.springframework.stereotype.Repository *)"
                     + " || within(@org.springframework.stereotype.Service *)"
                     + " || within(@org.springframework.web.bind.annotation.RestController *)")
     public void springBeanPointcut() {
-        // pointcut definition
+        // Pointcut definition
     }
 
+    /**
+     * Pointcut that matches all classes and methods annotated with {@link
+     * com.unconv.spring.config.logging.Loggable}.
+     */
     @Pointcut(
             "@within(com.unconv.spring.config.logging.Loggable) || "
                     + "@annotation(com.unconv.spring.config.logging.Loggable)")
     public void applicationPackagePointcut() {
-        // pointcut definition
+        // Pointcut definition
     }
 
+    /**
+     * Advice that logs methods throwing exceptions.
+     *
+     * @param joinPoint the join point for the advice
+     * @param e the exception thrown
+     */
     @AfterThrowing(pointcut = "applicationPackagePointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if (env.acceptsProfiles(Profiles.of(AppConstants.PROFILE_NOT_PROD))) {
+        if (env.acceptsProfiles(Profiles.of(AppConstants.PROFILE_NOT_REL))) {
             log.error(
                     "Exception in {}.{}() with cause = '{}' and exception = '{}'",
                     joinPoint.getSignature().getDeclaringTypeName(),
@@ -60,6 +89,13 @@ public class LoggingAspect {
         }
     }
 
+    /**
+     * Advice that logs when a method is entered and exited.
+     *
+     * @param joinPoint the join point for the advice
+     * @return the result of the method execution
+     * @throws Throwable if the underlying method throws an exception
+     */
     @Around("applicationPackagePointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         if (log.isTraceEnabled()) {

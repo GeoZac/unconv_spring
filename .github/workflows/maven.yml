@@ -6,6 +6,16 @@ on:
       - "**"
 
 jobs:
+  event_file:
+    name: "Event File (for test results)"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -29,6 +39,22 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean install verify
 
+      - name: 'Upload test results to Codecov'
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/test-results/**/TEST-*.xml
+
+      - name: Run Checkstyle
+        run: ./mvnw checkstyle:checkstyle
+
+      - name: Push Checkstyle report
+        uses: jwgmeligmeyling/checkstyle-github-action@v1.2
+        with:
+          path: '**/checkstyle-result.xml'
+
       - if: ${{ github.ref == 'refs/heads/main' }}
         name: SonarQube Scan
         run: ./mvnw compile sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
@@ -42,8 +68,15 @@ jobs:
           ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.DOCKER_USERNAME }}/spring
           docker push ${{ secrets.DOCKER_USERNAME }}/spring
 
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unit Test Results
+          path: "target/test-results/**/*.xml"
+                    
       - name: jacoco-badge-generator
-        uses: cicirello/jacoco-badge-generator@v2.11.0
+        uses: cicirello/jacoco-badge-generator@v2.12.0
         with:
           generate-branches-badge: true
           jacoco-csv-file: target/jacoco/test/jacoco.csv

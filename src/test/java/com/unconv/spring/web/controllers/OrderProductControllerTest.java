@@ -1,6 +1,7 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -53,7 +54,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/OrderProduct")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
@@ -78,7 +79,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.size()", is(orderProductList.size())))
                 .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(jsonPath("$.isLast", is(true)))
@@ -89,7 +90,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
     @Test
     void shouldFindOrderProductById() throws Exception {
         UUID orderProductId = UUID.randomUUID();
-        OrderProduct orderProduct = new OrderProduct(orderProductId, "text 1");
+        OrderProduct orderProduct = new OrderProduct(orderProductId, "Order Product");
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
 
@@ -114,13 +115,13 @@ class OrderProductControllerTest extends AbstractControllerTest {
     void shouldCreateNewOrderProduct() throws Exception {
         given(orderProductService.saveOrderProduct(any(OrderProduct.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             OrderProduct orderProduct = invocation.getArgument(0);
                             orderProduct.setId(UUID.randomUUID());
                             return orderProduct;
                         });
 
-        OrderProduct orderProduct = new OrderProduct(UUID.randomUUID(), "some text");
+        OrderProduct orderProduct = new OrderProduct(null, "New order product");
         this.mockMvc
                 .perform(
                         post("/OrderProduct")
@@ -133,8 +134,8 @@ class OrderProductControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewOrderProductWithoutText() throws Exception {
-        OrderProduct orderProduct = new OrderProduct(null, null);
+    void shouldReturn400WhenCreateNewOrderProductWithNullValues() throws Exception {
+        OrderProduct orderProduct = new OrderProduct();
 
         this.mockMvc
                 .perform(
@@ -163,7 +164,7 @@ class OrderProductControllerTest extends AbstractControllerTest {
         given(orderProductService.findOrderProductById(orderProductId))
                 .willReturn(Optional.of(orderProduct));
         given(orderProductService.saveOrderProduct(any(OrderProduct.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

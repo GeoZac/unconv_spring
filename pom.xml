@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.7</version>
+        <version>3.0.13</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.unconv.spring</groupId>
     <artifactId>spring</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.1.1</version>
     <name>spring</name>
     <description>spring</description>
 
@@ -18,26 +18,26 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <java.version>16</java.version>
-        <spring-cloud.version>2021.0.4</spring-cloud.version>
-        <problem-spring-web.version>0.27.0</problem-spring-web.version>
-        <springdoc-openapi.version>1.7.0</springdoc-openapi.version>
-        <commons-lang3.version>3.14.0</commons-lang3.version>
-        <commons-io.version>2.15.1</commons-io.version>
-        <jackson.version>2.16.0</jackson.version>
+        <java.version>17</java.version>
+        <spring-cloud.version>2022.0.5</spring-cloud.version>
+        <problem-spring-web.version>0.29.1</problem-spring-web.version>
+        <springdoc-openapi.version>2.1.0</springdoc-openapi.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-io.version>2.19.0</commons-io.version>
+        <jackson.version>2.19.1</jackson.version>
 
-        <testcontainers.version>1.19.3</testcontainers.version>
-        <awaitility.version>4.2.0</awaitility.version>
-        <instancio.version>3.6.0</instancio.version>
+        <testcontainers.version>1.21.3</testcontainers.version>
+        <awaitility.version>4.3.0</awaitility.version>
+        <instancio.version>5.4.1</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
-        <spotless.version>2.41.1</spotless.version>
+        <spotless.version>2.44.5</spotless.version>
         <googleJavaFormat.version>1.15.0</googleJavaFormat.version>
-        <dependency-check-maven.version>9.0.2</dependency-check-maven.version>
+        <dependency-check-maven.version>12.1.3</dependency-check-maven.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
-        <maven-failsafe-plugin.version>3.2.2</maven-failsafe-plugin.version>
-        <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
+        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+        <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <jacoco.minimum.coverage>0.80</jacoco.minimum.coverage>
         <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
         <jacoco.utReportFile>${jacoco.utReportFolder}/test.exec</jacoco.utReportFile>
@@ -47,6 +47,9 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <sonar.organization>geozac</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+        <!-- Unconv POM variables -->
+        <unconv.skip.asciidoctor>true</unconv.skip.asciidoctor>
     </properties>
 
     <dependencies>
@@ -92,19 +95,18 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-openapi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -114,13 +116,13 @@
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.4</version>
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.6.15.Final</version>
+            <version>6.1.7.Final</version>
         </dependency>
 
         <dependency>
@@ -131,7 +133,6 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -141,7 +142,8 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
+            <artifactId>postgresql</artifactId>
+            <version>1.21.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -157,7 +159,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>4.2.2.RELEASE</version>
+            <version>6.0.8</version>
             <scope>test</scope>
         </dependency>
 
@@ -178,19 +180,19 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.4.0</version>
+            <version>4.5.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.10.0</version>
+            <version>1.14.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.passay</groupId>
             <artifactId>passay</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.6</version>
         </dependency>
 
         <dependency>
@@ -198,10 +200,44 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.bugsnag</groupId>
+            <version>3.7.2</version>
+            <artifactId>bugsnag-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>6.1.7.Final</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -242,6 +278,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
                 <executions>
                     <execution>
                         <goals>
@@ -264,7 +301,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
                     <reportsDirectory>${junit.utReportFolder}</reportsDirectory>
@@ -278,7 +314,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     <runOrder>alphabetical</runOrder>
@@ -385,11 +420,12 @@
                             <outputDirectory>${jacoco.utReportFolder}</outputDirectory>
                             <excludes>
                                 <exclude>**/*Application.*</exclude>
+                                <exclude>**/domain/**</exclude>
+                                <exclude>**/dto/**</exclude>
                                 <exclude>**/config/**</exclude>
                                 <exclude>**/utils/*</exclude>
                                 <exclude>**/*Constants*</exclude>
                                 <exclude>**/security/**</exclude>
-                                <exclude>**/service/impl/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -441,6 +477,123 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-docs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${unconv.skip.asciidoctor}</skip>
+                            <backend>html</backend>
+                            <doctype>book</doctype>
+                            <sourceDirectory>src/main/doc</sourceDirectory>
+                            <attributes>
+                                <snippets>${project.build.directory}/snippets</snippets>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-pdf-docs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${unconv.skip.asciidoctor}</skip>
+                            <backend>pdf</backend>
+                            <sourceDirectory>src/main/doc</sourceDirectory>
+                            <attributes>
+                                <snippets>${project.build.directory}/snippets</snippets>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.restdocs</groupId>
+                        <artifactId>spring-restdocs-asciidoctor</artifactId>
+                        <version>${spring-restdocs.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>2.5.13</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>2.3.19</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.11.2</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                    <links>
+                        <!-- TODO: Revert 'latest' Javadoc links back to version specific -->
+                        <link>https://javadoc.io/doc/org.zalando/problem/latest/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-web/latest/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-spring-common/latest/</link>
+                        <link>https://javadoc.io/doc/org.zalando/problem-violations/latest/</link>
+
+                        <link>https://javadoc.io/doc/com.auth0/java-jwt/4.4.0/</link>
+
+                        <link>https://javadoc.io/doc/org.modelmapper/modelmapper/3.2.0/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework.boot/spring-boot/2.7.18/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework.data/spring-data-commons/2.7.18/</link>
+                        <link>https://javadoc.io/doc/org.springframework.data/spring-data-jpa/2.7.18/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework/spring-beans/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-context/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-core/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-web/5.3.3/</link>
+                        <link>https://javadoc.io/doc/org.springframework/spring-webmvc/5.3.3/</link>
+
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-config/5.7.1</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-core/5.7.1/</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-crypto/5.7.1/</link>
+                        <link>https://javadoc.io/doc/org.springframework.security/spring-security-web/5.7.1/</link>
+
+                        <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/${jackson.version}/</link>
+                        <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/${jackson.version}/</link>
+
+                        <link>https://javadoc.io/doc/org.slf4j/slf4j-api/1.7.36/</link>
+                    </links>
+                  </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>4.32.0</version>
+                <configuration>
+                    <propertyFile>liquibase.properties</propertyFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -451,4 +604,25 @@
             <url>https://repo.spring.io/milestone</url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>stage</id>
+            <properties>
+                <spring.profiles.active>stage</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <spring.profiles.active>release</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 </project>

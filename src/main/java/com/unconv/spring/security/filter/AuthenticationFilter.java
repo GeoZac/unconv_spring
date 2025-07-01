@@ -2,13 +2,15 @@ package com.unconv.spring.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.dto.UnconvUserDTO;
 import com.unconv.spring.service.UnconvUserService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -22,6 +24,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final UnconvUserService unconvUserService;
 
+    /**
+     * Constructs an {@link AuthenticationFilter} with the specified authentication manager, JWT
+     * utility, and user service.
+     *
+     * @param customAuthenticationManager the custom authentication manager to authenticate requests
+     * @param jwtUtil the JWT utility for token handling and validation
+     * @param unconvUserService the user service to retrieve user details
+     */
     public AuthenticationFilter(
             CustomAuthenticationManager customAuthenticationManager,
             JWTUtil jwtUtil,
@@ -36,13 +46,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         try {
-            UnconvUser unconvUser =
-                    new ObjectMapper().readValue(request.getInputStream(), UnconvUser.class);
+            UnconvUserDTO unconvUserDTO =
+                    new ObjectMapper().readValue(request.getInputStream(), UnconvUserDTO.class);
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(
-                            unconvUser.getUsername(), unconvUser.getPassword());
+                            unconvUserDTO.getUsername(), unconvUserDTO.getPassword());
             return customAuthenticationManager.authenticate(authentication);
-        } catch (IOException e) {
+        } catch (NullPointerException | IOException e) {
+            logger.error("attemptAuthentication", e);
             throw new AuthenticationException("Authentication failed") {};
         }
     }
@@ -57,9 +68,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         String username = (String) authResult.getPrincipal();
 
-        String token = jwtUtil.generateToken(username);
-
         UnconvUser unconvUser = unconvUserService.findUnconvUserByUserName(username);
+
+        String token = jwtUtil.generateToken(unconvUser);
 
         // Create a response object
         Map<String, Object> responseBody = new HashMap<>();
@@ -81,7 +92,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletResponse response,
             AuthenticationException failed)
             throws IOException {
+        logger.warn("unsuccessfulAuthentication", failed);
+        response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("User Not Authenticated");
+        Map<String, String> errorDetailMap = new HashMap<>();
+        errorDetailMap.put("title", "Unauthorized");
+        errorDetailMap.put("detail", "User Not Authenticated");
+        errorDetailMap.put("timestamp", OffsetDateTime.now().toString());
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetailMap));
     }
 }

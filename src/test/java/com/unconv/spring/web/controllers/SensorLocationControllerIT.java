@@ -1,9 +1,12 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -17,15 +20,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.SensorLocationType;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
+import com.unconv.spring.enums.DefaultUserRole;
+import com.unconv.spring.enums.SensorLocationType;
 import com.unconv.spring.persistence.SensorLocationRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
+import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.UnconvUserService;
-import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -44,7 +53,13 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
+    @Autowired private UnconvUserRepository unconvUserRepository;
+
     private List<SensorLocation> sensorLocationList = null;
+
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
     @BeforeEach
     void setUp() {
@@ -52,26 +67,29 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/SensorLocation")
-                                        .with(user("username").roles("USER")))
+                                        .with(user("username").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
         sensorLocationRepository.deleteAllInBatch();
 
-        sensorLocationList = new ArrayList<>();
-        sensorLocationList.add(
-                new SensorLocation(
-                        null,
-                        "Great Pyramid of Giza",
-                        29.9792,
-                        31.1342,
-                        SensorLocationType.INDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Stonehenge", 51.1789, -1.8262, SensorLocationType.OUTDOOR));
-        sensorLocationList.add(
-                new SensorLocation(
-                        null, "Machu Picchu", -13.1631, -72.5450, SensorLocationType.INDOOR));
+        UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
+        UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
+        unconvRoleSet.add(savedUnconvRole);
+
+        sensorLocationList =
+                Instancio.ofList(SensorLocation.class)
+                        .size(30)
+                        .generate(
+                                field(SensorLocation::getLatitude),
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
+                                field(SensorLocation::getLongitude),
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
+                        .create();
         sensorLocationList = sensorLocationRepository.saveAll(sensorLocationList);
     }
 
@@ -80,13 +98,18 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorLocation").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
+                .andExpect(jsonPath("$.totalElements", is(sensorLocationList.size())))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(
+                        jsonPath(
+                                "$.totalPages",
+                                is(
+                                        sensorLocationList.size()
+                                                / Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(false)))
+                .andExpect(jsonPath("$.hasNext", is(true)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -95,14 +118,68 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/SensorLocation").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(sensorLocationList.size())))
-                .andExpect(jsonPath("$.totalElements", is(3)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.data.size()", is(Integer.parseInt(DEFAULT_PAGE_SIZE))))
+                .andExpect(jsonPath("$.totalElements", is(sensorLocationList.size())))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(
+                        jsonPath(
+                                "$.totalPages",
+                                is(
+                                        sensorLocationList.size()
+                                                / Integer.parseInt(DEFAULT_PAGE_SIZE))))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(true)))
-                .andExpect(jsonPath("$.hasNext", is(false)))
+                .andExpect(jsonPath("$.isLast", is(false)))
+                .andExpect(jsonPath("$.hasNext", is(true)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithIncorrectParameter() throws Exception {
+        String mismatchedParameter = "sensorName";
+        String requestPath = "/SensorLocation";
+
+        this.mockMvc
+                .perform(get(requestPath).param("sortBy", mismatchedParameter))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(
+                        jsonPath(
+                                "$.detail",
+                                is("Invalid property reference: " + mismatchedParameter)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")))
+                .andExpect(jsonPath("$.path", is(requestPath)))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageNumber() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageNo", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page index must not be less than zero")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn400WhenFetchAllSensorLocationsWithNegativePageSize() throws Exception {
+        String requestPath = "/SensorLocation";
+
+        this.mockMvc
+                .perform(get(requestPath).param("pageSize", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.detail", is("Page size must not be less than one")))
+                .andReturn();
     }
 
     @Test
@@ -118,6 +195,19 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.sensorLocationText",
                                 is(sensorLocation.getSensorLocationText())));
+    }
+
+    @Test
+    void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
+        SensorLocation sensorLocation = sensorLocationList.get(0);
+        String sensorLocationId = sensorLocation.getId().toString().replace("-", "");
+
+        this.mockMvc
+                .perform(get("/SensorLocation/{id}", sensorLocationId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.timestamp", notNullValue()))
+                .andReturn();
     }
 
     @Test
@@ -161,8 +251,8 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewSensorLocationWithoutText() throws Exception {
-        SensorLocation sensorLocation = new SensorLocation(null, null, null, null, null);
+    void shouldReturn400WhenCreateNewSensorLocationWithNullValues() throws Exception {
+        SensorLocation sensorLocation = new SensorLocation();
 
         this.mockMvc
                 .perform(
@@ -321,19 +411,21 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
         List<SensorLocation> sensorLocations =
                 Instancio.ofList(SensorLocation.class)
                         .size(3)
-                        .supply(
+                        .set(field(SensorLocation::getId), null)
+                        .generate(
                                 field(SensorLocation::getLatitude),
-                                random -> random.doubleRange(-90.0, 90.0))
-                        .supply(
+                                gen -> gen.spatial().coordinate().lat())
+                        .generate(
                                 field(SensorLocation::getLongitude),
-                                random -> random.doubleRange(-180, 180))
+                                gen -> gen.spatial().coordinate().lon())
+                        .generate(
+                                field(SensorLocation::getSensorLocationType),
+                                gen -> gen.enumOf(SensorLocationType.class))
                         .create();
-
-        List<SensorLocation> savedSensorLocations =
-                sensorLocationRepository.saveAll(sensorLocations);
 
         UnconvUser unconvUser =
                 new UnconvUser(null, "Specific UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -346,10 +438,10 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .supply(
                                 field(SensorSystem::getSensorLocation),
-                                random -> random.oneOf(savedSensorLocations))
+                                random -> random.oneOf(sensorLocations))
                         .create();
 
-        for (SensorLocation sensorLocation : savedSensorLocations) {
+        for (SensorLocation sensorLocation : sensorLocations) {
             SensorSystem sensorSystem =
                     Instancio.of(SensorSystem.class)
                             .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
@@ -358,6 +450,9 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                             .ignore(field(SensorSystem::getHumidityThreshold))
                             .ignore(field(SensorSystem::getTemperatureThreshold))
                             .create();
+
+            // TODO Fix with proper Instancio methods
+            sensorSystem.getSensorLocation().setId(null);
             sensorSystemsOfSpecificUnconvUser.add(sensorSystem);
         }
 
@@ -372,12 +467,31 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
                                 "/SensorLocation/UnconvUser/{unconvUserId}",
                                 savedUnconvUser.getId().toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(savedSensorLocations.size())));
+                .andExpect(jsonPath("$.size()", is(sensorLocations.size())));
+    }
+
+    @Test
+    void shouldReturn404FetchAllSensorLocationsAssociatedWithAnNonExistentUnconvUser()
+            throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(get("/SensorLocation/UnconvUser/{unconvUserId}", unconvUserId.toString()))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @AfterEach
     void tearDown() {
         sensorSystemRepository.deleteAll();
         sensorLocationRepository.deleteAll();
+
+        unconvUserRepository.deleteAll();
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
     }
 }

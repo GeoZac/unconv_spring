@@ -1,6 +1,8 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
+import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_DLTD;
@@ -8,14 +10,24 @@ import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_INAT;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_SENS;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_EXPIRED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_MALFORMED;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_SHORT;
+import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_UNKNOWN;
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -31,16 +43,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unconv.spring.common.AbstractIntegrationTest;
-import com.unconv.spring.consts.SensorStatus;
 import com.unconv.spring.domain.EnvironmentalReading;
+import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.dto.EnvironmentalReadingDTO;
+import com.unconv.spring.dto.SensorAuthTokenDTO;
+import com.unconv.spring.enums.DefaultUserRole;
+import com.unconv.spring.enums.SensorStatus;
 import com.unconv.spring.persistence.EnvironmentalReadingRepository;
+import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.persistence.SensorSystemRepository;
+import com.unconv.spring.persistence.UnconvRoleRepository;
 import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.EnvironmentalReadingService;
+import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
+import com.unconv.spring.utils.AccessTokenGenerator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
@@ -48,8 +68,12 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
@@ -68,15 +92,23 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Autowired private EnvironmentalReadingService environmentalReadingService;
 
+    @Autowired private SensorAuthTokenService sensorAuthTokenService;
+
+    @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
+
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
     @Autowired private UnconvUserService unconvUserService;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
+    @Autowired private UnconvRoleRepository unconvRoleRepository;
+
     private List<EnvironmentalReading> environmentalReadingList = null;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
+
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -106,14 +138,18 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("UnconvUser").roles("USER")))
+                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
                         .apply(springSecurity())
                         .build();
 
         environmentalReadingRepository.deleteAllInBatch();
 
+        UnconvRole userUnconvRole = unconvRoleRepository.findByName(UNCONV_USER.name());
+        unconvRoleSet.add(userUnconvRole);
+
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
 
@@ -122,13 +158,14 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         environmentalReadingList =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(15)
+                        .size(25)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
                         .create();
 
-        totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
+        totalPages =
+                (int) Math.ceil((double) environmentalReadingList.size() / DEFAULT_PAGE_SIZE_INT);
 
         environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
     }
@@ -138,16 +175,50 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
-                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                        jsonPath(
+                                "$.isLast",
+                                is(environmentalReadingList.size() < DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFetchAllEnvironmentalReadingsInAscendingOrderWithinMaxPageSize() throws Exception {
+        SensorSystem sensorSystem = environmentalReadingList.get(0).getSensorSystem();
+
+        environmentalReadingList =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(150)
+                        .supply(field(EnvironmentalReading::getSensorSystem), () -> sensorSystem)
+                        .create();
+
+        environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
+
+        this.mockMvc
+                .perform(
+                        get("/EnvironmentalReading")
+                                .param("sortDir", "asc")
+                                .param("pageSize", String.valueOf(MAX_PAGE_SIZE + 10)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()", is(MAX_PAGE_SIZE)))
+                .andExpect(jsonPath("$.totalElements", greaterThan(MAX_PAGE_SIZE)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(jsonPath("$.totalPages", greaterThan(0)))
+                .andExpect(jsonPath("$.isFirst", is(true)))
+                .andExpect(jsonPath("$.isLast", is(false)))
+                .andExpect(
+                        jsonPath(
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -155,6 +226,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInAscendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -163,7 +235,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -173,6 +245,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -181,13 +254,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -196,16 +269,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
-                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                        jsonPath(
+                                "$.isLast",
+                                is(environmentalReadingList.size() < DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -213,6 +289,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldFetchAllEnvironmentalReadingsOfSpecificSensorInDescendingOrder() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -221,7 +298,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReading::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -231,6 +308,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -239,14 +317,168 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(dataSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(1)))
-                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.pageNumber", is(0)))
+                .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
+    }
+
+    @Test
+    void shouldFindEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(15)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .generate(
+                                field(EnvironmentalReading::getTimestamp),
+                                gen ->
+                                        gen.temporal()
+                                                .offsetDateTime()
+                                                .past()
+                                                .min(OffsetDateTime.now().minusHours(23)))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(15)));
+    }
+
+    @Test
+    void shouldFindEnvironmentalReadingsOfSpecificSensorWithSpecifiedInterval() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(15)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .generate(
+                                field(EnvironmentalReading::getTimestamp),
+                                gen ->
+                                        gen.temporal()
+                                                .offsetDateTime()
+                                                .past()
+                                                .min(OffsetDateTime.now().minusHours(8)))
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                        "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                        sensorSystem.getId())
+                                .param("hours", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(15)));
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingEnvironmentalReadingsOfSpecificSensorWithoutSpecifiedInterval()
+            throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Interval/SensorSystem/{sensorSystemId}",
+                                sensorSystemId))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    void shouldFindExtremeEnvironmentalReadingsOfSpecificSensor() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem =
+                new SensorSystem(null, "Specific Sensor System", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
+                Instancio.ofList(environemntalReadingModel)
+                        .size(15)
+                        .supply(
+                                field(EnvironmentalReading::getSensorSystem),
+                                () -> savedSensorSystem)
+                        .generate(
+                                field(EnvironmentalReading::getTimestamp),
+                                gen -> gen.temporal().offsetDateTime().past())
+                        .create();
+
+        List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
+                environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
+
+        assert !savedEnvironmentalReadingsOfSpecificSensor.isEmpty();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Extreme/SensorSystem/{sensorSystemId}",
+                                sensorSystem.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", is(instanceOf(List.class))))
+                .andExpect(jsonPath("$.size()", is(4)))
+                .andExpect(jsonPath("$.maxTemperature.temperature", notNullValue()))
+                .andExpect(jsonPath("$.maxHumidity.humidity", notNullValue()))
+                .andExpect(jsonPath("$.minTemperature.temperature", notNullValue()))
+                .andExpect(jsonPath("$.minHumidity.humidity", notNullValue()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn404WhenFetchingExtremeEnvironmentalReadingsOfSpecificSensor()
+            throws Exception {
+        UUID sensorSystemId = UUID.randomUUID();
+
+        this.mockMvc
+                .perform(
+                        get(
+                                "/EnvironmentalReading/Extreme/SensorSystem/{sensorSystemId}",
+                                sensorSystemId))
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -258,13 +490,17 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .perform(get("/EnvironmentalReading/{id}", environmentalReadingId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(
+                        jsonPath(
+                                "$.temperature",
+                                closeTo(environmentalReading.getTemperature(), 0.01)));
     }
 
     @Test
     void shouldFindLatestEnvironmentalReadingsForASpecificUnconvUserId() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -295,10 +531,22 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn404WhenFetchingLatestEnvironmentalReadingsForANonExistentUnconvUserId()
+            throws Exception {
+        UUID unconvUserId = UUID.randomUUID();
+        this.mockMvc
+                .perform(
+                        get("/EnvironmentalReading/Latest/UnconvUser/{unconvUserId}", unconvUserId))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
         UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -321,13 +569,229 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
                 .andExpect(
                         jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
-                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldCreateNewEnvironmentalReadingWithSensorAuthToken() throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String sensorAccessToken =
+                sensorAuthTokenService
+                        .generateSensorAuthToken(savedSensorSystem, null)
+                        .getAuthToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, sensorAccessToken))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.entity.id", notNullValue()))
+                .andExpect(jsonPath("$.entity.id", not(alreadyExistingUUID.toString())))
+                .andExpect(
+                        jsonPath("$.entity.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreateNewEnvironmentalReadingWithMatchingSensorAuthHash() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String sensorAccessToken =
+                sensorAuthTokenService
+                        .generateSensorAuthToken(savedSensorSystem, null)
+                        .getAuthToken();
+
+        // Create a bogus token by retaining the hash as suffix, but keeping the pattern
+        String bogusSensorAccessToken =
+                AccessTokenGenerator.generateAccessToken()
+                        + sensorAccessToken.substring(sensorAccessToken.length() - 24);
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                // Send the request with bogus token
+                                .param(ACCESS_TOKEN, bogusSensorAccessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_MALFORMED)))
+                .andExpect(jsonPath("$.token", is(bogusSensorAccessToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreatingNewEnvironmentalReadingWithInvalidSensorAuthToken()
+            throws Exception {
+        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String invalidSensorAuthToken = AccessTokenGenerator.generateAccessToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, invalidSensorAuthToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_UNKNOWN)))
+                .andExpect(jsonPath("$.token", is(invalidSensorAuthToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401CreatingNewEnvironmentalReadingWithExpiredSensorAuthToken()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String tokenHash = sensorAuthTokenService.generateUniqueSaltedSuffix();
+        SensorAuthToken sensorAuthToken =
+                new SensorAuthToken(
+                        null,
+                        AccessTokenGenerator.generateAccessToken() + tokenHash,
+                        OffsetDateTime.now().minusDays(20),
+                        tokenHash,
+                        savedSensorSystem);
+        SensorAuthTokenDTO savedSensorAuthToken =
+                sensorAuthTokenService.saveSensorAuthTokenDTO(sensorAuthToken);
+
+        String expiredSensorAuthToken = savedSensorAuthToken.getAuthToken();
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, expiredSensorAuthToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_EXPIRED)))
+                .andExpect(jsonPath("$.token", is(expiredSensorAuthToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
+                .andReturn();
+    }
+
+    @Test
+    void shouldReturn401WhenCreatingNewReadingWithSensorAuthTokenOfInsufficientTokenLength()
+            throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        SensorSystem inActiveSensorSystem =
+                new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedInactiveSensorSystem = sensorSystemRepository.save(inActiveSensorSystem);
+
+        assertNotEquals(savedSensorSystem.getId(), savedInactiveSensorSystem.getId());
+
+        String sensorAccessToken = RandomStringUtils.secure().nextAlphanumeric(20);
+
+        EnvironmentalReading environmentalReading =
+                new EnvironmentalReading(
+                        null,
+                        3L,
+                        56L,
+                        OffsetDateTime.of(LocalDateTime.of(2023, 3, 17, 7, 9), ZoneOffset.UTC),
+                        savedSensorSystem);
+        this.mockMvc
+                .perform(
+                        post("/EnvironmentalReading")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(environmentalReading))
+                                .param(ACCESS_TOKEN, sensorAccessToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is(SENS_AUTH_SHORT)))
+                .andExpect(jsonPath("$.token", is(sensorAccessToken)))
+                .andExpect(
+                        jsonPath(
+                                "$.timestamp",
+                                matchesPattern(
+                                        "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6,}Z$")))
+                .andReturn();
     }
 
     @Test
     void shouldCreateNewEnvironmentalReadingWithMinimalInfo() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -357,13 +821,15 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                         jsonPath(
                                 "$.entity.sensorSystem.id",
                                 is(savedSensorSystem.getId().toString())))
-                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()));
+                .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
+                .andReturn();
     }
 
     @Test
     void shouldCreateNewEnvironmentalReadingWithoutTimestamp() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -386,7 +852,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         "$.entity.temperature",
                                         is(environmentalReadingDTO.getTemperature())))
                         .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                        .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                        .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()));
 
         // Get the response body
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
@@ -410,6 +877,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -453,6 +921,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -495,6 +964,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewEnvironmentalReadingWhenUploadingAsBulk() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -502,7 +972,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getTemperature),
                                 random ->
@@ -562,6 +1032,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -569,7 +1040,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -583,7 +1054,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             stringBuilder.append(environmentalReadingDTO.toCSVString()).append("\n");
         }
 
-        String expectedResponse = String.format(ENVT_FILE_REJ_ERR, "test.csv");
+        String expectedResponse = ENVT_FILE_REJ_ERR.formatted("test.csv");
 
         // Create a MockMultipartFile with the CSV content
         MockMultipartFile csvFile =
@@ -609,6 +1080,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -618,7 +1090,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -658,6 +1130,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -666,7 +1139,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =
                 Instancio.ofList(EnvironmentalReadingDTO.class)
-                        .size(5)
+                        .size(15)
                         .supply(
                                 field(EnvironmentalReadingDTO::getSensorSystem),
                                 () -> savedSensorSystem)
@@ -700,10 +1173,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturn400WhenCreateNewEnvironmentalReadingWithoutText() throws Exception {
-        EnvironmentalReading environmentalReading =
-                new EnvironmentalReading(
-                        UUID.randomUUID(), 0L, 0L, OffsetDateTime.now().plusDays(1), null);
+    void shouldReturn400WhenCreateNewEnvironmentalReadingWithNullValues() throws Exception {
+        EnvironmentalReading environmentalReading = new EnvironmentalReading();
 
         this.mockMvc
                 .perform(
@@ -719,14 +1190,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 is("https://zalando.github.io/problem/constraint-violation")))
                 .andExpect(jsonPath("$.title", is("Constraint Violation")))
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.violations", hasSize(2)))
+                .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field", is("sensorSystem")))
                 .andExpect(jsonPath("$.violations[0].message", is(ENVT_VALID_SENSOR_SYSTEM)))
-                .andExpect(jsonPath("$.violations[1].field", is("timestamp")))
-                .andExpect(
-                        jsonPath(
-                                "$.violations[1].message",
-                                is("Readings has to be in past or present")))
                 .andReturn();
     }
 
@@ -734,6 +1200,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     void shouldReturn401WhenCreateNewEnvironmentalReadingForUnauthenticatedUser() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "Some other user", "someonelse@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -755,7 +1222,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -763,6 +1232,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem =
@@ -784,13 +1254,16 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
     void shouldReturn400WhenCreateNewEnvironmentalReadingForDeletedSensorSystem() throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -815,7 +1288,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -823,6 +1298,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
             throws Exception {
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
         SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
@@ -847,7 +1323,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 "$.entity.temperature",
                                 is(environmentalReadingDTO.getTemperature())))
                 .andExpect(jsonPath("$.entity.sensorSystem", notNullValue()))
-                .andExpect(jsonPath("$.entity.timestamp", notNullValue()));
+                .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
+                .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -863,7 +1341,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(environmentalReading)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())))
+                .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -876,7 +1356,12 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(environmentalReading.getId().toString())))
-                .andExpect(jsonPath("$.temperature", is(environmentalReading.getTemperature())));
+                .andExpect(
+                        jsonPath(
+                                "$.temperature",
+                                closeTo(environmentalReading.getTemperature(), 0.01)))
+                .andExpect(jsonPath("$.sensorSystem.unconvUser", validUnconvUser()))
+                .andReturn();
     }
 
     @Test
@@ -912,7 +1397,15 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @AfterEach
     void tearDown() {
         environmentalReadingRepository.deleteAll();
+        sensorAuthTokenRepository.deleteAll();
         sensorSystemRepository.deleteAll();
+
         unconvUserRepository.deleteAll();
+        List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
+        for (UnconvRole unconvRole : unconvRoles) {
+            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
+                continue;
+            unconvRoleRepository.delete(unconvRole);
+        }
     }
 }
