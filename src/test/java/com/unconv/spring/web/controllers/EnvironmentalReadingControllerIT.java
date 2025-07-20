@@ -1042,9 +1042,11 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         String malformedCsv =
-                "temperature,humidity,timestamp\n"
-                        + "notANumber,55.2,2023-07-01T10:15:30+00:00\n"
-                        + "30.5,invalidHumidity,2023-07-01T10:15:30+00:00";
+                """
+            temperature,humidity,timestamp
+            notANumber,55.2,2023-07-01T10:15:30+00:00
+            30.5,invalidHumidity,2023-07-01T10:15:30+00:00
+            """;
 
         MockMultipartFile badCsvFile =
                 new MockMultipartFile(
@@ -1111,7 +1113,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .file(csvFile)
                                 .with(csrf()))
                 .andExpect(status().isExpectationFailed())
-                .andExpect(jsonPath("$", is(expectedResponse)));
+                .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                .andExpect(content().string(expectedResponse))
+                .andExpect(jsonPath("$", is(expectedResponse)))
+                .andReturn();
     }
 
     @Test
