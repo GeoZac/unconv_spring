@@ -2,6 +2,7 @@ package com.unconv.spring.utils;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.exception.ReadingsCSVProcessingException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class CSVUtil {
 
             return environmentalReadings;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to parse CSV file: " + e.getMessage());
+            throw new ReadingsCSVProcessingException("Failed to parse CSV file: " + e.getMessage());
         }
     }
 }
