@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -1027,6 +1028,42 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$", is(expectedResponse)));
+    }
+
+    @Test
+    void shouldReturn417WhenUploadingNewEnvironmentalReadingsWhenCSVMalformed() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String malformedCsv =
+                "temperature,humidity,timestamp\n"
+                        + "notANumber,55.2,2023-07-01T10:15:30+00:00\n"
+                        + "30.5,invalidHumidity,2023-07-01T10:15:30+00:00";
+
+        MockMultipartFile badCsvFile =
+                new MockMultipartFile(
+                        "file",
+                        "malformed.csv",
+                        "text/csv",
+                        malformedCsv.getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .file(badCsvFile)
+                                .with(csrf()))
+                .andExpect(status().isExpectationFailed())
+                .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                .andExpect(content().string("Could not upload the file: malformed.csv!"))
+                .andReturn();
     }
 
     @Test
