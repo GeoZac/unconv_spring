@@ -28,7 +28,7 @@
 
         <testcontainers.version>1.21.3</testcontainers.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <instancio.version>5.4.1</instancio.version>
+        <instancio.version>5.5.0</instancio.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
         <spotless.version>2.45.0</spotless.version>
