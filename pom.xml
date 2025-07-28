@@ -23,7 +23,7 @@
         <problem-spring-web.version>0.29.1</problem-spring-web.version>
         <springdoc-openapi.version>2.1.0</springdoc-openapi.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
-        <commons-io.version>2.19.0</commons-io.version>
+        <commons-io.version>2.20.0</commons-io.version>
         <jackson.version>2.19.2</jackson.version>
 
         <testcontainers.version>1.21.3</testcontainers.version>
