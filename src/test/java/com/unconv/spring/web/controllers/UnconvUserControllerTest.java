@@ -78,7 +78,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     private List<UnconvUser> unconvUserList;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -100,7 +100,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         .ignore(field(UnconvUser::getId))
                         .create();
 
-        totalPages = (int) Math.ceil((double) this.unconvUserList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) this.unconvUserList.size() / DEFAULT_PAGE_SIZE_INT);
 
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
@@ -126,8 +126,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)))
                 .andReturn();
     }
@@ -245,7 +245,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         int length = 10;
         boolean useLetters = true;
         boolean useNumbers = false;
-        String randomGeneratedString = RandomStringUtils.random(length, useLetters, useNumbers);
+        String randomGeneratedString =
+                RandomStringUtils.secure().next(length, useLetters, useNumbers);
 
         given(unconvUserService.isUsernameUnique(randomGeneratedString)).willReturn(true);
 
@@ -292,7 +293,8 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                             UnconvUserDTO unconvUserDTOArg = invocation.getArgument(0);
 
                             UnconvRole userUnconvRole =
-                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                                    UnconvRole.create(
+                                            UUID.randomUUID(), "ROLE_USER", this.getClass());
                             Set<UnconvRole> unconvRoleSet = new HashSet<>();
                             unconvRoleSet.add(userUnconvRole);
 
@@ -405,14 +407,15 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
                 .willReturn(true);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
         given(unconvUserService.updateUnconvUser((any(UnconvUser.class)), any(UnconvUserDTO.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             UnconvUserDTO unconvUserDTO = invocation.getArgument(1);
 
                             UnconvRole userUnconvRole =
-                                    new UnconvRole(UUID.randomUUID(), "ROLE_USER");
+                                    UnconvRole.create(
+                                            UUID.randomUUID(), "ROLE_USER", this.getClass());
                             Set<UnconvRole> unconvRoleSet = new HashSet<>();
                             unconvRoleSet.add(userUnconvRole);
 
@@ -462,7 +465,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
                 .willReturn(false);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
@@ -497,7 +500,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         given(unconvUserService.checkPasswordMatch(any(UUID.class), any(String.class)))
                 .willReturn(false);
         given(unconvUserService.saveUnconvUser(any(UnconvUser.class), any(String.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
 

@@ -40,8 +40,7 @@ public class DefaultRoleInitializer {
     private void createRoleIfNotExists(DefaultUserRole defaultUserRole) {
         UnconvRole existingRole = unconvRoleRepository.findByName(String.valueOf(defaultUserRole));
         if (existingRole == null) {
-            UnconvRole newRole = new UnconvRole();
-            newRole.setName(defaultUserRole.name());
+            UnconvRole newRole = UnconvRole.create(null, defaultUserRole.name(), this.getClass());
             unconvRoleRepository.save(newRole);
         }
     }

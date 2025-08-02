@@ -118,7 +118,7 @@ class FruitControllerTest extends AbstractControllerTest {
     void shouldCreateNewFruit() throws Exception {
         given(fruitService.saveFruit(any(Fruit.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Fruit fruit = invocation.getArgument(0);
                             fruit.setId(1L);
                             return fruit;
@@ -177,7 +177,7 @@ class FruitControllerTest extends AbstractControllerTest {
                         "Daily Fresh");
         given(fruitService.findFruitById(fruitId)).willReturn(Optional.of(fruit));
         given(fruitService.saveFruit(any(Fruit.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

@@ -25,6 +25,7 @@ public final class AppConstants {
     // SensorAuthToken
     public static final String ACCESS_TOKEN = "access_token";
 
+    /** Private constructor to hide the implicit public one */
     private AppConstants() {
         // Private constructor to hide the implicit public one
     }

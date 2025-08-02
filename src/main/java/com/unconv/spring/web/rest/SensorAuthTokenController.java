@@ -13,7 +13,6 @@ import com.unconv.spring.service.SensorSystemService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,22 +40,17 @@ public class SensorAuthTokenController {
 
     private final SensorSystemService sensorSystemService;
 
-    private final ModelMapper modelMapper;
-
     /**
      * Constructs a new SensorAuthTokenController with the specified services.
      *
      * @param sensorAuthTokenService the service for sensor authentication tokens
      * @param sensorSystemService the service for sensor systems
-     * @param modelMapper the model mapper
      */
     public SensorAuthTokenController(
             SensorAuthTokenService sensorAuthTokenService,
-            SensorSystemService sensorSystemService,
-            ModelMapper modelMapper) {
+            SensorSystemService sensorSystemService) {
         this.sensorAuthTokenService = sensorAuthTokenService;
         this.sensorSystemService = sensorSystemService;
-        this.modelMapper = modelMapper;
     }
 
     /**

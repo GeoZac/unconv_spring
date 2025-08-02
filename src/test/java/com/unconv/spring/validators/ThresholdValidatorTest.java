@@ -14,7 +14,7 @@ class ThresholdValidatorTest {
     private ThresholdValidator validator;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         validator = new ThresholdValidator();
     }
 

@@ -6,9 +6,19 @@ import com.unconv.spring.dto.SensorAuthTokenDTO;
 import com.unconv.spring.model.response.PagedResult;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /** Service interface for managing {@link SensorAuthToken}s. */
 public interface SensorAuthTokenService {
+
+    /**
+     * Retrieves a paginated list of {@link SensorAuthToken} entries.
+     *
+     * @param pageable the pagination and sorting information
+     * @return a page containing sensor authentication tokens
+     */
+    Page<SensorAuthToken> findSensorAuthTokens(Pageable pageable);
 
     /**
      * Retrieves a paginated list of SensorAuthTokens.
@@ -62,7 +72,7 @@ public interface SensorAuthTokenService {
     void deleteSensorAuthTokenById(UUID id);
 
     /**
-     * Deletes any SensorAuthToken by the SensoorSystem id.
+     * Deletes any SensorAuthToken by the SensorSystem id.
      *
      * @param sensorSystemId The ID of the SensorSystem to delete SensorAuthTokens of.
      */

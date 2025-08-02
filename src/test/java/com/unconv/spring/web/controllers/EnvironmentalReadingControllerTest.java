@@ -546,7 +546,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                                         any(EnvironmentalReadingDTO.class),
                                         any(Authentication.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             EnvironmentalReadingDTO environmentalReadingArg =
                                     invocation.getArgument(0);
                             environmentalReadingArg.setId(UUID.randomUUID());
@@ -833,7 +833,7 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
         given(environmentalReadingService.findEnvironmentalReadingById(environmentalReadingId))
                 .willReturn(Optional.of(environmentalReading));
         given(environmentalReadingService.saveEnvironmentalReading(any(EnvironmentalReading.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

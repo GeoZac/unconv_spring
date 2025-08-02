@@ -95,10 +95,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
             new UnconvUser(
                     UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
-    private final UUID sensorSystemId = UUID.randomUUID();
     private final SensorSystem mSensorSystem =
             SensorSystem.builder()
-                    .id(sensorSystemId)
+                    .id(UUID.randomUUID())
                     .sensorName("Workspace sensor system")
                     .description("Monitors temperature and humidity for personal workspace")
                     .deleted(false)
@@ -224,7 +223,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     void shouldCreateNewSensorAuthToken() throws Exception {
         given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class), isNull()))
                 .willAnswer(
-                        (invocation) ->
+                        invocation ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),
@@ -304,7 +303,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenService.generateSensorAuthToken(
                                 any(SensorSystem.class), any(UUID.class)))
                 .willAnswer(
-                        (invocation) ->
+                        invocation ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),

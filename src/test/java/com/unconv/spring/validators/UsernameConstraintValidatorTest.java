@@ -27,7 +27,7 @@ class UsernameConstraintValidatorTest {
     private Validator validator;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         LocalValidatorFactoryBean factoryBean = new LocalValidatorFactoryBean();
         factoryBean.afterPropertiesSet();
         validator = factoryBean;

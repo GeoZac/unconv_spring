@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +40,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     private List<Passenger> passengerList = null;
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -58,7 +57,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         passengerRepository.deleteAll();
 
         passengerList = Instancio.ofList(Passenger.class).size(23).create();
-        totalPages = (int) Math.ceil((double) passengerList.size() / defaultPageSize);
+        totalPages = (int) Math.ceil((double) passengerList.size() / DEFAULT_PAGE_SIZE_INT);
 
         passengerList = passengerRepository.saveAll(passengerList);
     }
@@ -68,15 +67,16 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         try {
             this.mockMvc
                     .perform(get("/Passenger").param("sortDir", "asc"))
-                    .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                    .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                     .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
                     .andExpect(jsonPath("$.pageNumber", is(0)))
                     .andExpect(jsonPath("$.totalPages", is(totalPages)))
                     .andExpect(jsonPath("$.isFirst", is(true)))
-                    .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
-                    .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
+                    .andExpect(
+                            jsonPath("$.isLast", is(passengerList.size() < DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(
+                            jsonPath("$.hasNext", is(passengerList.size() > DEFAULT_PAGE_SIZE_INT)))
                     .andExpect(jsonPath("$.hasPrevious", is(false)));
         } catch (AssertionError e) {
             List<Passenger> passengers = passengerRepository.findAll();
@@ -96,15 +96,16 @@ class PassengerControllerIT extends AbstractIntegrationTest {
         try {
             this.mockMvc
                     .perform(get("/Passenger").param("sortDir", "desc"))
-                    .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                    .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                     .andExpect(jsonPath("$.totalElements", is(passengerList.size())))
                     .andExpect(jsonPath("$.pageNumber", is(0)))
                     .andExpect(jsonPath("$.totalPages", is(totalPages)))
                     .andExpect(jsonPath("$.isFirst", is(true)))
-                    .andExpect(jsonPath("$.isLast", is(passengerList.size() < defaultPageSize)))
-                    .andExpect(jsonPath("$.hasNext", is(passengerList.size() > defaultPageSize)))
+                    .andExpect(
+                            jsonPath("$.isLast", is(passengerList.size() < DEFAULT_PAGE_SIZE_INT)))
+                    .andExpect(
+                            jsonPath("$.hasNext", is(passengerList.size() > DEFAULT_PAGE_SIZE_INT)))
                     .andExpect(jsonPath("$.hasPrevious", is(false)));
         } catch (Exception e) {
             List<Passenger> passengers = passengerRepository.findAll();
