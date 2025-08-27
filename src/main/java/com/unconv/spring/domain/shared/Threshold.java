@@ -16,8 +16,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * This class represents a general threshold entity with a discriminator column specifying the
- * threshold type.
+ * Represents a general threshold entity used in environmental or monitoring contexts.
+ *
+ * <p>This class serves as the base entity for different types of thresholds (e.g., temperature,
+ * humidity) and uses a single-table inheritance strategy to store all threshold types in a single
+ * database table. A discriminator column named {@code threshold_type} is used to distinguish
+ * between specific threshold implementations.
+ *
+ * <p>Subclasses of {@code Threshold} should define specific fields relevant to the threshold type.
  */
 @Getter
 @Setter
@@ -27,6 +33,12 @@ import lombok.Setter;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "threshold_type", discriminatorType = DiscriminatorType.STRING)
 public class Threshold {
+
+    /**
+     * The unique identifier for the threshold entry.
+     *
+     * <p>This ID is generated automatically and stored as a UUID in the database.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "uuid", nullable = false)
