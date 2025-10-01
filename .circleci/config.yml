@@ -6,7 +6,7 @@ orbs:
 jobs:
   setup:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -34,7 +34,7 @@ jobs:
           paths: ["*", "**/*"]
   build:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -57,7 +57,7 @@ jobs:
           command: ./mvnw -DskipTests install
   test:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -133,7 +133,7 @@ jobs:
 
   analyse:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -176,7 +176,7 @@ jobs:
 
   doc:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
