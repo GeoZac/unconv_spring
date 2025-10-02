@@ -541,11 +541,11 @@
                     <show>private</show>
                     <nohelp>true</nohelp>
                     <links>
-                        <!-- TODO: Revert 'latest' Javadoc links back to version specific -->
-                        <link>https://javadoc.io/doc/org.zalando/problem/latest/</link>
-                        <link>https://javadoc.io/doc/org.zalando/problem-spring-web/latest/</link>
-                        <link>https://javadoc.io/doc/org.zalando/problem-spring-common/latest/</link>
-                        <link>https://javadoc.io/doc/org.zalando/problem-violations/latest/</link>
+                        <!-- TODO: Enable when javadocs are available -->
+                        <!-- <link>https://javadoc.io/doc/org.zalando/problem/latest/</link> -->
+                        <!-- <link>https://javadoc.io/doc/org.zalando/problem-spring-web/latest/</link> -->
+                        <!-- <link>https://javadoc.io/doc/org.zalando/problem-spring-common/latest/</link> -->
+                        <!-- <link>https://javadoc.io/doc/org.zalando/problem-violations/latest/</link> -->
 
                         <link>https://javadoc.io/doc/com.auth0/java-jwt/4.4.0/</link>
 
