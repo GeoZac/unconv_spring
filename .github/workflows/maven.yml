@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: Event File
         path: ${{ github.event_path }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Upload Unit Test Results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Unit Test Results
           path: "target/test-results/**/*.xml"
