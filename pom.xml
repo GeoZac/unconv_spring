@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.unconv.spring</groupId>
     <artifactId>spring</artifactId>
-    <version>0.1.3</version>
+    <version>0.1.4</version>
     <name>spring</name>
     <description>spring</description>
 
