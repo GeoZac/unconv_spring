@@ -48,7 +48,7 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
     @Test
     void shouldFetchAppVersion() throws Exception {
 
-        given(buildProperties.getVersion()).willReturn("0.1.3");
+        given(buildProperties.getVersion()).willReturn("0.1.4");
 
         this.mockMvc
                 .perform(get("/public/status/version").characterEncoding(Charset.defaultCharset()))
@@ -59,14 +59,14 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
                         jsonPath(
                                 "$",
                                 is(
-                                        "0.1.3\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
+                                        "0.1.4\nThis endpoint is deprecated and will be removed in future version. Please use /v1/version.")))
                 .andReturn();
     }
 
     @Test
     void shouldFetchAppVersionWithJSONResponse() throws Exception {
 
-        given(buildProperties.getVersion()).willReturn("0.1.3");
+        given(buildProperties.getVersion()).willReturn("0.1.4");
 
         this.mockMvc
                 .perform(
@@ -78,7 +78,7 @@ class ApplicationStatusControllerTest extends AbstractControllerTest {
                         document(
                                 "shouldFetchAppVersionWithJSONResponse",
                                 preprocessResponse(prettyPrint)))
-                .andExpect(jsonPath("$.version", is("0.1.3")))
+                .andExpect(jsonPath("$.version", is("0.1.4")))
                 .andReturn();
     }
 }
