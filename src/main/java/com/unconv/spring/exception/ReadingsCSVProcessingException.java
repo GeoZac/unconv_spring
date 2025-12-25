@@ -7,6 +7,12 @@ package com.unconv.spring.exception;
  * without being explicitly declared in method signatures.
  */
 public class ReadingsCSVProcessingException extends RuntimeException {
+
+    /**
+     * Constructs a new ReadingsCSVProcessingException with the specified detail message.
+     *
+     * @param message the detail message explaining the reason for the exception
+     */
     public ReadingsCSVProcessingException(String message) {
         super(message);
     }
