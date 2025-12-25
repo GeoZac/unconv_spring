@@ -1,12 +1,12 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@4.1.0
-  docker: circleci/docker@2.6.0
+  codecov: codecov/codecov@5.4.3
+  docker: circleci/docker@3.0.1
   owasp: entur/owasp@0.0.19
 jobs:
   setup:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -34,7 +34,7 @@ jobs:
           paths: ["*", "**/*"]
   build:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -57,7 +57,7 @@ jobs:
           command: ./mvnw -DskipTests install
   test:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -133,7 +133,7 @@ jobs:
 
   analyse:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
@@ -158,10 +158,10 @@ jobs:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - codecov/upload:
-            file: target/jacoco/test/jacoco.xml
+            files: target/jacoco/test/jacoco.xml
             flags: controllers_test
       - codecov/upload:
-            file: target/jacoco/integrationTest/jacoco.xml
+            files: target/jacoco/integrationTest/jacoco.xml
             flags: integration_test
       - store_artifacts:
           path: target/jacoco/test
@@ -176,7 +176,7 @@ jobs:
 
   doc:
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
