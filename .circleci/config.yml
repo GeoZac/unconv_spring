@@ -157,14 +157,10 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build Docker image
-          command: |
-            docker build -t unconv-spring:test .
-
+          command: docker build -t unconv-spring:test .
       - run:
           name: Run container
-          command: |
-            docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
-
+          command: docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
       - run:
           name: Wait for container and test HTTP endpoint
           command: |
