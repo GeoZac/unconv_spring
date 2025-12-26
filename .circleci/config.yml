@@ -29,8 +29,8 @@ jobs:
           name: Download dependencies
           command: ./mvnw dependency:resolve
       - run:
-            name: Display dependency tree
-            command: ./mvnw dependency:tree
+          name: Display dependency tree
+          command: ./mvnw dependency:tree
       - save_cache:
           paths:
             - ~/.m2
@@ -66,8 +66,8 @@ jobs:
       - checkout
       - show_java_version
       - setup_remote_docker:
-            version: default
-            docker_layer_caching: true
+          version: default
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - v1-dependencies-install-{{ checksum "pom.xml" }}
@@ -89,6 +89,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-install-{{ checksum "pom.xml" }}
+
   check_style:
     description: "Runs CheckStyle on the project and stores the report"
     docker:
@@ -127,11 +128,11 @@ jobs:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - codecov/upload:
-            files: target/jacoco/test/jacoco.xml
-            flags: controllers_test
+          files: target/jacoco/test/jacoco.xml
+          flags: controllers_test
       - codecov/upload:
-            files: target/jacoco/integrationTest/jacoco.xml
-            flags: integration_test
+          files: target/jacoco/integrationTest/jacoco.xml
+          flags: integration_test
       - store_artifacts:
           path: target/jacoco/test
           destination: coverage/unit
@@ -154,7 +155,6 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - setup_remote_docker
-
       - run:
           name: Build Docker image
           command: |
@@ -227,8 +227,8 @@ jobs:
           name: Download dependencies
           command: ./mvnw dependency:resolve
       - run:
-            name: Display dependency tree
-            command: ./mvnw dependency:tree
+          name: Display dependency tree
+          command: ./mvnw dependency:tree
       - save_cache:
           paths:
             - ~/.m2
@@ -236,6 +236,7 @@ jobs:
       - persist_to_workspace:
           root: /tmp/spring
           paths: ["*", "**/*"]
+
   build:
     description: "Builds the project using Maven on a machine executor"
     machine:
@@ -321,17 +322,17 @@ workflows:
             - build_ci
           filters:
             branches:
-                only:
+              only:
                 - /docs\/.*/
                 - /infra\/.*/
                 - master
             tags:
-                only: /^v.*/
+              only: /^v.*/
       - setup
       - owasp/maven_owasp_dependency_check:
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
@@ -343,7 +344,7 @@ workflows:
             - test_ci
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
@@ -356,4 +357,3 @@ workflows:
       - docker/publish:
           deploy: false
           image: spring-test
-
