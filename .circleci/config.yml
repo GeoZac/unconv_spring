@@ -6,6 +6,7 @@ orbs:
 
 commands:
   show_java_version:
+    description: "Displays Java version and info for debugging"
     steps:
       - run:
           name: Show Java Info
@@ -14,6 +15,7 @@ commands:
 
 jobs:
   setup_ci:
+    description: "Sets up Maven dependencies, caches them, and displays dependency tree"
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -35,6 +37,7 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
   build_ci:
+    description: "Builds the project using Maven without running tests"
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -54,6 +57,7 @@ jobs:
           key: v1-dependencies-build-{{ checksum "pom.xml" }}
 
   test_ci:
+    description: "Runs unit and integration tests in parallel and stores test results"
     docker:
       - image: cimg/openjdk:17.0
     working_directory: /tmp/spring
@@ -86,6 +90,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-install-{{ checksum "pom.xml" }}
   check_style:
+    description: "Runs CheckStyle on the project and stores the report"
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -107,6 +112,7 @@ jobs:
           key: v1-dependencies-checkstyle-{{ checksum "pom.xml" }}
 
   sonar_analyse:
+    description: "Runs SonarCloud analysis and uploads code coverage to Codecov"
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -138,6 +144,7 @@ jobs:
           key: v1-dependencies-sonar-{{ checksum "pom.xml" }}
 
   smoke_test:
+    description: "Performs a smoke test by building the Docker image, running it, and checking an HTTP endpoint"
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -176,6 +183,7 @@ jobs:
             exit 1
 
   doc_ci:
+    description: "Builds API documentation and JavaDoc, storing PDF artifact"
     docker:
       - image: cimg/openjdk:17.0
     steps:
@@ -200,6 +208,7 @@ jobs:
           key: v1-dependencies-doc-{{ checksum "pom.xml" }}
 
   setup:
+    description: "Sets up workspace on a machine executor and resolves Maven dependencies"
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
@@ -228,6 +237,7 @@ jobs:
           root: /tmp/spring
           paths: ["*", "**/*"]
   build:
+    description: "Builds the project using Maven on a machine executor"
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
@@ -252,6 +262,7 @@ jobs:
           command: ./mvnw -DskipTests install
 
   analyse:
+    description: "Runs CheckStyle, SonarCloud analysis, and stores coverage artifacts on a machine executor"
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
