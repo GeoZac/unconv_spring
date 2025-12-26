@@ -1,6 +1,8 @@
 package com.unconv.spring.service.impl;
 
+import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -116,13 +118,21 @@ class SensorLocationServiceImplTest {
 
     @Test
     void findSensorLocationById() {
+        sensorLocationId = UUID.randomUUID();
+
+        SensorLocation sensorLocation =
+                Instancio.of(SensorLocation.class)
+                        .set(field(SensorLocation::getId), sensorLocationId)
+                        .create();
+
         when(sensorLocationRepository.findById(any(UUID.class)))
                 .thenReturn(Optional.of(sensorLocation));
 
         Optional<SensorLocation> result =
                 sensorLocationService.findSensorLocationById(sensorLocationId);
 
-        assertEquals(sensorLocation.getId(), result.get().getId());
+        assertTrue(result.isPresent(), "Expected non-empty result");
+        assertEquals(sensorLocation.getId(), result.get().getId(), "Mismatched sensor location ID");
     }
 
     @Test
