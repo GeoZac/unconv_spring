@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,20 +46,39 @@ class SensorLocationServiceImplTest {
 
     @Test
     void findAllSensorLocationsInAscendingOrder() {
-        int pageNo = 0;
-        int pageSize = 10;
+        final int pageNo = 0;
+        final int pageSize = 10;
+        final int totalElements = 50;
         String sortBy = "id";
         String sortDir = "ASC";
-        List<SensorLocation> sensorLocationList = Collections.singletonList(sensorLocation);
-        Page<SensorLocation> sensorLocationPage = new PageImpl<>(sensorLocationList);
 
-        when(sensorLocationRepository.findAll(any(Pageable.class))).thenReturn(sensorLocationPage);
+        List<SensorLocation> sensorLocationList =
+                Instancio.ofList(SensorLocation.class).size(totalElements).create();
+
+        when(sensorLocationRepository.findAll(any(Pageable.class)))
+                .thenAnswer(
+                        invocation -> {
+                            Pageable pageable = invocation.getArgument(0);
+                            int start = pageable.getPageNumber() * pageable.getPageSize();
+                            int end = Math.min(start + pageable.getPageSize(), totalElements);
+                            List<SensorLocation> pageContent =
+                                    sensorLocationList.subList(start, end);
+                            return new PageImpl<>(pageContent, pageable, totalElements);
+                        });
 
         PagedResult<SensorLocation> result =
                 sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
 
-        assertEquals(sensorLocationList.size(), result.data().size());
-        assertEquals(sensorLocationList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(pageSize, result.data().size());
+
+        List<UUID> expectedIds =
+                sensorLocationList.subList(0, pageSize).stream()
+                        .map(SensorLocation::getId)
+                        .toList();
+
+        List<UUID> actualIds = result.data().stream().map(SensorLocation::getId).toList();
+
+        assertEquals(expectedIds, actualIds, "Page 0 should return first 5 SensorLocations");
     }
 
     @Test
