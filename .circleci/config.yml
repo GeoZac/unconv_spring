@@ -26,7 +26,7 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
-          name: Download dependecies
+          name: Download dependencies
           command: ./mvnw dependency:resolve
       - run:
             name: Display dependency tree
@@ -74,7 +74,7 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
-          name: Test
+          name: Run Tests
           command: |
             cd src/test/java/
             TESTS=$(circleci tests glob "com/**/*.java" | sed 's/\.java$//;s/\//./g' | circleci tests split --split-by=timings | paste -sd, -)
