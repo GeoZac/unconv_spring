@@ -72,6 +72,7 @@ class SensorLocationServiceImplTest {
                 sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(pageSize, result.data().size());
+        assertEquals(totalElements, result.totalElements());
 
         List<UUID> expectedIds =
                 sensorLocationList.subList(0, pageSize).stream()
@@ -80,7 +81,10 @@ class SensorLocationServiceImplTest {
 
         List<UUID> actualIds = result.data().stream().map(SensorLocation::getId).toList();
 
-        assertEquals(expectedIds, actualIds, "Page 0 should return first 5 SensorLocations");
+        assertEquals(
+                expectedIds,
+                actualIds,
+                String.format("Page 0 should return first %d SensorLocations", pageSize));
     }
 
     @Test
