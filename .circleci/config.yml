@@ -85,23 +85,38 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-install-{{ checksum "pom.xml" }}
-  analyse_ci:
+  check_style:
     docker:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
       - show_java_version
-      - setup_remote_docker:
-            version: default
-            docker_layer_caching: true
       - restore_cache:
           keys:
-            - v1-dependencies-analyse-{{ checksum "pom.xml" }}
+            - v1-dependencies-checkstyle-{{ checksum "pom.xml" }}
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
           name: Run CheckStyle
           command: ./mvnw checkstyle:checkstyle
+      - store_artifacts:
+          path: target/checkstyle-result.xml
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-checkstyle-{{ checksum "pom.xml" }}
+
+  sonar_analyse:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - show_java_version
+      - restore_cache:
+          keys:
+            - v1-dependencies-sonar-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
       - run:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
@@ -120,7 +135,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-dependencies-analyse-{{ checksum "pom.xml" }}
+          key: v1-dependencies-sonar-{{ checksum "pom.xml" }}
 
   smoke_test:
     docker:
@@ -283,8 +298,11 @@ workflows:
       - test_ci:
           requires:
             - setup_ci
-      - analyse_ci:
+      - sonar_analyse:
           context: SonarCloud
+          requires:
+            - build_ci
+      - check_style:
           requires:
             - build_ci
       - doc_ci:
