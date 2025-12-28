@@ -32,6 +32,7 @@ public class EmailClient {
      *
      * @param mailSender the {@link JavaMailSender} used to send emails
      * @param fromAddress the email address used as the sender's address
+     * @param fromName the sender's display name from unconv.mail.sender_name property
      * @param mailHost the host of the email server; used to verify if email configuration is
      *     complete
      */
