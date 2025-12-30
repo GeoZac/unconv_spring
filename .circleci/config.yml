@@ -3,8 +3,208 @@ orbs:
   codecov: codecov/codecov@5.4.3
   docker: circleci/docker@3.0.1
   owasp: entur/owasp@0.0.19
+
+commands:
+  show_java_version:
+    description: "Displays Java version and info for debugging"
+    steps:
+      - run:
+          name: Show Java Info
+          command: |
+            java --version
+
 jobs:
+  setup_ci:
+    description: "Sets up Maven dependencies, caches them, and displays dependency tree"
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - show_java_version
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Download dependencies
+          command: ./mvnw dependency:resolve
+      - run:
+          name: Display dependency tree
+          command: ./mvnw dependency:tree
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+  build_ci:
+    description: "Builds the project using Maven without running tests"
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - show_java_version
+      - restore_cache:
+          keys:
+            - v1-dependencies-build-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Package
+          command: ./mvnw -DskipTests package
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-build-{{ checksum "pom.xml" }}
+
+  test_ci:
+    description: "Runs unit and integration tests in parallel and stores test results"
+    docker:
+      - image: cimg/openjdk:17.0
+    working_directory: /tmp/spring
+    parallelism: 4
+    steps:
+      - checkout
+      - show_java_version
+      - setup_remote_docker:
+          version: default
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v1-dependencies-install-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Run Tests
+          command: |
+            cd src/test/java/
+            TESTS=$(circleci tests glob "com/**/*.java" | sed 's/\.java$//;s/\//./g' | circleci tests split --split-by=timings | paste -sd, -)
+            cd ../../..
+            echo $TESTS
+            ./mvnw -Dtest="$TESTS" -e test
+      - store_test_results:
+          path: target/test-results
+      - store_artifacts:
+          path: target/test-results
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-install-{{ checksum "pom.xml" }}
+
+  check_style:
+    description: "Runs CheckStyle on the project and stores the report"
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - show_java_version
+      - restore_cache:
+          keys:
+            - v1-dependencies-checkstyle-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Run CheckStyle
+          command: ./mvnw checkstyle:checkstyle
+      - store_artifacts:
+          path: target/checkstyle-result.xml
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-checkstyle-{{ checksum "pom.xml" }}
+
+  sonar_analyse:
+    description: "Runs SonarCloud analysis and uploads code coverage to Codecov"
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - show_java_version
+      - restore_cache:
+          keys:
+            - v1-dependencies-sonar-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Analyze on SonarCloud
+          command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
+      - codecov/upload:
+          files: target/jacoco/test/jacoco.xml
+          flags: controllers_test
+      - codecov/upload:
+          files: target/jacoco/integrationTest/jacoco.xml
+          flags: integration_test
+      - store_artifacts:
+          path: target/jacoco/test
+          destination: coverage/unit
+      - store_artifacts:
+          path: target/jacoco/integrationTest
+          destination: coverage/integration
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-sonar-{{ checksum "pom.xml" }}
+
+  smoke_test:
+    description: "Performs a smoke test by building the Docker image, running it, and checking an HTTP endpoint"
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: docker build -t unconv-spring:test .
+      - run:
+          name: Run container
+          command: docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
+      - run:
+          name: Wait for container and test HTTP endpoint
+          command: |
+            echo "Waiting for application to be ready..."
+            for i in {1..30}; do
+              echo "Attempt $i: Checking if app is ready inside container..."
+              if docker exec unconv-spring-container wget --quiet --spider http://localhost:8080/public/status/v1/version; then
+                echo "App is ready inside container!"
+                exit 0
+              fi
+              echo "App not ready yet inside container... retrying in 5 seconds"
+              sleep 5
+            done
+            echo "App failed to start inside container after 30 retries. Showing container logs:"
+            docker logs unconv-spring-container
+            exit 1
+
+  doc_ci:
+    description: "Builds API documentation and JavaDoc, storing PDF artifact"
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - show_java_version
+      - restore_cache:
+          keys:
+            - v1-dependencies-doc-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run:
+          name: Build API doc
+          command: ./mvnw package -Dunconv.skip.asciidoctor=false
+      - run:
+          name: Build JavaDoc
+          command: ./mvnw javadoc:javadoc
+      - store_artifacts:
+          path: target/generated-docs/index.pdf
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-doc-{{ checksum "pom.xml" }}
+
   setup:
+    description: "Sets up workspace on a machine executor and resolves Maven dependencies"
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
@@ -23,8 +223,8 @@ jobs:
           name: Download dependencies
           command: ./mvnw dependency:resolve
       - run:
-            name: Display dependency tree
-            command: ./mvnw dependency:tree
+          name: Display dependency tree
+          command: ./mvnw dependency:tree
       - save_cache:
           paths:
             - ~/.m2
@@ -32,7 +232,9 @@ jobs:
       - persist_to_workspace:
           root: /tmp/spring
           paths: ["*", "**/*"]
+
   build:
+    description: "Builds the project using Maven on a machine executor"
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
@@ -55,83 +257,9 @@ jobs:
       - run:
           name: Build with Maven
           command: ./mvnw -DskipTests install
-  test:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: /tmp/spring
-    parallelism: 4
-    steps:
-      - attach_workspace:
-          at: /tmp/spring
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
-      - run:
-          name: Build with Maven
-          command: |
-            cd src/test/java/
-            TESTS=$(circleci tests glob "com/**/*.java" | sed 's/\.java$//;s/\//./g' | circleci tests split --split-by=timings | paste -sd, -)
-            cd ../../..
-            echo $TESTS
-            ./mvnw -Dtest="$TESTS" -e test
-      - store_test_results:
-          path: target/test-results
-      - store_artifacts:
-          path: target
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
-
-  smoke_test:
-    docker:
-      - image: cimg/openjdk:17.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
-      - setup_remote_docker
-
-      - run:
-          name: Build Docker image
-          command: |
-            docker build -t unconv-spring:test .
-
-      - run:
-          name: Run container
-          command: |
-            docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
-
-      - run:
-          name: Wait for container and test HTTP endpoint
-          command: |
-            echo "Waiting for application to be ready..."
-            for i in {1..30}; do
-              echo "Attempt $i: Checking if app is ready inside container..."
-              if docker exec unconv-spring-container wget --quiet --spider http://localhost:8080/public/status/v1/version; then
-                echo "App is ready inside container!"
-                exit 0
-              fi
-              echo "App not ready yet inside container... retrying in 5 seconds"
-              sleep 5
-            done
-            echo "App failed to start inside container after 30 retries. Showing container logs:"
-            docker logs unconv-spring-container
-            exit 1
 
   analyse:
+    description: "Runs CheckStyle, SonarCloud analysis, and stores coverage artifacts on a machine executor"
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
@@ -157,12 +285,6 @@ jobs:
       - run:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
-      - codecov/upload:
-            files: target/jacoco/test/jacoco.xml
-            flags: controllers_test
-      - codecov/upload:
-            files: target/jacoco/integrationTest/jacoco.xml
-            flags: integration_test
       - store_artifacts:
           path: target/jacoco/test
           destination: coverage/unit
@@ -174,63 +296,51 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-  doc:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: /tmp/spring
-    steps:
-      - attach_workspace:
-          at: /tmp/spring
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
-      - run:
-          name: Build API doc
-          command: ./mvnw package -Dunconv.skip.asciidoctor=false
-      - run:
-          name: Build JavaDoc
-          command: ./mvnw javadoc:javadoc
-      - store_artifacts:
-          path: target/generated-docs/index.pdf
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
-
 workflows:
   build-and-test:
     jobs:
+      - setup_ci
+      - build_ci:
+          requires:
+            - setup_ci
+      - test_ci:
+          requires:
+            - setup_ci
+      - sonar_analyse:
+          context: SonarCloud
+          requires:
+            - build_ci
+      - check_style:
+          requires:
+            - build_ci
+      - doc_ci:
+          requires:
+            - build_ci
+          filters:
+            branches:
+              only:
+                - /docs\/.*/
+                - /infra\/.*/
+                - master
+            tags:
+              only: /^v.*/
       - setup
       - owasp/maven_owasp_dependency_check:
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
-                - /infra\/.*/
       - build:
-          requires:
-            - setup
-      - test:
           requires:
             - setup
       - smoke_test:
           requires:
-            - test
+            - test_ci
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
@@ -239,17 +349,6 @@ workflows:
           context: SonarCloud
           requires:
             - build
-      - doc:
-          requires:
-            - test
-          filters:
-            branches:
-                only:
-                - /docs\/.*/
-                - /infra\/.*/
-                - master
-            tags:
-                only: /^v.*/
       - docker/hadolint
       - docker/publish:
           deploy: false
