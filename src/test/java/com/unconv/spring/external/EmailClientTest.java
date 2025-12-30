@@ -28,6 +28,9 @@ class EmailClientTest {
     @Value("${spring.mail.host}")
     private String mMailHost;
 
+    @Value("${unconv.mail.sender_name}")
+    private String mFromName;
+
     @Mock private MimeMessage mimeMessage;
 
     @Test
@@ -44,7 +47,7 @@ class EmailClientTest {
         message.setText(text);
         message.setFrom(fromAddress);
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmail(to, subject, text);
 
         verify(mailSender, times(1)).send(message);
@@ -60,7 +63,7 @@ class EmailClientTest {
 
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
 
         verify(mailSender, times(1)).send(mimeMessage);
@@ -75,7 +78,7 @@ class EmailClientTest {
         String fromAddress = ""; // Invalid fromAddress
         String mailHost = ""; // Invalid mailHost
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmail(to, subject, text);
 
         verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
@@ -89,7 +92,7 @@ class EmailClientTest {
         String fromAddress = "";
         String mailHost = "";
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
 
         verify(mailSender, times(0)).send(mimeMessage);
@@ -103,7 +106,7 @@ class EmailClientTest {
         String fromAddress = "sender@example.com";
         String mailHost = "smtp.example.com";
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
 
         verify(mailSender, times(0)).send(mimeMessage);
@@ -117,7 +120,7 @@ class EmailClientTest {
         String fromAddress = "sender@example.com";
         String mailHost = "smtp.example.com";
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmail(to, subject, text);
 
         verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
@@ -131,7 +134,7 @@ class EmailClientTest {
         String fromAddress = "sender@example.com";
         String mailHost = "smtp.example.com";
 
-        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmail(to, subject, text);
 
         SimpleMailMessage message = new SimpleMailMessage();
@@ -149,7 +152,7 @@ class EmailClientTest {
         String subject = "Test Subject";
         String text = "Email shouldn't be sent because configuration is incomplete.";
 
-        emailClient = new EmailClient(mailSender, "", "");
+        emailClient = new EmailClient(mailSender, "", "", "");
 
         emailClient.sendEmail(to, subject, text);
 
