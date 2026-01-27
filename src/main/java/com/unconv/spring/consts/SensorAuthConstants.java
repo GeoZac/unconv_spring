@@ -1,6 +1,6 @@
 package com.unconv.spring.consts;
 
-public class SensorAuthConstants {
+public final class SensorAuthConstants {
 
     public static final String TOKEN_PREFIX = "UNCONV";
     public static final int TOKEN_LENGTH = 25 - TOKEN_PREFIX.length();
