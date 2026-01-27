@@ -140,12 +140,12 @@ public class SensorSystemServiceImpl implements SensorSystemService {
         } else {
             SensorSystemDTO sensorSystemDTO =
                     modelMapper.map(sensorSystem.get(), SensorSystemDTO.class);
-            sensorSystemDTO.setReadingCount(
-                    environmentalReadingRepository.countBySensorSystemId(id));
-            EnvironmentalReading environmentalReading =
-                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                            id);
-            if (environmentalReading != null) {
+            long readingCount = environmentalReadingRepository.countBySensorSystemId(id);
+            sensorSystemDTO.setReadingCount(readingCount);
+            if (readingCount != 0) {
+                EnvironmentalReading environmentalReading =
+                        environmentalReadingRepository
+                                .findFirstBySensorSystemIdOrderByTimestampDesc(id);
                 sensorSystemDTO.setLatestReading(
                         modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
             }
@@ -303,13 +303,14 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     private SensorSystemDTO mapSensorSystemEntityToDTOAndPopulateExtraFields(
             SensorSystem sensorSystem) {
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
-        sensorSystemDTO.setReadingCount(
-                environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId()));
-        EnvironmentalReading environmentalReading =
-                environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
-                        sensorSystem.getId());
+        long readingCount =
+                environmentalReadingRepository.countBySensorSystemId(sensorSystem.getId());
+        sensorSystemDTO.setReadingCount(readingCount);
+        if (readingCount != 0) {
+            EnvironmentalReading environmentalReading =
+                    environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
+                            sensorSystem.getId());
 
-        if (environmentalReading != null) {
             sensorSystemDTO.setLatestReading(
                     modelMapper.map(environmentalReading, BaseEnvironmentalReadingDTO.class));
         }
