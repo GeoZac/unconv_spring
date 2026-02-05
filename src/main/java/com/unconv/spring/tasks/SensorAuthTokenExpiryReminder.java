@@ -73,12 +73,29 @@ public class SensorAuthTokenExpiryReminder {
         } while (!tokenPage.isLast());
     }
 
+    /**
+     * Checks whether the given sensor authentication token is expiring within one month from now.
+     *
+     * <p>This method compares the token's expiry date with the current date and returns {@code
+     * true} if the difference is less than one month (in either direction).
+     *
+     * @param token the {@link SensorAuthToken} to evaluate
+     * @return {@code true} if the token is expiring within one month; {@code false} otherwise
+     */
     private boolean isExpiringWithinOneMonth(SensorAuthToken token) {
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expiry = token.getExpiry();
         return Math.abs(ChronoUnit.MONTHS.between(expiry, now)) < 1;
     }
 
+    /**
+     * Sends a reminder email to the user associated with the given sensor authentication token.
+     *
+     * <p>The email notifies the user that their sensor auth token is nearing its expiry date. It
+     * includes details such as the username, sensor name, and formatted expiry date.
+     *
+     * @param token the {@link SensorAuthToken} whose expiry is being reminded
+     */
     private void sendReminderEmail(SensorAuthToken token) {
         UnconvUser user = token.getSensorSystem().getUnconvUser();
         String email = user.getEmail();

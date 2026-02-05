@@ -11,4 +11,22 @@
     <suppress files=".*OrderProduct.*" checks="MissingJavadocMethod" />
     <suppress files=".*Passenger.*" checks="MissingJavadocMethod" />
     <suppress files=".*Route.*" checks="MissingJavadocMethod" />
+
+    <suppress files=".*Booking.*" checks="MissingJavadocType" />
+    <suppress files=".*Fruit.*" checks="MissingJavadocType" />
+    <suppress files=".*FruitProduct.*" checks="MissingJavadocType" />
+    <suppress files=".*Heater.*" checks="MissingJavadocType" />
+    <suppress files=".*Offer.*" checks="MissingJavadocType" />
+    <suppress files=".*OrderProduct.*" checks="MissingJavadocType" />
+    <suppress files=".*Passenger.*" checks="MissingJavadocType" />
+    <suppress files=".*Route.*" checks="MissingJavadocType" />
+
+    <suppress files=".*Booking.*" checks="JavadocVariable" />
+    <suppress files=".*Fruit.*" checks="JavadocVariable" />
+    <suppress files=".*FruitProduct.*" checks="JavadocVariable" />
+    <suppress files=".*Heater.*" checks="JavadocVariable" />
+    <suppress files=".*Offer.*" checks="JavadocVariable" />
+    <suppress files=".*OrderProduct.*" checks="JavadocVariable" />
+    <suppress files=".*Passenger.*" checks="JavadocVariable" />
+    <suppress files=".*Route.*" checks="JavadocVariable" />
 </suppressions>
