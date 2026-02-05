@@ -77,4 +77,6 @@ unconv:
     expose-docs: false
     jwt_expiry: 3600
     jwt_secret: NOT_A_SECRET
+    mail:
+        sender_name: "Unconv Mailman"
 server.servlet.encoding.force: true
