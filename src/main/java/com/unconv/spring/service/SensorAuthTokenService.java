@@ -77,6 +77,7 @@ public interface SensorAuthTokenService {
      * @param sensorSystemId The ID of the SensorSystem to delete SensorAuthTokens of.
      */
     void deleteAnyExistingSensorSystem(UUID sensorSystemId);
+
     /**
      * Generates an authentication token for the given SensorSystem.
      *
