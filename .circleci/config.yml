@@ -3,117 +3,125 @@ orbs:
   codecov: codecov/codecov@5.4.3
   docker: circleci/docker@3.0.1
   owasp: entur/owasp@0.0.19
-jobs:
-  setup:
+
+# Define custom executors for reuse
+executors:
+  java-machine:
     machine:
       image: ubuntu-2204:current
       docker_layer_caching: true
     resource_class: large
     working_directory: /tmp/spring
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+
+# Define reusable commands
+commands:
+  install_java:
+    description: "Install and configure OpenJDK 17"
     steps:
-      - checkout
+      - run:
+          name: Install OpenJDK 17
+          command: |
+            sudo apt-get update && sudo apt-get install -y openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            java -version
+
+  restore_maven_cache:
+    description: "Restore Maven dependencies from cache"
+    steps:
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "pom.xml" }}
+            - v2-dependencies-
+
+  save_maven_cache:
+    description: "Save Maven dependencies to cache"
+    steps:
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v2-dependencies-{{ checksum "pom.xml" }}
+
+jobs:
+  setup:
+    executor: java-machine
+    steps:
+      - checkout
+      - install_java
+      - restore_maven_cache
       - run:
           name: Grant execute permission for mvnw
           command: chmod +x mvnw
       - run:
-          name: Download dependencies
-          command: ./mvnw dependency:resolve
-      - run:
-            name: Display dependency tree
-            command: ./mvnw dependency:tree
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          name: Download dependencies and resolve
+          command: ./mvnw dependency:go-offline dependency:resolve-plugins
+      - save_maven_cache
       - persist_to_workspace:
           root: /tmp/spring
           paths: ["*", "**/*"]
+
   build:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: /tmp/spring
+    executor: java-machine
     steps:
       - attach_workspace:
           at: /tmp/spring
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
+      - install_java
+      - restore_maven_cache
       - run:
           name: Build with Maven
-          command: ./mvnw -DskipTests install
+          command: ./mvnw -DskipTests clean install
+      - persist_to_workspace:
+          root: /tmp/spring
+          paths:
+            - target
+      - store_artifacts:
+          path: target/*.jar
+          destination: jars
+
   test:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: /tmp/spring
+    executor: java-machine
     parallelism: 4
     steps:
       - attach_workspace:
           at: /tmp/spring
+      - install_java
+      - restore_maven_cache
       - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
-      - run:
-          name: Build with Maven
+          name: Run parallel tests
           command: |
             cd src/test/java/
             TESTS=$(circleci tests glob "com/**/*.java" | sed 's/\.java$//;s/\//./g' | circleci tests split --split-by=timings | paste -sd, -)
             cd ../../..
-            echo $TESTS
-            ./mvnw -Dtest="$TESTS" -e test
+            echo "Running tests: $TESTS"
+            ./mvnw -Dtest="$TESTS" test
+      - run:
+          name: Run integration tests
+          command: ./mvnw verify -DskipUTs=true
       - store_test_results:
           path: target/test-results
       - store_artifacts:
-          path: target
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          path: target/surefire-reports
+          destination: test-reports
 
   smoke_test:
     docker:
       - image: cimg/openjdk:17.0
+    resource_class: medium
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
-      - setup_remote_docker
-
+      - attach_workspace:
+          at: /tmp/spring
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Build Docker image
           command: |
             docker build -t unconv-spring:test .
-
       - run:
           name: Run container
           command: |
             docker run -d -p 8080:8080 --name unconv-spring-container unconv-spring:test
-
       - run:
           name: Wait for container and test HTTP endpoint
           command: |
@@ -132,25 +140,12 @@ jobs:
             exit 1
 
   analyse:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: /tmp/spring
+    executor: java-machine
     steps:
       - attach_workspace:
           at: /tmp/spring
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
+      - install_java
+      - restore_maven_cache
       - run:
           name: Run CheckStyle
           command: ./mvnw checkstyle:checkstyle
@@ -158,42 +153,26 @@ jobs:
           name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - codecov/upload:
-            files: target/jacoco/test/jacoco.xml
-            flags: controllers_test
+          files: target/jacoco/test/jacoco.xml
+          flags: controllers_test
       - codecov/upload:
-            files: target/jacoco/integrationTest/jacoco.xml
-            flags: integration_test
+          files: target/jacoco/integrationTest/jacoco.xml
+          flags: integration_test
       - store_artifacts:
           path: target/jacoco/test
           destination: coverage/unit
       - store_artifacts:
           path: target/jacoco/integrationTest
           destination: coverage/integration
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
 
   doc:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
-    working_directory: /tmp/spring
+    executor: java-machine
+    resource_class: medium
     steps:
       - attach_workspace:
           at: /tmp/spring
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
-            - v1-dependencies-
+      - install_java
+      - restore_maven_cache
       - run:
           name: Build API doc
           command: ./mvnw package -Dunconv.skip.asciidoctor=false
@@ -202,10 +181,10 @@ jobs:
           command: ./mvnw javadoc:javadoc
       - store_artifacts:
           path: target/generated-docs/index.pdf
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          destination: api-docs
+      - store_artifacts:
+          path: target/site/apidocs
+          destination: javadocs
 
 workflows:
   build-and-test:
@@ -214,7 +193,7 @@ workflows:
       - owasp/maven_owasp_dependency_check:
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
@@ -224,13 +203,13 @@ workflows:
             - setup
       - test:
           requires:
-            - setup
+            - build
       - smoke_test:
           requires:
-            - test
+            - build
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
@@ -238,19 +217,27 @@ workflows:
       - analyse:
           context: SonarCloud
           requires:
-            - build
+            - test
       - doc:
           requires:
-            - test
+            - build
           filters:
             branches:
-                only:
+              only:
                 - /docs\/.*/
                 - /infra\/.*/
                 - master
             tags:
-                only: /^v.*/
-      - docker/hadolint
+              only: /^v.*/
+      - docker/hadolint:
+          requires:
+            - setup
       - docker/publish:
           deploy: false
           image: spring-test
+          requires:
+            - smoke_test
+          filters:
+            branches:
+              only:
+                - master
