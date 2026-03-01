@@ -64,8 +64,6 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static int totalPages;
 
     final int setUpListSize = 17;

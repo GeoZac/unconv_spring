@@ -1,6 +1,5 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
@@ -37,8 +36,6 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     @Autowired private PassengerRepository passengerRepository;
 
     private List<Passenger> passengerList = null;
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 

@@ -1,7 +1,6 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
@@ -108,8 +107,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     private List<EnvironmentalReading> environmentalReadingList = null;
 
     private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 

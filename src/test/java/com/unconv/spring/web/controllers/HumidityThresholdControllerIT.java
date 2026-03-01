@@ -41,8 +41,6 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     private List<HumidityThreshold> humidityThresholdList = null;
 
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static int totalPages;
 
     final int setUpListSize = 27;
