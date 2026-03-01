@@ -1,5 +1,6 @@
 package com.unconv.spring.common;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -23,4 +24,6 @@ public abstract class AbstractIntegrationTest {
     @Autowired protected ObjectMapper objectMapper;
 
     @Autowired protected WebApplicationContext webApplicationContext;
+
+    protected static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 }
