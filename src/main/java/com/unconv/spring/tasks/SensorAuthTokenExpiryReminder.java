@@ -73,10 +73,18 @@ public class SensorAuthTokenExpiryReminder {
         } while (!tokenPage.isLast());
     }
 
+    private boolean isTokenExpired(SensorAuthToken token) {
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime expiry = token.getExpiry();
+        // Check if token has already expired
+        return expiry.isBefore(now) || expiry.equals(now);
+    }
+
     private boolean isExpiringWithinOneMonth(SensorAuthToken token) {
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expiry = token.getExpiry();
-        return Math.abs(ChronoUnit.MONTHS.between(expiry, now)) < 1;
+        // Check if token has not yet expired and will expire within one month
+        return expiry.isAfter(now) && ChronoUnit.MONTHS.between(now, expiry) < 1;
     }
 
     private void sendReminderEmail(SensorAuthToken token) {
