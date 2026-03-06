@@ -73,6 +73,15 @@ public class SensorAuthTokenExpiryReminder {
         } while (!tokenPage.isLast());
     }
 
+    /**
+     * Checks if a sensor authentication token has already expired.
+     *
+     * <p>This method determines whether the token's expiry date is before or equal to the current
+     * time, indicating that the token is no longer valid and requires immediate attention.
+     *
+     * @param token the sensor authentication token to check
+     * @return true if the token has expired or expires at the current time, false otherwise
+     */
     private boolean isTokenExpired(SensorAuthToken token) {
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expiry = token.getExpiry();
@@ -80,6 +89,16 @@ public class SensorAuthTokenExpiryReminder {
         return expiry.isBefore(now) || expiry.equals(now);
     }
 
+    /**
+     * Checks if a sensor authentication token is expiring within the next month.
+     *
+     * <p>This method determines whether the token will expire within one month from the current
+     * time but has not yet expired. Tokens that meet this criteria will trigger reminder emails to
+     * users to renew their tokens before they expire.
+     *
+     * @param token the sensor authentication token to check
+     * @return true if the token expires within one month and has not yet expired, false otherwise
+     */
     private boolean isExpiringWithinOneMonth(SensorAuthToken token) {
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expiry = token.getExpiry();
