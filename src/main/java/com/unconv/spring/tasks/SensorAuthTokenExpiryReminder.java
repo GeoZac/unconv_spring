@@ -69,6 +69,10 @@ public class SensorAuthTokenExpiryReminder {
                     .filter(this::isExpiringWithinOneMonth)
                     .forEach(this::sendReminderEmail);
 
+            tokenPage.getContent().stream()
+                    .filter(this::isTokenExpired)
+                    .forEach(this::sendExpiredTokenEmail);
+
             page++;
         } while (!tokenPage.isLast());
     }
@@ -117,6 +121,21 @@ public class SensorAuthTokenExpiryReminder {
         context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
 
         String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
+        emailClient.sendEmailWithHTMLContent(email, subject, body);
+    }
+
+    private void sendExpiredTokenEmail(SensorAuthToken token) {
+        UnconvUser user = token.getSensorSystem().getUnconvUser();
+        String email = user.getEmail();
+        String subject = "⛔ Sensor Auth Token Expired";
+
+        Context context = new Context();
+        context.setVariable("username", user.getUsername());
+        context.setVariable("sensorName", token.getSensorSystem().getSensorName());
+        context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
+
+        String body =
+                templateEngine.process("sensor-auth-token-expired-notification.html", context);
         emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 }
