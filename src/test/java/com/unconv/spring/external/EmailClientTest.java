@@ -76,11 +76,39 @@ class EmailClientTest {
     }
 
     @Test
+    void testSendEmailWhenMailHostEmpty() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String text = "This email should not be sent.";
+        String fromAddress = "sender@example.com"; // Valid fromAddress
+        String mailHost = ""; // Invalid mailHost
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmail(to, subject, text);
+
+        verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
     void testSendEmailWithHTMLContentWhenEmailNotEnabled() {
         String to = "recipient@example.com";
         String subject = "Test Subject";
         String htmlContent = "<h1>This is a test email.</h1>";
         String fromAddress = "";
+        String mailHost = "";
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
+
+        verify(mailSender, times(0)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void testSendEmailWithHTMLContentWhenMailHostEmpty() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String htmlContent = "<h1>This is a test email.</h1>";
+        String fromAddress = "sender@example.com";
         String mailHost = "";
 
         emailClient = new EmailClient(mailSender, fromAddress, mailHost);
