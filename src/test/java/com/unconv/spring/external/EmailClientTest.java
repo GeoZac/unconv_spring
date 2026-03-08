@@ -1,17 +1,17 @@
 package com.unconv.spring.external;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -20,13 +20,7 @@ class EmailClientTest {
 
     @Mock private JavaMailSender mailSender;
 
-    @InjectMocks private EmailClient emailClient;
-
-    @Value("${spring.mail.username}")
-    private String mFromAddress;
-
-    @Value("${spring.mail.host}")
-    private String mMailHost;
+    private EmailClient emailClient;
 
     @Value("${unconv.mail.sender_name}")
     private String mFromName;
@@ -85,6 +79,20 @@ class EmailClientTest {
     }
 
     @Test
+    void testSendEmailWhenMailHostEmpty() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String text = "This email should not be sent.";
+        String fromAddress = "sender@example.com"; // Valid fromAddress
+        String mailHost = ""; // Invalid mailHost
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmail(to, subject, text);
+
+        verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
     void testSendEmailWithHTMLContentWhenEmailNotEnabled() {
         String to = "recipient@example.com";
         String subject = "Test Subject";
@@ -95,7 +103,21 @@ class EmailClientTest {
         emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
 
-        verify(mailSender, times(0)).send(mimeMessage);
+        verify(mailSender, times(0)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void testSendEmailWithHTMLContentWhenMailHostEmpty() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String htmlContent = "<h1>This is a test email.</h1>";
+        String fromAddress = "sender@example.com";
+        String mailHost = "";
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
+
+        verify(mailSender, times(0)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -109,7 +131,7 @@ class EmailClientTest {
         emailClient = new EmailClient(mailSender, fromAddress, mFromName, mailHost);
         emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
 
-        verify(mailSender, times(0)).send(mimeMessage);
+        verify(mailSender, times(0)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -157,5 +179,27 @@ class EmailClientTest {
         emailClient.sendEmail(to, subject, text);
 
         verify(mailSender, times(0)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testSendEmailWithHTMLContentThrowsMessagingException() {
+        String to = "recipient@example.com";
+        String subject = "Test Subject";
+        String htmlContent = "<h1>This is a test email.</h1>";
+        String fromAddress = "sender@example.com";
+        String mailHost = "smtp.example.com";
+
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        doAnswer(
+                        invocation -> {
+                            throw new MessagingException("Test exception");
+                        })
+                .when(mailSender)
+                .send(any(MimeMessage.class));
+
+        emailClient = new EmailClient(mailSender, fromAddress, mailHost);
+        emailClient.sendEmailWithHTMLContent(to, subject, htmlContent);
+
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
     }
 }
