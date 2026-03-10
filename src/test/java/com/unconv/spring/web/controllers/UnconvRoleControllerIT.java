@@ -1,6 +1,5 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -43,8 +42,6 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     private List<UnconvRole> unconvRoleList = null;
 
     private static final int defaultUserRoleCount = DefaultUserRole.values().length;
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 

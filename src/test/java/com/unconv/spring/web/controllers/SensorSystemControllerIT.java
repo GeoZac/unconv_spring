@@ -80,8 +80,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Autowired private UnconvUserService unconvUserService;
 
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static int totalPages;
 
     private List<SensorSystem> sensorSystemList = null;

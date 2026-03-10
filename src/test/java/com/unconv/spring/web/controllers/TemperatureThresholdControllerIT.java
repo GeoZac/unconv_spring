@@ -41,8 +41,6 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     private List<TemperatureThreshold> temperatureThresholdList = null;
 
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static int totalPages;
 
     final int setUpListSize = 27;
