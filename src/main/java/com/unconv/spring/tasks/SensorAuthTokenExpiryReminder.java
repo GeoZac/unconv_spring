@@ -110,6 +110,24 @@ public class SensorAuthTokenExpiryReminder {
         return expiry.isAfter(now) && ChronoUnit.MONTHS.between(now, expiry) < 1;
     }
 
+    /**
+     * Sends a reminder email to a user about their sensor auth token expiring soon.
+     *
+     * <p>This method constructs and sends an HTML email using the {@code
+     * sensor-auth-token-expiry-reminder.html} Thymeleaf template. The email informs the user that
+     * their token will expire soon and should be renewed to avoid service interruption.
+     *
+     * <p>The email includes:
+     *
+     * <ul>
+     *   <li>Username
+     *   <li>Sensor system name
+     *   <li>Token expiry date and time (formatted as "d MMMM yyyy, HH:mm 'UTC'")
+     * </ul>
+     *
+     * @param token the sensor authentication token that is expiring soon
+     * @see #sendExpiredTokenEmail(SensorAuthToken)
+     */
     private void sendReminderEmail(SensorAuthToken token) {
         UnconvUser user = token.getSensorSystem().getUnconvUser();
         String email = user.getEmail();
@@ -124,6 +142,26 @@ public class SensorAuthTokenExpiryReminder {
         emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
+    /**
+     * Sends an alert email to a user about their expired sensor auth token.
+     *
+     * <p>This method constructs and sends an HTML email using the {@code
+     * sensor-auth-token-expired-notification.html} Thymeleaf template. The email alerts the user
+     * that their token has already expired and they must generate a new token immediately to
+     * restore access.
+     *
+     * <p>The email includes:
+     *
+     * <ul>
+     *   <li>Username
+     *   <li>Sensor system name
+     *   <li>Token expiry date and time (formatted as "d MMMM yyyy, HH:mm 'UTC'")
+     *   <li>Call to action for immediate token regeneration
+     * </ul>
+     *
+     * @param token the sensor authentication token that has already expired
+     * @see #sendReminderEmail(SensorAuthToken)
+     */
     private void sendExpiredTokenEmail(SensorAuthToken token) {
         UnconvUser user = token.getSensorSystem().getUnconvUser();
         String email = user.getEmail();
