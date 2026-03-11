@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -186,6 +188,40 @@ class SensorAuthTokenExpiryReminderTest {
         reminder.remindSensorAuthTokenExpiry();
 
         verify(emailClient, never()).sendEmail(any(), any(), any());
+    }
+
+    @Test
+    void shouldSendEmailWhenTokenExpiresAtNow() {
+        OffsetDateTime fixedNow = OffsetDateTime.parse("2026-03-16T12:00:00Z");
+
+        try (MockedStatic<OffsetDateTime> mockedNow = Mockito.mockStatic(OffsetDateTime.class)) {
+            mockedNow.when(OffsetDateTime::now).thenReturn(fixedNow);
+
+            UnconvUser mockUser = new UnconvUser();
+            mockUser.setUsername("jane_doe");
+            mockUser.setEmail("jane@example.com");
+
+            SensorSystem mockSystem = new SensorSystem();
+            mockSystem.setUnconvUser(mockUser);
+
+            SensorAuthToken mockToken = new SensorAuthToken();
+            mockToken.setId(UUID.randomUUID());
+            mockToken.setExpiry(fixedNow);
+            mockToken.setSensorSystem(mockSystem);
+
+            int page = 0;
+            int size = 10;
+            Pageable pageable = PageRequest.of(page, size);
+            Page<SensorAuthToken> mockPage = new PageImpl<>(List.of(mockToken));
+
+            when(sensorAuthTokenService.findSensorAuthTokens(pageable)).thenReturn(mockPage);
+
+            reminder.remindSensorAuthTokenExpiry();
+
+            verify(emailClient)
+                    .sendEmailWithHTMLContent(
+                            eq("jane@example.com"), eq("⛔ Sensor Auth Token Expired"), any());
+        }
     }
 
     @Test
