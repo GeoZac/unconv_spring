@@ -187,4 +187,33 @@ class SensorAuthTokenExpiryReminderTest {
 
         verify(emailClient, never()).sendEmail(any(), any(), any());
     }
+
+    @Test
+    void shouldNotSendEmailWhenTokenDoesNotExpiredMonthsAgo() {
+
+        OffsetDateTime expiry = OffsetDateTime.now().minusMonths(2);
+
+        UnconvUser mockUser = new UnconvUser();
+        mockUser.setUsername("jane_doe");
+        mockUser.setEmail("jane@example.com");
+
+        SensorSystem mockSystem = new SensorSystem();
+        mockSystem.setUnconvUser(mockUser);
+
+        SensorAuthToken mockToken = new SensorAuthToken();
+        mockToken.setId(UUID.randomUUID());
+        mockToken.setExpiry(expiry);
+        mockToken.setSensorSystem(mockSystem);
+
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SensorAuthToken> mockPage = new PageImpl<>(List.of(mockToken));
+
+        when(sensorAuthTokenService.findSensorAuthTokens(pageable)).thenReturn(mockPage);
+
+        reminder.remindSensorAuthTokenExpiry();
+
+        verify(emailClient, never()).sendEmail(any(), any(), any());
+    }
 }
