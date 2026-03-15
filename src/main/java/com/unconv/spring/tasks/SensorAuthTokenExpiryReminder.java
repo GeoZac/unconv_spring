@@ -19,15 +19,20 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 /**
- * Scheduled component that checks for sensor authentication tokens nearing their expiry and sends
- * reminder emails to the associated users.
+ * Scheduled component that checks for sensor authentication tokens and sends appropriate emails.
  *
- * <p>This class is scheduled to run once every 7 days (604800000 milliseconds). If a token is found
- * to expire within one month from the current date, a reminder email is sent to the associated user
- * using a Thymeleaf template.
+ * <p>This class manages two types of token notifications:
  *
- * <p>The email contains information about the sensor system, the username, and the token's expiry
- * date.
+ * <ul>
+ *   <li><strong>Expiring Tokens:</strong> Tokens that will expire within one month but have not yet
+ *       expired. Reminder emails are sent to encourage renewal.
+ *   <li><strong>Expired Tokens:</strong> Tokens that have already passed their expiry date. Alert
+ *       emails are sent to inform users they need to generate new tokens immediately.
+ * </ul>
+ *
+ * <p>The scheduled task runs every 7 days (604800000 milliseconds), checking all tokens and sending
+ * appropriate notifications using Thymeleaf templates. Each email includes the sensor system name,
+ * username, and formatted expiry date.
  *
  * @see SensorAuthTokenService
  * @see EmailClient
@@ -47,13 +52,29 @@ public class SensorAuthTokenExpiryReminder {
             DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm 'UTC'", Locale.ENGLISH);
 
     /**
-     * Scheduled method that runs every 7 days to remind users of expiring sensor auth tokens.
+     * Scheduled method that runs every 7 days to process all sensor authentication tokens.
      *
-     * <p>This method retrieves all sensor authentication tokens, checks if any are expiring within
-     * one month, and sends a reminder email to the user associated with each expiring token.
+     * <p>This method retrieves all sensor authentication tokens in paginated batches and performs
+     * two separate operations:
      *
-     * <p>The email uses a Thymeleaf template named {@code sensor-auth-token-expiry-reminder.html}
-     * and includes the username, sensor name, and formatted expiry date.
+     * <ol>
+     *   <li>Identifies tokens expiring within one month and sends reminder emails
+     *   <li>Identifies tokens that have already expired and sends expired token alerts
+     * </ol>
+     *
+     * <p>Pagination is used to handle large token datasets efficiently, processing 10 tokens per
+     * page.
+     *
+     * <p><strong>Reminder emails:</strong> Use template {@code
+     * sensor-auth-token-expiry-reminder.html}
+     *
+     * <p><strong>Expired token alerts:</strong> Use template {@code
+     * sensor-auth-token-expired-notification.html}
+     *
+     * @see #isExpiringWithinOneMonth(SensorAuthToken)
+     * @see #isTokenExpired(SensorAuthToken)
+     * @see #sendReminderEmail(SensorAuthToken)
+     * @see #sendExpiredTokenEmail(SensorAuthToken)
      */
     @Scheduled(fixedRate = 604800000, initialDelay = 86400000)
     public void remindSensorAuthTokenExpiry() {
