@@ -65,10 +65,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 class SensorSystemControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private SensorSystemRepository sensorSystemRepository;
 
@@ -81,8 +79,6 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
     @Autowired private UnconvRoleRepository unconvRoleRepository;
 
     @Autowired private UnconvUserService unconvUserService;
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
