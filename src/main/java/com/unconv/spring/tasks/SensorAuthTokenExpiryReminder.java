@@ -7,7 +7,10 @@ import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -149,6 +152,7 @@ public class SensorAuthTokenExpiryReminder {
      * @param token the sensor authentication token that is expiring soon
      * @see #sendExpiredTokenEmail(SensorAuthToken)
      */
+    @Deprecated
     private void sendReminderEmail(SensorAuthToken token) {
         UnconvUser user = token.getSensorSystem().getUnconvUser();
         String email = user.getEmail();
@@ -161,6 +165,32 @@ public class SensorAuthTokenExpiryReminder {
 
         String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
         emailClient.sendEmailWithHTMLContent(email, subject, body);
+    }
+
+    private void sendBulkReminderEmail(UnconvUser user, List<SensorAuthToken> tokens) {
+        String email = user.getEmail();
+        String subject = "⚠️ Sensor Auth Token Expiry Reminder";
+
+        List<Map<String, String>> tokenDetails =
+                tokens.stream()
+                        .map(
+                                token -> {
+                                    Map<String, String> details = new HashMap<>();
+                                    details.put(
+                                            "sensorName", token.getSensorSystem().getSensorName());
+                                    details.put(
+                                            "expiryDate",
+                                            token.getExpiry().format(EXPIRY_FORMATTER));
+                                    return details;
+                                })
+                        .toList();
+
+        Context context = new Context();
+        context.setVariable("username", user.getUsername());
+        context.setVariable("tokens", tokenDetails);
+
+        // String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
+        // emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
     /**
