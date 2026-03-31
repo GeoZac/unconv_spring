@@ -6,7 +6,7 @@ RUN ./mvnw dependency:go-offline
 COPY src/main/java ./src/main/java
 COPY src/main/resources ./src/main/resources
 COPY sonar-project.properties ./
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw package -DskipTests
 
 FROM eclipse-temurin:17-jre-focal AS builder
 WORKDIR /application
