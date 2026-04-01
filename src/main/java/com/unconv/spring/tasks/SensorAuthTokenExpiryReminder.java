@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -89,9 +90,16 @@ public class SensorAuthTokenExpiryReminder {
             Pageable pageable = PageRequest.of(page, size);
             tokenPage = sensorAuthTokenService.findSensorAuthTokens(pageable);
 
-            tokenPage.getContent().stream()
-                    .filter(this::isExpiringWithinOneMonth)
-                    .forEach(this::sendReminderEmail);
+            // Group expiring tokens by user
+            Map<UnconvUser, List<SensorAuthToken>> tokensByUser =
+                    tokenPage.getContent().stream()
+                            .filter(this::isExpiringWithinOneMonth)
+                            .collect(
+                                    Collectors.groupingBy(
+                                            token -> token.getSensorSystem().getUnconvUser()));
+
+            // Send one email per user
+            tokensByUser.forEach(this::sendBulkReminderEmail);
 
             tokenPage.getContent().stream()
                     .filter(this::isTokenExpired)
@@ -189,8 +197,9 @@ public class SensorAuthTokenExpiryReminder {
         context.setVariable("username", user.getUsername());
         context.setVariable("tokens", tokenDetails);
 
-        // String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
-        // emailClient.sendEmailWithHTMLContent(email, subject, body);
+        String body =
+                templateEngine.process("sensor-auth-token-expiry-reminder-bulk.html", context);
+        emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
     /**
