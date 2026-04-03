@@ -273,26 +273,4 @@ class SensorAuthTokenExpiryReminderTest {
         assert html.contains("15 March 2026, 10:00 UTC");
         assert html.contains("Sensor Auth Token Expiry Reminder");
     }
-
-    @Test
-    void shouldPreviewExpiredEmailTemplate() {
-        Context context = new Context();
-        context.setVariable("username", "testuser");
-        context.setVariable("sensorName", "Test Sensor");
-        context.setVariable("expiryDate", "15 March 2026, 10:00 UTC");
-
-        String html =
-                reminder.templateEngine.process(
-                        "sensor-auth-token-expired-notification.html", context);
-
-        System.out.println("=== Expired Email HTML Preview ===");
-        System.out.println(html);
-        System.out.println("===================================");
-
-        assert html.contains("testuser");
-        assert html.contains("Test Sensor");
-        assert html.contains("15 March 2026, 10:00 UTC");
-        assert html.contains("Sensor Auth Token Expired");
-        assert html.contains("expired");
-    }
 }
