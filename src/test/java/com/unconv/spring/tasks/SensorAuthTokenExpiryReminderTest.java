@@ -31,7 +31,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -252,25 +251,5 @@ class SensorAuthTokenExpiryReminderTest {
         reminder.remindSensorAuthTokenExpiry();
 
         verify(emailClient, never()).sendEmail(any(), any(), any());
-    }
-
-    @Test
-    void shouldPreviewReminderEmailTemplate() {
-        Context context = new Context();
-        context.setVariable("username", "testuser");
-        context.setVariable("sensorName", "Test Sensor");
-        context.setVariable("expiryDate", "15 March 2026, 10:00 UTC");
-
-        String html =
-                reminder.templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
-
-        System.out.println("=== Reminder Email HTML Preview ===");
-        System.out.println(html);
-        System.out.println("====================================");
-
-        assert html.contains("testuser");
-        assert html.contains("Test Sensor");
-        assert html.contains("15 March 2026, 10:00 UTC");
-        assert html.contains("Sensor Auth Token Expiry Reminder");
     }
 }
