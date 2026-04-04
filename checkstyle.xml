@@ -28,6 +28,10 @@
         <module name="AvoidStarImport">
             <property name="severity" value="warning"/>
         </module>
+        <module name="CyclomaticComplexity">
+            <property name="severity" value="warning"/>
+            <property name="max" value="10"/>
+        </module>
     </module>
 
     <module name="SuppressionFilter">
