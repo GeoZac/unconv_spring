@@ -32,6 +32,10 @@
             <property name="severity" value="warning"/>
             <property name="max" value="10"/>
         </module>
+        <module name="NPathComplexity">
+            <property name="severity" value="warning"/>
+            <property name="max" value="200"/>
+        </module>
     </module>
 
     <module name="SuppressionFilter">
