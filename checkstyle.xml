@@ -36,6 +36,11 @@
             <property name="severity" value="warning"/>
             <property name="max" value="200"/>
         </module>
+        <module name="JavaNCSS">
+            <property name="severity" value="warning"/>
+            <property name="methodMaximum" value="50"/>
+            <property name="classMaximum" value="1500"/>
+        </module>
     </module>
 
     <module name="SuppressionFilter">
