@@ -4,7 +4,6 @@ import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_REJ_USER;
 import static com.unconv.spring.consts.MessageConstants.SENS_RECORD_REJ_USER;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.UnconvUserMatcher.validUnconvUser;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -14,8 +13,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -63,8 +60,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 class SensorSystemControllerIT extends AbstractIntegrationTest {
 
@@ -112,13 +107,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorSystem")
-                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
-                        .apply(springSecurity())
-                        .build();
+        initializeMockMvc();
 
         sensorSystemRepository.deleteAllInBatch();
 
