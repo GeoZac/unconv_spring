@@ -18,6 +18,23 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+/**
+ * Base abstract class for Spring Boot integration tests.
+ *
+ * <p>This class provides common configuration and infrastructure for full-context integration
+ * tests, including:
+ *
+ * <ul>
+ *   <li>Bootstrapping the application using {@link SpringBootTest}
+ *   <li>Activating the {@code test} Spring profile
+ *   <li>Initializing container-based database support
+ *   <li>Configuring {@link MockMvc} with Spring Security
+ * </ul>
+ *
+ * <p>Concrete integration test classes should extend this class and invoke {@link
+ * #initializeMockMvc()} in a {@code @BeforeEach} method to ensure consistent security and request
+ * setup.
+ */
 @ActiveProfiles({PROFILE_TEST})
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ContextConfiguration(initializers = {DBContainerInitializer.class})
