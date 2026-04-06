@@ -24,17 +24,39 @@ import org.springframework.web.context.WebApplicationContext;
 @AutoConfigureMockMvc
 public abstract class AbstractIntegrationTest {
 
+    /**
+     * {@link MockMvc} instance used to perform HTTP requests against the application context during
+     * integration tests.
+     *
+     * <p>This instance is re-initialized with security configuration by calling {@link
+     * #initializeMockMvc()}.
+     */
     @Autowired protected MockMvc mockMvc;
 
+    /**
+     * Jackson {@link ObjectMapper} used for JSON serialization and deserialization in integration
+     * tests.
+     */
     @Autowired protected ObjectMapper objectMapper;
 
+    /**
+     * {@link WebApplicationContext} representing the fully initialized Spring application context
+     * for integration tests.
+     */
     @Autowired protected WebApplicationContext webApplicationContext;
 
+    /** Default page size as an integer value used in pagination-related integration tests. */
     protected static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     /**
-     * Initializes the mockMvc with default request configuration for security. Should be called
-     * in @BeforeEach method of subclasses.
+     * Initializes the {@link MockMvc} instance with default request and Spring Security
+     * configuration.
+     *
+     * <p>The default request is executed as an authenticated user with the {@code UNCONV_USER} role
+     * to simplify secured endpoint testing.
+     *
+     * <p>This method <strong>must</strong> be invoked in a {@code @BeforeEach} method of subclasses
+     * to ensure consistent security context setup.
      */
     protected void initializeMockMvc() {
         this.mockMvc =
