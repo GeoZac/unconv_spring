@@ -109,9 +109,24 @@ public class SensorAuthTokenExpiryReminder {
                         }
                     });
 
-            tokenPage.getContent().stream()
-                    .filter(this::isTokenExpired)
-                    .forEach(this::sendExpiredTokenEmail);
+            // Group expired tokens by user
+            Map<UnconvUser, List<SensorAuthToken>> expiredTokensByUser =
+                    tokenPage.getContent().stream()
+                            .filter(this::isTokenExpired)
+                            .collect(
+                                    Collectors.groupingBy(
+                                            token -> token.getSensorSystem().getUnconvUser()));
+
+            // Send expired token emails: single-token users receive the individual email
+            // template, multi-token users receive a bulk expired notification template.
+            expiredTokensByUser.forEach(
+                    (user, tokens) -> {
+                        if (tokens.size() == 1) {
+                            sendExpiredTokenEmail(tokens.get(0));
+                        } else {
+                            sendBulkExpiredTokenEmail(user, tokens);
+                        }
+                    });
 
             page++;
         } while (!tokenPage.isLast());
