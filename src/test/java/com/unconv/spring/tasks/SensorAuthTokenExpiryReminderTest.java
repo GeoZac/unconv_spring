@@ -393,4 +393,37 @@ class SensorAuthTokenExpiryReminderTest {
         verify(sensorAuthTokenService, times(2)).findSensorAuthTokens(any(Pageable.class));
         verifyNoMoreInteractions(emailClient);
     }
+
+    private void assertEmailsSentForTokens(
+            List<SensorAuthToken> allTokens, String expectedSubject) {
+        List<SensorAuthToken> firstPageTokens = allTokens.subList(0, 10);
+        List<SensorAuthToken> secondPageTokens = allTokens.subList(10, 15);
+
+        Page<SensorAuthToken> page0 = new PageImpl<>(firstPageTokens, PageRequest.of(0, 10), 15);
+        Page<SensorAuthToken> page1 = new PageImpl<>(secondPageTokens, PageRequest.of(1, 10), 15);
+
+        when(sensorAuthTokenService.findSensorAuthTokens(PageRequest.of(0, 10))).thenReturn(page0);
+        when(sensorAuthTokenService.findSensorAuthTokens(PageRequest.of(1, 10))).thenReturn(page1);
+
+        reminder.remindSensorAuthTokenExpiry();
+
+        allTokens.forEach(
+                token -> {
+                    String expectedEmail = token.getSensorSystem().getUnconvUser().getEmail();
+                    String expectedUsername = token.getSensorSystem().getUnconvUser().getUsername();
+                    String expectedSystemName = token.getSensorSystem().getSensorName();
+
+                    verify(emailClient)
+                            .sendEmailWithHTMLContent(
+                                    eq(expectedEmail),
+                                    eq(expectedSubject),
+                                    argThat(
+                                            body ->
+                                                    body.contains(expectedUsername)
+                                                            && body.contains(expectedSystemName)));
+                });
+
+        verify(sensorAuthTokenService, times(2)).findSensorAuthTokens(any(Pageable.class));
+        verifyNoMoreInteractions(emailClient);
+    }
 }
