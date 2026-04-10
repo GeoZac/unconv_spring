@@ -127,38 +127,7 @@ class SensorAuthTokenExpiryReminderTest {
                                 })
                         .create();
 
-        List<SensorAuthToken> firstPageTokens = allTokens.subList(0, 10);
-        List<SensorAuthToken> secondPageTokens = allTokens.subList(10, 15);
-
-        Page<SensorAuthToken> page0 = new PageImpl<>(firstPageTokens, PageRequest.of(0, 10), 15);
-        Page<SensorAuthToken> page1 = new PageImpl<>(secondPageTokens, PageRequest.of(1, 10), 15);
-
-        // Setup stubbing for paginated calls
-        when(sensorAuthTokenService.findSensorAuthTokens(PageRequest.of(0, 10))).thenReturn(page0);
-        when(sensorAuthTokenService.findSensorAuthTokens(PageRequest.of(1, 10))).thenReturn(page1);
-
-        // Act
-        reminder.remindSensorAuthTokenExpiry();
-
-        // Assert that all tokens triggered emails
-        allTokens.forEach(
-                token -> {
-                    String expectedEmail = token.getSensorSystem().getUnconvUser().getEmail();
-                    String expectedUsername = token.getSensorSystem().getUnconvUser().getUsername();
-                    String expectedSystemName = token.getSensorSystem().getSensorName();
-
-                    verify(emailClient)
-                            .sendEmailWithHTMLContent(
-                                    eq(expectedEmail),
-                                    eq("⚠️ Sensor Auth Token Expiry Reminder"),
-                                    argThat(
-                                            body ->
-                                                    body.contains(expectedUsername)
-                                                            && body.contains(expectedSystemName)));
-                });
-
-        verify(sensorAuthTokenService, times(2)).findSensorAuthTokens(any(Pageable.class));
-        verifyNoMoreInteractions(emailClient);
+        assertEmailsSentForTokens(allTokens, "⚠️ Sensor Auth Token Expiry Reminder");
     }
 
     @Test
@@ -197,38 +166,7 @@ class SensorAuthTokenExpiryReminderTest {
                                 })
                         .create();
 
-        List<SensorAuthToken> firstPageTokens = allTokens.subList(0, 10);
-        List<SensorAuthToken> secondPageTokens = allTokens.subList(10, 15);
-
-        Page<SensorAuthToken> page0 = new PageImpl<>(firstPageTokens, PageRequest.of(0, 10), 15);
-        Page<SensorAuthToken> page1 = new PageImpl<>(secondPageTokens, PageRequest.of(1, 10), 15);
-
-        // Setup stubbing for paginated calls
-        when(sensorAuthTokenService.findSensorAuthTokens(PageRequest.of(0, 10))).thenReturn(page0);
-        when(sensorAuthTokenService.findSensorAuthTokens(PageRequest.of(1, 10))).thenReturn(page1);
-
-        // Act
-        reminder.remindSensorAuthTokenExpiry();
-
-        // Assert that all tokens triggered emails
-        allTokens.forEach(
-                token -> {
-                    String expectedEmail = token.getSensorSystem().getUnconvUser().getEmail();
-                    String expectedUsername = token.getSensorSystem().getUnconvUser().getUsername();
-                    String expectedSystemName = token.getSensorSystem().getSensorName();
-
-                    verify(emailClient)
-                            .sendEmailWithHTMLContent(
-                                    eq(expectedEmail),
-                                    eq("⚠️ Sensor Auth Token Expiry Reminder"),
-                                    argThat(
-                                            body ->
-                                                    body.contains(expectedUsername)
-                                                            && body.contains(expectedSystemName)));
-                });
-
-        verify(sensorAuthTokenService, times(2)).findSensorAuthTokens(any(Pageable.class));
-        verifyNoMoreInteractions(emailClient);
+        assertEmailsSentForTokens(allTokens, "⚠️ Sensor Auth Token Expiry Reminder");
     }
 
     @Test
