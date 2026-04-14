@@ -98,8 +98,16 @@ public class SensorAuthTokenExpiryReminder {
                                     Collectors.groupingBy(
                                             token -> token.getSensorSystem().getUnconvUser()));
 
-            // Send one email per user
-            tokensByUser.forEach(this::sendBulkReminderEmail);
+            // Send reminder emails: single-token users receive the individual email template,
+            // multi-token users receive a bulk reminder template.
+            tokensByUser.forEach(
+                    (user, tokens) -> {
+                        if (tokens.size() == 1) {
+                            sendReminderEmail(tokens.get(0));
+                        } else {
+                            sendBulkReminderEmail(user, tokens);
+                        }
+                    });
 
             tokenPage.getContent().stream()
                     .filter(this::isTokenExpired)
