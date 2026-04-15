@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.passay.DefaultPasswordValidator;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
@@ -32,7 +31,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
                 new DefaultPasswordValidator(
                         new ResourceBundleMessageResolver(),
                         Arrays.asList(
-                                // at least 8 characters
+                                // at least 6 characters
                                 // at most 25 characters
                                 new LengthRule(6, 25),
 
@@ -56,7 +55,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
         }
         List<String> messages = result.getMessages();
 
-        String messageTemplate = messages.stream().collect(Collectors.joining(","));
+        String messageTemplate = String.join(",", messages);
         context.buildConstraintViolationWithTemplate(messageTemplate)
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();

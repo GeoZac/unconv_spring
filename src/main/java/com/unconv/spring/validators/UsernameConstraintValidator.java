@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.passay.DefaultPasswordValidator;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
@@ -47,8 +46,7 @@ public class UsernameConstraintValidator implements ConstraintValidator<ValidUse
         }
         List<String> messages = result.getMessages();
 
-        String messageTemplate =
-                messages.stream().collect(Collectors.joining(",")).replace("Password", "Username");
+        String messageTemplate = String.join(",", messages).replace("Password", "Username");
         context.buildConstraintViolationWithTemplate(messageTemplate)
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();
