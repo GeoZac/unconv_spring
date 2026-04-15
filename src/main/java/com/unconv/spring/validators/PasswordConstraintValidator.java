@@ -11,6 +11,7 @@ import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.ValidationResult;
 import org.passay.data.EnglishCharacterData;
+import org.passay.resolver.ResourceBundleMessageResolver;
 import org.passay.rule.CharacterRule;
 import org.passay.rule.LengthRule;
 import org.passay.rule.WhitespaceRule;
@@ -29,6 +30,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
         }
         PasswordValidator validator =
                 new DefaultPasswordValidator(
+                        new ResourceBundleMessageResolver(),
                         Arrays.asList(
                                 // at least 8 characters
                                 // at most 25 characters
