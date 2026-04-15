@@ -37,6 +37,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.CoreMatchers;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +48,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
 class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     @Autowired private WebApplicationContext webApplicationContext;

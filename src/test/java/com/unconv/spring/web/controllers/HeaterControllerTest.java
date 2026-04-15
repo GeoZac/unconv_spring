@@ -98,7 +98,7 @@ class HeaterControllerTest extends AbstractControllerTest {
     void shouldCreateNewHeater() throws Exception {
         given(heaterService.saveHeater(any(Heater.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Heater heater = invocation.getArgument(0);
                             heater.setId(1L);
                             return heater;
@@ -149,7 +149,7 @@ class HeaterControllerTest extends AbstractControllerTest {
         Heater heater = new Heater(heaterId, 27F, .7F);
         given(heaterService.findHeaterById(heaterId)).willReturn(Optional.of(heater));
         given(heaterService.saveHeater(any(Heater.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

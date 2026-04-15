@@ -31,10 +31,10 @@ public interface HumidityThresholdService {
     /**
      * Saves a humidity threshold.
      *
-     * @param humidtiyThreshold the humidity threshold to save
+     * @param humidityThreshold the humidity threshold to save
      * @return the saved humidity threshold
      */
-    HumidityThreshold saveHumidityThreshold(HumidityThreshold humidtiyThreshold);
+    HumidityThreshold saveHumidityThreshold(HumidityThreshold humidityThreshold);
 
     /**
      * Deletes the humidity threshold with the specified ID.

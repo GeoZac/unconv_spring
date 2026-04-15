@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.mapping.PropertyReferenceException;
-import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ class UnconvExceptionHandlerTest {
     @Mock private NativeWebRequest request;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
@@ -59,7 +58,7 @@ class UnconvExceptionHandlerTest {
     @Test
     void handlePropertyReferenceExceptionAndReturnsProblemResponse() {
         String invalidProperty = "invalidPropertyName";
-        TypeInformation<?> typeInformation = ClassTypeInformation.from(String.class);
+        TypeInformation<?> typeInformation = TypeInformation.of(String.class);
         List<PropertyPath> propertyPaths = Collections.emptyList();
         PropertyReferenceException exception =
                 new PropertyReferenceException(invalidProperty, typeInformation, propertyPaths);

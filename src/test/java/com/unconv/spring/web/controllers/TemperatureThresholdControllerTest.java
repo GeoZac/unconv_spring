@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -169,7 +168,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
     void shouldCreateNewTemperatureThreshold() throws Exception {
         given(temperatureThresholdService.saveTemperatureThreshold(any(TemperatureThreshold.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             TemperatureThreshold temperatureThreshold = invocation.getArgument(0);
                             temperatureThreshold.setId(UUID.randomUUID());
                             return temperatureThreshold;
@@ -187,7 +186,6 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 "shouldCreateNewTemperatureThreshold",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.maxValue", is(temperatureThreshold.getMaxValue())))
@@ -210,7 +208,6 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 "shouldReturn400WhenCreateNewTemperatureThresholdWithNullValues",
                                 preprocessRequest(prettyPrint),
                                 preprocessResponse(prettyPrint)))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("Content-Type", is("application/problem+json")))
                 .andExpect(
@@ -236,7 +233,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
         given(temperatureThresholdService.findTemperatureThresholdById(temperatureThresholdId))
                 .willReturn(Optional.of(temperatureThreshold));
         given(temperatureThresholdService.saveTemperatureThreshold(any(TemperatureThreshold.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

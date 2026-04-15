@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -110,7 +111,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
-    private static final int defaultPageSize = Integer.parseInt(DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -166,7 +167,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 () -> savedSensorSystem)
                         .create();
 
-        totalPages = (int) Math.ceil((double) environmentalReadingList.size() / defaultPageSize);
+        totalPages =
+                (int) Math.ceil((double) environmentalReadingList.size() / DEFAULT_PAGE_SIZE_INT);
 
         environmentalReadingList = environmentalReadingRepository.saveAll(environmentalReadingList);
     }
@@ -176,16 +178,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
-                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                        jsonPath(
+                                "$.isLast",
+                                is(environmentalReadingList.size() < DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -215,7 +220,8 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.isLast", is(false)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -242,7 +248,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
-        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -251,13 +257,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -266,16 +272,19 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         this.mockMvc
                 .perform(get("/EnvironmentalReading").param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(environmentalReadingList.size())))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
                 .andExpect(
-                        jsonPath("$.isLast", is(environmentalReadingList.size() < defaultPageSize)))
+                        jsonPath(
+                                "$.isLast",
+                                is(environmentalReadingList.size() < DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(
                         jsonPath(
-                                "$.hasNext", is(environmentalReadingList.size() > defaultPageSize)))
+                                "$.hasNext",
+                                is(environmentalReadingList.size() > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -302,7 +311,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 environmentalReadingRepository.saveAll(environmentalReadingsOfSpecificSensor);
 
         int dataSize = savedEnvironmentalReadingsOfSpecificSensor.size();
-        totalPages = (int) Math.ceil((double) dataSize / defaultPageSize);
+        totalPages = (int) Math.ceil((double) dataSize / DEFAULT_PAGE_SIZE_INT);
 
         this.mockMvc
                 .perform(
@@ -311,13 +320,13 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         savedSensorSystem.getId())
                                 .param("sortDir", "desc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(defaultPageSize)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < defaultPageSize)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > defaultPageSize)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
@@ -754,7 +763,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
         assertNotEquals(savedSensorSystem.getId(), savedInactiveSensorSystem.getId());
 
-        String sensorAccessToken = RandomStringUtils.randomAlphanumeric(20);
+        String sensorAccessToken = RandomStringUtils.secure().nextAlphanumeric(20);
 
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
@@ -1022,6 +1031,44 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturn417WhenUploadingNewEnvironmentalReadingsWhenCSVMalformed() throws Exception {
+        UnconvUser unconvUser =
+                new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
+        unconvUser.setUnconvRoles(unconvRoleSet);
+        UnconvUser savedUnconvUser =
+                unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
+
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
+        SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
+
+        String malformedCsv =
+                """
+            temperature,humidity,timestamp
+            notANumber,55.2,2023-07-01T10:15:30+00:00
+            30.5,invalidHumidity,2023-07-01T10:15:30+00:00
+            """;
+
+        MockMultipartFile badCsvFile =
+                new MockMultipartFile(
+                        "file",
+                        "malformed.csv",
+                        "text/csv",
+                        malformedCsv.getBytes(StandardCharsets.UTF_8));
+
+        this.mockMvc
+                .perform(
+                        multipart(
+                                        "/EnvironmentalReading/Bulk/SensorSystem/{sensorSystemId}",
+                                        savedSensorSystem.getId())
+                                .file(badCsvFile)
+                                .with(csrf()))
+                .andExpect(status().isExpectationFailed())
+                .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                .andExpect(content().string("Could not upload the file: malformed.csv!"))
+                .andReturn();
+    }
+
+    @Test
     void shouldReturn417WhenUploadingNewEnvironmentalReadingsAsBulkWithoutHeader()
             throws Exception {
         UnconvUser unconvUser =
@@ -1066,7 +1113,10 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                 .file(csvFile)
                                 .with(csrf()))
                 .andExpect(status().isExpectationFailed())
-                .andExpect(jsonPath("$", is(expectedResponse)));
+                .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                .andExpect(content().string(expectedResponse))
+                .andExpect(jsonPath("$", is(expectedResponse)))
+                .andReturn();
     }
 
     @Test
@@ -1251,7 +1301,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.entity.timestamp", notNullValue()))
                 .andExpect(jsonPath("$.entity.sensorSystem.unconvUser", validUnconvUser()))
                 .andReturn();
-        ;
     }
 
     @Test

@@ -1,7 +1,9 @@
 package com.unconv.spring.external;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -25,6 +27,8 @@ public class EmailClient {
     /** The sender's email address used in the "From" field of outgoing emails. */
     private final String fromAddress;
 
+    private final String fromName;
+
     /**
      * A flag indicating whether email functionality is enabled.
      *
@@ -38,15 +42,18 @@ public class EmailClient {
      *
      * @param mailSender the {@link JavaMailSender} used to send emails
      * @param fromAddress the email address used as the sender's address
+     * @param fromName the sender's display name from unconv.mail.sender_name property
      * @param mailHost the host of the email server; used to verify if email configuration is
      *     complete
      */
     public EmailClient(
             JavaMailSender mailSender,
             @Value("${spring.mail.username:}") String fromAddress,
+            @Value("${unconv.mail.sender_name}") String fromName,
             @Value("${spring.mail.host:}") String mailHost) {
         this.mailSender = mailSender;
         this.fromAddress = fromAddress;
+        this.fromName = fromName;
 
         // Check if email configuration is complete
         this.emailEnabled = StringUtils.hasText(fromAddress) && StringUtils.hasText(mailHost);
@@ -105,9 +112,9 @@ public class EmailClient {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-            helper.setFrom(fromAddress);
+            helper.setFrom(new InternetAddress(fromAddress, fromName));
             mailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             log.error("Failed to send email to {}: {}", to, e.getMessage(), e);
         }
     }

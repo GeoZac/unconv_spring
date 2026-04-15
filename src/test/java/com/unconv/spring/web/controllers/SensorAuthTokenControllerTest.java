@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -95,10 +95,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
             new UnconvUser(
                     UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
 
-    private final UUID sensorSystemId = UUID.randomUUID();
     private final SensorSystem mSensorSystem =
             SensorSystem.builder()
-                    .id(sensorSystemId)
+                    .id(UUID.randomUUID())
                     .sensorName("Workspace sensor system")
                     .description("Monitors temperature and humidity for personal workspace")
                     .deleted(false)
@@ -224,7 +223,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
     void shouldCreateNewSensorAuthToken() throws Exception {
         given(sensorAuthTokenService.generateSensorAuthToken(any(SensorSystem.class), isNull()))
                 .willAnswer(
-                        (invocation) ->
+                        invocation ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),
@@ -304,7 +303,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         sensorAuthTokenService.generateSensorAuthToken(
                                 any(SensorSystem.class), any(UUID.class)))
                 .willAnswer(
-                        (invocation) ->
+                        invocation ->
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),
