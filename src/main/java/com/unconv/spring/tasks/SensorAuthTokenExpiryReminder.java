@@ -260,6 +260,26 @@ public class SensorAuthTokenExpiryReminder {
         emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
+    /**
+     * Sends an alert email to a user about multiple expired sensor auth tokens.
+     *
+     * <p>This method constructs and sends an HTML email using the {@code
+     * sensor-auth-token-expired-notification-bulk.html} Thymeleaf template. The email alerts the
+     * user that multiple tokens have already expired and they must generate new tokens immediately
+     * to restore access.
+     *
+     * <p>The email includes:
+     *
+     * <ul>
+     *   <li>Username
+     *   <li>Table of expired tokens with sensor names and expiry dates
+     *   <li>Call to action for immediate token regeneration
+     * </ul>
+     *
+     * @param user the user receiving the notification
+     * @param tokens the list of sensor authentication tokens that have already expired
+     * @see #sendExpiredTokenEmail(SensorAuthToken)
+     */
     private void sendBulkExpiredTokenEmail(UnconvUser user, List<SensorAuthToken> tokens) {
         String email = user.getEmail();
         String subject = "⛔ Sensor Auth Tokens Expired";
