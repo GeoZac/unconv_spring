@@ -183,7 +183,6 @@ public class SensorAuthTokenExpiryReminder {
      * @param token the sensor authentication token that is expiring soon
      * @see #sendExpiredTokenEmail(SensorAuthToken)
      */
-    @Deprecated
     private void sendReminderEmail(SensorAuthToken token) {
         sendEmail(
                 token,
