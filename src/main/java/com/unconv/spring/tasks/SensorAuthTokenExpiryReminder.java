@@ -185,17 +185,10 @@ public class SensorAuthTokenExpiryReminder {
      */
     @Deprecated
     private void sendReminderEmail(SensorAuthToken token) {
-        UnconvUser user = token.getSensorSystem().getUnconvUser();
-        String email = user.getEmail();
-        String subject = "⚠️ Sensor Auth Token Expiry Reminder";
-
-        Context context = new Context();
-        context.setVariable("username", user.getUsername());
-        context.setVariable("sensorName", token.getSensorSystem().getSensorName());
-        context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
-
-        String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
-        emailClient.sendEmailWithHTMLContent(email, subject, body);
+        sendEmail(
+                token,
+                "⚠️ Sensor Auth Token Expiry Reminder",
+                "sensor-auth-token-expiry-reminder.html");
     }
 
     private void sendBulkReminderEmail(UnconvUser user, List<SensorAuthToken> tokens) {
@@ -246,17 +239,22 @@ public class SensorAuthTokenExpiryReminder {
      * @see #sendReminderEmail(SensorAuthToken)
      */
     private void sendExpiredTokenEmail(SensorAuthToken token) {
+        sendEmail(
+                token,
+                "⛔ Sensor Auth Token Expired",
+                "sensor-auth-token-expired-notification.html");
+    }
+
+    private void sendEmail(SensorAuthToken token, String subject, String templateName) {
         UnconvUser user = token.getSensorSystem().getUnconvUser();
         String email = user.getEmail();
-        String subject = "⛔ Sensor Auth Token Expired";
 
         Context context = new Context();
         context.setVariable("username", user.getUsername());
         context.setVariable("sensorName", token.getSensorSystem().getSensorName());
         context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
 
-        String body =
-                templateEngine.process("sensor-auth-token-expired-notification.html", context);
+        String body = templateEngine.process(templateName, context);
         emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
