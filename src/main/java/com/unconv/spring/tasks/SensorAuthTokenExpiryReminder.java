@@ -191,8 +191,16 @@ public class SensorAuthTokenExpiryReminder {
     }
 
     private void sendBulkReminderEmail(UnconvUser user, List<SensorAuthToken> tokens) {
+        sendBulkEmail(
+                user,
+                tokens,
+                "⚠️ Sensor Auth Token Expiry Reminder",
+                "sensor-auth-token-expiry-reminder-bulk.html");
+    }
+
+    private void sendBulkEmail(
+            UnconvUser user, List<SensorAuthToken> tokens, String subject, String templateName) {
         String email = user.getEmail();
-        String subject = "⚠️ Sensor Auth Token Expiry Reminder";
 
         List<Map<String, String>> tokenDetails =
                 tokens.stream()
@@ -212,8 +220,7 @@ public class SensorAuthTokenExpiryReminder {
         context.setVariable("username", user.getUsername());
         context.setVariable("tokens", tokenDetails);
 
-        String body =
-                templateEngine.process("sensor-auth-token-expiry-reminder-bulk.html", context);
+        String body = templateEngine.process(templateName, context);
         emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
@@ -278,29 +285,10 @@ public class SensorAuthTokenExpiryReminder {
      * @see #sendExpiredTokenEmail(SensorAuthToken)
      */
     private void sendBulkExpiredTokenEmail(UnconvUser user, List<SensorAuthToken> tokens) {
-        String email = user.getEmail();
-        String subject = "⛔ Sensor Auth Tokens Expired";
-
-        List<Map<String, String>> tokenDetails =
-                tokens.stream()
-                        .map(
-                                token -> {
-                                    Map<String, String> details = new HashMap<>();
-                                    details.put(
-                                            "sensorName", token.getSensorSystem().getSensorName());
-                                    details.put(
-                                            "expiryDate",
-                                            token.getExpiry().format(EXPIRY_FORMATTER));
-                                    return details;
-                                })
-                        .toList();
-
-        Context context = new Context();
-        context.setVariable("username", user.getUsername());
-        context.setVariable("tokens", tokenDetails);
-
-        String body =
-                templateEngine.process("sensor-auth-token-expired-notification-bulk.html", context);
-        emailClient.sendEmailWithHTMLContent(email, subject, body);
+        sendBulkEmail(
+                user,
+                tokens,
+                "⛔ Sensor Auth Tokens Expired",
+                "sensor-auth-token-expired-notification-bulk.html");
     }
 }
