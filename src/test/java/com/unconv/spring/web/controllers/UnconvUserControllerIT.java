@@ -470,7 +470,9 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
-        UnconvUser unconvUser = unconvUserList.get(1);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
+
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setPassword("NewPas$w0rd");
 
