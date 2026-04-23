@@ -11,7 +11,8 @@ jobs:
     resource_class: large
     working_directory: /tmp/spring
     steps:
-      - checkout
+      - checkout:
+          method: full
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}

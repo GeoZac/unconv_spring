@@ -7,7 +7,11 @@ import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,13 +90,43 @@ public class SensorAuthTokenExpiryReminder {
             Pageable pageable = PageRequest.of(page, size);
             tokenPage = sensorAuthTokenService.findSensorAuthTokens(pageable);
 
-            tokenPage.getContent().stream()
-                    .filter(this::isExpiringWithinOneMonth)
-                    .forEach(this::sendReminderEmail);
+            // Group expiring tokens by user
+            Map<UnconvUser, List<SensorAuthToken>> tokensByUser =
+                    tokenPage.getContent().stream()
+                            .filter(this::isExpiringWithinOneMonth)
+                            .collect(
+                                    Collectors.groupingBy(
+                                            token -> token.getSensorSystem().getUnconvUser()));
 
-            tokenPage.getContent().stream()
-                    .filter(this::isTokenExpired)
-                    .forEach(this::sendExpiredTokenEmail);
+            // Send reminder emails: single-token users receive the individual email template,
+            // multi-token users receive a bulk reminder template.
+            tokensByUser.forEach(
+                    (user, tokens) -> {
+                        if (tokens.size() == 1) {
+                            sendReminderEmail(tokens.get(0));
+                        } else {
+                            sendBulkReminderEmail(user, tokens);
+                        }
+                    });
+
+            // Group expired tokens by user
+            Map<UnconvUser, List<SensorAuthToken>> expiredTokensByUser =
+                    tokenPage.getContent().stream()
+                            .filter(this::isTokenExpired)
+                            .collect(
+                                    Collectors.groupingBy(
+                                            token -> token.getSensorSystem().getUnconvUser()));
+
+            // Send expired token emails: single-token users receive the individual email
+            // template, multi-token users receive a bulk expired notification template.
+            expiredTokensByUser.forEach(
+                    (user, tokens) -> {
+                        if (tokens.size() == 1) {
+                            sendExpiredTokenEmail(tokens.get(0));
+                        } else {
+                            sendBulkExpiredTokenEmail(user, tokens);
+                        }
+                    });
 
             page++;
         } while (!tokenPage.isLast());
@@ -150,16 +184,43 @@ public class SensorAuthTokenExpiryReminder {
      * @see #sendExpiredTokenEmail(SensorAuthToken)
      */
     private void sendReminderEmail(SensorAuthToken token) {
-        UnconvUser user = token.getSensorSystem().getUnconvUser();
+        sendEmail(
+                token,
+                "⚠️ Sensor Auth Token Expiry Reminder",
+                "sensor-auth-token-expiry-reminder.html");
+    }
+
+    private void sendBulkReminderEmail(UnconvUser user, List<SensorAuthToken> tokens) {
+        sendBulkEmail(
+                user,
+                tokens,
+                "⚠️ Sensor Auth Token Expiry Reminder",
+                "sensor-auth-token-expiry-reminder-bulk.html");
+    }
+
+    private void sendBulkEmail(
+            UnconvUser user, List<SensorAuthToken> tokens, String subject, String templateName) {
         String email = user.getEmail();
-        String subject = "⚠️ Sensor Auth Token Expiry Reminder";
+
+        List<Map<String, String>> tokenDetails =
+                tokens.stream()
+                        .map(
+                                token -> {
+                                    Map<String, String> details = new HashMap<>();
+                                    details.put(
+                                            "sensorName", token.getSensorSystem().getSensorName());
+                                    details.put(
+                                            "expiryDate",
+                                            token.getExpiry().format(EXPIRY_FORMATTER));
+                                    return details;
+                                })
+                        .toList();
 
         Context context = new Context();
         context.setVariable("username", user.getUsername());
-        context.setVariable("sensorName", token.getSensorSystem().getSensorName());
-        context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
+        context.setVariable("tokens", tokenDetails);
 
-        String body = templateEngine.process("sensor-auth-token-expiry-reminder.html", context);
+        String body = templateEngine.process(templateName, context);
         emailClient.sendEmailWithHTMLContent(email, subject, body);
     }
 
@@ -184,17 +245,50 @@ public class SensorAuthTokenExpiryReminder {
      * @see #sendReminderEmail(SensorAuthToken)
      */
     private void sendExpiredTokenEmail(SensorAuthToken token) {
+        sendEmail(
+                token,
+                "⛔ Sensor Auth Token Expired",
+                "sensor-auth-token-expired-notification.html");
+    }
+
+    private void sendEmail(SensorAuthToken token, String subject, String templateName) {
         UnconvUser user = token.getSensorSystem().getUnconvUser();
         String email = user.getEmail();
-        String subject = "⛔ Sensor Auth Token Expired";
 
         Context context = new Context();
         context.setVariable("username", user.getUsername());
         context.setVariable("sensorName", token.getSensorSystem().getSensorName());
         context.setVariable("expiryDate", token.getExpiry().format(EXPIRY_FORMATTER));
 
-        String body =
-                templateEngine.process("sensor-auth-token-expired-notification.html", context);
+        String body = templateEngine.process(templateName, context);
         emailClient.sendEmailWithHTMLContent(email, subject, body);
+    }
+
+    /**
+     * Sends an alert email to a user about multiple expired sensor auth tokens.
+     *
+     * <p>This method constructs and sends an HTML email using the {@code
+     * sensor-auth-token-expired-notification-bulk.html} Thymeleaf template. The email alerts the
+     * user that multiple tokens have already expired and they must generate new tokens immediately
+     * to restore access.
+     *
+     * <p>The email includes:
+     *
+     * <ul>
+     *   <li>Username
+     *   <li>Table of expired tokens with sensor names and expiry dates
+     *   <li>Call to action for immediate token regeneration
+     * </ul>
+     *
+     * @param user the user receiving the notification
+     * @param tokens the list of sensor authentication tokens that have already expired
+     * @see #sendExpiredTokenEmail(SensorAuthToken)
+     */
+    private void sendBulkExpiredTokenEmail(UnconvUser user, List<SensorAuthToken> tokens) {
+        sendBulkEmail(
+                user,
+                tokens,
+                "⛔ Sensor Auth Tokens Expired",
+                "sensor-auth-token-expired-notification-bulk.html");
     }
 }
