@@ -2,8 +2,8 @@ package com.unconv.spring.utils;
 
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.SensorSystem;
+import com.unconv.spring.exception.ReadingsCSVProcessingException;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +20,11 @@ public class CSVUtil {
 
     /** The content type for CSV files. */
     public static final String TYPE = "text/csv";
+
+    /** Private constructor to hide the implicit public one */
+    private CSVUtil() {
+        // Private constructor to hide the implicit public one
+    }
 
     /**
      * Checks if the provided file is of CSV format.
@@ -46,14 +51,14 @@ public class CSVUtil {
                         new BufferedReader(
                                 new InputStreamReader(inputStream, StandardCharsets.UTF_8));
                 CSVParser csvParser =
-                        new CSVParser(
-                                fileReader,
-                                CSVFormat.Builder.create()
-                                        .setHeader()
-                                        .setSkipHeaderRecord(true)
-                                        .setIgnoreHeaderCase(false)
-                                        .setTrim(true)
-                                        .build())) {
+                        CSVFormat.DEFAULT
+                                .builder()
+                                .setHeader()
+                                .setSkipHeaderRecord(true)
+                                .setIgnoreHeaderCase(false)
+                                .setTrim(true)
+                                .get()
+                                .parse(fileReader)) {
 
             List<EnvironmentalReading> environmentalReadings = new ArrayList<>();
 
@@ -72,8 +77,8 @@ public class CSVUtil {
             }
 
             return environmentalReadings;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to parse CSV file: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ReadingsCSVProcessingException("Failed to parse CSV file: " + e.getMessage());
         }
     }
 }

@@ -143,7 +143,7 @@ class BookingControllerTest extends AbstractControllerTest {
     void shouldCreateNewBooking() throws Exception {
         given(bookingService.saveBooking(any(Booking.class)))
                 .willAnswer(
-                        (invocation) -> {
+                        invocation -> {
                             Booking booking = invocation.getArgument(0);
                             booking.setId(1L);
                             return booking;
@@ -193,7 +193,7 @@ class BookingControllerTest extends AbstractControllerTest {
         Booking booking = new Booking(bookingId, "Updated Booking", passengerList);
         given(bookingService.findBookingById(bookingId)).willReturn(Optional.of(booking));
         given(bookingService.saveBooking(any(Booking.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+                .willAnswer(invocation -> invocation.getArgument(0));
 
         this.mockMvc
                 .perform(

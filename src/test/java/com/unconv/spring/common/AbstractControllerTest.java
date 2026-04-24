@@ -26,7 +26,6 @@ public abstract class AbstractControllerTest {
     protected OperationPreprocessor prettyPrint =
             new ContentModifyingOperationPreprocessor(
                     (content, contentType) -> {
-                        ObjectMapper objectMapper = new ObjectMapper();
                         PrettyPrinter prettyPrinter =
                                 new DefaultPrettyPrinter()
                                         .withArrayIndenter(
