@@ -1,7 +1,6 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.ACCESS_TOKEN;
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.MAX_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_FORMAT_ERROR;
 import static com.unconv.spring.consts.MessageConstants.ENVT_FILE_REJ_ERR;
@@ -29,8 +28,6 @@ import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -84,12 +81,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
 
@@ -110,8 +103,6 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     private List<EnvironmentalReading> environmentalReadingList = null;
 
     private final Set<UnconvRole> unconvRoleSet = new HashSet<>();
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -137,13 +128,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/EnvironmentalReading")
-                                        .with(user("UnconvUser").roles(UNCONV_USER.name())))
-                        .apply(springSecurity())
-                        .build();
+        initializeMockMvc();
 
         environmentalReadingRepository.deleteAllInBatch();
 
