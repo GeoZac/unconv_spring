@@ -289,8 +289,8 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     void tearDown() {
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
-            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
-                continue;
+            if (EnumSet.allOf(DefaultUserRole.class).stream()
+                    .anyMatch(role -> role.name().equals(unconvRole.getName()))) continue;
             unconvRoleRepository.delete(unconvRole);
         }
     }
