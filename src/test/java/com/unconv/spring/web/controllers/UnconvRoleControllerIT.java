@@ -60,10 +60,11 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                                 + existingRoles.stream()
                                         .map(
                                                 role ->
-                                                        "[Name: %s, Origin: %s, Reason: %s]".formatted(
-                                                                role.getName(),
-                                                                role.getCreatedBy(),
-                                                                role.getCreatedReason()))
+                                                        "[Name: %s, Origin: %s, Reason: %s]"
+                                                                .formatted(
+                                                                        role.getName(),
+                                                                        role.getCreatedBy(),
+                                                                        role.getCreatedReason()))
                                         .collect(Collectors.joining(",\n")));
 
         unconvRoleList =
