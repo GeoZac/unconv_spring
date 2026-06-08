@@ -132,48 +132,65 @@ jobs:
             docker logs unconv-spring-container
             exit 1
 
-  analyse:
+  checkstyle:
     machine:
       image: ubuntu-2204:current
-      docker_layer_caching: true
-    resource_class: large
     working_directory: /tmp/spring
     steps:
       - attach_workspace:
           at: /tmp/spring
-      - run:
-          name: Install OpenJDK 17
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
-            java -version
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run:
-          name: Run CheckStyle
           command: ./mvnw checkstyle:checkstyle
+
+  sonar:
+    machine:
+      image: ubuntu-2204:current
+    working_directory: /tmp/spring
+    steps:
+      - attach_workspace:
+          at: /tmp/spring
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
       - run:
-          name: Analyze on SonarCloud
           command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
+
+  coverage:
+    machine:
+      image: ubuntu-2204:current
+    working_directory: /tmp/spring
+    steps:
+      - attach_workspace:
+          at: /tmp/spring
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
       - codecov/upload:
-            files: target/jacoco/test/jacoco.xml
-            flags: controllers_test
+          files: target/jacoco/test/jacoco.xml
+          flags: controllers_test
       - codecov/upload:
-            files: target/jacoco/integrationTest/jacoco.xml
-            flags: integration_test
+          files: target/jacoco/integrationTest/jacoco.xml
+          flags: integration_test
       - store_artifacts:
           path: target/jacoco/test
           destination: coverage/unit
       - store_artifacts:
           path: target/jacoco/integrationTest
           destination: coverage/integration
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+  analyse_gate:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Analysis completed
+          command: echo "All analysis jobs passed"
 
   doc:
     machine:
@@ -223,23 +240,42 @@ workflows:
       - build:
           requires:
             - setup
+
       - test:
           requires:
             - setup
+
+      # Fan-out
+      - checkstyle:
+          requires:
+            - build
+
+      - sonar:
+          context: SonarCloud
+          requires:
+            - build
+
+      - coverage:
+          requires:
+            - test
+
+      # Fan-in
+      - analyse_gate:
+          requires:
+            - checkstyle
+            - sonar
+            - coverage
+
       - smoke_test:
           requires:
             - test
           filters:
             branches:
-                only:
+              only:
                 - master
                 - /dependabot\/.*/
                 - /chore\/.*/
                 - /infra\/.*/
-      - analyse:
-          context: SonarCloud
-          requires:
-            - build
       - doc:
           requires:
             - test
