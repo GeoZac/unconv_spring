@@ -1,11 +1,9 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -14,7 +12,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,12 +42,8 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 class UnconvUserControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private UnconvUserRepository unconvUserRepository;
 
@@ -65,19 +58,11 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     Set<UnconvRole> unconvRoleSet = new HashSet<>();
 
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static int totalPages;
 
     @BeforeEach
     void setUp() {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/UnconvUser")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(springSecurity())
-                        .build();
+        initializeMockMvc();
 
         UnconvRole unconvRole = UnconvRole.create(null, "ROLE_USER", this.getClass());
         UnconvRole savedUnconvRole = unconvRoleRepository.save(unconvRole);
@@ -485,7 +470,9 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn404WhenUpdatingNonExistingUnconvUser() throws Exception {
         UUID unconvUserId = UUID.randomUUID();
-        UnconvUser unconvUser = unconvUserList.get(1);
+        UnconvUser unconvUser =
+                new UnconvUser(null, "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
+
         UnconvUserDTO unconvUserDTO = modelMapper.map(unconvUser, UnconvUserDTO.class);
         unconvUserDTO.setPassword("NewPas$w0rd");
 
@@ -520,8 +507,8 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
         }
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
-            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
-                continue;
+            if (EnumSet.allOf(DefaultUserRole.class).stream()
+                    .anyMatch(role -> role.name().equals(unconvRole.getName()))) continue;
             unconvRoleRepository.delete(unconvRole);
         }
         unconvUserRepository.deleteAllInBatch();

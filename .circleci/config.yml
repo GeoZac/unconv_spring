@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@5.4.3
+  codecov: codecov/codecov@6.0.0
   docker: circleci/docker@3.0.1
   owasp: entur/owasp@0.0.19
 
@@ -211,7 +211,8 @@ jobs:
     resource_class: large
     working_directory: /tmp/spring
     steps:
-      - checkout
+      - checkout:
+          method: full
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}

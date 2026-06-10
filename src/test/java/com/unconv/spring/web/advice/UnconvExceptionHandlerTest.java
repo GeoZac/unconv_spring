@@ -7,11 +7,11 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.data.util.TypeInformation;
@@ -21,16 +21,12 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.web.context.request.NativeWebRequest;
 import org.zalando.problem.Problem;
 
+@ExtendWith(MockitoExtension.class)
 class UnconvExceptionHandlerTest {
 
     @InjectMocks private UnconvExceptionHandler handler;
 
     @Mock private NativeWebRequest request;
-
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void handleInsufficientAuthenticationExceptionAndReturnsProblemResponse() {
