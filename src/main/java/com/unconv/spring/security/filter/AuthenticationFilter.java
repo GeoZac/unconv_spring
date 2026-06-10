@@ -16,6 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Filter responsible for handling authentication requests using username and password.
+ *
+ * <p>This filter reads user credentials from the request body, authenticates the user using a
+ * {@link CustomAuthenticationManager}, and on success, generates a JWT token using {@link JWTUtil}.
+ * It also customizes the response sent back to the client on successful or failed authentication.
+ */
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final CustomAuthenticationManager customAuthenticationManager;
@@ -41,6 +48,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         this.unconvUserService = unconvUserService;
     }
 
+    /**
+     * Attempts to authenticate a user based on the username and password provided in the request
+     * body.
+     *
+     * @param request the HTTP request containing login credentials
+     * @param response the HTTP response
+     * @return the authenticated {@link Authentication} object
+     * @throws AuthenticationException if authentication fails or the request payload is invalid
+     */
     @Override
     public Authentication attemptAuthentication(
             HttpServletRequest request, HttpServletResponse response)
@@ -58,6 +74,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
+    /**
+     * Handles successful authentication by generating a JWT token and writing a JSON response.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param chain the filter chain
+     * @param authResult the authenticated {@link Authentication} object
+     * @throws IOException if writing to the response fails
+     */
     @Override
     protected void successfulAuthentication(
             HttpServletRequest request,
