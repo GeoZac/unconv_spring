@@ -11,12 +11,14 @@ import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import java.time.OffsetDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /** Utility class for validating sensor access tokens and retrieving associated user information. */
 @Slf4j
 @Component
+@Configuration
 public class SensorAuthTokenUtil {
 
     private final SensorAuthTokenRepository sensorAuthTokenRepository;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Sensor Auth Token Expired</title>
@@ -9,11 +9,11 @@
 <p>Your sensor auth token has <strong>expired</strong> and is no longer valid.</p>
 <table style="border: 1px solid #ccc; padding: 10px;">
     <tr>
-        <td><b>Sensor Name:</b></td>
+        <th scope="row"><b>Sensor Name:</b></th>
         <td th:text="${sensorName}">Sensor Name</td>
     </tr>
     <tr>
-        <td><b>Expiry Date:</b></td>
+        <th scope="row"><b>Expiry Date:</b></th>
         <td th:text="${expiryDate}">Expiry Date</td>
     </tr>
 </table>
