@@ -1,7 +1,5 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -9,7 +7,6 @@ import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,12 +30,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 class UnconvRoleControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
 
     @Autowired private UnconvRoleRepository unconvRoleRepository;
 
@@ -46,19 +39,11 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
 
     private static final int defaultUserRoleCount = DefaultUserRole.values().length;
 
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
-
     private static int totalPages;
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
-        this.mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/UnconvRole")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(springSecurity())
-                        .build();
+        initializeMockMvc();
 
         List<UnconvRole> existingRoles = unconvRoleRepository.findAll();
         int actualCount = existingRoles.size();
@@ -75,11 +60,11 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
                                 + existingRoles.stream()
                                         .map(
                                                 role ->
-                                                        String.format(
-                                                                "[Name: %s, Origin: %s, Reason: %s]",
-                                                                role.getName(),
-                                                                role.getCreatedBy(),
-                                                                role.getCreatedReason()))
+                                                        "[Name: %s, Origin: %s, Reason: %s]"
+                                                                .formatted(
+                                                                        role.getName(),
+                                                                        role.getCreatedBy(),
+                                                                        role.getCreatedReason()))
                                         .collect(Collectors.joining(",\n")));
 
         unconvRoleList =
@@ -304,8 +289,8 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     void tearDown() {
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
-            if (EnumSet.allOf(DefaultUserRole.class).toString().contains(unconvRole.getName()))
-                continue;
+            if (EnumSet.allOf(DefaultUserRole.class).stream()
+                    .anyMatch(role -> role.name().equals(unconvRole.getName()))) continue;
             unconvRoleRepository.delete(unconvRole);
         }
     }

@@ -5,14 +5,15 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.LengthRule;
+import org.passay.DefaultPasswordValidator;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
-import org.passay.RuleResult;
-import org.passay.WhitespaceRule;
+import org.passay.ValidationResult;
+import org.passay.data.EnglishCharacterData;
+import org.passay.resolver.ResourceBundleMessageResolver;
+import org.passay.rule.CharacterRule;
+import org.passay.rule.LengthRule;
+import org.passay.rule.WhitespaceRule;
 
 public class UsernameConstraintValidator implements ConstraintValidator<ValidUsername, String> {
 
@@ -27,7 +28,8 @@ public class UsernameConstraintValidator implements ConstraintValidator<ValidUse
             return false;
         }
         PasswordValidator validator =
-                new PasswordValidator(
+                new DefaultPasswordValidator(
+                        new ResourceBundleMessageResolver(),
                         Arrays.asList(
                                 // At least 6 characters
                                 // At most 25 characters
@@ -38,14 +40,13 @@ public class UsernameConstraintValidator implements ConstraintValidator<ValidUse
 
                                 // No whitespace
                                 new WhitespaceRule()));
-        RuleResult result = validator.validate(new PasswordData(value));
+        ValidationResult result = validator.validate(new PasswordData(value));
         if (result.isValid()) {
             return true;
         }
-        List<String> messages = validator.getMessages(result);
+        List<String> messages = result.getMessages();
 
-        String messageTemplate =
-                messages.stream().collect(Collectors.joining(",")).replace("Password", "Username");
+        String messageTemplate = String.join(",", messages).replace("Password", "Username");
         context.buildConstraintViolationWithTemplate(messageTemplate)
                 .addConstraintViolation()
                 .disableDefaultConstraintViolation();
