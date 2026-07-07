@@ -2,7 +2,6 @@ package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.DEFAULT_ER_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_ER_SORT_DIRECTION;
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.ENVT_RECORD_ACCEPTED;
 import static com.unconv.spring.consts.MessageConstants.ENVT_VALID_SENSOR_SYSTEM;
@@ -139,8 +138,6 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                             field(EnvironmentalReading::getTimestamp),
                             gen -> gen.temporal().offsetDateTime().past())
                     .toModel();
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 

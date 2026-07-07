@@ -1,6 +1,5 @@
 package com.unconv.spring.web.controllers;
 
-import static com.unconv.spring.consts.AppConstants.DEFAULT_PAGE_SIZE;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
@@ -77,8 +76,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
     @Autowired private ModelMapper modelMapper;
 
     private List<UnconvUser> unconvUserList;
-
-    private static final int DEFAULT_PAGE_SIZE_INT = Integer.parseInt(DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
