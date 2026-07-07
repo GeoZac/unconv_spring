@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unconv.spring.consts.AppConstants;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
@@ -22,6 +23,11 @@ public abstract class AbstractControllerTest {
     @Autowired protected ObjectMapper objectMapper;
 
     @Autowired protected WebApplicationContext webApplicationContext;
+
+    protected static final int DEFAULT_PAGE_SIZE_INT =
+            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+
+    protected static int totalPages;
 
     protected OperationPreprocessor prettyPrint =
             new ContentModifyingOperationPreprocessor(
