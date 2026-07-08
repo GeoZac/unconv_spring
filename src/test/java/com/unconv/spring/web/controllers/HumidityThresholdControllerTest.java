@@ -64,7 +64,8 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
     private List<HumidityThreshold> humidityThresholdList;
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT =
+            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -89,19 +90,19 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
 
-        totalPages = (int) Math.ceil((double) humidityThresholdList.size() / DEFAULT_PAGE_SIZE);
+        totalPages = (int) Math.ceil((double) humidityThresholdList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllHumidityThresholds() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = humidityThresholdList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<HumidityThreshold> pagedReadings = humidityThresholdList.subList(start, end);
 
         Page<HumidityThreshold> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -109,7 +110,10 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
         PagedResult<HumidityThreshold> humidityThresholdPagedResult = new PagedResult<>(page);
         given(
                         humidityThresholdService.findAllHumidityThresholds(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(humidityThresholdPagedResult);
 
         this.mockMvc
@@ -119,13 +123,13 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllHumidityThresholds",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
