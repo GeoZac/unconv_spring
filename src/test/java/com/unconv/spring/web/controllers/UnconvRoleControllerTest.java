@@ -61,7 +61,8 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
     private List<UnconvRole> unconvRoleList;
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT =
+            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -81,19 +82,19 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
 
-        totalPages = (int) Math.ceil((double) unconvRoleList.size() / DEFAULT_PAGE_SIZE);
+        totalPages = (int) Math.ceil((double) unconvRoleList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllUnconvRoles() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = unconvRoleList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<UnconvRole> pagedReadings = unconvRoleList.subList(start, end);
 
         Page<UnconvRole> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -101,20 +102,23 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
         PagedResult<UnconvRole> unconvRolePagedResult = new PagedResult<>(page);
         given(
                         unconvRoleService.findAllUnconvRoles(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(unconvRolePagedResult);
 
         this.mockMvc
                 .perform(get("/UnconvRole").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvRoles", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 

@@ -110,7 +110,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
                     .build();
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT =
+            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -135,19 +136,19 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
 
-        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE);
+        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllSensorAuthTokens() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = sensorAuthTokenList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<SensorAuthToken> pagedReadings = sensorAuthTokenList.subList(start, end);
 
         Page<SensorAuthToken> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -155,20 +156,23 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         PagedResult<SensorAuthToken> sensorAuthTokenPagedResult = new PagedResult<>(page);
         given(
                         sensorAuthTokenService.findAllSensorAuthTokens(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(sensorAuthTokenPagedResult);
 
         this.mockMvc
                 .perform(get("/SensorAuthToken"))
                 .andDo(document("shouldFetchAllSensorAuthTokens", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 

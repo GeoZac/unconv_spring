@@ -69,7 +69,8 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
     private List<SensorLocation> sensorLocationList;
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
+    private static final int DEFAULT_PAGE_SIZE_INT =
+            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     private static int totalPages;
 
@@ -101,19 +102,19 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         objectMapper.registerModule(new ProblemModule());
         objectMapper.registerModule(new ConstraintViolationProblemModule());
 
-        totalPages = (int) Math.ceil((double) sensorLocationList.size() / DEFAULT_PAGE_SIZE);
+        totalPages = (int) Math.ceil((double) sensorLocationList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllSensorLocations() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = sensorLocationList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<SensorLocation> pagedReadings = sensorLocationList.subList(start, end);
 
         Page<SensorLocation> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -121,20 +122,23 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         PagedResult<SensorLocation> sensorLocationPagedResult = new PagedResult<>(page);
         given(
                         sensorLocationService.findAllSensorLocations(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(sensorLocationPagedResult);
 
         this.mockMvc
                 .perform(get("/SensorLocation"))
                 .andDo(document("shouldFetchAllSensorLocations", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
