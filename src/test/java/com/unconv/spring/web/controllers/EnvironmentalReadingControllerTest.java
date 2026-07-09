@@ -139,8 +139,6 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                             gen -> gen.temporal().offsetDateTime().past())
                     .toModel();
 
-    private static int totalPages;
-
     @BeforeEach
     void setUp() {
         mockMvc =

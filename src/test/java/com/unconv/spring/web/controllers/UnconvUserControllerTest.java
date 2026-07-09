@@ -77,8 +77,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     private List<UnconvUser> unconvUserList;
 
-    private static int totalPages;
-
     @BeforeEach
     void setUp() {
         mockMvc =

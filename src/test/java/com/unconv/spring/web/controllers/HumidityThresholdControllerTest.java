@@ -67,8 +67,6 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
     private static final int DEFAULT_PAGE_SIZE_INT =
             Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
-    private static int totalPages;
-
     @BeforeEach
     void setUp() {
         mockMvc =
