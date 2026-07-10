@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.UnconvRole;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.security.MethodSecurityConfig;
@@ -60,9 +59,6 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
     @MockBean private UnconvRoleService unconvRoleService;
 
     private List<UnconvRole> unconvRoleList;
-
-    private static final int DEFAULT_PAGE_SIZE_INT =
-            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     @BeforeEach
     void setUp() {

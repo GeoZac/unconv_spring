@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.security.MethodSecurityConfig;
@@ -63,9 +62,6 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
     @MockBean private HumidityThresholdService humidityThresholdService;
 
     private List<HumidityThreshold> humidityThresholdList;
-
-    private static final int DEFAULT_PAGE_SIZE_INT =
-            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     @BeforeEach
     void setUp() {

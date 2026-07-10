@@ -35,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorLocation;
@@ -109,9 +108,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     .createdDate(OffsetDateTime.now().minusDays(new Random().nextLong(365)))
                     .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
                     .build();
-
-    private static final int DEFAULT_PAGE_SIZE_INT =
-            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     @BeforeEach
     void setUp() {

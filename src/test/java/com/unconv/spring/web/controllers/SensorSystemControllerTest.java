@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.EnvironmentalReading;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorLocation;
@@ -99,9 +98,6 @@ class SensorSystemControllerTest extends AbstractControllerTest {
     private final UnconvUser unconvUser =
             new UnconvUser(
                     UUID.randomUUID(), "NewUnconvUser", "newuser@email.com", "1StrongPas$word");
-
-    private static final int DEFAULT_PAGE_SIZE_INT =
-            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     @BeforeEach
     void setUp() {

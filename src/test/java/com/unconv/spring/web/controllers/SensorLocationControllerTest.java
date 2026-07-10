@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.enums.SensorLocationType;
@@ -68,9 +67,6 @@ class SensorLocationControllerTest extends AbstractControllerTest {
     @MockBean private UnconvUserService unconvUserService;
 
     private List<SensorLocation> sensorLocationList;
-
-    private static final int DEFAULT_PAGE_SIZE_INT =
-            Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
     @BeforeEach
     void setUp() {
