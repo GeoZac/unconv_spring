@@ -1,5 +1,9 @@
 package com.unconv.spring.common;
 
+import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -11,6 +15,8 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentationConfigurer;
 import org.springframework.restdocs.operation.preprocess.ContentModifyingOperationPreprocessor;
 import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 public abstract class AbstractControllerTest {
@@ -44,4 +50,15 @@ public abstract class AbstractControllerTest {
                             return content;
                         }
                     });
+
+    protected void initializeMockMvc() {
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(
+                                MockMvcRequestBuilders.get("/")
+                                        .with(user("username").roles(UNCONV_USER.name())))
+                        .apply(mockMvcRestDocumentationConfigurer)
+                        .apply(springSecurity())
+                        .build();
+    }
 }
