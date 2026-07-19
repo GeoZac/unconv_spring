@@ -6,7 +6,6 @@ import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
 import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_PREFIX;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
@@ -23,8 +22,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -70,8 +67,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
@@ -111,14 +106,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorAuthToken")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(mockMvcRestDocumentationConfigurer)
-                        .apply(springSecurity())
-                        .build();
+        initializeMockMvc();
 
         this.sensorAuthTokenList = new ArrayList<>();
         this.sensorAuthTokenList =
