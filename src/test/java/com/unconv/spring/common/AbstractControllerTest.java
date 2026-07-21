@@ -16,6 +16,7 @@ import org.springframework.restdocs.operation.preprocess.ContentModifyingOperati
 import org.springframework.restdocs.operation.preprocess.OperationPreprocessor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -52,13 +53,16 @@ public abstract class AbstractControllerTest {
                     });
 
     protected void initializeMockMvc() {
-        mockMvc =
+        DefaultMockMvcBuilder builder =
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
                                 MockMvcRequestBuilders.get("/")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(mockMvcRestDocumentationConfigurer)
-                        .apply(springSecurity())
-                        .build();
+                                        .with(user("username").roles(UNCONV_USER.name())));
+
+        if (mockMvcRestDocumentationConfigurer != null) {
+            builder = builder.apply(mockMvcRestDocumentationConfigurer);
+        }
+
+        mockMvc = builder.apply(springSecurity()).build();
     }
 }
