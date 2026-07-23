@@ -146,6 +146,10 @@ class SensorSystemServiceImplTest {
 
         Page<SensorSystem> sensorLocationPage = new PageImpl<>(sensorSystemList);
 
+        when(environmentalReadingRepository.countBySensorSystemId(any(UUID.class)))
+                .thenReturn(1L)
+                .thenReturn(0L);
+
         when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
                         any(UUID.class)))
                 .thenReturn(
@@ -197,6 +201,7 @@ class SensorSystemServiceImplTest {
     void findSensorSystemDTOByIdWithReadingsPresent() {
         when(sensorSystemRepository.findById(any(UUID.class)))
                 .thenReturn(Optional.of(sensorSystem));
+        when(environmentalReadingRepository.countBySensorSystemId(any(UUID.class))).thenReturn(1L);
         when(environmentalReadingRepository.findFirstBySensorSystemIdOrderByTimestampDesc(
                         any(UUID.class)))
                 .thenReturn(
