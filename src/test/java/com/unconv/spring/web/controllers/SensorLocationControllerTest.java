@@ -49,8 +49,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -65,7 +63,7 @@ class SensorLocationControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
@@ -80,9 +78,6 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 field(SensorLocation::getSensorLocationType),
                                 gen -> gen.enumOf(SensorLocationType.class))
                         .create();
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         totalPages = (int) Math.ceil((double) sensorLocationList.size() / DEFAULT_PAGE_SIZE_INT);
     }

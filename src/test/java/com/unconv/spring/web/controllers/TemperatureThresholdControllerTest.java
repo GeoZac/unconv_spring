@@ -45,8 +45,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = TemperatureThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -59,7 +57,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.temperatureThresholdList = new ArrayList<>();
         temperatureThresholdList =
@@ -67,9 +65,6 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                         .size(15)
                         .ignore(field(TemperatureThreshold::getId))
                         .create();
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         totalPages =
                 (int) Math.ceil((double) temperatureThresholdList.size() / DEFAULT_PAGE_SIZE_INT);

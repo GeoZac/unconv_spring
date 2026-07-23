@@ -32,8 +32,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = RouteController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -45,15 +43,12 @@ class RouteControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.routeList = new ArrayList<>();
         this.routeList.add(new Route(1L, "text 1"));
         this.routeList.add(new Route(2L, "text 2"));
         this.routeList.add(new Route(3L, "text 3"));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

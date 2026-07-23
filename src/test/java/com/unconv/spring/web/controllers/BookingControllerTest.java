@@ -32,8 +32,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = com.unconv.spring.web.rest.BookingController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -49,7 +47,7 @@ class BookingControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         passengerList = new ArrayList<>();
         passengerList.add(
@@ -83,9 +81,6 @@ class BookingControllerTest extends AbstractControllerTest {
         this.bookingList.add(new Booking(1L, "text 1", passengerList));
         this.bookingList.add(new Booking(2L, "text 2", passengerList));
         this.bookingList.add(new Booking(3L, "text 3", passengerList));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

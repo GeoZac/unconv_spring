@@ -67,8 +67,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorAuthTokenController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -106,7 +104,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.sensorAuthTokenList = new ArrayList<>();
         this.sensorAuthTokenList =
@@ -114,9 +112,6 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         .size(15)
                         .ignore(field(SensorAuthToken::getId))
                         .create();
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE_INT);
     }

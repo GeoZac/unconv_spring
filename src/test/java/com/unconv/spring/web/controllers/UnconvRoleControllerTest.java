@@ -44,8 +44,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = UnconvRoleController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -58,12 +56,9 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         unconvRoleList = Instancio.ofList(UnconvRole.class).size(30).create();
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         totalPages = (int) Math.ceil((double) unconvRoleList.size() / DEFAULT_PAGE_SIZE_INT);
     }

@@ -59,8 +59,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = UnconvUserController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -75,7 +73,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.unconvUserList = new ArrayList<>();
         this.unconvUserList =
@@ -85,9 +83,6 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                         .create();
 
         totalPages = (int) Math.ceil((double) this.unconvUserList.size() / DEFAULT_PAGE_SIZE_INT);
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         SimpleModule authDeserializerModule = new SimpleModule();
         authDeserializerModule.addDeserializer(Collection.class, new UnconvAuthorityDeserializer());

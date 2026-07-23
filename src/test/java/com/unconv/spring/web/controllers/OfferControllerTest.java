@@ -29,8 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = OfferController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -42,15 +40,12 @@ class OfferControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.offerList = new ArrayList<>();
         this.offerList.add(new Offer(1L, "0xffc62828", "50% OFF"));
         this.offerList.add(new Offer(2L, "0xff00aa4f", "OFFER"));
         this.offerList.add(new Offer(3L, "0xff000000", "FREE"));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

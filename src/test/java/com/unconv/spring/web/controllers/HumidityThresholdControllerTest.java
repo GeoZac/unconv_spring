@@ -45,8 +45,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = HumidityThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -60,7 +58,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.humidityThresholdList = new ArrayList<>();
         humidityThresholdList =
@@ -68,9 +66,6 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                         .size(15)
                         .ignore(field(HumidityThreshold::getId))
                         .create();
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         totalPages = (int) Math.ceil((double) humidityThresholdList.size() / DEFAULT_PAGE_SIZE_INT);
     }

@@ -29,8 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = FruitController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -41,7 +39,7 @@ class FruitControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.fruitList = new ArrayList<>();
         this.fruitList.add(
@@ -62,9 +60,6 @@ class FruitControllerTest extends AbstractControllerTest {
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apricot_image.jpg",
                         "Apricot",
                         "Daily Fresh"));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

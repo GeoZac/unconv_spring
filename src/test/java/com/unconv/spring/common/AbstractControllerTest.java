@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.zalando.problem.jackson.ProblemModule;
+import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 public abstract class AbstractControllerTest {
 
@@ -52,7 +54,7 @@ public abstract class AbstractControllerTest {
                         }
                     });
 
-    protected void initializeMockMvc() {
+    protected void configureMockMvcWithObjectMapper() {
         DefaultMockMvcBuilder builder =
                 MockMvcBuilders.webAppContextSetup(webApplicationContext)
                         .defaultRequest(
@@ -64,5 +66,8 @@ public abstract class AbstractControllerTest {
         }
 
         mockMvc = builder.apply(springSecurity()).build();
+
+        objectMapper.registerModule(new ProblemModule());
+        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 }

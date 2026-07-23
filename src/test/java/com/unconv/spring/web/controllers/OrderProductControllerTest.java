@@ -33,8 +33,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = OrderProductController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -45,15 +43,12 @@ class OrderProductControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.orderProductList = new ArrayList<>();
         this.orderProductList.add(new OrderProduct(null, "text 1"));
         this.orderProductList.add(new OrderProduct(null, "text 2"));
         this.orderProductList.add(new OrderProduct(null, "text 3"));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

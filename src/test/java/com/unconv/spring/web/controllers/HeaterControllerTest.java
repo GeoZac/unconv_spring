@@ -29,8 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = HeaterController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -42,15 +40,12 @@ class HeaterControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.heaterList = new ArrayList<>();
         heaterList.add(new Heater(1L, 34F, 2F));
         heaterList.add(new Heater(2L, 40F, 1F));
         heaterList.add(new Heater(3L, 35F, 5F));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

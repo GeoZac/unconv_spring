@@ -70,8 +70,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = SensorSystemController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -96,7 +94,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        initializeMockMvc();
+        configureMockMvcWithObjectMapper();
 
         this.sensorSystemList =
                 Instancio.ofList(SensorSystem.class)
@@ -108,9 +106,6 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 field(SensorSystem::getUpdatedDate),
                                 gen -> gen.temporal().offsetDateTime().past())
                         .create();
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
 
         totalPages = (int) Math.ceil((double) sensorSystemList.size() / DEFAULT_PAGE_SIZE_INT);
     }
