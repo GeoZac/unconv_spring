@@ -12,12 +12,14 @@ import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+@ExtendWith(MockitoExtension.class)
 class ExceptionHandlerFilterTest {
 
     @Mock private SensorAuthTokenExceptionHandler sensorAuthTokenExceptionHandler;
@@ -30,7 +32,6 @@ class ExceptionHandlerFilterTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);

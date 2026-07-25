@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  * unconventional user operations. This service class manages transactions for user-related
  * operations.
  */
+@Configuration
 @Service
 @Transactional
 public class UnconvUserServiceImpl implements UnconvUserService {

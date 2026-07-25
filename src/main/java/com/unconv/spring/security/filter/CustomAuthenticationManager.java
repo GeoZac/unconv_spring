@@ -5,6 +5,7 @@ import com.unconv.spring.exception.SuppressedBadCredentialsException;
 import com.unconv.spring.service.UnconvUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
  * AuthenticationManager interface.
  */
 @Component
+@Configuration
 @AllArgsConstructor
 public class CustomAuthenticationManager implements AuthenticationManager {
 

@@ -1,7 +1,6 @@
 package com.unconv.spring.web.controllers;
 
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -9,8 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,10 +33,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = FruitProductController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -55,13 +48,7 @@ class FruitProductControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/FruitProduct")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(springSecurity())
-                        .build();
+        configureMockMvcWithObjectMapper();
 
         this.fruitProductList = new ArrayList<>();
         Fruit fruit =
@@ -78,9 +65,6 @@ class FruitProductControllerTest extends AbstractControllerTest {
         fruitProductList.add(new FruitProduct(1L, 100.0f, fruit, offer, "1kg", 95.0f));
         fruitProductList.add(new FruitProduct(2L, 200f, fruit, null, "2kg", 195f));
         fruitProductList.add(new FruitProduct(3L, 150f, fruit, offer, "5kg", 135f));
-
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
     }
 
     @Test

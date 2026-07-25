@@ -3,7 +3,6 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -15,8 +14,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.TemperatureThreshold;
 import com.unconv.spring.model.response.PagedResult;
 import com.unconv.spring.security.MethodSecurityConfig;
@@ -49,10 +45,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
 @WebMvcTest(controllers = TemperatureThresholdController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -63,20 +55,9 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
 
     private List<TemperatureThreshold> temperatureThresholdList;
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
-
-    private static int totalPages;
-
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/TemperatureThreshold")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(mockMvcRestDocumentationConfigurer)
-                        .apply(springSecurity())
-                        .build();
+        configureMockMvcWithObjectMapper();
 
         this.temperatureThresholdList = new ArrayList<>();
         temperatureThresholdList =
@@ -85,22 +66,20 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                         .ignore(field(TemperatureThreshold::getId))
                         .create();
 
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
-
-        totalPages = (int) Math.ceil((double) temperatureThresholdList.size() / DEFAULT_PAGE_SIZE);
+        totalPages =
+                (int) Math.ceil((double) temperatureThresholdList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllTemperatureThresholds() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = temperatureThresholdList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<TemperatureThreshold> pagedReadings = temperatureThresholdList.subList(start, end);
 
         Page<TemperatureThreshold> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -108,7 +87,10 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
         PagedResult<TemperatureThreshold> temperatureThresholdPagedResult = new PagedResult<>(page);
         given(
                         temperatureThresholdService.findAllTemperatureThresholds(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(temperatureThresholdPagedResult);
 
         this.mockMvc
@@ -118,13 +100,13 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllTemperatureThresholds",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
                 .andExpect(jsonPath("$.totalPages", is(totalPages)))
                 .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
+                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
                 .andExpect(jsonPath("$.hasPrevious", is(false)));
     }
 
