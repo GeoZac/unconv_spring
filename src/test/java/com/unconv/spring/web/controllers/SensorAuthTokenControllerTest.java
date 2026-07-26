@@ -63,7 +63,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -71,6 +70,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.zalando.problem.jackson.ProblemModule;
@@ -81,9 +81,9 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorAuthToken")
 @Import(MethodSecurityConfig.class)
 class SensorAuthTokenControllerTest extends AbstractControllerTest {
-    @MockBean private SensorAuthTokenService sensorAuthTokenService;
+    @MockitoBean private SensorAuthTokenService sensorAuthTokenService;
 
-    @MockBean private SensorSystemService sensorSystemService;
+    @MockitoBean private SensorSystemService sensorSystemService;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
