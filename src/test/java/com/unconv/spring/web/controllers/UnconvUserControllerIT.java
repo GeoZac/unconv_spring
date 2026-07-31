@@ -499,18 +499,12 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        List<UnconvUser> unconvUsers = unconvUserRepository.findAll();
-        for (UnconvUser unconvUser : unconvUsers) {
-            Set<UnconvRole> unconvRoleSet = unconvUser.getUnconvRoles();
-            unconvUser.getUnconvRoles().removeAll(unconvRoleSet);
-            unconvUserRepository.save(unconvUser);
-        }
+        unconvUserRepository.deleteAllInBatch();
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
             if (EnumSet.allOf(DefaultUserRole.class).stream()
                     .anyMatch(role -> role.name().equals(unconvRole.getName()))) continue;
             unconvRoleRepository.delete(unconvRole);
         }
-        unconvUserRepository.deleteAllInBatch();
     }
 }
