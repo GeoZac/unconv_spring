@@ -234,6 +234,9 @@ public class SensorSystemServiceImpl implements SensorSystemService {
             sensorSystemRepository.save(sensorSystem);
             return false;
         } else {
+            SensorSystem sensorSystem = sensorSystemRepository.findSensorSystemById(id);
+            sensorSystem.setSensorLocation(null);
+            sensorSystemRepository.save(sensorSystem);
             sensorSystemRepository.deleteById(id);
             return true;
         }
