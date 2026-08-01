@@ -1112,8 +1112,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem =
-                new SensorSystem(UUID.randomUUID(), "Sensor system", null, savedUnconvUser);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
         System.out.println(savedSensorSystem.getId());
 
@@ -1162,8 +1161,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
         unconvUser.setUnconvRoles(unconvRoleSet);
         UnconvUser savedUnconvUser =
                 unconvUserService.saveUnconvUser(unconvUser, unconvUser.getPassword());
-        SensorSystem sensorSystem =
-                new SensorSystem(UUID.randomUUID(), "Sensor system", null, savedUnconvUser);
+        SensorSystem sensorSystem = new SensorSystem(null, "Sensor system", null, savedUnconvUser);
         SensorSystem savedSensorSystem = sensorSystemRepository.save(sensorSystem);
 
         List<EnvironmentalReadingDTO> environmentalReadingDTOsOfSpecificSensorForBulkData =

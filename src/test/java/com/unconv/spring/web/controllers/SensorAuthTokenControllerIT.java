@@ -77,6 +77,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> sensorSystemList =
                 Instancio.ofList(SensorSystem.class)
                         .size(setUpListSize)
+                        .ignore(field(SensorSystem::getId))
                         .ignore(field(SensorSystem::getSensorLocation))
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
