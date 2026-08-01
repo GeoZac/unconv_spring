@@ -30,11 +30,11 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.zalando.problem.jackson.ProblemModule;
@@ -44,7 +44,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @ActiveProfiles(PROFILE_TEST)
 class RouteControllerTest extends AbstractControllerTest {
 
-    @MockBean private RouteService routeService;
+    @MockitoBean private RouteService routeService;
 
     private List<Route> routeList;
 

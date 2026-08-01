@@ -67,7 +67,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -79,6 +78,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
@@ -91,11 +91,11 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @Import(MethodSecurityConfig.class)
 class EnvironmentalReadingControllerTest extends AbstractControllerTest {
 
-    @MockBean private EnvironmentalReadingService environmentalReadingService;
+    @MockitoBean private EnvironmentalReadingService environmentalReadingService;
 
-    @MockBean private SensorSystemService sensorSystemService;
+    @MockitoBean private SensorSystemService sensorSystemService;
 
-    @MockBean private UnconvUserService unconvUserService;
+    @MockitoBean private UnconvUserService unconvUserService;
 
     private List<EnvironmentalReading> environmentalReadingList;
 
