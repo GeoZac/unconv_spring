@@ -30,9 +30,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = EnvironmentalReadingStatsController.class)
 @ActiveProfiles(PROFILE_TEST)
@@ -40,9 +40,9 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(MethodSecurityConfig.class)
 class EnvironmentalReadingStatsControllerTest extends AbstractControllerTest {
 
-    @MockBean private EnvironmentalReadingStatsService environmentalReadingStatsService;
+    @MockitoBean private EnvironmentalReadingStatsService environmentalReadingStatsService;
 
-    @MockBean private SensorSystemService sensorSystemService;
+    @MockitoBean private SensorSystemService sensorSystemService;
 
     private final SensorLocation sensorLocation =
             new SensorLocation(

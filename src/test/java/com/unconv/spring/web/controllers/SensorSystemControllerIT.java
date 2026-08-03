@@ -130,6 +130,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
                         .size(12)
+                        .ignore(field(SensorLocation::getId))
                         .generate(
                                 field(SensorLocation::getLatitude),
                                 gen -> gen.spatial().coordinate().lat())
@@ -150,6 +151,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
                                     int randomIndex = randomUtil.nextInt(sensorLocationList.size());
                                     return sensorLocationList.get(randomIndex);
                                 })
+                        .ignore(field(SensorSystem::getId))
                         .ignore(field(SensorSystem::getHumidityThreshold))
                         .ignore(field(SensorSystem::getTemperatureThreshold))
                         .supply(
@@ -380,6 +382,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> sensorSystems =
                 Instancio.ofList(SensorSystem.class)
                         .size(4)
+                        .ignore(field(SensorSystem::getId))
                         .ignore(field(SensorSystem::getSensorLocation))
                         .generate(
                                 field(SensorSystem.class, "sensorName"),
@@ -410,6 +413,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         List<SensorSystem> sensorSystems =
                 Instancio.ofList(SensorSystem.class)
                         .size(4)
+                        .ignore(field(SensorSystem::getId))
                         .ignore(field(SensorSystem::getSensorLocation))
                         .supply(field(SensorSystem::getUnconvUser), () -> savedUnconvUser)
                         .generate(
@@ -918,21 +922,15 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        List<UnconvUser> unconvUsers = unconvUserRepository.findAll();
-        for (UnconvUser unconvUser : unconvUsers) {
-            Set<UnconvRole> unconvRoleSet = unconvUser.getUnconvRoles();
-            unconvUser.getUnconvRoles().removeAll(unconvRoleSet);
-            unconvUserRepository.save(unconvUser);
-        }
         environmentalReadingRepository.deleteAll();
         sensorSystemRepository.deleteAll();
         sensorLocationRepository.deleteAll();
+        unconvUserRepository.deleteAll();
         List<UnconvRole> unconvRoles = unconvRoleRepository.findAll();
         for (UnconvRole unconvRole : unconvRoles) {
             if (EnumSet.allOf(DefaultUserRole.class).stream()
                     .anyMatch(role -> role.name().equals(unconvRole.getName()))) continue;
             unconvRoleRepository.delete(unconvRole);
         }
-        unconvUserRepository.deleteAll();
     }
 }

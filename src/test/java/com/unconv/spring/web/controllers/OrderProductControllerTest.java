@@ -28,16 +28,16 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = OrderProductController.class)
 @ActiveProfiles(PROFILE_TEST)
 class OrderProductControllerTest extends AbstractControllerTest {
-    @MockBean private OrderProductService orderProductService;
+    @MockitoBean private OrderProductService orderProductService;
 
     private List<OrderProduct> orderProductList;
 

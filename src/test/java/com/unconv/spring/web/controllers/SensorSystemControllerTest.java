@@ -59,7 +59,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -70,15 +69,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = SensorSystemController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
 @Import(MethodSecurityConfig.class)
 class SensorSystemControllerTest extends AbstractControllerTest {
-    @MockBean private SensorSystemService sensorSystemService;
+    @MockitoBean private SensorSystemService sensorSystemService;
 
-    @MockBean private UnconvUserService unconvUserService;
+    @MockitoBean private UnconvUserService unconvUserService;
 
     @Autowired private ModelMapper modelMapper;
 

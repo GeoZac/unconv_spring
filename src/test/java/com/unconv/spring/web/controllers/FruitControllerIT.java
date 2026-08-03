@@ -36,19 +36,19 @@ class FruitControllerIT extends AbstractIntegrationTest {
         fruitList = new ArrayList<>();
         this.fruitList.add(
                 new Fruit(
-                        1L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh"));
         this.fruitList.add(
                 new Fruit(
-                        2L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/mango_image_1.jpg",
                         "Mango",
                         "Daily Fresh"));
         this.fruitList.add(
                 new Fruit(
-                        3L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apricot_image.jpg",
                         "Apricot",
                         "Daily Fresh"));

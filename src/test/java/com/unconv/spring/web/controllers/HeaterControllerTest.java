@@ -26,15 +26,15 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = HeaterController.class)
 @ActiveProfiles(PROFILE_TEST)
 class HeaterControllerTest extends AbstractControllerTest {
 
-    @MockBean private HeaterService heaterService;
+    @MockitoBean private HeaterService heaterService;
 
     private List<Heater> heaterList;
 

@@ -30,19 +30,19 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = FruitProductController.class)
 @ActiveProfiles(PROFILE_TEST)
 class FruitProductControllerTest extends AbstractControllerTest {
 
-    @MockBean private FruitProductService fruitProductService;
+    @MockitoBean private FruitProductService fruitProductService;
 
-    @MockBean private FruitService fruitService;
+    @MockitoBean private FruitService fruitService;
 
-    @MockBean private OfferService offerService;
+    @MockitoBean private OfferService offerService;
 
     private List<FruitProduct> fruitProductList;
 

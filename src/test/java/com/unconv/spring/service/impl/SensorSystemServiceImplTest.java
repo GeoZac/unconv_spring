@@ -467,9 +467,18 @@ class SensorSystemServiceImplTest {
 
     @Test
     void deleteSensorSystemById() {
+        SensorSystem mockSensorSystem = new SensorSystem();
+        mockSensorSystem.setId(sensorSystemId);
+
+        when(sensorSystemRepository.findSensorSystemById(sensorSystemId))
+                .thenReturn(mockSensorSystem);
+        when(environmentalReadingRepository.countBySensorSystemId(sensorSystemId)).thenReturn(0L);
+
         boolean result = sensorSystemService.deleteSensorSystemById(sensorSystemId);
 
         assertTrue(result);
+        assertNull(mockSensorSystem.getSensorLocation());
+        verify(sensorSystemRepository, times(1)).save(mockSensorSystem);
         verify(sensorSystemRepository, times(1)).deleteById(sensorSystemId);
     }
 

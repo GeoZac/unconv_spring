@@ -2,6 +2,7 @@ package com.unconv.spring.web.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.instancio.Select.field;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -40,7 +41,12 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
         passengerRepository.deleteAll();
 
-        passengerList = Instancio.ofList(Passenger.class).size(23).create();
+        passengerList =
+                Instancio.ofList(Passenger.class)
+                        .size(23)
+                        .ignore(field(Passenger::getId))
+                        .ignore(field(Passenger::getBooking))
+                        .create();
         totalPages = (int) Math.ceil((double) passengerList.size() / DEFAULT_PAGE_SIZE_INT);
 
         passengerList = passengerRepository.saveAll(passengerList);
@@ -130,7 +136,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewPassenger() throws Exception {
         Passenger passenger =
                 new Passenger(
-                        1L, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
+                        null, "Pablo", "Ruiz", "Picasso", LocalDate.of(1952, 7, 2), Gender.MALE);
         this.mockMvc
                 .perform(
                         post("/Passenger")
