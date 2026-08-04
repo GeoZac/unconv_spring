@@ -34,9 +34,9 @@ class OfferControllerIT extends AbstractIntegrationTest {
         offerRepository.deleteAll();
 
         offerList = new ArrayList<>();
-        this.offerList.add(new Offer(1L, "0xffc62828", "50% OFF"));
-        this.offerList.add(new Offer(2L, "0xff00aa4f", "OFFER"));
-        this.offerList.add(new Offer(3L, "0xff000000", "FREE"));
+        this.offerList.add(new Offer(null, "0xffc62828", "50% OFF"));
+        this.offerList.add(new Offer(null, "0xff00aa4f", "OFFER"));
+        this.offerList.add(new Offer(null, "0xff000000", "FREE"));
         offerList = offerRepository.saveAll(offerList);
     }
 

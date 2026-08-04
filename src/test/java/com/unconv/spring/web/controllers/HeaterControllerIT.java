@@ -34,9 +34,9 @@ class HeaterControllerIT extends AbstractIntegrationTest {
         heaterRepository.deleteAll();
 
         heaterList = new ArrayList<>();
-        heaterList.add(new Heater(1L, 34F, 2F));
-        heaterList.add(new Heater(2L, 40F, 1F));
-        heaterList.add(new Heater(3L, 35F, 5F));
+        heaterList.add(new Heater(null, 34F, 2F));
+        heaterList.add(new Heater(null, 40F, 1F));
+        heaterList.add(new Heater(null, 35F, 5F));
         heaterList = heaterRepository.saveAll(heaterList);
     }
 
