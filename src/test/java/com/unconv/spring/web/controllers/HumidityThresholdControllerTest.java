@@ -120,7 +120,7 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllHumidityThresholds",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE, totalPages))
+                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE, totalPages, pageNo == 0))
                 .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
