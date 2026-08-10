@@ -5,16 +5,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.test.web.servlet.ResultMatcher;
 
 public class PagedResponseMatcher {
-    public static ResultMatcher pagedResponse() {
+    public static ResultMatcher pagedResponse(int dataSize, int defaultPageSize, int totalPages) {
         return result -> {
-            jsonPath("$.data").exists().match(result);
-            jsonPath("$.totalElements").exists().match(result);
-            jsonPath("$.pageNumber").exists().match(result);
-            jsonPath("$.totalPages").exists().match(result);
-            jsonPath("$.isFirst").exists().match(result);
-            jsonPath("$.isLast").exists().match(result);
-            jsonPath("$.hasNext").exists().match(result);
-            jsonPath("$.hasPrevious").exists().match(result);
+            jsonPath("$.data.size()").value(defaultPageSize).match(result);
+            jsonPath("$.totalElements").value(dataSize).match(result);
+            jsonPath("$.pageNumber").value(0).match(result);
+            jsonPath("$.totalPages").value(totalPages).match(result);
+            jsonPath("$.isFirst").value(true).match(result);
+            jsonPath("$.isLast").value(dataSize < defaultPageSize).match(result);
+            jsonPath("$.hasNext").value(dataSize > defaultPageSize).match(result);
+            jsonPath("$.hasPrevious").value(false).match(result);
         };
     }
 }
