@@ -4,6 +4,7 @@ import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -118,6 +119,7 @@ class TemperatureThresholdControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllTemperatureThresholds",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
+                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE, totalPages, pageNo == 0))
                 .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
                 .andExpect(jsonPath("$.totalElements", is(dataSize)))
                 .andExpect(jsonPath("$.pageNumber", is(0)))
