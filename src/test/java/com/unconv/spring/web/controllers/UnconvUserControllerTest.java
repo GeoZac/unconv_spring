@@ -8,6 +8,7 @@ import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -121,14 +122,9 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .perform(get("/UnconvUser").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvUsers", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
-                .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)))
+                .andExpect(
+                        pagedResponse(
+                                unconvUserList.size(), DEFAULT_PAGE_SIZE_INT, totalPages, true))
                 .andReturn();
     }
 
