@@ -4,6 +4,7 @@ import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -108,14 +109,9 @@ class UnconvRoleControllerTest extends AbstractControllerTest {
                 .perform(get("/UnconvRole").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvRoles", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(
+                        pagedResponse(unconvRoleList.size(), DEFAULT_PAGE_SIZE, totalPages, true))
+                .andReturn();
     }
 
     @Test
