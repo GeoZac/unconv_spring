@@ -97,7 +97,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         this.unconvUserList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
-                        .size(7)
+                        .size(27)
                         .ignore(field(UnconvUser::getId))
                         .create();
 
