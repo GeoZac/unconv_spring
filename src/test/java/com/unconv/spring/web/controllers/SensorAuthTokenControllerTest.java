@@ -7,6 +7,7 @@ import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAIL
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
 import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_PREFIX;
 import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
+import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
 import static com.unconv.spring.utils.SaltedSuffixGenerator.generateSaltedSuffix;
@@ -162,14 +163,8 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 .perform(get("/SensorAuthToken"))
                 .andDo(document("shouldFetchAllSensorAuthTokens", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE, totalPages, true))
+                .andReturn();
     }
 
     @Test
