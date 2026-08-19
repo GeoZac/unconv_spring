@@ -3,7 +3,6 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -17,8 +16,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.SensorLocation;
 import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.enums.SensorLocationType;
@@ -46,7 +42,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -54,36 +49,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = SensorLocationController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorLocation")
 @Import(MethodSecurityConfig.class)
 class SensorLocationControllerTest extends AbstractControllerTest {
-    @MockBean private SensorLocationService sensorLocationService;
+    @MockitoBean private SensorLocationService sensorLocationService;
 
-    @MockBean private UnconvUserService unconvUserService;
+    @MockitoBean private UnconvUserService unconvUserService;
 
     private List<SensorLocation> sensorLocationList;
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
-
-    private static int totalPages;
-
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorLocation")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(mockMvcRestDocumentationConfigurer)
-                        .apply(springSecurity())
-                        .build();
+        configureMockMvcWithObjectMapper();
 
         sensorLocationList =
                 Instancio.ofList(SensorLocation.class)
@@ -99,22 +80,19 @@ class SensorLocationControllerTest extends AbstractControllerTest {
                                 gen -> gen.enumOf(SensorLocationType.class))
                         .create();
 
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
-
-        totalPages = (int) Math.ceil((double) sensorLocationList.size() / DEFAULT_PAGE_SIZE);
+        totalPages = (int) Math.ceil((double) sensorLocationList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllSensorLocations() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = sensorLocationList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<SensorLocation> pagedReadings = sensorLocationList.subList(start, end);
 
         Page<SensorLocation> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -122,14 +100,17 @@ class SensorLocationControllerTest extends AbstractControllerTest {
         PagedResult<SensorLocation> sensorLocationPagedResult = new PagedResult<>(page);
         given(
                         sensorLocationService.findAllSensorLocations(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(sensorLocationPagedResult);
 
         this.mockMvc
                 .perform(get("/SensorLocation"))
                 .andDo(document("shouldFetchAllSensorLocations", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE, totalPages, true))
+                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE_INT, totalPages, true))
                 .andReturn();
     }
 

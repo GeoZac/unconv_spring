@@ -42,7 +42,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
         passengerList = new ArrayList<>();
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
-                        1L,
+                        null,
                         "Robert",
                         null,
                         "Langdon",
@@ -51,7 +51,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         null));
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
-                        2L,
+                        null,
                         "Katherine",
                         null,
                         "Brewster",
@@ -60,7 +60,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
                         null));
         passengerList.add(
                 new com.unconv.spring.domain.Passenger(
-                        3L,
+                        null,
                         "Tom",
                         "Marvelo",
                         "Riddle",
@@ -70,9 +70,9 @@ class BookingControllerIT extends AbstractIntegrationTest {
         passengerList = passengerRepository.saveAll(passengerList);
 
         bookingList = new ArrayList<>();
-        bookingList.add(new Booking(1L, "First Booking", passengerList));
-        bookingList.add(new Booking(2L, "Second Booking", passengerList));
-        bookingList.add(new Booking(3L, "Third Booking", passengerList));
+        bookingList.add(new Booking(null, "First Booking", passengerList));
+        bookingList.add(new Booking(null, "Second Booking", passengerList));
+        bookingList.add(new Booking(null, "Third Booking", passengerList));
         bookingList = bookingRepository.saveAll(bookingList);
     }
 

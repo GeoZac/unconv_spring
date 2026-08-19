@@ -19,9 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
@@ -32,7 +32,7 @@ import org.zalando.problem.violations.ConstraintViolationProblemModule;
 @Import(MethodSecurityConfig.class)
 class ApplicationStatusControllerTest extends AbstractControllerTest {
 
-    @MockBean private BuildProperties buildProperties;
+    @MockitoBean private BuildProperties buildProperties;
 
     @BeforeEach
     void setUp() {

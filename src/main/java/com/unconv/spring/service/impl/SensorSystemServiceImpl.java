@@ -229,10 +229,14 @@ public class SensorSystemServiceImpl implements SensorSystemService {
     public boolean deleteSensorSystemById(UUID id) {
         if (environmentalReadingRepository.countBySensorSystemId(id) != 0) {
             SensorSystem sensorSystem = sensorSystemRepository.findSensorSystemById(id);
+            sensorSystem.setSensorLocation(null);
             sensorSystem.setDeleted(true);
             sensorSystemRepository.save(sensorSystem);
             return false;
         } else {
+            SensorSystem sensorSystem = sensorSystemRepository.findSensorSystemById(id);
+            sensorSystem.setSensorLocation(null);
+            sensorSystemRepository.save(sensorSystem);
             sensorSystemRepository.deleteById(id);
             return true;
         }

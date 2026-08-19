@@ -46,20 +46,20 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
 
         Fruit fruit =
                 new Fruit(
-                        1L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
         Fruit persistedFruit = fruitRepository.saveAndFlush(fruit);
-        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        Offer offer = new Offer(null, "0xffc62828", "50% OFF");
         Offer persistedOffer = offerRepository.saveAndFlush(offer);
 
         fruitProductList = new ArrayList<>();
         fruitProductList.add(
-                new FruitProduct(1L, 100.0f, persistedFruit, persistedOffer, "1kg", 95.0f));
-        fruitProductList.add(new FruitProduct(2L, 200f, persistedFruit, null, "2kg", 195f));
+                new FruitProduct(null, 100.0f, persistedFruit, persistedOffer, "1kg", 95.0f));
+        fruitProductList.add(new FruitProduct(null, 200f, persistedFruit, null, "2kg", 195f));
         fruitProductList.add(
-                new FruitProduct(3L, 150f, persistedFruit, persistedOffer, "5kg", 135f));
+                new FruitProduct(null, 150f, persistedFruit, persistedOffer, "5kg", 135f));
         fruitProductList = fruitProductRepository.saveAllAndFlush(fruitProductList);
     }
 
@@ -86,12 +86,12 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
     void shouldCreateNewFruitProduct() throws Exception {
         Fruit fruit =
                 new Fruit(
-                        1L,
+                        null,
                         "https://raw.githubusercontent.com/GeoZac/static_iamge_dump/master/apple_image.png",
                         "Apple",
                         "Daily Fresh");
         Fruit persistedFruit = fruitRepository.saveAndFlush(fruit);
-        Offer offer = new Offer(1L, "0xffc62828", "50% OFF");
+        Offer offer = new Offer(null, "0xffc62828", "50% OFF");
         Offer persistedOffer = offerRepository.saveAndFlush(offer);
         FruitProduct fruitProduct =
                 new FruitProduct(null, 100.0f, persistedFruit, persistedOffer, "1kg", 95.0f);

@@ -6,7 +6,6 @@ import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_FAILED;
 import static com.unconv.spring.consts.MessageConstants.SENS_AUTH_TOKEN_GEN_SUCCESS;
 import static com.unconv.spring.consts.SensorAuthConstants.TOKEN_PREFIX;
-import static com.unconv.spring.enums.DefaultUserRole.UNCONV_USER;
 import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static com.unconv.spring.matchers.SensorAuthTokenMatcher.validSensorAuthToken;
 import static com.unconv.spring.utils.AccessTokenGenerator.generateAccessToken;
@@ -24,8 +23,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.unconv.spring.common.AbstractControllerTest;
-import com.unconv.spring.consts.AppConstants;
 import com.unconv.spring.domain.HumidityThreshold;
 import com.unconv.spring.domain.SensorAuthToken;
 import com.unconv.spring.domain.SensorLocation;
@@ -64,7 +60,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -72,19 +67,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.zalando.problem.jackson.ProblemModule;
-import org.zalando.problem.violations.ConstraintViolationProblemModule;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = SensorAuthTokenController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorAuthToken")
 @Import(MethodSecurityConfig.class)
 class SensorAuthTokenControllerTest extends AbstractControllerTest {
-    @MockBean private SensorAuthTokenService sensorAuthTokenService;
+    @MockitoBean private SensorAuthTokenService sensorAuthTokenService;
 
-    @MockBean private SensorSystemService sensorSystemService;
+    @MockitoBean private SensorSystemService sensorSystemService;
 
     private List<SensorAuthToken> sensorAuthTokenList;
 
@@ -111,20 +103,9 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
                     .build();
 
-    private static final int DEFAULT_PAGE_SIZE = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
-
-    private static int totalPages;
-
     @BeforeEach
     void setUp() {
-        mockMvc =
-                MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                        .defaultRequest(
-                                MockMvcRequestBuilders.get("/SensorAuthToken")
-                                        .with(user("username").roles(UNCONV_USER.name())))
-                        .apply(mockMvcRestDocumentationConfigurer)
-                        .apply(springSecurity())
-                        .build();
+        configureMockMvcWithObjectMapper();
 
         this.sensorAuthTokenList = new ArrayList<>();
         this.sensorAuthTokenList =
@@ -133,22 +114,19 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                         .ignore(field(SensorAuthToken::getId))
                         .create();
 
-        objectMapper.registerModule(new ProblemModule());
-        objectMapper.registerModule(new ConstraintViolationProblemModule());
-
-        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE);
+        totalPages = (int) Math.ceil((double) sensorAuthTokenList.size() / DEFAULT_PAGE_SIZE_INT);
     }
 
     @Test
     void shouldFetchAllSensorAuthTokens() throws Exception {
         int pageNo = 0;
         Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
-        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE, sort);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
 
         int dataSize = sensorAuthTokenList.size();
 
         int start = (int) pageRequest.getOffset();
-        int end = Math.min(start + DEFAULT_PAGE_SIZE, dataSize);
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
         List<SensorAuthToken> pagedReadings = sensorAuthTokenList.subList(start, end);
 
         Page<SensorAuthToken> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
@@ -156,14 +134,17 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
         PagedResult<SensorAuthToken> sensorAuthTokenPagedResult = new PagedResult<>(page);
         given(
                         sensorAuthTokenService.findAllSensorAuthTokens(
-                                pageNo, DEFAULT_PAGE_SIZE, DEFAULT_SORT_BY, DEFAULT_SORT_DIRECTION))
+                                pageNo,
+                                DEFAULT_PAGE_SIZE_INT,
+                                DEFAULT_SORT_BY,
+                                DEFAULT_SORT_DIRECTION))
                 .willReturn(sensorAuthTokenPagedResult);
 
         this.mockMvc
                 .perform(get("/SensorAuthToken"))
                 .andDo(document("shouldFetchAllSensorAuthTokens", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE, totalPages, true))
+                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE_INT, totalPages, true))
                 .andReturn();
     }
 

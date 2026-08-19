@@ -63,8 +63,8 @@ spring:
         password: null
     main:
         allow-bean-definition-overriding: true
-    mvc:
-        throw-exception-if-no-handler-found: true
+    # This property is deprecated: DispatcherServlet property is deprecated for removal and should no longer need to be configured
+        # throw-exception-if-no-handler-found: true
     thymeleaf:
         prefix: 'classpath:/templates/'
         suffix: .html
