@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneOffset;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -96,7 +97,7 @@ public class Passenger {
     private Booking booking;
 
     public void setAge(LocalDate dateOfBirth) {
-        LocalDate currentDate = LocalDate.now();
+        LocalDate currentDate = LocalDate.now(ZoneOffset.UTC);
         this.age = Period.between(dateOfBirth, currentDate).getYears();
     }
 
