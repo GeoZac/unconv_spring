@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         distribution: [ 'temurin' ]
-        java: [ '17' ]
+        java: [ '21' ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
