@@ -41,7 +41,7 @@ public class BaseEnvironmentalReadingDTO {
      * OffsetDateTime} to ensure the timestamp includes timezone offset information.
      */
     public void setTimestamp() {
-        this.timestamp = OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.UTC);
+        this.timestamp = OffsetDateTime.of(LocalDateTime.now(ZoneOffset.UTC), ZoneOffset.UTC);
     }
 
     /**
