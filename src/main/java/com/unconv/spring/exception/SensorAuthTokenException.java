@@ -1,6 +1,7 @@
 package com.unconv.spring.exception;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import lombok.Getter;
 
 /**
@@ -26,7 +27,7 @@ public class SensorAuthTokenException extends RuntimeException {
     public SensorAuthTokenException(String message, String token) {
         super(message);
         this.token = token;
-        this.time = OffsetDateTime.now();
+        this.time = OffsetDateTime.now(ZoneOffset.UTC);
         clipStackTrace();
     }
 
