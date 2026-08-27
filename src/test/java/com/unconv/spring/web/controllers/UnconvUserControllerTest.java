@@ -243,7 +243,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
-        String existingUserName = unconvUserList.get(0).getUsername();
+        String existingUserName = unconvUserList.getFirst().getUsername();
 
         given(unconvUserService.isUsernameUnique(existingUserName)).willReturn(false);
 

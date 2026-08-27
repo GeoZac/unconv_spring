@@ -309,7 +309,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorSystemDTOById() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         UUID sensorSystemId = sensorSystem.getId();
 
         this.mockMvc
@@ -324,7 +324,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorSystemDTOByIdWithReadingsPresent() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
                         .size(15)
@@ -352,7 +352,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorSystemBySensorName() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         String sensorSystemSensorName = sensorSystem.getSensorName();
 
         this.mockMvc
@@ -363,7 +363,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorSystemOfSpecificUnconvUserBySensorName() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         String sensorSystemSensorName = sensorSystem.getSensorName();
         UUID unconvUserId = sensorSystem.getUnconvUser().getId();
 
@@ -437,7 +437,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFetchRecentSensorReadingCountsWithReadingsPresent() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
                         .size(75)
@@ -655,7 +655,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
         UnconvUser minimalUnconvUser = new UnconvUser();
         minimalUnconvUser.setId(savedUnconvUser.getId());
 
-        UUID alreadyExistingUUID = sensorSystemList.get(0).getId();
+        UUID alreadyExistingUUID = sensorSystemList.getFirst().getId();
 
         SensorSystem sensorSystem =
                 new SensorSystem(alreadyExistingUUID, "New SensorSystem", null, minimalUnconvUser);
@@ -809,7 +809,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateSensorSystem() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         sensorSystem.setSensorName("Updated SensorSystem");
 
         this.mockMvc
@@ -827,7 +827,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateExistingSensorSystemWithNewThresholds() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
 
         assert sensorSystem.getHumidityThreshold() == null;
         assert sensorSystem.getTemperatureThreshold() == null;
@@ -852,7 +852,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteSensorSystem() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
 
         this.mockMvc
                 .perform(delete("/SensorSystem/{id}", sensorSystem.getId()).with(csrf()))
@@ -866,7 +866,7 @@ class SensorSystemControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldMarkSensorSystemAsDeletedWithReadingsPresent() throws Exception {
-        SensorSystem sensorSystem = sensorSystemList.get(0);
+        SensorSystem sensorSystem = sensorSystemList.getFirst();
         List<EnvironmentalReading> environmentalReadingsOfSpecificSensor =
                 Instancio.ofList(environemntalReadingModel)
                         .size(15)

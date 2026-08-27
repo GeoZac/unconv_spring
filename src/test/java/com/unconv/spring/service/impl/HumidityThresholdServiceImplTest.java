@@ -59,7 +59,7 @@ class HumidityThresholdServiceImplTest {
                         pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(humidityThresholdList.size(), result.data().size());
-        assertEquals(humidityThresholdList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(humidityThresholdList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -80,7 +80,7 @@ class HumidityThresholdServiceImplTest {
                         pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(humidityThresholdList.size(), result.data().size());
-        assertEquals(humidityThresholdList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(humidityThresholdList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

@@ -109,7 +109,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindHumidityThresholdById() throws Exception {
-        HumidityThreshold humidityThreshold = humidityThresholdList.get(0);
+        HumidityThreshold humidityThreshold = humidityThresholdList.getFirst();
         UUID humidityThresholdId = humidityThreshold.getId();
 
         this.mockMvc
@@ -248,7 +248,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateHumidityThreshold() throws Exception {
-        HumidityThreshold humidityThreshold = humidityThresholdList.get(0);
+        HumidityThreshold humidityThreshold = humidityThresholdList.getFirst();
         humidityThreshold.setMaxValue(50);
 
         this.mockMvc
@@ -277,7 +277,7 @@ class HumidityThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteHumidityThreshold() throws Exception {
-        HumidityThreshold humidityThreshold = humidityThresholdList.get(0);
+        HumidityThreshold humidityThreshold = humidityThresholdList.getFirst();
 
         this.mockMvc
                 .perform(delete("/HumidityThreshold/{id}", humidityThreshold.getId()).with(csrf()))

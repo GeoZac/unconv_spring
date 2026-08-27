@@ -50,7 +50,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindHeaterById() throws Exception {
-        Heater heater = heaterList.get(0);
+        Heater heater = heaterList.getFirst();
         Long heaterId = heater.getId();
 
         this.mockMvc
@@ -101,7 +101,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateHeater() throws Exception {
-        Heater heater = heaterList.get(0);
+        Heater heater = heaterList.getFirst();
         heater.setTemperature(27F);
 
         this.mockMvc
@@ -116,7 +116,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenUpdatingInvalidHeater() throws Exception {
-        Heater updatedHeater = heaterList.get(0);
+        Heater updatedHeater = heaterList.getFirst();
         updatedHeater.setTempTolerance(null);
         updatedHeater.setTempTolerance(null);
 
@@ -145,7 +145,7 @@ class HeaterControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteHeater() throws Exception {
-        Heater heater = heaterList.get(0);
+        Heater heater = heaterList.getFirst();
 
         this.mockMvc
                 .perform(delete("/Heater/{id}", heater.getId()).with(csrf()))

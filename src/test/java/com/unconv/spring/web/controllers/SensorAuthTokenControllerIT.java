@@ -128,7 +128,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorAuthTokenById() throws Exception {
-        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.getFirst();
         UUID sensorAuthTokenId = sensorAuthToken.getId();
 
         this.mockMvc
@@ -197,7 +197,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateSensorAuthToken() throws Exception {
-        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.getFirst();
         sensorAuthToken.setAuthToken("Updated SensorAuthToken");
         sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(100));
 
@@ -215,7 +215,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteSensorAuthToken() throws Exception {
-        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.get(0);
+        SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.getFirst();
 
         this.mockMvc
                 .perform(delete("/SensorAuthToken/{id}", sensorAuthToken.getId()).with(csrf()))
