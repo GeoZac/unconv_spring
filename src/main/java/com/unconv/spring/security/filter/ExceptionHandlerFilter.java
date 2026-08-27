@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -55,7 +56,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             Map<String, String> errorDetailMap = new HashMap<>();
             errorDetailMap.put("title", "Unauthorized");
             errorDetailMap.put("detail", "Token validation failed");
-            errorDetailMap.put("timestamp", OffsetDateTime.now().toString());
+            errorDetailMap.put("timestamp", OffsetDateTime.now(ZoneOffset.UTC).toString());
 
             response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetailMap));
         } catch (SensorAuthTokenException e) {
@@ -71,7 +72,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
                             "title", "Internal Server Error",
                             "detail",
                                     "An unexpected runtime error occurred. The issue has been logged.",
-                            "timestamp", OffsetDateTime.now().toString());
+                            "timestamp", OffsetDateTime.now(ZoneOffset.UTC).toString());
 
             String jsonResponse = new ObjectMapper().writeValueAsString(errorDetails);
             response.getWriter().write(jsonResponse);
