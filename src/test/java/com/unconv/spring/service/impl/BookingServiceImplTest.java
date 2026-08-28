@@ -55,7 +55,7 @@ class BookingServiceImplTest {
                 bookingService.findAllBookings(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(bookingList.size(), result.data().size());
-        assertEquals(bookingList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(bookingList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -73,7 +73,7 @@ class BookingServiceImplTest {
                 bookingService.findAllBookings(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(bookingList.size(), result.data().size());
-        assertEquals(bookingList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(bookingList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

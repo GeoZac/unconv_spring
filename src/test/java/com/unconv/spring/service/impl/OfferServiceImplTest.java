@@ -46,7 +46,7 @@ class OfferServiceImplTest {
         List<Offer> result = offerService.findAllOffers();
 
         assertEquals(offerList.size(), result.size());
-        assertEquals(offerList.get(0).getId(), result.get(0).getId());
+        assertEquals(offerList.getFirst().getId(), result.getFirst().getId());
     }
 
     @Test

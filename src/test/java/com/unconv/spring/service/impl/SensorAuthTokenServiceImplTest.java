@@ -62,7 +62,7 @@ class SensorAuthTokenServiceImplTest {
                 sensorAuthTokenService.findAllSensorAuthTokens(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorAuthTokenList.size(), result.data().size());
-        assertEquals(sensorAuthTokenList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorAuthTokenList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -81,7 +81,7 @@ class SensorAuthTokenServiceImplTest {
                 sensorAuthTokenService.findAllSensorAuthTokens(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorAuthTokenList.size(), result.data().size());
-        assertEquals(sensorAuthTokenList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorAuthTokenList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -261,7 +261,7 @@ class SensorAuthTokenServiceImplTest {
 
         List<String> allGenerated = captor.getAllValues();
 
-        assertNotEquals(allGenerated.get(0), allGenerated.get(1));
+        assertNotEquals(allGenerated.getFirst(), allGenerated.get(1));
 
         assertEquals(allGenerated.get(1), result);
     }

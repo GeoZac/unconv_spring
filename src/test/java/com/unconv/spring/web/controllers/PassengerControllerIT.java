@@ -112,7 +112,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindPassengerById() throws Exception {
-        Passenger passenger = passengerList.get(0);
+        Passenger passenger = passengerList.getFirst();
         Long passengerId = passenger.getId();
 
         this.mockMvc
@@ -123,7 +123,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindPassengerByByFirstNameIgnoringCase() throws Exception {
-        Passenger passenger = passengerList.get(0);
+        Passenger passenger = passengerList.getFirst();
         String passengerName = passenger.getFirstName().toLowerCase();
 
         this.mockMvc
@@ -173,7 +173,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdatePassenger() throws Exception {
-        Passenger passenger = passengerList.get(0);
+        Passenger passenger = passengerList.getFirst();
         passenger.setFirstName("Updated Passenger");
 
         this.mockMvc
@@ -216,7 +216,7 @@ class PassengerControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeletePassenger() throws Exception {
-        Passenger passenger = passengerList.get(0);
+        Passenger passenger = passengerList.getFirst();
 
         this.mockMvc
                 .perform(delete("/Passenger/{id}", passenger.getId()).with(csrf()))

@@ -143,7 +143,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     // TODO Add test with USER access
     @Test
     void shouldFindUnconvRoleById() throws Exception {
-        UnconvRole unconvRole = unconvRoleList.get(0);
+        UnconvRole unconvRole = unconvRoleList.getFirst();
         UUID unconvRoleId = unconvRole.getId();
 
         this.mockMvc
@@ -209,7 +209,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     // TODO Add test with USER access
     @Test
     void shouldUpdateUnconvRole() throws Exception {
-        UnconvRole unconvRole = unconvRoleList.get(0);
+        UnconvRole unconvRole = unconvRoleList.getFirst();
         unconvRole.setName("Updated UnconvRole");
 
         this.mockMvc
@@ -234,7 +234,7 @@ class UnconvRoleControllerIT extends AbstractIntegrationTest {
     // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvRole() throws Exception {
-        UnconvRole unconvRole = unconvRoleList.get(0);
+        UnconvRole unconvRole = unconvRoleList.getFirst();
 
         this.mockMvc
                 .perform(

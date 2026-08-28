@@ -73,7 +73,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindRouteById() throws Exception {
-        Route route = routeList.get(0);
+        Route route = routeList.getFirst();
         Long routeId = route.getId();
 
         this.mockMvc
@@ -122,7 +122,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateRoute() throws Exception {
-        Route route = routeList.get(0);
+        Route route = routeList.getFirst();
         route.setText("Updated Route");
 
         this.mockMvc
@@ -137,7 +137,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteRoute() throws Exception {
-        Route route = routeList.get(0);
+        Route route = routeList.getFirst();
 
         this.mockMvc
                 .perform(delete("/Route/{id}", route.getId()).with(csrf()))
@@ -167,7 +167,7 @@ class RouteControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenUpdatingInvalidRoute() throws Exception {
-        Route updatedRoute = routeList.get(0);
+        Route updatedRoute = routeList.getFirst();
         updatedRoute.setText(null);
 
         this.mockMvc

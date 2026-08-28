@@ -46,7 +46,7 @@ class HeaterServiceImplTest {
         List<Heater> result = heaterService.findAllHeaters();
 
         assertEquals(heaterList.size(), result.size());
-        assertEquals(heaterList.get(0).getId(), result.get(0).getId());
+        assertEquals(heaterList.getFirst().getId(), result.getFirst().getId());
     }
 
     @Test
