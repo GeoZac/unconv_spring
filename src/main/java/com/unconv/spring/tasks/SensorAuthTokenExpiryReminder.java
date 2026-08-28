@@ -5,6 +5,7 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.external.EmailClient;
 import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -142,7 +143,7 @@ public class SensorAuthTokenExpiryReminder {
      * @return true if the token has expired or expires at the current time, false otherwise
      */
     private boolean isTokenExpired(SensorAuthToken token) {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime expiry = token.getExpiry();
         // Check if token has already expired
         return expiry.isBefore(now) || expiry.equals(now);
@@ -159,7 +160,7 @@ public class SensorAuthTokenExpiryReminder {
      * @return true if the token expires within one month and has not yet expired, false otherwise
      */
     private boolean isExpiringWithinOneMonth(SensorAuthToken token) {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime expiry = token.getExpiry();
         // Check if token has not yet expired and will expire within one month
         return expiry.isAfter(now) && ChronoUnit.MONTHS.between(now, expiry) < 1;
