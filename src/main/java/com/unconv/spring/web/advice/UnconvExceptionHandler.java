@@ -1,6 +1,7 @@
 package com.unconv.spring.web.advice;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -45,7 +46,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now(ZoneOffset.UTC))
                         .withTitle("Insufficient Authentication")
                         .withStatus(Status.UNAUTHORIZED)
                         .withDetail("Authentication required to access this endpoint")
@@ -77,7 +78,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now(ZoneOffset.UTC))
                         .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("Invalid property reference: " + ex.getPropertyName())
@@ -104,7 +105,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now(ZoneOffset.UTC))
                         .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail("The provided string is not a valid UUID")
@@ -135,7 +136,7 @@ public class UnconvExceptionHandler implements ProblemHandling {
 
         Problem problem =
                 Problem.builder()
-                        .with(TIMESTAMP, OffsetDateTime.now())
+                        .with(TIMESTAMP, OffsetDateTime.now(ZoneOffset.UTC))
                         .withTitle(BAD_REQ_TITLE)
                         .withStatus(Status.BAD_REQUEST)
                         .withDetail(ex.getMessage())
