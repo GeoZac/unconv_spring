@@ -15,6 +15,7 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.external.EmailClient;
 import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.instancio.Instancio;
@@ -203,7 +204,7 @@ class SensorAuthTokenExpiryReminderTest {
         OffsetDateTime fixedNow = OffsetDateTime.parse("2026-03-16T12:00:00Z");
 
         try (MockedStatic<OffsetDateTime> mockedNow = Mockito.mockStatic(OffsetDateTime.class)) {
-            mockedNow.when(OffsetDateTime::now).thenReturn(fixedNow);
+            mockedNow.when(() -> OffsetDateTime.now(ZoneOffset.UTC)).thenReturn(fixedNow);
 
             UnconvUser mockUser = new UnconvUser();
             mockUser.setUsername("jane_doe");
