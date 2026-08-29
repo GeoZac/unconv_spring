@@ -13,6 +13,7 @@ import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.service.UnconvUserService;
 import jakarta.validation.Valid;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -138,7 +139,7 @@ public class EnvironmentalReadingController {
                 .findSensorSystemById(sensorSystemId)
                 .map(
                         sensorSystem -> {
-                            OffsetDateTime now = OffsetDateTime.now();
+                            OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
                             OffsetDateTime startTime;
 
                             startTime = hours != null ? now.minusHours(hours) : now.minusDays(1);
