@@ -59,7 +59,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailWhenTokenExpiresThisMonth() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime expiry = now.plusDays(10); // within the same month
 
         UnconvUser mockUser = new UnconvUser();
@@ -93,7 +93,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailForTokensAcrossMultiplePages() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         // Create 15 tokens expiring this month
         List<SensorAuthToken> allTokens =
@@ -133,7 +133,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailForExpiringTokensAcrossMultiplePages() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         UUID userIdForMultipleExpiringTokens = UUID.randomUUID();
         UnconvUser user =
@@ -173,7 +173,7 @@ class SensorAuthTokenExpiryReminderTest {
     @Test
     void shouldNotSendEmailWhenTokenDoesNotExpireThisMonth() {
 
-        OffsetDateTime expiry = OffsetDateTime.now().plusMonths(2);
+        OffsetDateTime expiry = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(2);
 
         UnconvUser mockUser = new UnconvUser();
         mockUser.setUsername("jane_doe");
@@ -236,7 +236,7 @@ class SensorAuthTokenExpiryReminderTest {
     @Test
     void shouldNotSendEmailWhenTokenDoesNotExpiredMonthsAgo() {
 
-        OffsetDateTime expiry = OffsetDateTime.now().minusMonths(2);
+        OffsetDateTime expiry = OffsetDateTime.now(ZoneOffset.UTC).minusMonths(2);
 
         UnconvUser mockUser = new UnconvUser();
         mockUser.setUsername("jane_doe");
@@ -264,7 +264,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailForExpiredTokensAcrossMultiplePages() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         UUID userIdForMultipleExpiredTokens = UUID.randomUUID();
         UnconvUser user =
