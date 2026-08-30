@@ -109,8 +109,12 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                     .unconvUser(mUnconvUser)
                     .humidityThreshold(new HumidityThreshold(UUID.randomUUID(), 75, 23))
                     .temperatureThreshold(new TemperatureThreshold(UUID.randomUUID(), 100, 0))
-                    .createdDate(OffsetDateTime.now().minusDays(new Random().nextLong(365)))
-                    .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
+                    .createdDate(
+                            OffsetDateTime.now(ZoneOffset.UTC)
+                                    .minusDays(new Random().nextLong(365)))
+                    .updatedDate(
+                            OffsetDateTime.now(ZoneOffset.UTC)
+                                    .minusHours(new Random().nextLong(24)))
                     .build();
 
     private static final Model<EnvironmentalReading> environemntalReadingModel =
@@ -359,13 +363,13 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
                 .willReturn(
                         new ExtremeReadingsResponse(
                                 new MockEnvironmentalReadingProjection(
-                                        64.0, 34.0, OffsetDateTime.now()),
+                                        64.0, 34.0, OffsetDateTime.now(ZoneOffset.UTC)),
                                 new MockEnvironmentalReadingProjection(
-                                        46.0, 34.0, OffsetDateTime.now()),
+                                        46.0, 34.0, OffsetDateTime.now(ZoneOffset.UTC)),
                                 new MockEnvironmentalReadingProjection(
-                                        55.0, 76.0, OffsetDateTime.now()),
+                                        55.0, 76.0, OffsetDateTime.now(ZoneOffset.UTC)),
                                 new MockEnvironmentalReadingProjection(
-                                        55.0, 67.0, OffsetDateTime.now())));
+                                        55.0, 67.0, OffsetDateTime.now(ZoneOffset.UTC))));
 
         this.mockMvc
                 .perform(
@@ -768,7 +772,11 @@ class EnvironmentalReadingControllerTest extends AbstractControllerTest {
     void shouldReturn400WhenCreateNewEnvironmentalReadingWithTimestampInFuture() throws Exception {
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        null, -3L, 53L, OffsetDateTime.now().plusDays(2), mSensorSystem);
+                        null,
+                        -3L,
+                        53L,
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(2),
+                        mSensorSystem);
 
         this.mockMvc
                 .perform(
