@@ -74,7 +74,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindOrderProductById() throws Exception {
-        OrderProduct orderProduct = orderProductList.get(0);
+        OrderProduct orderProduct = orderProductList.getFirst();
         UUID orderProductId = orderProduct.getId();
 
         this.mockMvc
@@ -124,7 +124,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateOrderProduct() throws Exception {
-        OrderProduct orderProduct = orderProductList.get(0);
+        OrderProduct orderProduct = orderProductList.getFirst();
         orderProduct.setText("Updated OrderProduct");
 
         this.mockMvc
@@ -140,7 +140,7 @@ class OrderProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteOrderProduct() throws Exception {
-        OrderProduct orderProduct = orderProductList.get(0);
+        OrderProduct orderProduct = orderProductList.getFirst();
 
         this.mockMvc
                 .perform(delete("/OrderProduct/{id}", orderProduct.getId()).with(csrf()))

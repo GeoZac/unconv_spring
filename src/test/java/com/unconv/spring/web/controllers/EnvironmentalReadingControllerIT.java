@@ -181,7 +181,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFetchAllEnvironmentalReadingsInAscendingOrderWithinMaxPageSize() throws Exception {
-        SensorSystem sensorSystem = environmentalReadingList.get(0).getSensorSystem();
+        SensorSystem sensorSystem = environmentalReadingList.getFirst().getSensorSystem();
 
         environmentalReadingList =
                 Instancio.ofList(environemntalReadingModel)
@@ -471,7 +471,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindEnvironmentalReadingById() throws Exception {
-        EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
+        EnvironmentalReading environmentalReading = environmentalReadingList.getFirst();
         UUID environmentalReadingId = environmentalReading.getId();
 
         this.mockMvc
@@ -531,7 +531,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReading() throws Exception {
-        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UUID alreadyExistingUUID = environmentalReadingList.getFirst().getId();
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         unconvUser.setUnconvRoles(unconvRoleSet);
@@ -564,7 +564,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewEnvironmentalReadingWithSensorAuthToken() throws Exception {
-        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UUID alreadyExistingUUID = environmentalReadingList.getFirst().getId();
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         UnconvUser savedUnconvUser =
@@ -649,7 +649,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturn401CreatingNewEnvironmentalReadingWithInvalidSensorAuthToken()
             throws Exception {
-        UUID alreadyExistingUUID = environmentalReadingList.get(0).getId();
+        UUID alreadyExistingUUID = environmentalReadingList.getFirst().getId();
         UnconvUser unconvUser =
                 new UnconvUser(null, "UnconvUser", "unconvuser@email.com", "password");
         UnconvUser savedUnconvUser =
@@ -1357,7 +1357,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateEnvironmentalReading() throws Exception {
-        EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
+        EnvironmentalReading environmentalReading = environmentalReadingList.getFirst();
         environmentalReading.setTemperature(45L);
 
         this.mockMvc
@@ -1375,7 +1375,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteEnvironmentalReading() throws Exception {
-        EnvironmentalReading environmentalReading = environmentalReadingList.get(0);
+        EnvironmentalReading environmentalReading = environmentalReadingList.getFirst();
 
         this.mockMvc
                 .perform(

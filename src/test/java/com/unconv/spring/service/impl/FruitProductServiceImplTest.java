@@ -46,7 +46,7 @@ class FruitProductServiceImplTest {
         List<FruitProduct> result = fruitProductService.findAllFruitProducts();
 
         assertEquals(fruitProductList.size(), result.size());
-        assertEquals(fruitProductList.get(0).getId(), result.get(0).getId());
+        assertEquals(fruitProductList.getFirst().getId(), result.getFirst().getId());
     }
 
     @Test

@@ -64,7 +64,7 @@ class PassengerServiceImplTest {
                 passengerService.findAllPassengers(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(passengerList.size(), result.data().size());
-        assertEquals(passengerList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(passengerList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -82,7 +82,7 @@ class PassengerServiceImplTest {
                 passengerService.findAllPassengers(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(passengerList.size(), result.data().size());
-        assertEquals(passengerList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(passengerList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

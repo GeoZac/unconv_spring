@@ -108,7 +108,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindBookingById() throws Exception {
-        Booking booking = bookingList.get(0);
+        Booking booking = bookingList.getFirst();
         Long bookingId = booking.getId();
 
         this.mockMvc
@@ -160,7 +160,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateBooking() throws Exception {
-        Booking booking = bookingList.get(0);
+        Booking booking = bookingList.getFirst();
         booking.setBookingReference("Updated Booking");
 
         this.mockMvc
@@ -175,7 +175,7 @@ class BookingControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteBooking() throws Exception {
-        Booking booking = bookingList.get(0);
+        Booking booking = bookingList.getFirst();
 
         this.mockMvc
                 .perform(delete("/Booking/{id}", booking.getId()).with(csrf()))
