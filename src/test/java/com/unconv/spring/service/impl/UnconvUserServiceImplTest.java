@@ -64,7 +64,7 @@ class UnconvUserServiceImplTest {
                 unconvUserService.findAllUnconvUsers(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(unconvUserList.size(), result.data().size());
-        assertEquals(unconvUserList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(unconvUserList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -82,7 +82,7 @@ class UnconvUserServiceImplTest {
                 unconvUserService.findAllUnconvUsers(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(unconvUserList.size(), result.data().size());
-        assertEquals(unconvUserList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(unconvUserList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

@@ -174,7 +174,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindSensorLocationById() throws Exception {
-        SensorLocation sensorLocation = sensorLocationList.get(0);
+        SensorLocation sensorLocation = sensorLocationList.getFirst();
         UUID sensorLocationId = sensorLocation.getId();
 
         this.mockMvc
@@ -189,7 +189,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenFetchingSensorLocationByMalformedId() throws Exception {
-        SensorLocation sensorLocation = sensorLocationList.get(0);
+        SensorLocation sensorLocation = sensorLocationList.getFirst();
         String sensorLocationId = sensorLocation.getId().toString().replace("-", "");
 
         this.mockMvc
@@ -220,7 +220,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewSensorLocationEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
-        UUID alreadyExistingUUID = sensorLocationList.get(0).getId();
+        UUID alreadyExistingUUID = sensorLocationList.getFirst().getId();
 
         SensorLocation sensorLocation =
                 new SensorLocation(
@@ -335,7 +335,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateSensorLocation() throws Exception {
-        SensorLocation sensorLocation = sensorLocationList.get(0);
+        SensorLocation sensorLocation = sensorLocationList.getFirst();
         sensorLocation.setSensorLocationText("Updated SensorLocation");
 
         this.mockMvc
@@ -354,7 +354,7 @@ class SensorLocationControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteSensorLocation() throws Exception {
-        SensorLocation sensorLocation = sensorLocationList.get(0);
+        SensorLocation sensorLocation = sensorLocationList.getFirst();
 
         this.mockMvc
                 .perform(delete("/SensorLocation/{id}", sensorLocation.getId()).with(csrf()))

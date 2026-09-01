@@ -89,7 +89,7 @@ class SensorSystemServiceImplTest {
                 sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorSystemList.size(), result.data().size());
-        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorSystemList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -107,7 +107,7 @@ class SensorSystemServiceImplTest {
                 sensorSystemService.findAllSensorSystems(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorSystemList.size(), result.data().size());
-        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorSystemList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -128,7 +128,7 @@ class SensorSystemServiceImplTest {
                         UUID.randomUUID(), pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorSystemList.size(), result.data().size());
-        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorSystemList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -167,7 +167,7 @@ class SensorSystemServiceImplTest {
                         UUID.randomUUID(), pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorSystemList.size(), result.data().size());
-        assertEquals(sensorSystemList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorSystemList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

@@ -50,7 +50,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindOfferById() throws Exception {
-        Offer offer = offerList.get(0);
+        Offer offer = offerList.getFirst();
         Long offerId = offer.getId();
 
         this.mockMvc
@@ -126,7 +126,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateOffer() throws Exception {
-        Offer offer = offerList.get(0);
+        Offer offer = offerList.getFirst();
         offer.setBadgeColor("0xff000000");
         offer.setDescription("33% OFF");
 
@@ -142,7 +142,7 @@ class OfferControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteOffer() throws Exception {
-        Offer offer = offerList.get(0);
+        Offer offer = offerList.getFirst();
 
         this.mockMvc
                 .perform(delete("/Offer/{id}", offer.getId()).with(csrf()))

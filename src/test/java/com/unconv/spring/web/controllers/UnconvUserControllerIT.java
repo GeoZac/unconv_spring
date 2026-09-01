@@ -146,7 +146,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     // TODO Add test with USER access
     @Test
     void shouldFindUnconvUserById() throws Exception {
-        UnconvUser unconvUser = unconvUserList.get(0);
+        UnconvUser unconvUser = unconvUserList.getFirst();
         UUID unconvUserId = unconvUser.getId();
 
         this.mockMvc
@@ -176,7 +176,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturnFalseWhenRegisteredUnconvUserIsCheckedIfAvailable() throws Exception {
-        String existingUserName = unconvUserList.get(0).getUsername();
+        String existingUserName = unconvUserList.getFirst().getUsername();
 
         this.mockMvc
                 .perform(get("/UnconvUser/Username/Available/{username}", existingUserName))
@@ -215,7 +215,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateNewUnconvUserEvenIfAlreadyExistingPrimaryKeyInRequest() throws Exception {
-        UUID alreadyExistingUUID = unconvUserList.get(0).getId();
+        UUID alreadyExistingUUID = unconvUserList.getFirst().getId();
         UnconvUser unconvUser =
                 new UnconvUser(
                         alreadyExistingUUID,
@@ -290,7 +290,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     void shouldFailLoginAsUserAndNotReceiveJWToken() throws Exception {
 
         UnconvUser userToLogin = new UnconvUser();
-        userToLogin.setUsername(unconvUserList.get(0).getUsername());
+        userToLogin.setUsername(unconvUserList.getFirst().getUsername());
         userToLogin.setPassword("JTIzIdXRoh");
 
         UnconvUserDTO unconvUserDTO = modelMapper.map(userToLogin, UnconvUserDTO.class);
@@ -379,7 +379,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateUnconvUser() throws Exception {
-        UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
+        UnconvUserDTO unconvUserDTO = unconvUserDTOList.getFirst();
         unconvUserDTO.setUsername("UpdatedUnconvUser");
         unconvUserDTO.setEmail("whodis_newemail@provider.com");
         unconvUserDTO.setCurrentPassword(unconvUserDTO.getPassword());
@@ -402,7 +402,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn401AndFailToUpdateUnconvUserWhenProvidedPasswordDoNotMatch() throws Exception {
-        UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
+        UnconvUserDTO unconvUserDTO = unconvUserDTOList.getFirst();
         unconvUserDTO.setUsername("UpdatedUnconvUser");
         unconvUserDTO.setCurrentPassword(
                 RandomStringUtils.secure().next(unconvUserDTO.getPassword().length()));
@@ -423,7 +423,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400FailToUpdateUnconvUserWhenCurrentPasswordIsNotProvided() throws Exception {
-        UnconvUserDTO unconvUserDTO = unconvUserDTOList.get(0);
+        UnconvUserDTO unconvUserDTO = unconvUserDTOList.getFirst();
         unconvUserDTO.setUsername("UpdatedUnconvUser");
         unconvUserDTO.setCurrentPassword(null);
         unconvUserDTO.setPassword("UpdatedPas$w0rd");
@@ -444,7 +444,7 @@ class UnconvUserControllerIT extends AbstractIntegrationTest {
     // TODO Add test with USER access
     @Test
     void shouldDeleteUnconvUser() throws Exception {
-        UnconvUser unconvUser = unconvUserList.get(0);
+        UnconvUser unconvUser = unconvUserList.getFirst();
 
         this.mockMvc
                 .perform(

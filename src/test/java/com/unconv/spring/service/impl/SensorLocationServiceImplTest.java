@@ -58,7 +58,7 @@ class SensorLocationServiceImplTest {
                 sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorLocationList.size(), result.data().size());
-        assertEquals(sensorLocationList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorLocationList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -76,7 +76,7 @@ class SensorLocationServiceImplTest {
                 sensorLocationService.findAllSensorLocations(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(sensorLocationList.size(), result.data().size());
-        assertEquals(sensorLocationList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(sensorLocationList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -91,7 +91,7 @@ class SensorLocationServiceImplTest {
                 sensorLocationService.findAllSensorLocationsByUnconvUserId(unconvUserId);
 
         assertEquals(sensorLocationList.size(), result.size());
-        assertEquals(sensorLocationList.get(0).getId(), result.get(0).getId());
+        assertEquals(sensorLocationList.getFirst().getId(), result.getFirst().getId());
     }
 
     @Test

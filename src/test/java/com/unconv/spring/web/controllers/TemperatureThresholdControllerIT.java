@@ -110,7 +110,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindTemperatureThresholdById() throws Exception {
-        TemperatureThreshold temperatureThreshold = temperatureThresholdList.get(0);
+        TemperatureThreshold temperatureThreshold = temperatureThresholdList.getFirst();
         UUID temperatureThresholdId = temperatureThreshold.getId();
 
         this.mockMvc
@@ -255,7 +255,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateTemperatureThreshold() throws Exception {
-        TemperatureThreshold temperatureThreshold = temperatureThresholdList.get(0);
+        TemperatureThreshold temperatureThreshold = temperatureThresholdList.getFirst();
         temperatureThreshold.setMaxValue(50);
 
         this.mockMvc
@@ -284,7 +284,7 @@ class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteTemperatureThreshold() throws Exception {
-        TemperatureThreshold temperatureThreshold = temperatureThresholdList.get(0);
+        TemperatureThreshold temperatureThreshold = temperatureThresholdList.getFirst();
 
         this.mockMvc
                 .perform(

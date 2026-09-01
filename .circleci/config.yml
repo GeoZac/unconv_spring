@@ -43,11 +43,11 @@ jobs:
       - attach_workspace:
           at: /tmp/spring
       - run:
-          name: Install OpenJDK 17
+          name: Install OpenJDK 21
           command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            sudo apt-get update && sudo apt-get install openjdk-21-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-21-openjdk-amd64/bin/javac
             java -version
       - restore_cache:
           keys:
@@ -67,11 +67,11 @@ jobs:
       - attach_workspace:
           at: /tmp/spring
       - run:
-          name: Install OpenJDK 17
+          name: Install OpenJDK 21
           command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            sudo apt-get update && sudo apt-get install openjdk-21-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-21-openjdk-amd64/bin/javac
             java -version
       - restore_cache:
           keys:
@@ -96,7 +96,7 @@ jobs:
 
   smoke_test:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:21.0
     steps:
       - checkout
       - restore_cache:
@@ -142,11 +142,11 @@ jobs:
       - attach_workspace:
           at: /tmp/spring
       - run:
-          name: Install OpenJDK 17
+          name: Install OpenJDK 21
           command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            sudo apt-get update && sudo apt-get install openjdk-21-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-21-openjdk-amd64/bin/javac
             java -version
       - restore_cache:
           keys:
@@ -185,11 +185,11 @@ jobs:
       - attach_workspace:
           at: /tmp/spring
       - run:
-          name: Install OpenJDK 17
+          name: Install OpenJDK 21
           command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            sudo apt-get update && sudo apt-get install openjdk-21-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-21-openjdk-amd64/bin/javac
             java -version
       - restore_cache:
           keys:

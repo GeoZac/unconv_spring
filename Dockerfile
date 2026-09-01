@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-focal AS build
+FROM eclipse-temurin:21-jdk-noble AS build
 WORKDIR /application
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
@@ -8,13 +8,13 @@ COPY src/main/resources ./src/main/resources
 COPY sonar-project.properties ./
 RUN ./mvnw package -DskipTests
 
-FROM eclipse-temurin:17-jre-focal AS builder
+FROM eclipse-temurin:21-jre-noble AS builder
 WORKDIR /application
 COPY --from=build /application/target/*.jar application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 # the third stage of our build will copy the extracted layers
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 ARG PORT=8080
 WORKDIR /application
 COPY --from=builder application/dependencies/ ./

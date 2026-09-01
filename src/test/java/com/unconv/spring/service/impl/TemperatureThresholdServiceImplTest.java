@@ -60,7 +60,7 @@ class TemperatureThresholdServiceImplTest {
                         pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(temperatureThresholdList.size(), result.data().size());
-        assertEquals(temperatureThresholdList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(temperatureThresholdList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -82,7 +82,7 @@ class TemperatureThresholdServiceImplTest {
                         pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(temperatureThresholdList.size(), result.data().size());
-        assertEquals(temperatureThresholdList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(temperatureThresholdList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

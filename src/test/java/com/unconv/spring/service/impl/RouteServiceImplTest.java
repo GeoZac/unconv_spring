@@ -54,7 +54,7 @@ class RouteServiceImplTest {
         PagedResult<Route> result = routeService.findAllRoutes(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(routeList.size(), result.data().size());
-        assertEquals(routeList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(routeList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -71,7 +71,7 @@ class RouteServiceImplTest {
         PagedResult<Route> result = routeService.findAllRoutes(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(routeList.size(), result.data().size());
-        assertEquals(routeList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(routeList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

@@ -9,13 +9,13 @@ jobs:
     strategy:
       matrix:
         distribution: [ 'temurin' ]
-        java: [ '17' ]
+        java: [ '21' ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v4.2.0
+        uses: docker/setup-buildx-action@v4.3.0
 
       - name: Build for test
         uses: docker/build-push-action@v7.3.0
