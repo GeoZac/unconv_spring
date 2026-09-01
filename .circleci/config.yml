@@ -156,8 +156,17 @@ jobs:
           name: Run CheckStyle
           command: ./mvnw checkstyle:checkstyle
       - run:
-          name: Analyze on SonarCloud
-          command: ./mvnw verify sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
+          name: Parallel Build & SonarCloud Analysis
+          command: |
+            # 1. Expand the JVM heap so Maven can safely use your empty 15 GB RAM
+            export MAVEN_OPTS="-Xmx10g -XX:+UseG1GC"
+            
+            # 2. Multithread compile, test, and verification using all 4 cores (-T 1C)
+            # We explicitly skip Sonar during the parallel testing loop
+            ./mvnw clean verify -T 1C -Dsonar.skip=true
+            
+            # 3. Execute Sonar analysis sequentially utilizing pre-compiled artifacts
+            ./mvnw sonar:sonar -Dsonar.projectKey=GeoZac_unconv_spring
       - codecov/upload:
             files: target/jacoco/test/jacoco.xml
             flags: controllers_test
@@ -174,6 +183,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
+
 
   doc:
     machine:
