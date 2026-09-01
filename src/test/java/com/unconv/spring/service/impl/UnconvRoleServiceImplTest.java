@@ -59,7 +59,7 @@ class UnconvRoleServiceImplTest {
                 unconvRoleService.findAllUnconvRoles(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(unconvRoleList.size(), result.data().size());
-        assertEquals(unconvRoleList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(unconvRoleList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -77,7 +77,7 @@ class UnconvRoleServiceImplTest {
                 unconvRoleService.findAllUnconvRoles(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(unconvRoleList.size(), result.data().size());
-        assertEquals(unconvRoleList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(unconvRoleList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test

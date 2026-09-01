@@ -104,7 +104,7 @@ public class SensorAuthTokenExpiryReminder {
             tokensByUser.forEach(
                     (user, tokens) -> {
                         if (tokens.size() == 1) {
-                            sendReminderEmail(tokens.get(0));
+                            sendReminderEmail(tokens.getFirst());
                         } else {
                             sendBulkReminderEmail(user, tokens);
                         }
@@ -123,7 +123,7 @@ public class SensorAuthTokenExpiryReminder {
             expiredTokensByUser.forEach(
                     (user, tokens) -> {
                         if (tokens.size() == 1) {
-                            sendExpiredTokenEmail(tokens.get(0));
+                            sendExpiredTokenEmail(tokens.getFirst());
                         } else {
                             sendBulkExpiredTokenEmail(user, tokens);
                         }

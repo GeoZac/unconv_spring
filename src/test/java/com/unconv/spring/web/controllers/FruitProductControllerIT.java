@@ -73,7 +73,7 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldFindFruitProductById() throws Exception {
-        FruitProduct fruitProduct = fruitProductList.get(0);
+        FruitProduct fruitProduct = fruitProductList.getFirst();
         Long fruitProductId = fruitProduct.getId();
 
         this.mockMvc
@@ -131,7 +131,7 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldUpdateFruitProduct() throws Exception {
-        FruitProduct fruitProduct = fruitProductList.get(0);
+        FruitProduct fruitProduct = fruitProductList.getFirst();
         fruitProduct.setCostPrice(105f);
 
         this.mockMvc
@@ -146,7 +146,7 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteFruitProduct() throws Exception {
-        FruitProduct fruitProduct = fruitProductList.get(0);
+        FruitProduct fruitProduct = fruitProductList.getFirst();
 
         this.mockMvc
                 .perform(delete("/FruitProduct/{id}", fruitProduct.getId()).with(csrf()))
@@ -165,7 +165,7 @@ class FruitProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturn400WhenUpdatingwithInvalidFruitProduct() throws Exception {
-        FruitProduct updatedFruitProduct = fruitProductList.get(0);
+        FruitProduct updatedFruitProduct = fruitProductList.getFirst();
         updatedFruitProduct.setCostPrice(0);
         updatedFruitProduct.setPackageWeight(null);
         updatedFruitProduct.setSellingPrice(0);

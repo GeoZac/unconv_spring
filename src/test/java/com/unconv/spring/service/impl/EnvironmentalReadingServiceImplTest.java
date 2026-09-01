@@ -97,7 +97,7 @@ class EnvironmentalReadingServiceImplTest {
                         pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(environmentalReadingList.size(), result.data().size());
-        assertEquals(environmentalReadingList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(environmentalReadingList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -119,7 +119,7 @@ class EnvironmentalReadingServiceImplTest {
                         pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(environmentalReadingList.size(), result.data().size());
-        assertEquals(environmentalReadingList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(environmentalReadingList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -142,7 +142,7 @@ class EnvironmentalReadingServiceImplTest {
                         UUID.randomUUID(), pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(environmentalReadingList.size(), result.data().size());
-        assertEquals(environmentalReadingList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(environmentalReadingList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -165,7 +165,7 @@ class EnvironmentalReadingServiceImplTest {
                         UUID.randomUUID(), pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(environmentalReadingList.size(), result.data().size());
-        assertEquals(environmentalReadingList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(environmentalReadingList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -191,7 +191,7 @@ class EnvironmentalReadingServiceImplTest {
                         UUID.randomUUID());
 
         assertFalse(result.isEmpty());
-        assertEquals(environmentalReading.getId(), result.get(0).getId());
+        assertEquals(environmentalReading.getId(), result.getFirst().getId());
     }
 
     @Test

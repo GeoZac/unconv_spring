@@ -56,7 +56,7 @@ class OrderProductServiceImplTest {
                 orderProductService.findAllOrderProducts(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(orderProductList.size(), result.data().size());
-        assertEquals(orderProductList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(orderProductList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
@@ -74,7 +74,7 @@ class OrderProductServiceImplTest {
                 orderProductService.findAllOrderProducts(pageNo, pageSize, sortBy, sortDir);
 
         assertEquals(orderProductList.size(), result.data().size());
-        assertEquals(orderProductList.get(0).getId(), result.data().get(0).getId());
+        assertEquals(orderProductList.getFirst().getId(), result.data().getFirst().getId());
     }
 
     @Test
