@@ -45,7 +45,7 @@ public class PassengerDTO {
     private Booking booking;
 
     public void setAge(LocalDate dateOfBirth) {
-        LocalDate currentDate = java.time.LocalDate.now(ZoneOffset.UTC);
+        LocalDate currentDate = LocalDate.now(ZoneOffset.UTC);
         this.age = Period.between(dateOfBirth, currentDate).getYears();
     }
 }
