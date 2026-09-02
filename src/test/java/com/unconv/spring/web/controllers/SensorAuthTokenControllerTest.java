@@ -48,6 +48,7 @@ import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.web.rest.SensorAuthTokenController;
 import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -98,8 +99,12 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                     .unconvUser(mUnconvUser)
                     .humidityThreshold(new HumidityThreshold(UUID.randomUUID(), 75, 23))
                     .temperatureThreshold(new TemperatureThreshold(UUID.randomUUID(), 100, 0))
-                    .createdDate(OffsetDateTime.now().minusDays(new Random().nextLong(365)))
-                    .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
+                    .createdDate(
+                            OffsetDateTime.now(ZoneOffset.UTC)
+                                    .minusDays(new Random().nextLong(365)))
+                    .updatedDate(
+                            OffsetDateTime.now(ZoneOffset.UTC)
+                                    .minusHours(new Random().nextLong(24)))
                     .build();
 
     @BeforeEach
@@ -160,7 +165,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthTokenDTO(
                         sensorAuthTokenId,
                         TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
-                        OffsetDateTime.now().plusDays(30),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(30),
                         mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
@@ -208,14 +213,14 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),
-                                        OffsetDateTime.now().plusDays(10),
+                                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(10),
                                         invocation.getArgument(0)));
 
         SensorAuthToken sensorAuthToken =
                 new SensorAuthToken(
                         null,
                         TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
-                        OffsetDateTime.now().plusDays(30),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(30),
                         mSensorSystem);
 
         this.mockMvc
@@ -276,7 +281,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthToken(
                         sensorAuthTokenId,
                         generateAccessToken(),
-                        OffsetDateTime.now().plusDays(30),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(30),
                         mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenById(sensorAuthTokenId))
                 .willReturn(Optional.of(sensorAuthToken));
@@ -288,7 +293,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                                 new SensorAuthTokenDTO(
                                         UUID.randomUUID(),
                                         generateAccessToken() + generateSaltedSuffix(),
-                                        OffsetDateTime.now().plusDays(10),
+                                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(10),
                                         invocation.getArgument(0)));
 
         this.mockMvc
@@ -316,7 +321,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthToken(
                         sensorAuthTokenId,
                         RandomStringUtils.random(25),
-                        OffsetDateTime.now().plusDays(30),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(30),
                         mSensorSystem);
 
         this.mockMvc
@@ -341,7 +346,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthTokenDTO(
                         sensorAuthTokenId,
                         TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
-                        OffsetDateTime.now().plusDays(30),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(30),
                         mSensorSystem);
         given(sensorAuthTokenService.findSensorAuthTokenDTOById(sensorAuthTokenId))
                 .willReturn((Optional.of(sensorAuthToken)));
@@ -384,7 +389,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthTokenDTO(
                         UUID.randomUUID(),
                         generateAccessToken() + generateSaltedSuffix(),
-                        OffsetDateTime.now().plusDays(60),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(60),
                         sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
@@ -478,7 +483,7 @@ class SensorAuthTokenControllerTest extends AbstractControllerTest {
                 new SensorAuthTokenDTO(
                         UUID.randomUUID(),
                         TOKEN_PREFIX + "*".repeat(19) + generateSaltedSuffix(),
-                        OffsetDateTime.now().plusDays(60),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(60),
                         sensorSystem);
 
         given(sensorSystemService.findSensorSystemById(sensorSystem.getId()))
