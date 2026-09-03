@@ -15,6 +15,7 @@ import com.unconv.spring.domain.UnconvUser;
 import com.unconv.spring.external.EmailClient;
 import com.unconv.spring.service.SensorAuthTokenService;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.instancio.Instancio;
@@ -58,7 +59,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailWhenTokenExpiresThisMonth() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime expiry = now.plusDays(10); // within the same month
 
         UnconvUser mockUser = new UnconvUser();
@@ -92,7 +93,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailForTokensAcrossMultiplePages() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         // Create 15 tokens expiring this month
         List<SensorAuthToken> allTokens =
@@ -132,7 +133,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailForExpiringTokensAcrossMultiplePages() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         UUID userIdForMultipleExpiringTokens = UUID.randomUUID();
         UnconvUser user =
@@ -172,7 +173,7 @@ class SensorAuthTokenExpiryReminderTest {
     @Test
     void shouldNotSendEmailWhenTokenDoesNotExpireThisMonth() {
 
-        OffsetDateTime expiry = OffsetDateTime.now().plusMonths(2);
+        OffsetDateTime expiry = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(2);
 
         UnconvUser mockUser = new UnconvUser();
         mockUser.setUsername("jane_doe");
@@ -203,7 +204,7 @@ class SensorAuthTokenExpiryReminderTest {
         OffsetDateTime fixedNow = OffsetDateTime.parse("2026-03-16T12:00:00Z");
 
         try (MockedStatic<OffsetDateTime> mockedNow = Mockito.mockStatic(OffsetDateTime.class)) {
-            mockedNow.when(OffsetDateTime::now).thenReturn(fixedNow);
+            mockedNow.when(() -> OffsetDateTime.now(ZoneOffset.UTC)).thenReturn(fixedNow);
 
             UnconvUser mockUser = new UnconvUser();
             mockUser.setUsername("jane_doe");
@@ -235,7 +236,7 @@ class SensorAuthTokenExpiryReminderTest {
     @Test
     void shouldNotSendEmailWhenTokenDoesNotExpiredMonthsAgo() {
 
-        OffsetDateTime expiry = OffsetDateTime.now().minusMonths(2);
+        OffsetDateTime expiry = OffsetDateTime.now(ZoneOffset.UTC).minusMonths(2);
 
         UnconvUser mockUser = new UnconvUser();
         mockUser.setUsername("jane_doe");
@@ -263,7 +264,7 @@ class SensorAuthTokenExpiryReminderTest {
 
     @Test
     void shouldSendEmailForExpiredTokensAcrossMultiplePages() {
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         UUID userIdForMultipleExpiredTokens = UUID.randomUUID();
         UnconvUser user =

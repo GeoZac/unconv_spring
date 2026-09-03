@@ -219,7 +219,7 @@ class EnvironmentalReadingServiceImplTest {
         unconvUser.setUsername("TestUser");
         sensorSystem.setUnconvUser(unconvUser);
 
-        environmentalReadingDTO.setTimestamp(OffsetDateTime.now());
+        environmentalReadingDTO.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
         environmentalReadingDTO.setSensorSystem(sensorSystem);
 
         EnvironmentalReading pEnvironmentalReading = new EnvironmentalReading();
@@ -476,7 +476,7 @@ class EnvironmentalReadingServiceImplTest {
     @Test
     void getExtremeReadingsResponseBySensorSystemId() {
         UUID sensorSystemId = UUID.randomUUID();
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         MockEnvironmentalReadingProjection maxTemp =
                 new MockEnvironmentalReadingProjection(64.0, 34.0, now);
@@ -514,8 +514,8 @@ class EnvironmentalReadingServiceImplTest {
     @Test
     void findBySensorSystemIdAndTimestampBetween() {
         UUID sensorSystemId = UUID.randomUUID();
-        OffsetDateTime startTime = OffsetDateTime.now().minusHours(1);
-        OffsetDateTime endTime = OffsetDateTime.now();
+        OffsetDateTime startTime = OffsetDateTime.now(ZoneOffset.UTC).minusHours(1);
+        OffsetDateTime endTime = OffsetDateTime.now(ZoneOffset.UTC);
 
         EnvironmentalReading reading1 = new EnvironmentalReading();
         EnvironmentalReading reading2 = new EnvironmentalReading();

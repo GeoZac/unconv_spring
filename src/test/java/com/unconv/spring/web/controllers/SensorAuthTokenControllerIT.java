@@ -31,6 +31,7 @@ import com.unconv.spring.persistence.UnconvUserRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.service.UnconvUserService;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -153,7 +154,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
                 new SensorAuthToken(
                         null,
                         RandomStringUtils.random(25),
-                        OffsetDateTime.now().plusDays(30),
+                        OffsetDateTime.now(ZoneOffset.UTC).plusDays(30),
                         savedSensorSystem);
         this.mockMvc
                 .perform(
@@ -199,7 +200,7 @@ class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
     void shouldUpdateSensorAuthToken() throws Exception {
         SensorAuthTokenDTO sensorAuthToken = sensorAuthTokenList.getFirst();
         sensorAuthToken.setAuthToken("Updated SensorAuthToken");
-        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(100));
+        sensorAuthToken.setExpiry(OffsetDateTime.now(ZoneOffset.UTC).plusDays(100));
 
         this.mockMvc
                 .perform(

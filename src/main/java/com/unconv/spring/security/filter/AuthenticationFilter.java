@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -98,7 +99,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Map<String, String> errorDetailMap = new HashMap<>();
         errorDetailMap.put("title", "Unauthorized");
         errorDetailMap.put("detail", "User Not Authenticated");
-        errorDetailMap.put("timestamp", OffsetDateTime.now().toString());
+        errorDetailMap.put("timestamp", OffsetDateTime.now(ZoneOffset.UTC).toString());
         response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetailMap));
     }
 }

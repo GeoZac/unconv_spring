@@ -9,6 +9,7 @@ import com.unconv.spring.exception.MalformedAuthTokenException;
 import com.unconv.spring.exception.UnknownAuthTokenException;
 import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -70,7 +71,7 @@ public class SensorAuthTokenUtil {
     }
 
     private static boolean isExpired(OffsetDateTime expiryDateTime) {
-        OffsetDateTime currentDateTime = OffsetDateTime.now();
+        OffsetDateTime currentDateTime = OffsetDateTime.now(ZoneOffset.UTC);
         return currentDateTime.isAfter(expiryDateTime);
     }
 

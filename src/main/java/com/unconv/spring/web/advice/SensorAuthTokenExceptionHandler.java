@@ -5,6 +5,7 @@ import com.unconv.spring.exception.SensorAuthTokenException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class SensorAuthTokenExceptionHandler {
         Map<String, String> map = new HashMap<>();
         map.put("message", exception.getMessage());
         map.put("token", exception.getToken());
-        map.put("timestamp", OffsetDateTime.now().toString());
+        map.put("timestamp", OffsetDateTime.now(ZoneOffset.UTC).toString());
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");

@@ -1,6 +1,7 @@
 package com.unconv.spring.web.advice;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,7 +20,7 @@ public class SecurityExceptionHandler implements SecurityAdviceTrait {
 
         Problem problem =
                 Problem.builder()
-                        .with("timestamp", OffsetDateTime.now())
+                        .with("timestamp", OffsetDateTime.now(ZoneOffset.UTC))
                         .withTitle("Forbidden")
                         .withStatus(Status.FORBIDDEN)
                         .withDetail("You are not authorized to access this endpoint")

@@ -45,6 +45,7 @@ import com.unconv.spring.service.SensorSystemService;
 import com.unconv.spring.service.UnconvUserService;
 import com.unconv.spring.web.rest.SensorSystemController;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -236,12 +237,20 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                         .unconvUser(unconvUser)
                         .humidityThreshold(new HumidityThreshold(UUID.randomUUID(), 75, 23))
                         .temperatureThreshold(new TemperatureThreshold(UUID.randomUUID(), 100, 0))
-                        .createdDate(OffsetDateTime.now().minusDays(new Random().nextLong(365)))
-                        .updatedDate(OffsetDateTime.now().minusHours(new Random().nextLong(24)))
+                        .createdDate(
+                                OffsetDateTime.now(ZoneOffset.UTC)
+                                        .minusDays(new Random().nextLong(365)))
+                        .updatedDate(
+                                OffsetDateTime.now(ZoneOffset.UTC)
+                                        .minusHours(new Random().nextLong(24)))
                         .build();
         EnvironmentalReading environmentalReading =
                 new EnvironmentalReading(
-                        UUID.randomUUID(), 32.1, 76.5, OffsetDateTime.now(), sensorSystem);
+                        UUID.randomUUID(),
+                        32.1,
+                        76.5,
+                        OffsetDateTime.now(ZoneOffset.UTC),
+                        sensorSystem);
         SensorSystemDTO sensorSystemDTO = modelMapper.map(sensorSystem, SensorSystemDTO.class);
         sensorSystemDTO.setReadingCount(new Random().nextLong());
         sensorSystemDTO.setLatestReading(
@@ -429,7 +438,7 @@ class SensorSystemControllerTest extends AbstractControllerTest {
                                 any(SensorSystemDTO.class), any(Authentication.class)))
                 .willAnswer(
                         invocation -> {
-                            OffsetDateTime creationTime = OffsetDateTime.now();
+                            OffsetDateTime creationTime = OffsetDateTime.now(ZoneOffset.UTC);
                             SensorSystemDTO sensorSystemArg = invocation.getArgument(0);
                             sensorSystemArg.setId(UUID.randomUUID());
                             sensorSystemArg.setCreatedDate(creationTime);

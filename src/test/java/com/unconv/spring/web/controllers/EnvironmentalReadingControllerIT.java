@@ -339,7 +339,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         gen.temporal()
                                                 .offsetDateTime()
                                                 .past()
-                                                .min(OffsetDateTime.now().minusHours(23)))
+                                                .min(
+                                                        OffsetDateTime.now(ZoneOffset.UTC)
+                                                                .minusHours(23)))
                         .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
@@ -380,7 +382,9 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                                         gen.temporal()
                                                 .offsetDateTime()
                                                 .past()
-                                                .min(OffsetDateTime.now().minusHours(8)))
+                                                .min(
+                                                        OffsetDateTime.now(ZoneOffset.UTC)
+                                                                .minusHours(8)))
                         .create();
 
         List<EnvironmentalReading> savedEnvironmentalReadingsOfSpecificSensor =
@@ -699,7 +703,7 @@ class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
                 new SensorAuthToken(
                         null,
                         AccessTokenGenerator.generateAccessToken() + tokenHash,
-                        OffsetDateTime.now().minusDays(20),
+                        OffsetDateTime.now(ZoneOffset.UTC).minusDays(20),
                         tokenHash,
                         savedSensorSystem);
         SensorAuthTokenDTO savedSensorAuthToken =

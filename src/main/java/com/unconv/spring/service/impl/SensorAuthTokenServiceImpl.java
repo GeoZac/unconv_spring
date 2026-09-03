@@ -14,6 +14,7 @@ import com.unconv.spring.persistence.SensorAuthTokenRepository;
 import com.unconv.spring.service.SensorAuthTokenService;
 import com.unconv.spring.utils.AccessTokenGenerator;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
@@ -185,7 +186,7 @@ public class SensorAuthTokenServiceImpl implements SensorAuthTokenService {
         sensorAuthToken.setSensorSystem(sensorSystem);
         sensorAuthToken.setAuthToken(generatedString + generatedSaltedSuffix);
         sensorAuthToken.setTokenHash(generatedSaltedSuffix);
-        sensorAuthToken.setExpiry(OffsetDateTime.now().plusDays(60));
+        sensorAuthToken.setExpiry(OffsetDateTime.now(ZoneOffset.UTC).plusDays(60));
         SensorAuthToken savedSensorAuthToken = saveSensorAuthToken(sensorAuthToken);
         SensorAuthTokenDTO savedSensorAuthTokenDTO =
                 modelMapper.map(savedSensorAuthToken, SensorAuthTokenDTO.class);
