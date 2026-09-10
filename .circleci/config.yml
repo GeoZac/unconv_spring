@@ -255,3 +255,4 @@ workflows:
       - docker/publish:
           deploy: false
           image: spring-test
+          extra_build_args: --progress=plain
