@@ -9,7 +9,7 @@ import com.unconv.spring.service.SensorLocationService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class SensorLocationServiceImpl implements SensorLocationService {
 
-    @Autowired private SensorLocationRepository sensorLocationRepository;
+    private SensorLocationRepository sensorLocationRepository;
 
-    @Autowired private SensorSystemRepository sensorSystemRepository;
+    private SensorSystemRepository sensorSystemRepository;
 
     /**
      * Retrieves a paginated list of all {@link SensorLocation}s.
