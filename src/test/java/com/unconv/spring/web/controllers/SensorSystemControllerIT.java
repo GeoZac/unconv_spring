@@ -52,28 +52,31 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestConstructor;
 
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor
 class SensorSystemControllerIT extends AbstractIntegrationTest {
 
-    @Autowired private SensorSystemRepository sensorSystemRepository;
+    private final SensorSystemRepository sensorSystemRepository;
 
-    @Autowired private SensorLocationRepository sensorLocationRepository;
+    private final SensorLocationRepository sensorLocationRepository;
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private final UnconvUserRepository unconvUserRepository;
 
-    @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+    private final EnvironmentalReadingRepository environmentalReadingRepository;
 
-    @Autowired private UnconvRoleRepository unconvRoleRepository;
+    private final UnconvRoleRepository unconvRoleRepository;
 
-    @Autowired private UnconvUserService unconvUserService;
+    private final UnconvUserService unconvUserService;
 
     private static int totalPages;
 

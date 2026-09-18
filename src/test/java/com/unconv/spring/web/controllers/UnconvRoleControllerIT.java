@@ -28,12 +28,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 class UnconvRoleControllerIT extends AbstractIntegrationTest {
 
-    @Autowired private UnconvRoleRepository unconvRoleRepository;
+    private final UnconvRoleRepository unconvRoleRepository;
 
     private List<UnconvRole> unconvRoleList = null;
 
