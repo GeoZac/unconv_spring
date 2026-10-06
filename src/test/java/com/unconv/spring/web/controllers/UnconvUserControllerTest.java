@@ -1,11 +1,14 @@
 package com.unconv.spring.web.controllers;
 
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
+import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
 import static com.unconv.spring.consts.MessageConstants.USER_CREATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_NAME_IN_USE;
 import static com.unconv.spring.consts.MessageConstants.USER_PROVIDE_PASSWORD;
 import static com.unconv.spring.consts.MessageConstants.USER_UPDATE_SUCCESS;
 import static com.unconv.spring.consts.MessageConstants.USER_WRONG_PASSWORD;
+import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -55,6 +58,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -78,7 +83,7 @@ class UnconvUserControllerTest extends AbstractControllerTest {
         this.unconvUserList = new ArrayList<>();
         this.unconvUserList =
                 Instancio.ofList(UnconvUser.class)
-                        .size(7)
+                        .size(27)
                         .ignore(field(UnconvUser::getId))
                         .create();
 
@@ -91,7 +96,18 @@ class UnconvUserControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldFetchAllUnconvUsers() throws Exception {
-        Page<UnconvUser> page = new PageImpl<>(unconvUserList);
+        int pageNo = 0;
+        Sort sort = Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_BY);
+        PageRequest pageRequest = PageRequest.of(pageNo, DEFAULT_PAGE_SIZE_INT, sort);
+
+        int dataSize = unconvUserList.size();
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min(start + DEFAULT_PAGE_SIZE_INT, dataSize);
+        List<UnconvUser> pagedReadings = unconvUserList.subList(start, end);
+
+        Page<UnconvUser> page = new PageImpl<>(pagedReadings, pageRequest, dataSize);
+
         PagedResult<UnconvUser> unconvUserPagedResult = new PagedResult<>(page);
         given(unconvUserService.findAllUnconvUsers(0, 10, "id", "asc"))
                 .willReturn(unconvUserPagedResult);
@@ -100,14 +116,9 @@ class UnconvUserControllerTest extends AbstractControllerTest {
                 .perform(get("/UnconvUser").with(user("username").roles("TENANT")))
                 .andDo(document("shouldFetchAllUnconvUsers", preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(unconvUserList.size())))
-                .andExpect(jsonPath("$.totalElements", is(unconvUserList.size())))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(unconvUserList.size() < DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.hasNext", is(unconvUserList.size() > DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)))
+                .andExpect(
+                        pagedResponse(
+                                unconvUserList.size(), DEFAULT_PAGE_SIZE_INT, totalPages, true))
                 .andReturn();
     }
 

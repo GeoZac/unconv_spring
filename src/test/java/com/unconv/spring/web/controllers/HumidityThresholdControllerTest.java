@@ -3,6 +3,7 @@ package com.unconv.spring.web.controllers;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_BY;
 import static com.unconv.spring.consts.AppConstants.DEFAULT_SORT_DIRECTION;
 import static com.unconv.spring.consts.AppConstants.PROFILE_TEST;
+import static com.unconv.spring.matchers.PagedResponseMatcher.pagedResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
@@ -100,14 +101,8 @@ class HumidityThresholdControllerTest extends AbstractControllerTest {
                                 "shouldFetchAllHumidityThresholds",
                                 preprocessResponse(prettyPrint)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.size()", is(DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.totalElements", is(dataSize)))
-                .andExpect(jsonPath("$.pageNumber", is(0)))
-                .andExpect(jsonPath("$.totalPages", is(totalPages)))
-                .andExpect(jsonPath("$.isFirst", is(true)))
-                .andExpect(jsonPath("$.isLast", is(dataSize < DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.hasNext", is(dataSize > DEFAULT_PAGE_SIZE_INT)))
-                .andExpect(jsonPath("$.hasPrevious", is(false)));
+                .andExpect(pagedResponse(dataSize, DEFAULT_PAGE_SIZE_INT, totalPages, pageNo == 0))
+                .andReturn();
     }
 
     @Test
