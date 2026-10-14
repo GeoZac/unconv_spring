@@ -71,34 +71,37 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.ResultActions;
 
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor
 class EnvironmentalReadingControllerIT extends AbstractIntegrationTest {
 
-    @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+    private final EnvironmentalReadingRepository environmentalReadingRepository;
 
-    @Autowired private EnvironmentalReadingService environmentalReadingService;
+    private final EnvironmentalReadingService environmentalReadingService;
 
-    @Autowired private SensorAuthTokenService sensorAuthTokenService;
+    private final SensorAuthTokenService sensorAuthTokenService;
 
-    @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
+    private final SensorAuthTokenRepository sensorAuthTokenRepository;
 
-    @Autowired private SensorSystemRepository sensorSystemRepository;
+    private final SensorSystemRepository sensorSystemRepository;
 
-    @Autowired private UnconvUserService unconvUserService;
+    private final UnconvUserService unconvUserService;
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private final UnconvUserRepository unconvUserRepository;
 
-    @Autowired private UnconvRoleRepository unconvRoleRepository;
+    private final UnconvRoleRepository unconvRoleRepository;
 
     private List<EnvironmentalReading> environmentalReadingList = null;
 

@@ -35,28 +35,31 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.CoreMatchers;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.web.context.WebApplicationContext;
 
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor
 class SensorAuthTokenControllerIT extends AbstractIntegrationTest {
-    @Autowired private WebApplicationContext webApplicationContext;
+    private final WebApplicationContext webApplicationContext;
 
-    @Autowired private UnconvUserService unconvUserService;
+    private final UnconvUserService unconvUserService;
 
-    @Autowired private SensorAuthTokenService sensorAuthTokenService;
+    private final SensorAuthTokenService sensorAuthTokenService;
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private final UnconvUserRepository unconvUserRepository;
 
-    @Autowired private SensorSystemRepository sensorSystemRepository;
+    private final SensorSystemRepository sensorSystemRepository;
 
-    @Autowired private SensorAuthTokenRepository sensorAuthTokenRepository;
+    private final SensorAuthTokenRepository sensorAuthTokenRepository;
 
     private List<SensorAuthTokenDTO> sensorAuthTokenList = null;
 
