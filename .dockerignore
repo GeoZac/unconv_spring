@@ -5,3 +5,6 @@ src/main/doc
 
 # Tests sources
 src/test
+
+# Docker config
+docker
