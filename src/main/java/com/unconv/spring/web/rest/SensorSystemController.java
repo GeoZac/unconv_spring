@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -35,13 +35,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/SensorSystem")
 @Slf4j
+@AllArgsConstructor
 public class SensorSystemController {
 
-    @Autowired private SensorSystemService sensorSystemService;
+    private SensorSystemService sensorSystemService;
 
-    @Autowired private UnconvUserService unconvUserService;
+    private UnconvUserService unconvUserService;
 
-    @Autowired private ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     /**
      * Retrieves a paginated list of sensor systems.
