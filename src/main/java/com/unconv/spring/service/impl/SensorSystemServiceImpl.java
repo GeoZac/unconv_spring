@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -42,17 +42,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class SensorSystemServiceImpl implements SensorSystemService {
 
-    @Autowired private SensorSystemRepository sensorSystemRepository;
+    private SensorSystemRepository sensorSystemRepository;
 
-    @Autowired private SensorLocationRepository sensorLocationRepository;
+    private SensorLocationRepository sensorLocationRepository;
 
-    @Autowired private EnvironmentalReadingRepository environmentalReadingRepository;
+    private EnvironmentalReadingRepository environmentalReadingRepository;
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private UnconvUserRepository unconvUserRepository;
 
-    @Autowired private ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     /**
      * Retrieves a paginated list of all SensorSystems.
