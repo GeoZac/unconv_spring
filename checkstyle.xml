@@ -10,6 +10,40 @@
             <property name="severity" value="warning"/>
         </module>
         <module name="JavadocMethod"/>
+        <module name="JavadocStyle">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="JavadocType">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="MissingJavadocType">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="FinalClass">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="AvoidStarImport">
+            <property name="severity" value="warning"/>
+        </module>
+        <module name="CyclomaticComplexity">
+            <property name="severity" value="warning"/>
+            <property name="max" value="10"/>
+        </module>
+        <module name="NPathComplexity">
+            <property name="severity" value="warning"/>
+            <property name="max" value="200"/>
+        </module>
+        <module name="JavaNCSS">
+            <property name="severity" value="warning"/>
+            <property name="methodMaximum" value="50"/>
+            <property name="classMaximum" value="1500"/>
+        </module>
+        <module name="AvoidInlineConditionals">
+            <property name="severity" value="warning"/>
+        </module>
     </module>
 
     <module name="SuppressionFilter">
