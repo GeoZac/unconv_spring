@@ -8,7 +8,6 @@ import com.unconv.spring.service.HumidityThresholdService;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,18 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class HumidityThresholdController {
 
-    @Autowired private HumidityThresholdService humidityThresholdService;
+    private final HumidityThresholdService humidityThresholdService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     /**
      * Constructs a {@link HumidityThresholdController} with the specified {@link
      * HumidityThresholdService}.
      *
      * @param humidityThresholdService the service to manage humidity thresholds
+     * @param modelMapper the mapper to convert between DTOs and entities
      */
-    public HumidityThresholdController(HumidityThresholdService humidityThresholdService) {
+    public HumidityThresholdController(
+            HumidityThresholdService humidityThresholdService, ModelMapper modelMapper) {
         this.humidityThresholdService = humidityThresholdService;
+        this.modelMapper = modelMapper;
     }
 
     /**

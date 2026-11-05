@@ -6,7 +6,7 @@ import com.unconv.spring.persistence.TemperatureThresholdRepository;
 import com.unconv.spring.service.TemperatureThresholdService;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class TemperatureThresholdServiceImpl implements TemperatureThresholdService {
 
-    @Autowired private TemperatureThresholdRepository temperatureThresholdRepository;
+    private final TemperatureThresholdRepository temperatureThresholdRepository;
 
     /**
      * Retrieves a paginated list of all temperature thresholds.

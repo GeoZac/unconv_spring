@@ -34,24 +34,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestConstructor;
 
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor
 class UnconvUserControllerIT extends AbstractIntegrationTest {
 
-    @Autowired private UnconvUserRepository unconvUserRepository;
+    private final UnconvUserRepository unconvUserRepository;
 
-    @Autowired private UnconvRoleRepository unconvRoleRepository;
+    private final UnconvRoleRepository unconvRoleRepository;
 
-    @Autowired private UnconvUserService unconvUserService;
+    private final UnconvUserService unconvUserService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     private List<UnconvUser> unconvUserList = null;
     private List<UnconvUserDTO> unconvUserDTOList = null;
