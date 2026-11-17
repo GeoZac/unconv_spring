@@ -52,12 +52,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONArray;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -70,18 +70,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @WebMvcTest(controllers = SensorSystemController.class)
 @ActiveProfiles(PROFILE_TEST)
 @AutoConfigureRestDocs(outputDir = "target/snippets/SensorSystem")
 @Import(MethodSecurityConfig.class)
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor
 class SensorSystemControllerTest extends AbstractControllerTest {
     @MockitoBean private SensorSystemService sensorSystemService;
 
     @MockitoBean private UnconvUserService unconvUserService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     private List<SensorSystem> sensorSystemList;
 

@@ -21,18 +21,21 @@ import com.unconv.spring.persistence.HumidityThresholdRepository;
 import com.unconv.spring.persistence.TemperatureThresholdRepository;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestConstructor;
 
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+@RequiredArgsConstructor
 class TemperatureThresholdControllerIT extends AbstractIntegrationTest {
 
-    @Autowired private TemperatureThresholdRepository temperatureThresholdRepository;
+    private final TemperatureThresholdRepository temperatureThresholdRepository;
 
-    @Autowired private HumidityThresholdRepository humidityThresholdRepository;
+    private final HumidityThresholdRepository humidityThresholdRepository;
 
     private List<TemperatureThreshold> temperatureThresholdList = null;
 

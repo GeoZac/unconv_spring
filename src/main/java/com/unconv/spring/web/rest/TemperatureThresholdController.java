@@ -8,7 +8,6 @@ import com.unconv.spring.service.TemperatureThresholdService;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,18 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TemperatureThresholdController {
 
-    @Autowired private TemperatureThresholdService temperatureThresholdService;
+    private final TemperatureThresholdService temperatureThresholdService;
 
-    @Autowired private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     /**
      * Constructs a {@link TemperatureThresholdController} with the specified {@link
      * TemperatureThresholdService}.
      *
      * @param temperatureThresholdService the service to manage temperature thresholds
+     * @param modelMapper the mapper to convert between DTOs and entities
      */
-    public TemperatureThresholdController(TemperatureThresholdService temperatureThresholdService) {
+    public TemperatureThresholdController(
+            TemperatureThresholdService temperatureThresholdService, ModelMapper modelMapper) {
         this.temperatureThresholdService = temperatureThresholdService;
+        this.modelMapper = modelMapper;
     }
 
     /**
