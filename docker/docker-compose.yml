@@ -4,10 +4,9 @@ services:
   postgresqldb:
     image: postgres:15.0
     environment:
-      - MYSQL_DATABASE=appdb
-      - MYSQL_USER=appuser
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=root
+      - POSTGRES_DB=appdb
+      - POSTGRES_USER=appuser
+      - POSTGRES_PASSWORD=secret
     ports:
       - "5432:5432"
 
