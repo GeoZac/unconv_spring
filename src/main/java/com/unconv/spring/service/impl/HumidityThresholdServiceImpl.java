@@ -6,7 +6,7 @@ import com.unconv.spring.persistence.HumidityThresholdRepository;
 import com.unconv.spring.service.HumidityThresholdService;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class HumidityThresholdServiceImpl implements HumidityThresholdService {
 
-    @Autowired private HumidityThresholdRepository humidityThresholdRepository;
+    private final HumidityThresholdRepository humidityThresholdRepository;
 
     /**
      * Retrieves a paginated list of all humidity thresholds.
