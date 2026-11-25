@@ -3,9 +3,10 @@ WORKDIR /application
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 RUN ./mvnw dependency:go-offline
-COPY src ./src
+COPY src/main/java ./src/main/java
+COPY src/main/resources ./src/main/resources
 COPY sonar-project.properties ./
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw package -DskipTests
 
 FROM eclipse-temurin:21-jre-noble AS builder
 WORKDIR /application
